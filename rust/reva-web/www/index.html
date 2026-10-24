@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reva Forth</title>
+<style>
+  :root { --bg:#fbfaf7; --fg:#1d1d1b; --muted:#6b6a65; --accent:#1f6f5c; --line:#dcd9d0; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#151513; --fg:#e8e6df; --muted:#9a988f; --accent:#6fc2a9; --line:#34332f; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:15px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  main { max-width: 900px; margin: 0 auto; padding: 16px; display:flex; flex-direction:column; height:100vh; }
+  header { color: var(--muted); padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  header b { color: var(--accent); }
+  #out { flex:1; overflow:auto; white-space:pre-wrap; word-break:break-word; margin:8px 0; }
+  form { display:flex; gap:8px; border-top:1px solid var(--line); padding-top:8px; }
+  #line { flex:1; font:inherit; color:inherit; background:transparent; border:0; outline:none; }
+  .echo { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <header><b>Reva Forth</b> — portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code></header>
+  <div id="out" aria-live="polite"></div>
+  <form id="f"><span>ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus></form>
+</main>
+<script type="module">
+  import { Reva, HALTED } from "./reva.js";
+  const out = document.getElementById("out");
+  const line = document.getElementById("line");
+  const write = (s, cls) => {
+    const span = document.createElement("span");
+    if (cls) span.className = cls;
+    span.textContent = s;
+    out.append(span);
+    out.scrollTop = out.scrollHeight;
+  };
+  const reva = await Reva.load("reva.wasm");
+  write(reva.takeOutput());
+  document.getElementById("f").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = line.value;
+    line.value = "";
+    write(text + "\n", "echo");
+    reva.feed(text + "\n");
+    if (await reva.run((s) => write(s)) === HALTED) {
+      write(`\n[exited with status ${reva.exitCode}]\n`, "echo");
+      line.disabled = true;
+    }
+  });
+</script>
+</body>
+</html>

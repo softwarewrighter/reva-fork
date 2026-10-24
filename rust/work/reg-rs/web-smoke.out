@@ -1,0 +1,8 @@
+ok   boot status: 1
+ok   arith: "5 49 "
+ok   infinite loop yields: 0
+ok   still yielding: 0
+ok   key waits: 1
+ok   key resumes: "3 "
+ok   halts: 2
+ok   exit code: 9

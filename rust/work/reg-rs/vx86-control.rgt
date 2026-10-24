@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} < tests/forth/control.f"
+timeout = 60
+exit_code = 0
+desc = "if/else/then, 0if =if <if >if ;then, tail-call recursion, 00; 0;"

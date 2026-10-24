@@ -1,0 +1,168 @@
+//! API-level behaviour that the CLI regression suite cannot observe:
+//! resumability, budgets, images in memory, and the translator hooks.
+
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use reva_vm::translate::{decode_block, Block, NativeHandle, Translator};
+use reva_vm::x86::{Alu, MulDiv, Op};
+use reva_vm::{embedded, BufferHost, Machine, Status};
+
+fn booted() -> (Machine, BufferHost) {
+    let mut vm = Machine::new(&["reva", embedded::BOOT_PATH]);
+    let mut host = BufferHost::new();
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    assert_eq!(
+        host.take_output(),
+        "12364",
+        "boot printed something unexpected"
+    );
+    (vm, host)
+}
+
+fn eval(vm: &mut Machine, host: &mut BufferHost, src: &str) -> String {
+    vm.feed(src.as_bytes());
+    vm.feed(b"\n");
+    assert_eq!(vm.run_until_blocked(host), Status::NeedInput);
+    host.take_output()
+}
+
+#[test]
+fn input_can_arrive_in_pieces() {
+    let (mut vm, mut host) = booted();
+    vm.feed(b"2 3 ");
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    assert_eq!(
+        host.take_output(),
+        "",
+        "nothing runs before the line is complete"
+    );
+    vm.feed(b"+ .\n");
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    assert_eq!(host.take_output(), "5 ");
+}
+
+#[test]
+fn key_pauses_inside_a_word_and_resumes() {
+    let (mut vm, mut host) = booted();
+    assert_eq!(eval(&mut vm, &mut host, ": k2 key key + . ;"), "");
+    vm.feed(b"k2\n");
+    // The line "k2" is consumed; key now waits for more input.
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    vm.feed(b"\x01");
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    vm.feed(b"\x02");
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    assert_eq!(host.take_output(), "3 ");
+}
+
+#[test]
+fn budgets_yield_and_infinite_loops_stay_interruptible() {
+    let (mut vm, mut host) = booted();
+    vm.feed(b": forever forever ; forever\n");
+    // `forever` compiles to `jmp forever`: it never needs input or halts.
+    for _ in 0..3 {
+        assert_eq!(vm.run(&mut host, 10_000), Status::Yielded);
+    }
+}
+
+#[test]
+fn images_round_trip_in_memory() {
+    let (mut vm, mut host) = booted();
+    eval(
+        &mut vm,
+        &mut host,
+        ": answer 6 7 * ; variable keep 99 keep !",
+    );
+    let img = vm.save_image();
+    let mut vm2 = Machine::load_image(&img, &["reva"]).expect("load");
+    let mut host2 = BufferHost::new();
+    assert_eq!(vm2.run_until_blocked(&mut host2), Status::NeedInput);
+    assert_eq!(eval(&mut vm2, &mut host2, "answer . keep @ ."), "42 99 ");
+    assert!(Machine::load_image(&img[..20], &[]).is_err());
+}
+
+#[test]
+fn compiled_code_is_the_ia32_reva_emitted() {
+    let (mut vm, mut host) = booted();
+    eval(&mut vm, &mut host, ": sq dup * ;");
+    let xt = vm.find("sq").unwrap();
+    let block = decode_block(vm.memory(), xt, 16).unwrap();
+    let ops: Vec<Op> = block.insns.iter().map(|(_, i)| i.op).collect();
+    // Both words are `;inline` in reva.f, so their bytes are copied in:
+    // dup = lea esi,[esi-4]; mov [esi],eax   * = mul dword [esi]; add esi,4
+    assert!(matches!(ops[0], Op::Lea { .. }), "{ops:?}");
+    assert!(matches!(ops[1], Op::Mov { .. }));
+    assert!(matches!(
+        ops[2],
+        Op::MulDiv {
+            op: MulDiv::Mul,
+            ..
+        }
+    ));
+    assert!(matches!(ops[3], Op::Alu { op: Alu::Add, .. }));
+    assert_eq!(ops[4], Op::Ret(0));
+    assert!(block.ends_with_branch);
+
+    // A word that calls a non-inline word ends in a tail jump instead.
+    eval(&mut vm, &mut host, ": sq. sq . ;");
+    let block = decode_block(vm.memory(), vm.find("sq.").unwrap(), 16).unwrap();
+    assert!(matches!(block.insns[0].1.op, Op::Call(_)));
+    let block = decode_block(vm.memory(), block.end, 16).unwrap();
+    assert!(matches!(block.insns[0].1.op, Op::Jmp(_)), "{block:?}");
+}
+
+#[derive(Default)]
+struct Recorder {
+    invalidated: Vec<u32>,
+}
+
+struct Shared(Rc<RefCell<Recorder>>);
+
+impl Translator for Shared {
+    fn name(&self) -> &'static str {
+        "recorder"
+    }
+    fn translate(&mut self, _block: &Block) -> Option<NativeHandle> {
+        None
+    }
+    fn invalidate(&mut self, page_start: u32, _len: u32) {
+        self.0.borrow_mut().invalidated.push(page_start);
+    }
+}
+
+#[test]
+fn writes_to_executed_code_reach_the_translator() {
+    let (mut vm, mut host) = booted();
+    let rec = Rc::new(RefCell::new(Recorder::default()));
+    vm.set_translator(Box::new(Shared(rec.clone())));
+    // Run a word, then patch its first byte from Forth: that page must be
+    // reported, and the patched code must be what runs next time.
+    eval(&mut vm, &mut host, ": five 5 ; five .");
+    let xt = vm.find("five").unwrap();
+    // `five` starts with `lea esi,[esi-4]`; overwrite the whole word with
+    // `mov eax,7 ; ret` after pushing (dup) by hand.
+    let patch = format!(
+        "{xt} $8d swap c! {} $76 swap c! {} $fc swap c! {} $89 swap c! {} $06 swap c! \
+         {} $b8 swap c! {} 7 swap c! {} 0 swap c! {} 0 swap c! {} 0 swap c! {} $c3 swap c! five .",
+        xt + 1,
+        xt + 2,
+        xt + 3,
+        xt + 4,
+        xt + 5,
+        xt + 6,
+        xt + 7,
+        xt + 8,
+        xt + 9,
+        xt + 10
+    );
+    // c! is ( c a -- ), so push the address first and swap.
+    let out = eval(&mut vm, &mut host, &patch);
+    assert_eq!(out, "7 ");
+    let page = xt & !0xff;
+    assert!(
+        rec.borrow().invalidated.contains(&page),
+        "{:?}",
+        rec.borrow().invalidated
+    );
+}

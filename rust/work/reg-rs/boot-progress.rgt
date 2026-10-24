@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} --show-boot < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "reva.f boot prefix runs to completion (progress digits on stderr)"

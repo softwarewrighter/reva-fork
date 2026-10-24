@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = ["reva-vm", "reva-cli", "reva-web"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "MIT"
+authors = ["Reva development team"]
+rust-version = "1.82"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.release.package.reva-web]
+opt-level = "s"

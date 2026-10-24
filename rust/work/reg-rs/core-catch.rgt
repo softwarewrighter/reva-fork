@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} < tests/forth/catch.f"
+timeout = 60
+exit_code = 0
+desc = "catch/throw with ESP frames"
