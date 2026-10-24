@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} --save-image target/regress.img -e ': hi 42 . cr ;' < /dev/null && echo hi | ${REVA:-target/debug/reva} --image target/regress.img"
+timeout = 60
+exit_code = 0
+desc = "save an image and run a word from it"

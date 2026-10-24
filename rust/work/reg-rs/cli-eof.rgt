@@ -1,0 +1,4 @@
+command = "printf '1 . cr' | ${REVA:-target/debug/reva}"
+timeout = 60
+exit_code = 0
+desc = "end of input without newline still interprets and exits 0"

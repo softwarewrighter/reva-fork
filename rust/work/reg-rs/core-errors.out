@@ -1,0 +1,10 @@
+nosuchword?
+1 
+*** bad memory access: 4 byte(s) at 0x00000000 (in bad+0xc, eip 0x00140744)
+2 undefinedthing?
+0 
+*** stack underflow (in core:InterpWord, eip 0x00001064)
+3 
+
+*** unsupported instruction at 0x00140748: d9 e8 c3 00 00 b8 01 00 (in fp+0x0, eip 0x00140748)
+4 
