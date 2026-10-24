@@ -5,10 +5,10 @@ keeps its own terms.
 
 | Part | Terms | File |
 |---|---|---|
-| **Original Reva Forth** by Ron Aaron and the Reva development team: `src/` (including `src/reva.f`), `lib/`, `examples/`, `bin/`, `tools/`, and everything else not listed below | Public domain, with an unconditional fall-back permission grant where public-domain dedication is not recognised | [LICENSE](LICENSE) |
+| **Original Reva Forth** by Ron Aaron and the Reva development team: `src/` (including `src/reva.f`), `lib/`, `examples/`, `tools/`, `legacy/` (the deprecated x86 core, binaries and scratch files), and everything else not listed below | Public domain, with an unconditional fall-back permission grant where public-domain dedication is not recognised | [LICENSE](LICENSE) |
 | Embedded x86 assembler in `src/reva.f` (adapted from FirmWorks) | As noted in LICENSE | [LICENSE](LICENSE) |
-| IUP libraries in `bin/` | IUP license | [LICENSE.IUP](LICENSE.IUP) |
-| **New portions**: the portable core under `rust/`, `README.md`, `LICENSING.md`, `DEPRECATED.md` | MIT, portions copyright © 2026 Michael A Wright | [LICENSE-MIT](LICENSE-MIT), [rust/LICENSE](rust/LICENSE) |
+| IUP libraries in `legacy/bin/` | IUP license | [LICENSE.IUP](LICENSE.IUP) |
+| **New portions**: the portable core under `rust/`, `README.md`, `LICENSING.md`, `DEPRECATED.md`, `legacy/README.md` | MIT, portions copyright © 2026 Michael A Wright | [LICENSE-MIT](LICENSE-MIT), [rust/LICENSE](rust/LICENSE) |
 
 Notes:
 
