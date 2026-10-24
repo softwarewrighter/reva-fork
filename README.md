@@ -21,6 +21,10 @@ in the browser (WebAssembly).
   control structures, `does>`, `catch`/`throw` — on Linux, macOS and Windows,
   on x86-64 and ARM64, and in a web page.
 
+Documentation: [docs/](docs/README.md) — rebuilt from the portable core, with
+tested samples; the old wiki in `www/` is deprecated
+([parity tracker](docs/parity.md)).
+
 Rationale, trade-offs and roadmap (including native-speed translation to
 x86-64, ARM64 and WebAssembly): [rust/DESIGN.md](rust/DESIGN.md).
 
