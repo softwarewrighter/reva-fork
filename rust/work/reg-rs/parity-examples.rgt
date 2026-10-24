@@ -1,0 +1,4 @@
+command = "scripts/parity-examples.sh"
+timeout = 60
+exit_code = 0
+desc = "status of every program in examples/ on the portable core (accept improvements with rebase, then --write)"

@@ -33,5 +33,18 @@ reverted on its own:
    Git history and the `master` branch keep the original import. Before
 deleting, salvage any scratch `.f` files worth keeping as regression tests.
 
+## Documentation: the old wiki (`www/`)
+
+The wiki pages in [`www/`](www/) describe the x86 distribution and are
+**deprecated** too, on their own track:
+
+1. ✅ **Deprecate**: notice in [www/README.md](www/README.md); new
+   documentation starts in [`docs/`](docs/), written from the portable
+   implementation, with every Forth sample executed by the test suite.
+2. **Move** `www/` to `legacy/www/` once [docs/parity.md](docs/parity.md)
+   shows every still-supported topic rebuilt (or explicitly superseded or
+   dropped).
+3. **Delete** `legacy/www/` with the rest of `legacy/`.
+
 The original licensing is unaffected by any of this; see
 [LICENSING.md](LICENSING.md).

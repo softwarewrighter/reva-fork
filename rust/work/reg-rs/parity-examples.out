@@ -1,0 +1,149 @@
+132 examples: missing 132
+
+Most common first missing word (top 10):
+
+- `needs` (73)
+- `."` (16)
+- `"` (4)
+- `value` (4)
+- `cells` (3)
+- `context:` (3)
+- `with~` (3)
+- `0do` (2)
+- `alias:` (2)
+- `ekey` (2)
+
+| Example | Area | Status |
+|---|---|---|
+| `examples/3n1.f` | core | missing: `with~` |
+| `examples/alg-test.f` | lib | missing: `."` |
+| `examples/argv.f` | core | missing: `cells` |
+| `examples/asm.f` | core | missing: `."` |
+| `examples/automatic.f` | core | missing: `."` |
+| `examples/base64.f` | lib | missing: `needs` |
+| `examples/beer.f` | core | missing: `::` |
+| `examples/bf/bf.f` | core | missing: `context:` |
+| `examples/bf/bf1.f` | core | missing: `2variable` |
+| `examples/bf/bf2.f` | core | missing: `cells` |
+| `examples/block-editor.f` | os | missing: `needs` |
+| `examples/bmi.f` | core | missing: `."` |
+| `examples/brownian.f` | lib | missing: `needs` |
+| `examples/calendar.f` | lib | missing: `needs` |
+| `examples/catch.f` | core | missing: `"` |
+| `examples/cgi.f` | net | missing: `needs` |
+| `examples/class.f` | core | missing: `."` |
+| `examples/codesize.f` | lib | missing: `needs` |
+| `examples/console-colors.f` | os | missing: `needs` |
+| `examples/data/array.f` | lib | missing: `needs` |
+| `examples/data/binarytree.f` | lib | missing: `needs` |
+| `examples/data/hash.f` | lib | missing: `needs` |
+| `examples/data/parray.f` | lib | missing: `needs` |
+| `examples/datediff.f` | lib | missing: `needs` |
+| `examples/db-report.f` | db | missing: `needs` |
+| `examples/defer.f` | core | missing: `defer` |
+| `examples/dhttpd.f` | net | missing: `needs` |
+| `examples/dllexplorer.f` | core | missing: `dump` |
+| `examples/doers.f` | lib | missing: `needs` |
+| `examples/dump.f` | core | missing: `value` |
+| `examples/ed.4th` | os | missing: `needs` |
+| `examples/ekeys.f` | core | missing: `ekey` |
+| `examples/fib.f` | core | missing: `0do` |
+| `examples/fib2.f` | lib | missing: `0do` |
+| `examples/fizzbuzz.f` | core | missing: `"` |
+| `examples/gcd.f` | core | missing: `mod` |
+| `examples/gettext.f` | lib | missing: `needs` |
+| `examples/gl/gl-scene.f` | gui | missing: `context:` |
+| `examples/gl/gl-shading.f` | gui | missing: `needs` |
+| `examples/gl/gl-twod.f` | gui | missing: `needs` |
+| `examples/gpgme.f` | lib | missing: `needs` |
+| `examples/gtk.f` | gui | missing: `needs` |
+| `examples/gui/hello1.f` | gui | missing: `needs` |
+| `examples/gui/hello2.f` | gui | missing: `needs` |
+| `examples/gui/hello3.f` | gui | missing: `needs` |
+| `examples/gui/hello4.f` | gui | missing: `needs` |
+| `examples/hanoi.f` | core | missing: `value` |
+| `examples/hello/hello-app.f` | lib | missing: `needs` |
+| `examples/hello/hello-guiapp.f` | gui | missing: `needs` |
+| `examples/hello/hello.f` | core | missing: `."` |
+| `examples/hello/hello2.f` | core | missing: `bye` |
+| `examples/hello/hello3.f` | core | missing: `"` |
+| `examples/hello/hello4.f` | core | missing: `."` |
+| `examples/hello/hello5.f` | core | missing: `."` |
+| `examples/hello/hello6.f` | core | missing: `later` |
+| `examples/hello/hello7.f` | core | missing: `"` |
+| `examples/http.f` | net | missing: `needs` |
+| `examples/ignorecase.f` | core | missing: `context:` |
+| `examples/iskey.f` | core | missing: `repeat` |
+| `examples/iup/binary-clock.f` | gui | missing: `needs` |
+| `examples/iup/brownian.f` | gui | missing: `needs` |
+| `examples/iup/callback-test.f` | gui | missing: `needs` |
+| `examples/iup/cd-test.f` | gui | missing: `needs` |
+| `examples/iup/console.f` | gui | missing: `needs` |
+| `examples/iup/db-test.f` | gui | missing: `needs` |
+| `examples/iup/file-dlg.f` | gui | missing: `needs` |
+| `examples/iup/frame-test.f` | gui | missing: `needs` |
+| `examples/iup/gl-test.f` | gui | missing: `needs` |
+| `examples/iup/gui-test.f` | gui | missing: `needs` |
+| `examples/iup/gui-test2.f` | gui | missing: `needs` |
+| `examples/iup/hello-world.f` | gui | missing: `needs` |
+| `examples/iup/hello-world2.f` | gui | missing: `needs` |
+| `examples/iup/hello-world3.f` | gui | missing: `needs` |
+| `examples/iup/image-convert.f` | gui | missing: `needs` |
+| `examples/iup/iup.f` | gui | missing: `needs` |
+| `examples/iup/menu-test.f` | gui | missing: `needs` |
+| `examples/iup/new-test.f` | gui | missing: `needs` |
+| `examples/iup/pdf-test.f` | gui | missing: `needs` |
+| `examples/iup/simple-button.f` | gui | missing: `needs` |
+| `examples/json.f` | net | missing: `needs` |
+| `examples/keys.f` | core | missing: `ekey` |
+| `examples/makeexe.f` | core | missing: `."` |
+| `examples/map.f` | lib | missing: `with~` |
+| `examples/md5.f` | lib | missing: `needs` |
+| `examples/mevarchim.f` | lib | missing: `needs` |
+| `examples/notready/caravan.f` | os | missing: `~sys` |
+| `examples/notready/galife.f` | lib | missing: `alias:` |
+| `examples/notready/meteor.f` | core | missing: `do` |
+| `examples/notready/meteor2.f` | core | missing: `alias:` |
+| `examples/notready/normalize.f` | lib | missing: `needs` |
+| `examples/notready/upsies-downsies.f` | os | missing: `."` |
+| `examples/onstart.f` | core | missing: `."` |
+| `examples/pi/pi.f` | core | missing: `*/` |
+| `examples/pi/pi2.f` | core | missing: `value` |
+| `examples/pi/pispigot.f` | lib | missing: `/mod` |
+| `examples/process.f` | os | missing: `needs` |
+| `examples/quoth.f` | lib | missing: `quote` |
+| `examples/revafind.f` | os | missing: `needs` |
+| `examples/robotron.f` | core | missing: `."` |
+| `examples/see2.f` | lib | missing: `needs` |
+| `examples/sha1.f` | lib | missing: `needs` |
+| `examples/sieve.f` | core | missing: `argv` |
+| `examples/smtp.f` | net | missing: `accept` |
+| `examples/sockets.f` | net | missing: `needs` |
+| `examples/special.f` | core | missing: `reset~` |
+| `examples/sqlite.f` | db | missing: `needs` |
+| `examples/sqlite2.f` | db | missing: `needs` |
+| `examples/sqlite3.f` | db | missing: `needs` |
+| `examples/stars.f` | core | missing: `max` |
+| `examples/sudoku-sp.f` | lib | missing: `cells` |
+| `examples/sudoku.f` | lib | missing: `value` |
+| `examples/sunrise.f` | lib | missing: `needs` |
+| `examples/task.f` | lib | missing: `needs` |
+| `examples/test.f` | lib | missing: `needs` |
+| `examples/testing.f` | core | missing: `[IFTEST]` |
+| `examples/thehouse.f` | core | missing: `quote` |
+| `examples/threads.f` | os | missing: `needs` |
+| `examples/tictactoe.f` | os | missing: `needs` |
+| `examples/tinyelf.f` | lib | missing: `needs` |
+| `examples/utf8.f` | lib | missing: `needs` |
+| `examples/widgets.f` | core | missing: `."` |
+| `examples/widgets2.f` | core | missing: `."` |
+| `examples/widgets3.f` | core | missing: `."` |
+| `examples/winapp.f` | lib | missing: `needs` |
+| `examples/winhello.f` | core | missing: `u32` |
+| `examples/winlife.f` | lib | missing: `."` |
+| `examples/words.f` | lib | missing: `with~` |
+| `examples/xml.f` | lib | missing: `needs` |
+| `examples/xmlparse.f` | lib | missing: `needs` |
+| `examples/xmlrpc.f` | net | missing: `needs` |
+| `examples/zemanim.f` | lib | missing: `needs` |
+| `examples/zipdb.f` | db | missing: `needs` |
