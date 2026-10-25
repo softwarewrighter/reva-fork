@@ -135,7 +135,11 @@ hello, file
 
 ## What works today
 
-All of `src/reva.f` boots: the core words, the assembler, contexts,
-`needs` and the libraries in `lib/` that do not call native C libraries,
-and the file words. Floating point (x87) and native libraries are next.
-[parity.md](parity.md) tracks this in detail.
+The portable core boots all of `src/reva.f`: the core words, control
+structures and loops, `create`/`does>`, `catch`/`throw`, strings and `."`,
+the embedded assembler, contexts, `include`, `needs` with the libraries
+in `lib/`, and the file words (`open/r`, `read`, …). Saved images via
+`(save)`, x87 floats and native C libraries are not available yet.
+[parity.md](parity.md) tracks this in detail, and
+[parity-examples.md](parity-examples.md) lists every example program's
+status.
