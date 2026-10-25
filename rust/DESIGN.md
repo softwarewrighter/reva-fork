@@ -36,8 +36,8 @@ far less work than rewriting everything that produces it.
 
 ```
             ┌──────────── hosts ────────────┐
-            │  reva-cli (terminal, files)    │   push input, pull output,
-            │  reva-web (wasm32, JS glue)    │   run in budgeted slices
+            │  reva-cli (terminal, StdFs)    │   push input, pull output,
+            │  reva-web (wasm32, MemFs, JS)  │   run in budgeted slices
             └───────────────┬────────────────┘
                             │ Host trait, Status
 ┌───────────────────────────▼──────────────────────────────┐
@@ -47,6 +47,9 @@ far less work than rewriting everything that produces it.
 │  gates     newcore.asm routines in Rust, at fixed addrs    │
 │  mem       flat u32-addressed memory, code-page tracking   │
 │  heap      allocate/free/resize                            │
+│  ffi       virtual libc, Linux syscall subset              │
+│  fileio    file words + file syscalls over Host::fs        │
+│  vfs       FileSystem trait, MemFs, embedded lib/          │
 │  image     save/load (vx86 bytes only)                     │
 │  translate hooks for native/wasm translators               │
 └──────────────────────────────────────────────────────────┘
@@ -131,8 +134,8 @@ the same way.
 **Virtual install prefix.** The core reports its program path as
 `/reva/bin/lin/reva`, the original layout, so `reva.f`'s `libdir` gives
 `/reva/lib/` without changing a line. Hosts map `/reva/` to real files: the
-CLI to `$REVA_HOME` or the checkout it was built from; the web host to
-embedded files (next step).
+CLI to `$REVA_HOME` or the checkout it was built from; every host also sees
+the copy of `lib/` compiled into the core (§3.7).
 
 **The OS layer (`ffi.rs`).** `reva.f` selects its Linux personality
 (`os` = 1) and reaches the OS through `lib`/`func:` and `syscall`. The port
@@ -143,6 +146,42 @@ what is missing. Linux i386 `syscall` numbers used outside file I/O (time,
 `gettimeofday`, `nanosleep`, `getpid`, terminal `ioctl`) map to `Host`; the
 rest return `-ENOSYS`. The VM itself never reads a clock or the environment,
 so it stays deterministic and the browser host needs nothing.
+
+### 3.7 Files
+
+`reva.f`'s file words bottom out in newcore's `open/r`, `open/rw`, `creat`,
+`close`, `read`, `write`, `fsize`, and in Linux system calls (`lseek`,
+`rename`, `unlink`, `stat`, `chdir`, `getcwd`; `mkdir`/`rmdir` and
+`opendir`/`readdir` in `lib/os/dir`). The port keeps both layers as they
+are and implements the bottom one (`fileio.rs`) over a small trait,
+`vfs::FileSystem` (open/close/read/write/seek/stat/remove/rename/mkdir/
+rmdir/list/chdir/cwd), that a host lends through `Host::fs`:
+
+- **CLI:** `StdFs`, the real file system; `/reva/` maps to the install
+  root. Descriptors are the host's own numbers (from 3), not OS fds.
+- **Browser and tests:** `MemFs`, an in-memory tree. It records which
+  paths changed, and `reva-web` exports them so `reva.js` can keep them in
+  `localStorage` and put them back before the next boot. A page bundles
+  its own files the same way (`Reva.load(url, { files, storage })`).
+
+Results follow the kernel: a value or `-errno`, and `ioerr` is 0 or the
+negative result, exactly as newcore's `call_linux_return` left it, so
+library code that tests `ioerr` behaves as before. Descriptors 0–2 stay
+the console (writing to 1 or 2 is output).
+
+**`lib/` is embedded** (`build.rs`, feature `embed-lib`, on by default) and
+appears read-only at `/reva/lib/` under both file systems: `needs` works in
+the browser with no fetches, and an installed CLI binary needs no
+checkout. On the CLI a file on disk wins over the embedded copy; in
+`MemFs` the first write copies an embedded file. Cost: about 0.7 MB in the
+binary and the `.wasm` (text, so it compresses well when served gzipped);
+a host that does not want it builds without the feature.
+
+Why a trait rather than more `Host` methods? The operations come as a set
+with shared state (open descriptors, working directory), and the same
+`MemFs` serves the browser and every test; the trait keeps that state out
+of the VM, which stays deterministic and image-safe (open files and
+directory streams are host state, not part of an image).
 
 ## 4. Non-functional requirements
 
@@ -157,6 +196,7 @@ so it stays deterministic and the browser host needs nothing.
 | **Upgradability** | Images contain only vx86 bytes and are versioned; translations are caches, never persisted. |
 | **Performance** | Interpreter with decode cache now; basic-block translation to x86-64 / ARM64 / wasm later (§6). |
 | **Usability** | `reva` behaves like the original REPL (banner, `ok>`, `reva.f`'s error messages); piped input runs as a batch without prompts. |
+| **Data durability (browser)** | Files Forth code writes are saved to `localStorage` after every run slice that ends waiting for input or halted; a failed save (quota) is logged, not fatal. |
 
 ## 5. Deliberate deviations from newcore
 
@@ -177,6 +217,11 @@ so it stays deterministic and the browser host needs nothing.
    previous call's offset and corrupted it. This was the bug that stopped
    the boot at the assembler.
 7. `localtime` is UTC: the port has no time-zone database.
+8. Opening a directory with `open/r` fails with `EISDIR` (Linux opened it
+   and failed on `read`). `read` from descriptor 0 fails with `EBADF`:
+   keyboard input reaches Forth only through `key`, which can pause the VM.
+9. `stat` fills the i386 `struct stat` and repeats `st_mtime` in
+   `st_ctime`: `reva.f`'s `mtime` reads the ctime cell (offset 48).
 
 ## 6. The road to native speed
 
@@ -203,10 +248,11 @@ block translation should land within ~2× of the original x86 Reva.
 1. ✅ vx86 core, gateways, resumable dispatcher, CLI, wasm host, `reva.f`
    prefix boots (through `does>`/`THROW:`).
 2. ✅ All of `reva.f` boots (assembler, contexts, `needs`, FFI layer, OS
-   personality) and restarts as its executable did (§3.6). Next: file words
-   (`open/r`, `read`, …) through `Host`, with a virtual file system for the
-   browser (bundled read-only files plus browser storage); then `(save)` /
-   `makeexe` writing images; loading images in the browser.
+   personality) and restarts as its executable did (§3.6). ✅ File words
+   and file system calls through `Host::fs`, with an in-memory file system
+   for the browser (bundled files plus `localStorage`) and `lib/` embedded
+   (§3.7). Next: loading images in the browser; then `(save)` / `makeexe`
+   writing images.
 3. x87 subset (as a 8-deep `f64` stack) for `lib/math/floats`, with 80-bit
    memory operands (`fld`/`fstp tbyte`).
 4. OS layer: ✅ virtual libc and a portable `syscall` subset (§3.6). Next:

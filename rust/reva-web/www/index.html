@@ -38,7 +38,8 @@
     out.append(span);
     out.scrollTop = out.scrollHeight;
   };
-  const reva = await Reva.load("reva.wasm");
+  // Files Forth code writes are kept in this browser (localStorage).
+  const reva = await Reva.load("reva.wasm", { storage: localStorage });
   write(reva.takeOutput());
   document.getElementById("f").addEventListener("submit", async (e) => {
     e.preventDefault();

@@ -1,0 +1,4 @@
+command = "r=$(pwd) d=$(mktemp -d) && cd $d && $r/${REVA:-target/debug/reva} < $r/tests/forth/files.f; s=$?; cd $r; rm -rf $d; exit $s"
+timeout = 60
+exit_code = 0
+desc = "file words (creat, open/r, open/rw, read, write, seek, stat, rename, delete, mkdir, chdir) on the real file system; lib/ through /reva/lib/"

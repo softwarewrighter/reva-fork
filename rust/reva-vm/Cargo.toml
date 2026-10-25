@@ -9,3 +9,8 @@ authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+
+[features]
+default = ["embed-lib"]
+# Compile lib/ into the core so `needs` works without the files (browser).
+embed-lib = []

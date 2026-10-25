@@ -459,6 +459,7 @@ pub fn decode(mem: &Memory, eip: u32) -> Result<Insn, Fault> {
                         imm: None,
                     }
                 }
+                0xc8..=0xcf if osz == Size::D => Op::Bswap(b2 & 7),
                 0xb6 | 0xb7 | 0xbe | 0xbf => {
                     let (r, rm) = c.modrm()?;
                     let from = if b2 & 1 == 0 { Size::B } else { Size::W };

@@ -15,11 +15,14 @@ re-implemented in Rust. See [DESIGN.md](DESIGN.md) for the rationale.
   did: banner, `ok>` prompt, `reva.f`'s error handling. See DESIGN.md §3.6.
 - `needs` loads libraries from `lib/` (via the virtual prefix `/reva/lib/`;
   set `$REVA_HOME` to use another tree).
-- A virtual libc (`getenv`, `putenv`, `localtime`) and a portable `syscall`
-  subset; `time&date`, `ms@`, `getenv` work.
+- A virtual libc (`getenv`, `putenv`, `localtime`, `opendir`/`readdir`)
+  and a portable `syscall` subset; `time&date`, `ms@`, `getenv` work.
+- File words (`open/r`, `read`, `seek`, `stat`, `rename`, …) through
+  `Host::fs`: real files on the CLI, an in-memory file system in the
+  browser (kept in `localStorage`); `lib/` is built in. See DESIGN.md §3.7.
 - Hosts: `reva` CLI (Linux/macOS/Windows, any CPU) and a WebAssembly module
   with a minimal web console.
-- Not yet: file I/O words (`open/r` …), `(save)`, native libraries, x87
+- Not yet: `(save)`, native libraries, x87
   floats, native translation. See the roadmap in DESIGN.md.
 
 ## Layout

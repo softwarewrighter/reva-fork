@@ -6,3 +6,8 @@ ok   key waits: 1
 ok   key resumes: "Reva 2011.2 Linux\n\nok> 3 \nok> "
 ok   halts: 2
 ok   exit code: 9
+ok   bundled file: "Reva 2011.2 Linux\n\nok> bundled\nok> \nok> "
+ok   persisted: "savedÃ©"
+ok   restored: "Reva 2011.2 Linux\n\nok> savedé0 \nok> "
+ok   removal persisted: null
+ok   needs from the built-in lib/: "loaded\nok> "
