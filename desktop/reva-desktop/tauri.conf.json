@@ -21,8 +21,14 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["deb", "rpm", "app", "dmg"],
-    "icon": ["icons/icon.png"],
+    "targets": ["deb", "rpm", "app", "dmg", "nsis", "msi"],
+    "icon": ["icons/icon.png", "icons/icon.ico"],
+    "resources": {
+      "../../LICENSE": "LICENSE",
+      "../../LICENSE-MIT": "LICENSE-MIT",
+      "../../LICENSING.md": "LICENSING.md",
+      "../../docs/licenses.md": "licenses.md"
+    },
     "category": "DeveloperTool",
     "copyright": "Reva: public domain (Ron Aaron). Portable core and desktop app: MIT, Michael A. Wright",
     "linux": {
