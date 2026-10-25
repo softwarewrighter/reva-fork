@@ -310,6 +310,7 @@ fn build_state(o: Options) -> Result<State, String> {
             package: package.map(|_| {
                 serde_json::json!({
                     "name": manifest.name,
+                    "id": manifest.id,
                     "title": manifest.title,
                     "about": manifest.about,
                     "hint": manifest.hint,
