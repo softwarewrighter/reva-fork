@@ -128,6 +128,17 @@ included. A prompt turned off when saving (piped input) stays off.
 from the same boot or image. The rest of the line it is on is not run.
 A file that always calls `restart` restarts for ever (Ctrl-C stops it).
 
+## Floats are doubles inside
+
+The original kept floats in the x87's 80-bit registers; the portable core
+keeps them as 64-bit doubles. Loading an 80-bit value (`f@`, CoSy's
+stored floats) rounds it to the nearest double, and results can differ
+from the original in the last digits of extended precision. Because `f.`
+cuts digits instead of rounding, that can show: `30 s>f deg>rad fsin f.`
+prints `0.49999`. The rounding mode set with `round.even`, `round.trunc`
+etc. applies to conversion to integers (`f>s`, `fround`, `fint`), not to
+arithmetic.
+
 ## C functions: only a virtual libc
 
 `lib`/`func:` work as before, but the only library is a virtual libc with

@@ -26,8 +26,9 @@ re-implemented in Rust. See [DESIGN.md](DESIGN.md) for the rationale.
 - Saved images: `save NAME` from Forth or `reva --save-image`; start one
   with `reva --image` or in the browser (`start(..., { image })`).
   `restart` makes the VM again the same way (DESIGN.md §3.9).
-- Not yet: native libraries, x87
-  floats, native translation. See the roadmap in DESIGN.md.
+- x87 floating point with `f64` registers and 80-bit memory operands;
+  `lib/math/floats` passes its own tests (DESIGN.md §3.10).
+- Not yet: native libraries, native translation. See the roadmap in DESIGN.md.
 
 ## Layout
 
@@ -96,7 +97,7 @@ literal one as a bracket (`[(]`, `[?]`).
 
 - Faults name the Forth word: `*** bad memory access ... (in bad+0xc, ...)`.
 - `reva --trace` logs every step to stderr.
-- Code the core cannot run (native libraries, `shell`, x87/MMX/SSE and
+- Code the core cannot run (native libraries, `shell`, MMX/SSE and
   privileged instructions) stops with a message pointing to
   [docs/portability.md](../docs/portability.md); `reva --allow-shell` lets
   `shell` run OS commands.

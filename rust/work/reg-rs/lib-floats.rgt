@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} tests/forth/floats.f < /dev/null && echo 'true to testing needs testing needs math/floats test' | ${REVA:-target/debug/reva} | grep -v '^Finished test suite'"
+timeout = 60
+exit_code = 0
+desc = "x87 floats: lib/math/floats arithmetic, conversion, rounding, compare, functions, 80/64/32-bit memory, and the library's own test suite"

@@ -69,9 +69,9 @@ Addresses below 0x1000 fault, so `0 @` is reported, not silently read.
 output and sources, plus their regular neighbours: all ALU ops in all
 forms, shifts/rotates, `mul/imul/div/idiv`, `lods/stos/movs/scas/cmps` with
 `rep`, near `jmp/call/ret/jcc/loop`, `setcc/cmovcc`, `movzx/movsx`, `66`
-prefix. Flags are exact except AF. Anything else faults with the bytes and
-the Forth word containing them. Not modelled, deliberately: segments,
-privileged/system instructions, x87/MMX/SSE (x87 is next; see §7).
+prefix, and the x87 floating-point unit (§3.10). Flags are exact except AF.
+Anything else faults with the bytes and the Forth word containing them. Not
+modelled, deliberately: segments, privileged/system instructions, MMX/SSE.
 
 ### 3.3 Gateways: the core in Rust
 
@@ -264,6 +264,40 @@ it) and relaunched itself with `restart`. Both are host matters here.
 A script that calls `restart` unconditionally restarts for ever, as it did
 on the original (and as a launcher loop would); stop it with Ctrl-C.
 
+### 3.10 Floating point: the x87
+
+`lib/math/floats` is x87 code written as bytes (`f+` is `inline{ de c1 }`,
+`f@` is `fld tbyte [eax]`), and CoSy stores its floats in the x87's 80-bit
+format. So the VM decodes the x87 (`D8`–`DF`, `fwait` as a no-op;
+`x86/fpu.rs`) and keeps its state in the CPU: eight registers as a stack
+with `TOP` and tags, the control word and the status word.
+
+- **What is there:** loads and stores of every memory format (32/64/80-bit
+  floats, 16/32/64-bit integers, `fisttp`), constants, the four
+  operations in all their forms, compares (`fcom`, `fucom`, `fcomi`,
+  `ftst`, `fxam`, condition codes `C0`–`C3`), `fxch`, `ffree`, `fcmov`,
+  `fldcw`/`fstcw`/`fstsw`, `finit`/`fclex`, and the transcendentals
+  (`fsin`, `fcos`, `fsincos`, `fptan`, `fpatan`, `f2xm1`, `fyl2x`,
+  `fyl2xp1`, `fscale`, `fxtract`, `fprem`, `fprem1`, `frndint`, `fsqrt`).
+  Not there: `fldenv`/`fstenv`/`fsave`/`frstor` and the BCD forms.
+- **Registers are `f64`.** A software 80-bit float would be exact but slow
+  and large, and every host has a fast IEEE double. 80-bit memory values
+  convert exactly to the 80-bit format and round to nearest-even on the
+  way in; 64-bit integers round like doubles. Arithmetic rounds to double
+  whatever the precision field says, and the rounding field applies to
+  `fist`/`frndint` only. Results can differ from a real x87 in the last
+  bits of the extended format, which shows when a program prints more
+  digits than a double holds, or truncates (`f.` prints `0.49999` for
+  `sin 30°`).
+- **Exceptions are masked**, as Reva left them: an invalid operation gives
+  the indefinite NaN and sets `IE`, an empty register reads as a stack
+  fault, a push onto a full stack overflows to NaN, and `fwait` never
+  traps. The sticky flags are visible through `fstsw`.
+- **No new imports:** the WebAssembly module still imports nothing; the
+  `f64` functions come from Rust's standard library.
+- The FPU state is part of the CPU, not of an image: a saved program starts
+  with a fresh unit, as a new process did (`finit` state).
+
 ## 4. Non-functional requirements
 
 | Quality | How it is addressed |
@@ -339,8 +373,9 @@ block translation should land within ~2× of the original x86 Reva.
    CLI and in the browser; `restart` (§3.9). `makeexe` (a native
    executable) is not planned: an image plus the `reva` binary or the web
    build is the portable form.
-3. x87 subset (as a 8-deep `f64` stack) for `lib/math/floats`, with 80-bit
-   memory operands (`fld`/`fstp tbyte`).
+3. ✅ x87 (§3.10): an 8-deep `f64` stack with tags, control and status
+   words, 80-bit memory operands, and the transcendentals;
+   `lib/math/floats` passes its own tests.
 4. OS layer: ✅ virtual libc and a portable `syscall` subset (§3.6); ✅
    clear stops for native libraries, `shell` (CLI `--allow-shell`) and
    unsupported instruction families ([portability.md](../docs/portability.md)).
