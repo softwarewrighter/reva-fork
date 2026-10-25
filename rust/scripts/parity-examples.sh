@@ -19,6 +19,10 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 REVA="${REVA:-target/debug/reva}"
 LIMIT="${PARITY_TIMEOUT:-5}"
+# Text filters use sed-rs (https://github.com/sw-cli-tools/sed-rs), not the
+# system sed, so they behave the same on macOS, Linux and Windows.
+SED_RS="${SED_RS:-$(command -v sed-rs || true)}"
+[[ -n "$SED_RS" ]] || { echo "parity-examples: sed-rs not found; install it or set SED_RS" >&2; exit 2; }
 root=..
 abs_root=$(cd "$root" && pwd)
 # Programs that `save` write an image to the working directory, so each
@@ -46,14 +50,14 @@ classify() {
     code=$?
     if [[ $code -eq 124 ]]; then echo "timeout"; return; fi
     local fault missing
-    fault=$(grep -m1 -E '^\*\*\* ' <<<"$out" | sed 's/^\*\*\* //; s/ (in [^()]*, eip [^)]*)$//; s/[[:space:]]*$//')
+    fault=$(grep -m1 -E '^\*\*\* ' <<<"$out" | "$SED_RS" -e 's/^\*\*\* //; s/ [(]in [^()]*, eip [^)]*[)]$//; s/[[:space:]]*$//')
     if [[ -n "$fault" ]]; then echo "fault: $fault"; return; fi
     # reva.f's handler: "ERROR: unknown word:  foo"; the bare core: "foo?"
     missing=$(grep -m1 -oE '^ERROR: unknown word: +[^[:space:]]+' <<<"$out" | awk '{print $NF}')
-    [[ -n "$missing" ]] || missing=$(grep -m1 -E '^[^[:space:]]+\?$' <<<"$out" | sed 's/?$//')
+    [[ -n "$missing" ]] || missing=$(grep -m1 -E '^[^[:space:]]+\?$' <<<"$out" | "$SED_RS" -e 's/[?]$//')
     if [[ -n "$missing" ]]; then echo "missing: \`$missing\`"; return; fi
     local err
-    err=$(grep -m1 -oE '^ERROR: .*' <<<"$out" | sed 's/^ERROR: //; s/[[:space:]]\+/ /g; s/ *$//')
+    err=$(grep -m1 -oE '^ERROR: .*' <<<"$out" | "$SED_RS" -e 's/^ERROR: //; s/[[:space:]]+/ /g; s/ *$//')
     if [[ -n "$err" ]]; then echo "error: $err"; return; fi
     echo "runs"
 }
@@ -68,8 +72,8 @@ table=$(
 )
 rows=$(echo "$table" | tail -n +3 | awk -F'|' '{ s = $4; gsub(/^ +| +$/, "", s); print s }')
 total=$(wc -l <<<"$rows")
-counts=$(sed 's/:.*//' <<<"$rows" | LC_ALL=C sort | uniq -c | awk '{ printf "%s%s %d", (NR > 1 ? ", " : ""), $2, $1 }')
-ranks=$(grep '^missing: ' <<<"$rows" | sed 's/^missing: //' | LC_ALL=C sort | uniq -c |
+counts=$("$SED_RS" -e 's/:.*//' <<<"$rows" | LC_ALL=C sort | uniq -c | awk '{ printf "%s%s %d", (NR > 1 ? ", " : ""), $2, $1 }')
+ranks=$(grep '^missing: ' <<<"$rows" | "$SED_RS" -e 's/^missing: //' | LC_ALL=C sort | uniq -c |
         LC_ALL=C sort -k1,1nr -k2 | head -10 | awk '{ c = $1; $1 = ""; sub(/^ /, ""); printf "- %s (%d)\n", $0, c }')
 report=$(
     echo "$total examples: $counts"
