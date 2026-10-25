@@ -63,11 +63,51 @@ A package is a folder with a `reva-package.json`:
 }
 ```
 
-`name` titles the window; `start` lists files to `include`, in order, after
+`name` titles the window ("CoSy on Reva"); `start` lists files to `include`, in order, after
 Reva starts, and again after Forth's `restart` (which starts a fresh system,
 as relaunching did; files on disk are kept). `--eval` lines are fed once. Relative paths in Forth resolve against the package folder, so
 a package can `include` its own sources. A folder without a manifest opens
 as a plain folder.
+
+### Branding
+
+A package can make the window its own, so one installed `reva-desktop`
+looks like each package it opens:
+
+```json
+{
+  "name": "CoSy",
+  "title": "CoSy",
+  "icon": "cosy.png",
+  "id": "cosy",
+  "start": ["start-cosy.f"]
+}
+```
+
+| Key | Effect | Default |
+|---|---|---|
+| `title` | window title and page header | `<name> on Reva`, or `Reva Forth` |
+| `icon` | PNG in the package (256×256 suits every desktop): the window icon, which is also the taskbar icon on Windows and X11 | Reva's icon |
+| `id` | Linux only: the Wayland `app_id` and X11 `WM_CLASS` (letters, digits, `.` `-` `_`). Docks use it to find the package's `.desktop` entry, and with it the dock icon and name | `reva-desktop` |
+
+A bad `icon` or `id` is reported in the window's notes and the app opens with
+Reva's. The window is created with these settings, so Reva's title and icon
+never flash first.
+
+What run time cannot change, so a package needs its own entry or bundle:
+
+- **Linux app launcher and dock.** A `.desktop` file with `Icon=` and
+  `StartupWMClass=<id>`, and the icon under `~/.local/share/icons/hicolor/`.
+  With it, GNOME, KDE and Xfce show the package's icon in the dock and task
+  switcher (Wayland included), not just on the window. CoSy's
+  `install-desktop.sh` is an example.
+- **macOS dock and Finder.** macOS takes the dock icon from the running
+  `.app` bundle's `.icns`, and Tauri has no call to change it, so a branded
+  dock icon needs a bundle of its own (`desktop/build.sh --bundle` with the
+  package's `productName` and icons in `tauri.conf.json`). Not done yet.
+- **Windows Explorer, Start menu and pinned taskbar.** These show the `.exe`
+  resource icon or a shortcut's icon. A shortcut to `reva-desktop.exe
+  --package DIR` with the package's `.ico` covers it.
 
 Coming next: a package may bring its own page (panes, keys, drawing) through
 the UI service; until then a package runs in the REPL window.
@@ -79,6 +119,12 @@ the UI service; until then a package runs in the REPL window.
   keeps one behaviour to test and one front end to maintain.
 - **Own Cargo workspace.** `desktop/` is separate from `rust/`, so the
   portable core keeps zero dependencies and its tests stay fast.
+- **Branding at run time, not build time.** Packages are folders, not
+  builds: one app binary serves Reva, CoSy and the next package, and a
+  package changes its look by editing JSON. The cost is the list above of
+  icons only a bundle sets. The icon is decoded with the `png` crate Tauri
+  already uses, and the app id is set through `glib`, also already in the
+  tree, so branding adds no dependencies.
 - **Licenses.** Tauri and its dependencies are MIT/Apache-2.0, except five
   Servo CSS crates under MPL-2.0 (see [licenses.md](licenses.md)). On Linux
   the app uses the system's WebKitGTK and never bundles it.
