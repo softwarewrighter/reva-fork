@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reva Forth</title>
+<!-- The package this page opens when the URL has no ?package= (set by
+     scripts/make-web-zip.sh; empty: plain Reva).  A relative URL. -->
+<meta name="reva-package" content="">
+<!-- Where graphics go when nothing else says (window, pane or split). -->
+<meta name="reva-canvas" content="">
+<link rel="icon" href="data:,">
 <style>
   :root { --bg:#fbfaf7; --fg:#1d1d1b; --muted:#6b6a65; --accent:#1f6f5c; --line:#dcd9d0; }
   @media (prefers-color-scheme: dark) {
@@ -26,6 +32,35 @@
   #gfx[hidden] { display:none; }
   /* the graphics pane, where a popup window is not allowed */
   #panes iframe { width:100%; height:min(60vh, 640px); border:1px solid var(--line); border-radius:4px; margin-top:8px; }
+  /* The split view (split.js): REPL | divider | graphics, full height. */
+  body.split { display:flex; height:100vh; overflow:hidden; }
+  body.split main { flex:none; width:var(--split, 50%); max-width:none; margin:0; min-width:0; }
+  #divider { flex:none; width:7px; cursor:col-resize; touch-action:none; background:var(--line);
+             border-left:3px solid var(--bg); border-right:3px solid var(--bg); }
+  #divider:hover, #divider:focus-visible, body.dragging #divider { background:var(--accent); }
+  #divider:focus-visible { outline:none; border-color:var(--accent); }
+  body.dragging { cursor:col-resize; user-select:none; }
+  body.dragging iframe { pointer-events:none; }
+  #side { flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; }
+  #side .bar { display:flex; justify-content:space-between; align-items:center; color:var(--muted);
+               padding:16px 16px 8px 8px; border-bottom:1px solid var(--line); }
+  body.split #panes { flex:1; min-height:0; display:flex; padding:8px 16px 16px 8px; }
+  body.split #panes iframe { flex:1; height:auto; margin:0; }
+  #side .strip { display:none; }
+  body.split.collapsed main { flex:1; width:auto; }
+  body.split.collapsed #divider, body.split.collapsed #side .bar, body.split.collapsed #panes { display:none; }
+  body.split.collapsed #side { flex:none; width:34px; }
+  body.split.collapsed #side .strip { display:block; height:100%; width:100%; border:0; border-left:1px solid var(--line);
+                                      border-radius:0; writing-mode:vertical-rl; padding:16px 0; color:var(--muted); }
+  /* Narrow screens: stack the panes instead (the divider is not needed). */
+  @media (max-width: 640px) {
+    body.split { flex-direction:column; overflow:auto; height:auto; }
+    body.split main { width:auto; height:60vh; }
+    body.split #divider { display:none; }
+    body.split #side { height:70vh; }
+    body.split.collapsed #side { width:auto; height:40px; }
+    body.split.collapsed #side .strip { writing-mode:horizontal-tb; padding:0; }
+  }
 </style>
 </head>
 <body>
@@ -46,6 +81,8 @@
   import { start, RUNNING, HALTED } from "./reva.js";
   import { hostSetup } from "./host.js";
   import { CanvasChannel } from "./ui.js";
+  import { loadPackage } from "./package.js";
+  import { splitView } from "./split.js";
   const MAX_CHUNKS = 4000;
   const out = document.getElementById("out");
   const line = document.getElementById("line");
@@ -63,24 +100,57 @@
   const flush = () => { frame = 0; if (pending) append(pending); pending = ""; };
   const write = (s) => { pending += s; frame ||= requestAnimationFrame(flush); };
   const echo = (s) => { flush(); append(s, "echo"); };
+  // The form is live from the start (a package can take a moment to
+  // fetch): lines typed before the VM is up wait in `early`.
+  const early = [];
+  let feedLine = (text) => early.push(text);
+  document.getElementById("f").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = line.value;
+    line.value = "";
+    echo(text + "\n");
+    feedLine(text);
+  });
 
   // The host (host.js) says where files are kept (the browser: in
   // localStorage; the desktop app: in a folder) and what to feed at start.
   // reva.status starts as RUNNING (booting); onStatus reports each change.
   // ?image=app.img starts from a saved image instead of booting reva.f.
   const host = await hostSetup();
-  if (host.title) {
-    document.title = host.title;
-    document.querySelector("header b").textContent = host.title;
-  }
-  // ?canvas=pane keeps the graphics in the page instead of a window.
   const query = new URLSearchParams(location.search);
+  // ?package=DIR/ (or the reva-package meta) loads a package from a static
+  // directory (package.js): its files, start files, title, icon, canvas.
+  const pkgDir = query.get("package") ?? document.querySelector('meta[name="reva-package"]')?.content;
+  const notes = [...(host.notes ?? [])];
+  let pkg = null;
+  if (pkgDir) {
+    try {
+      pkg = await loadPackage(pkgDir);
+      notes.push(...pkg.notes);
+    } catch (e) {
+      notes.push(`package ${pkgDir} not loaded: ${e.message ?? e}`);
+    }
+  }
+  const title = pkg?.title ?? host.title;
+  if (title) {
+    document.title = title;
+    document.querySelector("header b").textContent = title;
+  }
+  if (pkg?.icon) document.querySelector('link[rel="icon"]').href = pkg.icon;
+  // Where graphics go: ?canvas=window|pane|split, else the package's or
+  // the host's choice, else the page's default (the reva-canvas meta),
+  // else a window.
+  const meta = document.querySelector('meta[name="reva-canvas"]')?.content || undefined;
+  const mode = query.get("canvas") ?? pkg?.canvas ?? host.canvas ?? meta ?? "window";
+  const split = mode === "split" ? splitView(document.querySelector("main"), document.getElementById("panes")) : null;
   const image = query.get("image") ?? undefined;
   const gfx = document.getElementById("gfx");
   let canvas = null;
   const reva = start("reva.wasm", {
     image,
+    files: pkg?.files,
     storage: host.storage,
+    prefix: pkg && !host.keepsFiles ? pkg.prefix : undefined,
     onOutput: (s) => { write(s); host.output?.(s); },
     onUi: (m) => { if (m.channel === "canvas") canvas.handle(m); },
     onStatus: (s) => {
@@ -92,12 +162,18 @@
       }
     },
   });
-  // Turtle graphics go to their own window (ui.js); once used, the
-  // Graphics button brings a closed one back.
+  // Turtle graphics go to their own window (ui.js), or a pane; once used,
+  // the Graphics button brings a closed one back.  The split view shows
+  // its pane from the start.
   canvas = new CanvasChannel(host, reva, {
-    where: query.get("canvas") === "pane" ? "pane" : "window",
-    onState: (s) => { gfx.hidden = false; gfx.textContent = s === "closed" ? "Graphics (closed)" : "Graphics"; },
+    where: mode === "window" ? "window" : "pane",
+    onState: (s) => {
+      if (split) return;
+      gfx.hidden = false;
+      gfx.textContent = s === "closed" ? "Graphics (closed)" : "Graphics";
+    },
   });
+  if (split) canvas.open();
   gfx.addEventListener("click", () => {
     if (canvas.win && !canvas.win.closed()) canvas.win.focus();
     else canvas.open();
@@ -112,12 +188,12 @@
     host.halted?.(code);
   }
   const starting = append("starting...\n", "echo");
-  for (const n of host.notes ?? []) append(`note: ${n}\n`, "echo");
+  for (const n of notes) append(`note: ${n}\n`, "echo");
   await reva.ready;
   starting.remove();
   // Start lines (a package's start files) are read again after `restart`;
   // input lines only once.
-  for (const text of host.start ?? []) {
+  for (const text of [...(pkg?.start ?? []), ...(host.start ?? [])]) {
     echo(text + "\n");
     reva.feedStart(text + "\n");
   }
@@ -126,13 +202,9 @@
     reva.feed(text + "\n");
   }
 
-  document.getElementById("f").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const text = line.value;
-    line.value = "";
-    echo(text + "\n");
-    reva.feed(text + "\n");
-  });
+  // Lines typed while the page was still starting go in after the start lines.
+  feedLine = (text) => reva.feed(text + "\n");
+  for (const text of early.splice(0)) feedLine(text);
   stop.addEventListener("click", () => reva.stop());
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "c" && !window.getSelection()?.toString()) {

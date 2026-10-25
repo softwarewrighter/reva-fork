@@ -37,23 +37,42 @@
   // TURTLE(3) x y heading visible.  World: 800x800, origin in the centre,
   // y up.  Lines are queued and drawn on animation frames, at most
   // FRAME_LINES per frame, so the window stays responsive while a big
-  // drawing streams in; the canvas keeps a fixed 2x backing store and CSS
-  // scales it, so resizing never needs a redraw.
-  const WORLD = 800, RES = 2, FRAME_LINES = 60000, REC = 8;
+  // drawing streams in.
+  //
+  // Resolution follows the window: the backing store is the displayed size
+  // times devicePixelRatio (MIN_PX..MAX_PX).  When the window or pane
+  // changes size (ResizeObserver, settled for RESIZE_MS) the canvas is
+  // resized, which clears it, and the page is asked to "redraw": the VM
+  // sends the whole drawing again.  The page keeps no copy (see ui.js), so
+  // memory stays bounded however big the drawing.
+  const WORLD = 800, MIN_PX = 256, MAX_PX = 4096, RESIZE_MS = 120, FRAME_LINES = 60000, REC = 8;
   const CLEAR = 1, LINE = 2, TURTLE = 3;
   const draw = document.getElementById("draw"), turtle = document.getElementById("turtle");
-  for (const c of [draw, turtle]) c.width = c.height = WORLD * RES;
+  const stage = document.getElementById("stage");
   const g = draw.getContext("2d"), tg = turtle.getContext("2d");
-  const world = (ctx) => ctx.setTransform(RES, 0, 0, -RES, (WORLD * RES) / 2, (WORLD * RES) / 2);
-  world(g);
-  world(tg);
+  let scale = 2; // backing pixels per world unit
+  const world = (ctx) => ctx.setTransform(scale, 0, 0, -scale, (WORLD * scale) / 2, (WORLD * scale) / 2);
+  /** Size the backing store to the stage; true if it changed (and so was cleared). */
+  function fit() {
+    const r = stage.getBoundingClientRect();
+    const css = Math.min(r.width, r.height);
+    if (css < 8) return false; // hidden (a collapsed pane): keep what is there
+    const px = Math.round(Math.min(MAX_PX, Math.max(MIN_PX, css * (globalThis.devicePixelRatio || 1))));
+    if (px === draw.width) return false;
+    for (const c of [draw, turtle]) c.width = c.height = px;
+    scale = px / WORLD;
+    world(g);
+    world(tg);
+    return true;
+  }
+  if (!fit()) { for (const c of [draw, turtle]) c.width = c.height = WORLD * scale; world(g); world(tg); }
   const info = document.getElementById("info");
   const hex = (rgb) => "#" + (rgb | 0).toString(16).padStart(6, "0");
 
-  let queue = [], qi = 0, at = 0, lines = 0, frame = 0, sprite = null;
+  let queue = [], qi = 0, at = 0, lines = 0, frame = 0, sprite = null, background = 0xfbfaf7;
 
   function clear(bg) {
-    queue = []; qi = 0; at = 0; lines = 0;
+    queue = []; qi = 0; at = 0; lines = 0; background = bg;
     g.save();
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.fillStyle = hex(bg);
@@ -78,7 +97,7 @@
       for (; at < ops.length && budget > 0; at += REC) {
         const op = ops[at];
         if (op === LINE) {
-          const s = hex(ops[at + 5]), w = Math.max(ops[at + 6], 0.5);
+          const s = hex(ops[at + 5]), w = Math.max(ops[at + 6], 1 / scale);
           if (s !== style || w !== width) {
             flush();
             g.strokeStyle = style = s;
@@ -131,9 +150,10 @@
     });
   });
 
-  // Transport: Tauri events in the desktop app, postMessage in a browser
-  // (to the page that opened this popup, or that holds this pane).
-  const tauri = globalThis.__TAURI__;
+  // Transport: postMessage to the page that holds this pane (browser and
+  // desktop alike) or opened this popup; Tauri events in a native window.
+  const pane = new URLSearchParams(location.search).has("pane");
+  const tauri = pane ? null : globalThis.__TAURI__;
   const send = tauri
     ? (m) => tauri.event.emitTo("main", "reva-ui-up", { ...m, window: "canvas" })
     : (m) => (window.opener ?? window.parent)?.postMessage({ ...m, window: "canvas" }, "*");
@@ -143,8 +163,19 @@
   };
   if (tauri) await tauri.event.listen("reva-ui-down", (e) => onMessage(e.payload));
   else addEventListener("message", (e) => onMessage(e.data));
-  if (new URLSearchParams(location.search).has("pane")) document.body.classList.add("pane");
+  if (pane) document.body.classList.add("pane");
   send({ type: "ready" });
+  // Redraw at the new size once a resize settles.
+  let settle = 0;
+  new ResizeObserver(() => {
+    clearTimeout(settle);
+    settle = setTimeout(() => {
+      if (!fit()) return;
+      clear(background);
+      drawTurtle();
+      send({ type: "redraw" });
+    }, RESIZE_MS);
+  }).observe(stage);
 </script>
 </body>
 </html>
