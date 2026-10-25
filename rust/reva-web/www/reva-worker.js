@@ -3,7 +3,8 @@
 //
 // Messages (all plain objects with a `type`):
 //
-//   page → worker   init   { wasm: URL or bytes, files: { path: bytes } }
+//   page → worker   init   { wasm: URL or bytes, files: { path: bytes },
+//                            image?: URL or bytes }
 //                   input  { text }      a line (or any text) to read
 //                   close  {}            end of input
 //                   stop   {}            interrupt the running word
@@ -55,7 +56,7 @@ async function handle(m) {
   switch (m.type) {
     case "init":
       try {
-        reva = await Reva.load(m.wasm, { files: m.files ?? {} });
+        reva = await Reva.load(m.wasm, { files: m.files ?? {}, image: m.image });
       } catch (e) {
         post({ type: "error", message: `could not start: ${e?.message ?? e}` });
         return;

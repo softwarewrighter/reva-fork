@@ -46,8 +46,9 @@ impl std::fmt::Display for ImageError {
 impl std::error::Error for ImageError {}
 
 impl Machine {
-    /// Serialize the machine's persistent state.  Call it while the machine
-    /// is idle (after [`Machine::run`] returned).
+    /// Serialize the machine's persistent state: between [`Machine::run`]
+    /// calls, or from `(save)` while Forth code runs (loading resets the
+    /// interpreter's source and catch state, so either works).
     pub fn save_image(&self) -> Vec<u8> {
         let mut out = Vec::new();
         out.extend_from_slice(MAGIC);
@@ -91,6 +92,19 @@ impl Machine {
         }
         let mut words = std::iter::from_fn(|| r.u32().ok());
         m.heap = Heap::load(&mut words).ok_or(ImageError::Truncated)?;
+        // A saved program started with no source file and no catch frame,
+        // whatever was running when `(save)` wrote the image.
+        for (var, v) in [
+            (st::SOURCE, 0),
+            (st::TP, TIB),
+            (st::TIN, TIB),
+            (st::IS_COMPILING, 0),
+            (st::HANDLER, 0),
+        ] {
+            m.mem
+                .write_u32(var, v)
+                .map_err(|_| ImageError::BadSegment { start: var, len: 4 })?;
+        }
         m.set_args(args);
         m.reset_cpu();
         Ok(m)

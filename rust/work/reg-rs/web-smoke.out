@@ -15,6 +15,10 @@ ok   spinning: 0
 ok   interrupted: true
 ok   dictionary kept: "42 \nok> "
 ok   same output for 1k and 1M step slices: true
+ok   save writes an image: "REVAVX86"
+ok   starts from the image: "Reva 2011.2 Linux\n\nok> "
+ok   restart: "from the image\nReva 2011.2 Linux\n\nok> from the image\n\nERROR: unknown word:  gone\n..."
+ok   not an image: "image: image is truncated"
 ok   worker boots: ["worker",1,"Reva 2011.2 Linux\n\nok> "]
 ok   worker runs: 1
 ok   worker output: "from the worker\nok> \nok> "
@@ -22,3 +26,4 @@ ok   worker files saved by the page: "ok"
 ok   worker stop: 1
 ok   worker interrupted: true
 ok   worker halts: [2,7]
+ok   worker starts from an image: "Reva 2011.2 Linux\n\nok> from the image\n\nok> "
