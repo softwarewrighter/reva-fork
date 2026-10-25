@@ -69,6 +69,11 @@ scripts/forth-highlight.py ../lib/turtle/fractals --lines 22-30 --png koch.png
 scripts/forth-highlight.py FILE --table ../lib/highlight/forth.tbl --table mypkg.tbl -o out.html
 ```
 
+With no `--table`, the script reads reva-fork's `forth.tbl` and then every
+`*.tbl` beside the script, so a package can ship a copy of the script next
+to its own table (ba-cosy-zip-fork does). From a package checkout it finds
+reva-fork beside the checkout (`../reva-fork`) or at `$REVA_FORK`.
+
 ## Design
 
 - **One tokenizer per surface, one table.** The REPL tokenizer is Rust
