@@ -86,6 +86,12 @@ checked by `scripts/doc-check.sh ../docs/*.md`, and
 `scripts/parity-examples.sh` reports how far every program in `examples/`
 gets (both are part of the regression suite).
 
+The scripts filter text with [sed-rs](https://github.com/sw-cli-tools/sed-rs)
+(`cargo install --path .` in its checkout, or set `$SED_RS`), never the
+system sed, so they behave the same on every platform. Patterns use
+sed-rs syntax: Rust regex, where `( ) | + ?` are operators; write a
+literal one as a bracket (`[(]`, `[?]`).
+
 ## Debugging
 
 - Faults name the Forth word: `*** bad memory access ... (in bad+0xc, ...)`.
