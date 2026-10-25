@@ -36,6 +36,7 @@ pub mod ffi;
 mod fileio;
 pub mod gates;
 pub mod heap;
+pub mod highlight;
 pub mod host;
 pub mod image;
 pub mod layout;

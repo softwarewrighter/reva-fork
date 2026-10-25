@@ -116,6 +116,8 @@ impl Machine {
             LIBC_HANDLE
         } else if is(crate::turtle::TURTLE_NAMES) {
             crate::turtle::TURTLE_HANDLE
+        } else if is(crate::highlight::HL_NAMES) {
+            crate::highlight::HL_HANDLE
         } else {
             0
         };
@@ -149,6 +151,9 @@ impl Machine {
         }
         if handle == crate::turtle::TURTLE_HANDLE {
             addr = crate::turtle::lookup(name).map_or(0, Gate::addr);
+        }
+        if handle == crate::highlight::HL_HANDLE {
+            addr = crate::highlight::lookup(name).map_or(0, Gate::addr);
         }
         if handle == 0 {
             if let Some(lib) = self.missing_lib.take() {
@@ -188,9 +193,12 @@ impl Machine {
             Some(Gate::HostReaddir) => self.c_readdir(host, arg0)?,
             Some(Gate::HostClosedir) => self.c_closedir(arg0)?,
             Some(Gate::HostSystem) => self.c_system(host, arg0)?,
-            Some(g) => match self.turtle_call(host, g, &args)? {
+            Some(g) => match self.highlight_call(host, g, &args)? {
                 Some(r) => r,
-                None => return Err(Fault::NativeCall { addr: f }),
+                None => match self.turtle_call(host, g, &args)? {
+                    Some(r) => r,
+                    None => return Err(Fault::NativeCall { addr: f }),
+                },
             },
             None => return Err(Fault::NativeCall { addr: f }),
         };

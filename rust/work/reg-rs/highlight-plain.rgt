@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} --color never tests/forth/highlight.f < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "pp and hl-type without colour print exactly what type does"
