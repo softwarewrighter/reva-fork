@@ -22,14 +22,21 @@
   button { font:inherit; color:inherit; background:transparent; border:1px solid var(--line);
            border-radius:4px; padding:0 10px; cursor:pointer; }
   button:disabled { opacity:.4; cursor:default; }
+  #gfx { float:right; margin-left:8px; }
+  #gfx[hidden] { display:none; }
+  /* the graphics pane, where a popup window is not allowed */
+  #panes iframe { width:100%; height:min(60vh, 640px); border:1px solid var(--line); border-radius:4px; margin-top:8px; }
 </style>
 </head>
 <body>
 <main>
-  <header><b>Reva Forth</b> — portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code></header>
+  <header><button type="button" id="gfx" title="Show the turtle graphics window" hidden>Graphics</button>
+    <b>Reva Forth</b> — portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code>
+    or <code>needs turtle/fractals 5 koch-demo</code></header>
   <div id="out" aria-live="polite"></div>
   <form id="f"><span>ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
     <button type="button" id="stop" title="Stop the running word (Ctrl-C)" disabled>Stop</button></form>
+  <div id="panes"></div>
 </main>
 <script type="module">
   // The VM runs in a Web Worker (see reva.js `start`), so this page only
@@ -38,6 +45,7 @@
   // grow the page without bound.
   import { start, RUNNING, HALTED } from "./reva.js";
   import { hostSetup } from "./host.js";
+  import { CanvasChannel } from "./ui.js";
   const MAX_CHUNKS = 4000;
   const out = document.getElementById("out");
   const line = document.getElementById("line");
@@ -65,20 +73,44 @@
     document.title = host.title;
     document.querySelector("header b").textContent = host.title;
   }
-  const image = new URLSearchParams(location.search).get("image") ?? undefined;
+  // ?canvas=pane keeps the graphics in the page instead of a window.
+  const query = new URLSearchParams(location.search);
+  const image = query.get("image") ?? undefined;
+  const gfx = document.getElementById("gfx");
+  let canvas = null;
   const reva = start("reva.wasm", {
     image,
     storage: host.storage,
     onOutput: (s) => { write(s); host.output?.(s); },
+    onUi: (m) => { if (m.channel === "canvas") canvas.handle(m); },
     onStatus: (s) => {
       stop.disabled = s !== RUNNING;
       if (s === HALTED) {
         echo(`\n[exited with status ${reva.exitCode}]\n`);
         line.disabled = true;
-        host.halted?.(reva.exitCode);
+        halted(reva.exitCode);
       }
     },
   });
+  // Turtle graphics go to their own window (ui.js); once used, the
+  // Graphics button brings a closed one back.
+  canvas = new CanvasChannel(host, reva, {
+    where: query.get("canvas") === "pane" ? "pane" : "window",
+    onState: (s) => { gfx.hidden = false; gfx.textContent = s === "closed" ? "Graphics (closed)" : "Graphics"; },
+  });
+  gfx.addEventListener("click", () => {
+    if (canvas.win && !canvas.win.closed()) canvas.win.focus();
+    else canvas.open();
+  });
+  // Batch runs (the desktop's --print-output) report what the graphics
+  // window drew, after giving it a moment to finish.
+  async function halted(code) {
+    if (canvas.used && host.output) {
+      for (let i = 0; i < 40 && canvas.lines === 0; i++) await new Promise((r) => setTimeout(r, 50));
+      host.output(`[canvas: ${canvas.lines} lines]\n`);
+    }
+    host.halted?.(code);
+  }
   const starting = append("starting...\n", "echo");
   for (const n of host.notes ?? []) append(`note: ${n}\n`, "echo");
   await reva.ready;

@@ -14,6 +14,7 @@ what has been carried over and what has not, yet).
 | [Demo script](demo.md) | step by step: what to type in the CLI, the browser and the desktop app, and what you see |
 | [Packaging and Windows](packaging.md) | redistributable builds, license notices, installers, signing; building and testing on Windows 10+ |
 | [Desktop app](desktop.md) | `reva-desktop`: build, run, files on disk, packages |
+| [Turtle graphics](turtle.md) | `~turtle`: Logo-style drawing in a graphics window; fractal demos; SVG |
 | [Portability](portability.md) | what stops on the portable core (native libraries, `shell`, x87/SIMD) and why |
 | [Licenses](licenses.md) | third-party files, their licenses, and the no-copyleft check |
 | [Design](../rust/DESIGN.md) | how the portable core works and why |

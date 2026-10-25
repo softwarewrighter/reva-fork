@@ -15,7 +15,8 @@ here="$(cd "$(dirname "$0")" && pwd)"
 "$here/../rust/scripts/build-web.sh" >/dev/null
 www="$here/../rust/reva-web/www"
 rm -rf "$here/dist" && mkdir -p "$here/dist"
-cp "$www/index.html" "$www/reva.js" "$www/reva-worker.js" "$www/reva.wasm" "$here/dist/"
+cp "$www/index.html" "$www/reva.js" "$www/reva-worker.js" "$www/reva.wasm" \
+   "$www/ui.js" "$www/canvas.html" "$here/dist/"
 cp "$here/host.js" "$here/dist/host.js"
 cd "$here"
 case "${1:-}" in

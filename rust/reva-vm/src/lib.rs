@@ -29,6 +29,7 @@
 //! assert_eq!(host.take_output(), "49 ");
 //! ```
 
+pub mod canvas;
 pub mod embedded;
 pub mod fault;
 pub mod ffi;
@@ -42,6 +43,7 @@ pub mod machine;
 pub mod mem;
 pub mod start;
 pub mod translate;
+pub mod turtle;
 pub mod version;
 pub mod vfs;
 pub mod x86;
