@@ -135,6 +135,8 @@ pub struct Machine {
     /// Directories open through the virtual libc's `opendir` (see
     /// `fileio.rs`).  Host state, like open files: not part of an image.
     pub(crate) dirs: Vec<Option<crate::fileio::DirStream>>,
+    /// Set by [`Machine::interrupt`]; taken at the next step of [`Machine::run`].
+    interrupt: bool,
 }
 
 impl Machine {
@@ -169,6 +171,7 @@ impl Machine {
             trace: false,
             last_pad: (0, 0),
             dirs: Vec::new(),
+            interrupt: false,
         }
     }
 
@@ -430,11 +433,29 @@ impl Machine {
         self.input_closed = true;
     }
 
+    /// Stop the running code (Ctrl-C, a Stop button): at its next step,
+    /// [`Machine::run`] drops queued input and recovers as from a fault
+    /// (`*** interrupted (in WORD ...)`), back to the interpreter loop with
+    /// the dictionary kept and a half-made definition removed.
+    ///
+    /// The host calls this between `run` calls, so code inside a nested
+    /// call (which runs to completion within one step) cannot be stopped
+    /// this way; a host that must always regain control runs the VM where
+    /// it can discard it (the browser's worker: `terminate()`).
+    pub fn interrupt(&mut self) {
+        self.interrupt = true;
+    }
+
     /// Run up to `budget` steps (one instruction or one gateway each).
     pub fn run(&mut self, host: &mut dyn Host, budget: u64) -> Status {
         for _ in 0..budget {
             if let Some(code) = self.halted {
                 return Status::Halted(code);
+            }
+            if std::mem::take(&mut self.interrupt) {
+                self.input.clear();
+                self.recover(host, Fault::Interrupted);
+                continue;
             }
             match self.step(host) {
                 Ok(Flow::Continue) => {}

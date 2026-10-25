@@ -32,6 +32,8 @@ pub enum Fault {
     UnwoundThroughHost,
     /// A region (code, dictionary, heap) is full.
     OutOfSpace(&'static str),
+    /// The host asked to stop the running code ([`crate::Machine::interrupt`]).
+    Interrupted,
 }
 
 impl fmt::Display for Fault {
@@ -58,6 +60,7 @@ impl fmt::Display for Fault {
             }
             Fault::UnwoundThroughHost => write!(f, "throw unwound through a host callback"),
             Fault::OutOfSpace(what) => write!(f, "out of {what} space"),
+            Fault::Interrupted => write!(f, "interrupted"),
         }
     }
 }

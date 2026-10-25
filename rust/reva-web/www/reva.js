@@ -1,15 +1,22 @@
 // reva.js — drive the Reva WebAssembly module from a browser or Node.
 //
-// The module has no imports.  Input is pushed in, the VM runs in small
-// slices (so the page never freezes, even in an infinite loop), and output
-// is pulled out after each slice.
+// Two layers:
+//
+// * `Reva` wraps one module instance: push input in, run a slice, pull
+//   output out.  The module has no imports and never blocks; when Forth
+//   wants a key that has not arrived, a slice ends with NEED_INPUT.
+// * `start()` gives a page a session that keeps it responsive: the VM runs
+//   in a Web Worker (reva-worker.js) in slices of about 8 ms, and the page
+//   only receives output, status and changed files.  Where a worker cannot
+//   start, the same loop runs on the page's thread instead.
 //
 // Files live in memory inside the module (lib/ is built in, at /reva/lib/).
 // Give `files` to bundle your own, and `storage` (e.g. localStorage) to keep
 // what Forth code writes: each changed file is stored under `prefix + path`
-// after every run, and restored on the next load.
+// whenever the VM stops for input or halts, and restored on the next load.
 
 export const YIELDED = 0, NEED_INPUT = 1, HALTED = 2;
+export const RUNNING = "running";
 
 // Files are bytes; Web Storage holds strings, so store one char per byte.
 const toLatin1 = (bytes) => {
@@ -19,6 +26,64 @@ const toLatin1 = (bytes) => {
   return s;
 };
 const fromLatin1 = (s) => Uint8Array.from(s, (c) => c.charCodeAt(0));
+
+/** Every file saved in `storage` under `prefix`, as `{ path: bytes }`. */
+export function storedFiles(storage, prefix = "reva:fs:") {
+  const files = {};
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
+    if (key && key.startsWith(prefix))
+      files[key.slice(prefix.length)] = fromLatin1(storage.getItem(key));
+  }
+  return files;
+}
+
+/** Save a list of changes (`[{ path, data | null }]`) to `storage`. */
+export function saveChanges(storage, list, prefix = "reva:fs:") {
+  for (const { path, data } of list) {
+    try {
+      if (data) storage.setItem(prefix + path, toLatin1(data));
+      else storage.removeItem(prefix + path);
+    } catch (e) {
+      console.warn(`reva: could not save ${path}:`, e);
+    }
+  }
+}
+
+/**
+ * Give the event loop a turn.  A MessageChannel message runs as the next
+ * task without the 4 ms minimum that nested `setTimeout(0)` calls get, but
+ * some event loops (Node's, at least) run a port's messages ahead of other
+ * work, so every `FAIR_MS` a timer is used instead: that is what lets a
+ * worker see `input` and `stop` messages while it computes.  On a page,
+ * `scheduler.yield()` (where it exists) lets the browser draw first.
+ */
+const FAIR_MS = 25;
+const channel = typeof MessageChannel === "function" ? new MessageChannel() : null;
+const waiting = [];
+let lastTimer = 0;
+if (channel) {
+  channel.port1.onmessage = () => {
+    waiting.shift()?.();
+    if (!waiting.length) channel.port1.unref?.(); // Node: idle, let the process exit
+  };
+  channel.port1.unref?.();
+}
+export function yieldNow() {
+  const now = performance.now();
+  if (!channel || now - lastTimer >= FAIR_MS) {
+    lastTimer = now;
+    return new Promise((r) => setTimeout(r, 0));
+  }
+  // scheduler.yield() resumes ahead of other tasks, so it is only used on a
+  // page (to let it draw), never in a worker that must hear `stop`.
+  if (globalThis.document && globalThis.scheduler?.yield) return globalThis.scheduler.yield();
+  return new Promise((r) => {
+    waiting.push(r);
+    channel.port1.ref?.();
+    channel.port2.postMessage(0);
+  });
+}
 
 export class Reva {
   /**
@@ -39,7 +104,7 @@ export class Reva {
 
   /** Load and boot from a URL (browser) or bytes (Node); see the constructor. */
   static async load(source, options) {
-    const bytes = typeof source === "string"
+    const bytes = typeof source === "string" || source instanceof URL
       ? await (await fetch(source)).arrayBuffer()
       : source;
     const { instance } = await WebAssembly.instantiate(bytes, {});
@@ -87,25 +152,14 @@ export class Reva {
   /** Save changed files to `storage`; returns how many changed. */
   persist() {
     const list = this.changes();
-    if (!this.storage) return list.length;
-    for (const { path, data } of list) {
-      try {
-        if (data) this.storage.setItem(this.prefix + path, toLatin1(data));
-        else this.storage.removeItem(this.prefix + path);
-      } catch (e) {
-        console.warn(`reva: could not save ${path}:`, e);
-      }
-    }
+    if (this.storage) saveChanges(this.storage, list, this.prefix);
     return list.length;
   }
 
   /** Load every file saved in `storage` into the file system. */
   restore() {
-    for (let i = 0; i < this.storage.length; i++) {
-      const key = this.storage.key(i);
-      if (key && key.startsWith(this.prefix))
-        this.put(key.slice(this.prefix.length), fromLatin1(this.storage.getItem(key)));
-    }
+    for (const [path, data] of Object.entries(storedFiles(this.storage, this.prefix)))
+      this.put(path, data);
   }
 
   feed(text) {
@@ -116,6 +170,14 @@ export class Reva {
   }
 
   closeInput() { this.x.reva_close_input(); }
+
+  /** Stop the running word at the next step (prints `*** interrupted`). */
+  interrupt() { this.x.reva_interrupt(); }
+
+  /** Give the VM the wall clock (it has no imports, so it cannot read one). */
+  setClock(ms = Date.now()) {
+    this.x.reva_set_time(Math.floor(ms / 1000), Math.floor((ms % 1000) * 1000));
+  }
 
   takeOutput() {
     const n = this.x.reva_output_len();
@@ -128,26 +190,163 @@ export class Reva {
 
   get exitCode() { return this.x.reva_exit_code(); }
 
-  /** One slice of work. */
+  /** One slice of at most `budget` VM steps. */
   step(budget = 200000) {
     this.status = this.x.reva_run(budget);
     return this.status;
   }
 
   /**
-   * Run until the VM needs input or halts, handing output to `onOutput`
-   * after every slice and yielding to the event loop between slices.
+   * Run until the VM needs input or halts, in slices of about `sliceMs`
+   * milliseconds (checked every `budget` steps), handing output to
+   * `onOutput` after each slice and yielding to the event loop between
+   * slices.  Saves changed files to `storage` when it stops.
    */
-  async run(onOutput = () => {}, budget = 200000) {
+  async run(onOutput = () => {}, { sliceMs = 8, budget = 50000, clock = true } = {}) {
     for (;;) {
-      const s = this.step(budget);
+      if (clock) this.setClock();
+      const t0 = performance.now();
+      let s;
+      do s = this.step(budget);
+      while (s === YIELDED && performance.now() - t0 < sliceMs);
       const out = this.takeOutput();
       if (out) onOutput(out);
       if (s !== YIELDED) {
         if (this.storage) this.persist();
         return s;
       }
-      await new Promise((r) => setTimeout(r, 0));
+      await yieldNow();
     }
   }
+}
+
+/**
+ * Start a session for a page: the VM in a Web Worker where possible.
+ *
+ * Options: `files` (bundled, `{ path: string | bytes }`), `storage` and
+ * `prefix` (persistence), `onOutput(text)`, `onStatus(status)` (RUNNING,
+ * NEED_INPUT or HALTED), `worker` (false: run on this thread), `workerUrl`,
+ * `createWorker(url)` (for tests), `stopTimeoutMs` (default 2000).
+ *
+ * Returns `{ kind, ready, feed(text), closeInput(), stop(), idle(), status,
+ * exitCode, terminate() }`; `ready` resolves after boot with its output
+ * already sent to `onOutput`.
+ */
+export function start(wasmUrl, options = {}) {
+  const {
+    worker = typeof Worker === "function" || !!options.createWorker,
+    storage = null, prefix = "reva:fs:",
+  } = options;
+  const files = { ...options.files, ...(storage ? storedFiles(storage, prefix) : {}) };
+  const opts = { ...options, files, storage, prefix, wasmUrl: String(wasmUrl) };
+  if (worker) {
+    try {
+      return new WorkerSession(opts);
+    } catch (e) {
+      console.warn("reva: no worker, running on this thread:", e);
+    }
+  }
+  return new LocalSession(opts);
+}
+
+class Session {
+  constructor({ onOutput = () => {}, onStatus = () => {} }) {
+    this.onOutput = onOutput;
+    this.onStatus = onStatus;
+    this.status = RUNNING;
+    this.exitCode = 0;
+    this.waiters = [];
+  }
+  setStatus(s, exitCode = 0) {
+    this.status = s;
+    this.exitCode = exitCode;
+    this.onStatus(s);
+    if (s !== RUNNING) for (const w of this.waiters.splice(0)) w(s);
+  }
+  /** Resolves once the VM is waiting for input or has halted. */
+  idle() {
+    return this.status === RUNNING ? new Promise((r) => this.waiters.push(r)) : Promise.resolve(this.status);
+  }
+}
+
+/** The VM on this thread (fallback, and for pages that ask for it). */
+class LocalSession extends Session {
+  constructor(o) {
+    super(o);
+    this.kind = "main";
+    this.ready = Reva.load(o.wasmUrl, { files: o.files }).then(async (reva) => {
+      this.reva = reva;
+      reva.setClock();
+      const out = reva.takeOutput();
+      if (out) this.onOutput(out);
+      this.storage = o.storage;
+      this.prefix = o.prefix;
+      this.setStatus(reva.status);
+    });
+  }
+  async pump() {
+    if (this.pumping || !this.reva) return;
+    this.pumping = true;
+    this.setStatus(RUNNING);
+    const s = await this.reva.run(this.onOutput);
+    this.pumping = false;
+    if (this.storage) saveChanges(this.storage, this.reva.changes(), this.prefix);
+    this.setStatus(s, s === HALTED ? this.reva.exitCode : 0);
+  }
+  feed(text) { this.reva.feed(text); this.pump(); }
+  closeInput() { this.reva.closeInput(); this.pump(); }
+  stop() { if (this.status === RUNNING) this.reva.interrupt(); }
+  terminate() {}
+}
+
+/** The VM in a Web Worker (reva-worker.js); see the message table there. */
+class WorkerSession extends Session {
+  constructor(o) {
+    super(o);
+    this.kind = "worker";
+    this.o = o;
+    this.spawn();
+  }
+  spawn() {
+    const o = this.o;
+    const url = o.workerUrl ?? new URL("./reva-worker.js", import.meta.url);
+    this.w = o.createWorker ? o.createWorker(url) : new Worker(url, { type: "module" });
+    this.status = RUNNING;
+    let booted;
+    this.ready = new Promise((r) => (booted = r));
+    this.w.onmessage = ({ data: m }) => {
+      switch (m.type) {
+        case "output": this.onOutput(m.text); break;
+        case "files": if (o.storage) saveChanges(o.storage, m.list, o.prefix); break;
+        case "status":
+          clearTimeout(this.stopTimer);
+          this.setStatus(m.status, m.exitCode);
+          if (m.boot) booted();
+          break;
+        case "error": this.onOutput(`\n*** ${m.message}\n`); break;
+      }
+    };
+    this.w.onerror = (e) => this.onOutput(`\n*** worker: ${e.message ?? e}\n`);
+    // Files restored from storage go in again on a restart.
+    const files = o.storage ? { ...o.files, ...storedFiles(o.storage, o.prefix) } : o.files;
+    this.w.postMessage({ type: "init", wasm: o.wasmBytes ?? new URL(o.wasmUrl, globalThis.location?.href).href, files });
+  }
+  feed(text) { this.status = RUNNING; this.w.postMessage({ type: "input", text }); }
+  closeInput() { this.status = RUNNING; this.w.postMessage({ type: "close" }); }
+  /**
+   * Interrupt the running word.  If the worker does not answer in
+   * `stopTimeoutMs` (a loop inside one VM step), replace it with a fresh
+   * one: files already saved survive, the session's definitions do not.
+   */
+  stop() {
+    if (this.status !== RUNNING) return;
+    this.w.postMessage({ type: "stop" });
+    clearTimeout(this.stopTimer);
+    this.stopTimer = setTimeout(() => {
+      this.w.terminate();
+      this.onOutput("\n*** not responding: restarted\n");
+      this.spawn();
+    }, this.o.stopTimeoutMs ?? 2000);
+  }
+  terminate() { clearTimeout(this.stopTimer); this.w.terminate(); }
 }
