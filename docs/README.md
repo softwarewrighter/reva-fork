@@ -11,6 +11,8 @@ what has been carried over and what has not, yet).
 | [Gotchas](gotchas.md) | pitfalls, old and new |
 | [Parity](parity.md) | old wiki topics and example programs vs. the portable core |
 | [Example parity](parity-examples.md) | generated status of every program in `examples/` |
+| [Demo script](demo.md) | step by step: what to type in the CLI, the browser and the desktop app, and what you see |
+| [Packaging and Windows](packaging.md) | redistributable builds, license notices, installers, signing; building and testing on Windows 10+ |
 | [Desktop app](desktop.md) | `reva-desktop`: build, run, files on disk, packages |
 | [Portability](portability.md) | what stops on the portable core (native libraries, `shell`, x87/SIMD) and why |
 | [Licenses](licenses.md) | third-party files, their licenses, and the no-copyleft check |

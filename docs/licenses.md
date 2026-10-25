@@ -115,4 +115,5 @@ packages that depend on the distribution's `libwebkit2gtk-4.1-0`, not an
 AppImage that would carry it.
 
 The app's icon (`desktop/reva-desktop/icons/icon.png`) is a copy of
-`contrib/reva128.png` (Reva, public domain).
+`contrib/reva128.png` (Reva, public domain); `icon.ico`, which Windows
+builds need, is the same image at 16 to 128 pixels.
