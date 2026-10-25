@@ -37,6 +37,7 @@
   // console keeps its last MAX_CHUNKS pieces so a chatty program cannot
   // grow the page without bound.
   import { start, RUNNING, HALTED } from "./reva.js";
+  import { hostSetup } from "./host.js";
   const MAX_CHUNKS = 4000;
   const out = document.getElementById("out");
   const line = document.getElementById("line");
@@ -55,25 +56,37 @@
   const write = (s) => { pending += s; frame ||= requestAnimationFrame(flush); };
   const echo = (s) => { flush(); append(s, "echo"); };
 
-  // Files Forth code writes are kept in this browser (localStorage).
+  // The host (host.js) says where files are kept (the browser: in
+  // localStorage; the desktop app: in a folder) and what to feed at start.
   // reva.status starts as RUNNING (booting); onStatus reports each change.
   // ?image=app.img starts from a saved image instead of booting reva.f.
+  const host = await hostSetup();
+  if (host.title) {
+    document.title = host.title;
+    document.querySelector("header b").textContent = host.title;
+  }
   const image = new URLSearchParams(location.search).get("image") ?? undefined;
   const reva = start("reva.wasm", {
     image,
-    storage: localStorage,
-    onOutput: write,
+    storage: host.storage,
+    onOutput: (s) => { write(s); host.output?.(s); },
     onStatus: (s) => {
       stop.disabled = s !== RUNNING;
       if (s === HALTED) {
         echo(`\n[exited with status ${reva.exitCode}]\n`);
         line.disabled = true;
+        host.halted?.(reva.exitCode);
       }
     },
   });
   const starting = append("starting...\n", "echo");
+  for (const n of host.notes ?? []) append(`note: ${n}\n`, "echo");
   await reva.ready;
   starting.remove();
+  for (const text of host.input ?? []) {
+    echo(text + "\n");
+    reva.feed(text + "\n");
+  }
 
   document.getElementById("f").addEventListener("submit", (e) => {
     e.preventDefault();
