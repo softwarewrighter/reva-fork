@@ -15,6 +15,7 @@
 // (the browser's ?package= loader and the desktop app both pass it on):
 //
 //   "about": { "name": "CoSy", "version": "...", "description": "...",
+//              "build": "b34a4dc 2026-10-25",  (the package's own commit)
 //              "credits": ["CoSy: Bob Armstrong", ...],
 //              "links": [{ "label": "CoSy.com", "url": "https://..." }] }
 //
@@ -30,7 +31,7 @@ const REPO = "https://github.com/softwarewrighter/reva-fork";
 /** reva-fork's own entry. */
 export const REVA = {
   name: "reva-fork",
-  description: "Reva Forth, ported to a portable 64-bit core and WebAssembly.",
+  description: "Reva Forth on a portable 32-bit VM (vx86), for 64-bit hosts and WebAssembly.",
   credits: [
     "Reva Forth: Ron Aaron and contributors (public domain)",
     "Portable core, WebAssembly, desktop app: Michael A. Wright (MIT)",
@@ -64,6 +65,15 @@ export const safeUrl = (u) => {
   }
 };
 
+/**
+ * Fill `el` with a hint: text where `code` spans are marked with
+ * backticks ("Try `5 koch-demo`").  Text nodes only, never HTML.
+ */
+export function showHint(target, hint) {
+  target.replaceChildren(...String(hint).split("`").map((t, i) =>
+    i % 2 ? el("code", { textContent: t }) : document.createTextNode(t)));
+}
+
 /** A package's "about", checked: strings and lists of the right shape only. */
 export function packageAbout(m) {
   const a = m?.about && typeof m.about === "object" ? m.about : {};
@@ -74,6 +84,7 @@ export function packageAbout(m) {
     name,
     version: str(a.version),
     description: str(a.description),
+    build: str(a.build),
     credits: Array.isArray(a.credits) ? a.credits.map(str).filter(Boolean).slice(0, 20) : [],
     links: Array.isArray(a.links)
       ? a.links.filter((l) => str(l?.label) && str(l?.url)).slice(0, 20)
@@ -105,13 +116,14 @@ function linkList(links, openUrl) {
   return ul;
 }
 
-function entry({ name, version, description, credits = [], links = [], licenses = [] }, openUrl, heading) {
+function entry({ name, version, description, build, credits = [], links = [], licenses = [] }, openUrl, heading) {
   const s = el("section");
   s.append(el("h2", { textContent: heading ?? (version ? `${name} ${version}` : name) }));
   if (description) s.append(el("p", { textContent: description }));
   if (credits.length) s.append(el("ul", { className: "credits" }, ...credits.map((c) => el("li", { textContent: c }))));
   if (links.length) s.append(linkList(links, openUrl));
   if (licenses.length) s.append(el("p", { className: "muted", textContent: "Licenses:" }), linkList(licenses, openUrl));
+  if (build) s.append(el("p", { className: "muted", textContent: `build ${build}` }));
   return s;
 }
 
@@ -122,16 +134,13 @@ function entry({ name, version, description, credits = [], links = [], licenses 
  */
 export function aboutDialog({ pkg = null, openUrl = null } = {}) {
   const build = buildInfo();
-  const stamp = build
-    ? `build ${[build.commit, build.date].filter(Boolean).join(" · ")}`
-    : "development build (source tree)";
-  const reva = { ...REVA, version: build?.version };
+  const reva = { ...REVA, version: build?.version, build: build ? `reva-fork ${[build.commit, build.date].filter(Boolean).join(" · ")}` : "development build (source tree)" };
   const close = el("button", { type: "button", textContent: "Close", className: "close" });
   const d = el("dialog", { id: "about" });
   d.setAttribute("aria-label", `About ${pkg?.name ?? "Reva Forth"}`);
   if (pkg) d.append(entry(pkg, openUrl));
   const revaHead = `${pkg ? "on " : ""}reva-fork${reva.version ? ` ${reva.version}` : ""}`;
-  d.append(entry(reva, openUrl, revaHead), el("p", { className: "muted", textContent: stamp }), close);
+  d.append(entry(reva, openUrl, revaHead), close);
   close.addEventListener("click", () => d.close());
   // a click on the backdrop (the dialog element itself, outside its content) closes it
   d.addEventListener("click", (e) => {
