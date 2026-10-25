@@ -133,9 +133,12 @@ mechanism described in [rust/DESIGN.md §4](rust/DESIGN.md#4-non-functional-requ
 
 ## Branches
 
-- `dev`: the default branch, where finished work is integrated.
+- `dev`: the default branch. Every change merges here first.
 - feature branches: one per change, branched from `dev` and merged back.
-- `master`: the original import, kept for reference.
+- `main`: the tested release line. `dev` merges into `main` (with a merge
+  commit, never a squash, so the two histories stay aligned) once the gates
+  pass: `cargo test --release --workspace`, `scripts/doc-check.sh` and the
+  reg-rs suite. The original x86 import is the first commit, `edc8cbe`.
 
 ## License
 
