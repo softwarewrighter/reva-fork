@@ -34,7 +34,7 @@ covers the same ground.
 | Chapter | Status | Replacement / plan |
 |---|---|---|
 | Installation, Command-line parameters | done | [getting-started.md](getting-started.md) |
-| Glossary, Built-in help system | blocked | `src/help.txt` (6,000 lines, in the repository) is the source: generate a glossary page from it, with a note per word on whether it works yet |
+| Glossary, Built-in help system | blocked | `src/help.txt` (6,000 lines, in the repository) is the source: generate a glossary page from it, with a note per word on whether it works yet; `help` will read a text index built from it instead of the SQLite `help.db` (see Decisions) |
 | Turnkey (standalone applications) | ready | `save NAME` (and `(save)`) write a vx86 image instead of an executable; start it with `reva --image NAME` or in the browser (`start(..., { image })`). `restart` starts over from the same image or boot |
 | Cells and Stacks, Words and the dictionary, Numbers, Strings | partial | material exists across [gotchas.md](gotchas.md) and [DESIGN.md](../rust/DESIGN.md); `reva.f` now boots fully, so topic pages can be written |
 | Deferred words, Contexts, Libraries | ready | `defer`/`is`, `context:`/`with~`/`~ctx.word`, `needs` all work |
@@ -86,19 +86,26 @@ with `argc` = 2, as on the original)
 | lib | 37 | yes | `needs` + the libraries in `lib/` |
 | os | 9 | yes, through the host | files: done (CLI and browser); processes, threads: CLI host first; browser where meaningful |
 | net | 7 | CLI yes; browser decide | sockets, HTTP, CGI |
-| db | 5 | decide | SQLite/MySQL via FFI (native) — browser would need a different backend |
-| gui | 29 | **decide** | IUP, GTK, OpenGL, Win32 — prebuilt x86 libraries; see below |
+| db | 5 | yes (SQLite), later | decided: SQLite compiled into the VM as a virtual library on every host; MySQL dropped (GPL client) |
+| gui | 29 | new UI library | decided: a host UI service (browser first, then a Tauri desktop shell); IUP/GTK/OpenGL/Win32 programs stay in `examples/` for reference |
 
-## Decisions needed
+## Decisions
 
-1. **GUI programs (29).** They depend on prebuilt 32-bit IUP/GTK/OpenGL and
-   Win32 libraries. Options: (a) support native GUI libraries through FFI on
-   the CLI host only; (b) provide a new browser-based UI library for the
-   wasm host and port selected demos to it; (c) drop them and keep them in
-   `legacy/` for reference. They are not counted toward parity until decided.
-2. **Database and network programs in the browser.** Native builds can reach
-   SQLite and sockets through FFI; in the browser these need different
-   backends (or are out of scope).
+Items 1 and 2 were decided on 2026-10-25, together with the license policy
+in [licenses.md](licenses.md); item 3 is still open.
+
+1. **GUI programs (29).** No native GUI libraries: the core reaches C
+   libraries only through virtual libraries (Rust bindings inside the VM),
+   because Forth passes 32-bit VM addresses that native 64-bit code cannot
+   use. A small UI service (panes, text, key bindings, an SVG surface) will
+   be served by the browser page and, for Linux and macOS (Windows later), by
+   a Tauri desktop shell that reuses the same page. Selected demos get ported
+   to it; the IUP/GTK/OpenGL/Win32 programs are not counted toward parity.
+2. **Database and network.** Help (`help`) will read a text index built
+   from `src/help.txt` instead of `help.db`. SQLite will later be compiled
+   into the VM as a virtual `libsqlite3`, so `lib/db/sqlite` runs unchanged
+   on the CLI, the desktop and in the browser. `lib/db/mysql` is dropped (its
+   client library is GPL). Sockets and HTTP become host services when needed.
 3. **Tutorial internals chapters.** The intermediate tutorial explains the
    x86 interpreter and compiler. The vx86 core keeps the same compiled code,
    so most of it stays true, but the "inner workings" chapters should be
@@ -106,6 +113,8 @@ with `argc` = 2, as on the original)
 
 ## Keeping this page honest
 
+- `rust/scripts/license-check.sh` must pass (no copyleft code, every binary
+  reviewed in [licenses.md](licenses.md)).
 - `rust/scripts/doc-check.sh ../docs/*.md` must pass (run by the regression
   suite as `docs-samples`).
 - `rust/scripts/parity-examples.sh` output is a regression baseline
