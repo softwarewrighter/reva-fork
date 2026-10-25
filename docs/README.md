@@ -13,6 +13,7 @@ what has been carried over and what has not, yet).
 | [Example parity](parity-examples.md) | generated status of every program in `examples/` |
 | [Demo script](demo.md) | step by step: what to type in the CLI, the browser and the desktop app, and what you see |
 | [Packaging and Windows](packaging.md) | redistributable builds, license notices, installers, signing; building and testing on Windows 10+ |
+| [REPL keys and history](repl.md) | Up/Down history, Ctrl-R search, Emacs line editing in every REPL |
 | [Browser and static site](web.md) | URL options, the split view, `?package=`, the uploadable zip (`just web-zip`) |
 | [reva-serve](serve.md) | the browser REPL (and a package) as one local binary per OS; release builds |
 | [Desktop app](desktop.md) | `reva-desktop`: build, run, files on disk, packages |
