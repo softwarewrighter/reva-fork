@@ -148,4 +148,13 @@ await imageSession.idle();
 check("worker starts from an image", iout, BANNER + "from the image\n\nok> ");
 imageSession.terminate();
 
+// The page shows colour, so `hl-type` writes ANSI escapes (www/ansi.js
+// turns them into spans).
+const hl = await Reva.load(wasm);
+hl.feed("needs highlight/core \" : sq dup * ;\" hl-type\n");
+let hout = "";
+await hl.run((s) => (hout += s));
+check("hl-type colours", hout.slice(BANNER.length),
+  "\x1b[1;33m:\x1b[0m \x1b[1;33msq\x1b[0m \x1b[34mdup\x1b[0m \x1b[34m*\x1b[0m \x1b[1;33m;\x1b[0m\nok> ");
+
 process.exit(failed ? 1 : 0);

@@ -28,6 +28,18 @@
   form { display:flex; gap:8px; border-top:1px solid var(--line); padding-top:8px; }
   #line { flex:1; font:inherit; color:inherit; background:transparent; border:0; outline:none; }
   .echo { color: var(--muted); }
+  /* ANSI colours in output (ansi.js; `pp` listings): theme slots, as in a terminal */
+  #out .b { font-weight:bold; } #out .d { opacity:.7; } #out .i { font-style:italic; } #out .u { text-decoration:underline; }
+  #out .fg0 { color:#1d1d1b; } #out .fg1 { color:#b3261e; } #out .fg2 { color:#1f7a3a; } #out .fg3 { color:#8a6100; }
+  #out .fg4 { color:#2a5db0; } #out .fg5 { color:#8e3fa8; } #out .fg6 { color:#137a85; } #out .fg7 { color:#6b6a65; }
+  #out .fg8 { color:#7b7a73; } #out .fg9 { color:#d03b30; } #out .fg10 { color:#2e8b4a; } #out .fg11 { color:#9a7000; }
+  #out .fg12 { color:#3b6fd0; } #out .fg13 { color:#a04cc0; } #out .fg14 { color:#1a8c99; } #out .fg15 { color:#1d1d1b; }
+  @media (prefers-color-scheme: dark) {
+    #out .fg0 { color:#5c6370; } #out .fg1 { color:#e06c75; } #out .fg2 { color:#98c379; } #out .fg3 { color:#e5c07b; }
+    #out .fg4 { color:#61afef; } #out .fg5 { color:#c678dd; } #out .fg6 { color:#56b6c2; } #out .fg7 { color:#d7dae0; }
+    #out .fg8 { color:#7f8796; } #out .fg9 { color:#ef8a91; } #out .fg10 { color:#b5e08f; } #out .fg11 { color:#f5c518; }
+    #out .fg12 { color:#8cc4f5; } #out .fg13 { color:#dc9cf0; } #out .fg14 { color:#7fd3dd; } #out .fg15 { color:#ffffff; }
+  }
   button { font:inherit; color:inherit; background:transparent; border:1px solid var(--line);
            border-radius:4px; padding:0 10px; cursor:pointer; }
   button:disabled { opacity:.4; cursor:default; }
@@ -100,6 +112,7 @@
   import { aboutDialog, packageAbout, showHint } from "./about.js";
   import { lineEditor } from "./lineedit.js";
   import { packageId } from "./package.js";
+  import { Ansi } from "./ansi.js";
   const MAX_CHUNKS = 4000;
   const out = document.getElementById("out");
   const line = document.getElementById("line");
@@ -114,7 +127,23 @@
     out.scrollTop = out.scrollHeight;
     return span;
   };
-  const flush = () => { frame = 0; if (pending) append(pending); pending = ""; };
+  // Forth output may carry ANSI colour (ansi.js): one span per flush, with
+  // a child span per coloured run, so MAX_CHUNKS still counts flushes.
+  const ansi = new Ansi();
+  const appendOut = (s) => {
+    const runs = ansi.feed(s);
+    if (runs.length === 1 && !runs[0][1]) return append(runs[0][0]);
+    const span = append("");
+    for (const [t, c] of runs) {
+      if (!c) { span.append(t); continue; }
+      const r = document.createElement("span");
+      r.className = c;
+      r.textContent = t;
+      span.append(r);
+    }
+    return span;
+  };
+  const flush = () => { frame = 0; if (pending) appendOut(pending); pending = ""; };
   const write = (s) => { pending += s; frame ||= requestAnimationFrame(flush); };
   const echo = (s) => { flush(); append(s, "echo"); };
   // The form is live from the start (a package can take a moment to

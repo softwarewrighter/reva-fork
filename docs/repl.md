@@ -41,6 +41,8 @@ the key table both front ends follow.
   mode (for example Git Bash's mintty), `reva` falls back to plain lines
   by itself.
 * Long lines scroll sideways on one row instead of wrapping.
+* **Colour listings:** `pp FILE` (after `needs highlight/core`) lists
+  source in colour; see [highlight.md](highlight.md) and `reva --color`.
 * If the terminal is ever left in a strange state, `stty sane` (Unix)
   puts it right; `reva` restores it after each line and on a panic.
 

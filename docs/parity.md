@@ -89,6 +89,15 @@ with `argc` = 2, as on the original)
 | db | 5 | yes (SQLite), later | decided: SQLite compiled into the VM as a virtual library on every host; MySQL dropped (GPL client) |
 | gui | 29 | new UI library | decided: a host UI service (browser first, then the [desktop app](desktop.md), which exists now as a REPL window that packages can brand with their own title and icon); IUP/GTK/OpenGL/Win32 programs stay in `examples/` for reference. First channel done: 2D [turtle graphics](turtle.md) in a separate window, a pane, or a [split view](web.md#the-split-view) beside the REPL (desktop, browser), or as SVG (CLI) |
 
+## New in the portable core
+
+Not in the x86 distribution, so not counted toward parity:
+
+- [REPL history and line editing](repl.md) in every front end.
+- [Colour source listings](highlight.md): `pp FILE` and `hl-type`, with a
+  token table shared with the blog's figure script. `slurp type` stays plain.
+- [Turtle graphics](turtle.md) (also listed under gui above).
+
 ## Decisions
 
 Items 1 and 2 were decided on 2026-10-25, together with the license policy

@@ -5,6 +5,7 @@
 Usage:
   forth-highlight.py FILE [--lines A-B] [--title TEXT] [--no-numbers] [-o OUT.html]
   forth-highlight.py FILE [--lines A-B] [--title TEXT] --png OUT.png [--scale 2]
+  ... [--table FORTH.tbl --table COSY.tbl]
 
 Writes a self-contained HTML page (stdout by default). With --png it renders
 that page with headless Chrome or Chromium (CHROME=/path overrides the search)
@@ -12,21 +13,26 @@ into a PNG sized to the code, for slides, docs and blog figures.
 
 Highlighting is lexical, one line at a time: `|` comments to the end of the
 line, `( ... )` stack comments, strings (`"`, `s"`, `."`), character literals
-('F), numbers, `:` definitions and their names, control-flow words, turtle
-graphics words and CoSy list verbs. Python 3 standard library only.
+('F), numbers, `:` definitions and their names; other words get their class
+and colour from token tables (--table, repeatable; default
+lib/highlight/forth.tbl, the table the REPLs' `pp` uses, see
+docs/highlight.md). Python 3 standard library only.
 """
 import argparse, html, os, re, shutil, subprocess, sys, tempfile
 
-CONTROL = set("if else then ;then 0if if; do 0do ?do loop +loop leave begin while repeat until again "
-              "case of endof endcase exit >r r> r@ bounds recurse".split())
-TURTLE = set("forward fd back bk right rt left lt setxy setheading seth home xy@ heading@ penup pu "
-             "pendown pd color width bg step step! scale tpush tpop clear path svg-save "
-             "black white red green blue orange purple brown".split())
-COSY = set("at at! ,/ +\\ & cL reverse i# vbody enc enc' _i _iota i>c c>i +i -i *i "
-           "refs+> refs- >value rho".split())
-STACK = set("dup drop swap over rot -rot nip tuck 2dup 2drop 2swap 2over ?dup pick roll negate abs "
-            "1- 1+ 2* 2/ min max and or xor invert * / mod /mod */ << >> = <> < > 0= - + "
-            "cells cell+ ! @ c! c@ +! fill allot create variable constant value".split())
+LEXICAL = ("com", "stk", "str", "num", "colon", "def")
+DEFAULT_TABLE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "lib", "highlight", "forth.tbl")
+STYLES, WORDS = {}, {}
+
+def load_table(path):
+    """Add a token table (lib/highlight/forth.tbl's format; later lines win)."""
+    for line in open(path, encoding="utf-8").read().splitlines():
+        f = line.split()
+        if len(f) >= 3 and f[0] == "style":
+            STYLES[f[1]] = " ".join(f[3:])
+        elif len(f) >= 2 and f[0] == "words":
+            for w in f[2:]:
+                WORDS[w] = f[1]
 
 def tokens(line):
     out, i, n, naming = [], 0, len(line), False
@@ -53,16 +59,8 @@ def tokens(line):
             kind = "str"
         elif re.fullmatch(r"-?\d+|\$[0-9a-fA-F]+", w):
             kind = "num"
-        elif w.lower() in CONTROL:
-            kind = "ctl"
-        elif w in TURTLE:
-            kind = "tur"
-        elif w in COSY:
-            kind = "cosy"
-        elif w.lower() in STACK:
-            kind = "stack"
         else:
-            kind = "w"
+            kind = WORDS.get(w) or WORDS.get(w.lower()) or "w"
         out.append((kind, w)); i += len(w)
     return out
 
@@ -71,9 +69,7 @@ CSS = """body{margin:0;background:#16181d}
  font-family:"JetBrains Mono",Menlo,"DejaVu Sans Mono",Consolas,monospace;font-size:15px;line-height:1.45}
 .title{font-family:"Helvetica Neue",Arial,sans-serif;font-size:14px;color:#f5c518;margin-bottom:10px}
 .ln{white-space:pre}.no{display:inline-block;width:2.2em;color:#4b5160;text-align:right;margin-right:1em;user-select:none}
-.com{color:#7f8796;font-style:italic}.stk{color:#7f8796}.str{color:#e5b567}.num{color:#d19a66}
-.colon,.def{color:#f5c518;font-weight:bold}.ctl{color:#c678dd}.tur{color:#56b6c2}
-.cosy{color:#98c379;font-weight:bold}.stack{color:#9fb7d9}"""
+"""
 
 def page(lines, first, title, numbers):
     rows = []
@@ -83,7 +79,7 @@ def page(lines, first, title, numbers):
         rows.append('<div class="ln">%s%s</div>' % (no, body))
     head = '<div class="title">%s</div>' % html.escape(title) if title else ""
     return ('<!doctype html><meta charset="utf-8"><style>%s</style><div id="code">%s%s</div>\n'
-            % (CSS, head, "".join(rows)))
+            % (CSS + "".join(".%s{%s}" % kv for kv in STYLES.items()), head, "".join(rows)))
 
 def chrome():
     for c in [os.environ.get("CHROME"), "google-chrome", "chromium", "chromium-browser", "chrome",
@@ -102,7 +98,11 @@ def main():
     ap.add_argument("-o", "--output")
     ap.add_argument("--png")
     ap.add_argument("--scale", type=float, default=2.0)
+    ap.add_argument("--table", action="append", default=[],
+                    help="token table, repeatable (default: lib/highlight/forth.tbl)")
     a = ap.parse_args()
+    for t in a.table or [DEFAULT_TABLE]:
+        load_table(t)
     text = open(a.file, encoding="utf-8", errors="replace").read().split("\n")
     first, last = 1, len(text)
     if a.lines:
