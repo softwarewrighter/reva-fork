@@ -1,0 +1,39 @@
+| highlight/forth.tbl: the Forth token table
+|
+| Read by `pp` and `hl-type` (lib/highlight/core, through reva-vm's
+| highlight.rs) and by the blog's rust/scripts/forth-highlight.py, so the
+| REPLs and the figures colour the same tokens.  A package can add its own
+| table after this one (CoSy does); later lines win.
+|
+|   style CLASS SGR CSS    ANSI SGR codes for terminals and the REPL page,
+|                          then the CSS the HTML/PNG figures use
+|   words CLASS WORD ...   words in CLASS (matched as written, then in
+|                          lower case)
+|
+| The lexical classes (com stk str num colon def) are found by the
+| tokenizer; they need a style here but no words.  SGR codes use the 16
+| basic colours, so each terminal (light or dark) themes them.
+
+style com    3;90  color:#7f8796;font-style:italic
+style stk    90    color:#7f8796
+style str    33    color:#e5b567
+style num    31    color:#d19a66
+style colon  1;33  color:#f5c518;font-weight:bold
+style def    1;33  color:#f5c518;font-weight:bold
+style ctl    35    color:#c678dd
+style stack  34    color:#9fb7d9
+style tur    36    color:#56b6c2
+
+words ctl if else then ;then 0if if; do 0do ?do loop +loop leave begin while
+words ctl repeat until again case of endof endcase exit >r r> r@ bounds recurse
+
+words stack dup drop swap over rot -rot nip tuck 2dup 2drop 2swap 2over ?dup
+words stack pick roll negate abs 1- 1+ 2* 2/ min max and or xor invert * /
+words stack mod /mod */ << >> = <> < > 0= - + cells cell+ ! @ c! c@ +! fill
+words stack allot create variable constant value
+
+| lib/turtle/core
+words tur forward fd back bk right rt left lt setxy setheading seth home xy@
+words tur heading@ penup pu pendown pd color width bg step step! scale tpush
+words tur tpop clear path svg-save black white red green blue orange purple
+words tur brown

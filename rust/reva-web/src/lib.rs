@@ -125,6 +125,8 @@ pub extern "C" fn reva_boot_image(len: u32) -> i32 {
 
 fn begin(start: Start, mut vm: Machine) -> i32 {
     let mut host = BufferHost::new();
+    // The page renders ANSI colour escapes (www/ansi.js), so `pp` colours.
+    host.color = true;
     if let Some(fs) = PENDING.with(|p| p.borrow_mut().take()) {
         host.fs = fs;
     }

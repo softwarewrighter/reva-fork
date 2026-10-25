@@ -36,6 +36,7 @@ usage: reva [options] [file ...]
       --trace          trace every VM step to stderr (very slow)
       --allow-shell    let `shell` (C `system`) run OS commands; off by default
       --no-edit        at a terminal, read plain lines (no history or line editing)
+      --color WHEN     colour in `pp`/`hl-type` listings: auto (default), always, never
   -h, --help           this text
   -V, --version        version
 ";
@@ -54,6 +55,8 @@ struct StdHost {
     /// While booting: output is collected here so the progress digits
     /// stay quiet.
     capture: Option<Vec<u8>>,
+    /// Whether `pp`/`hl-type` may write colour escapes (`--color`).
+    color: bool,
     /// Interactive: reads (and edits) lines from the terminal.
     reader: Option<LineReader>,
     /// What was printed since the last newline: the prompt, for redraws.
@@ -117,6 +120,10 @@ impl Host for StdHost {
 
     os_services!();
 
+    fn color(&mut self) -> bool {
+        self.color
+    }
+
     /// VM notes go to stderr, after what Forth printed so far.
     fn diag(&mut self, line: &str) {
         let _ = self.out.flush();
@@ -172,6 +179,7 @@ struct Options {
     trace: bool,
     allow_shell: bool,
     no_edit: bool,
+    color: Option<bool>,
 }
 
 fn parse_args() -> Result<Options, String> {
@@ -189,6 +197,14 @@ fn parse_args() -> Result<Options, String> {
             "--trace" => o.trace = true,
             "--allow-shell" => o.allow_shell = true,
             "--no-edit" => o.no_edit = true,
+            "--color" => {
+                o.color = match value(&a)?.as_str() {
+                    "auto" => None,
+                    "always" => Some(true),
+                    "never" => Some(false),
+                    w => return Err(format!("--color {w}: expected auto, always or never")),
+                }
+            }
             "-h" | "--help" => {
                 print!("{USAGE}");
                 std::process::exit(0);
@@ -202,6 +218,19 @@ fn parse_args() -> Result<Options, String> {
         }
     }
     Ok(o)
+}
+
+/// `--color auto`: stdout is a terminal that takes ANSI escapes, and
+/// `NO_COLOR` (no-color.org) is unset.  On Windows only where the console is
+/// known to take them (Windows Terminal, or a `TERM` such as mintty's).
+fn color_auto() -> bool {
+    let env = |n: &str| std::env::var(n).ok().filter(|v| !v.is_empty());
+    let ansi = if cfg!(windows) {
+        env("WT_SESSION").is_some() || env("TERM").is_some_and(|t| t != "dumb")
+    } else {
+        env("TERM").is_none_or(|t| t != "dumb")
+    };
+    io::stdout().is_terminal() && env("NO_COLOR").is_none() && ansi
 }
 
 fn exit_code(code: i32) -> ExitCode {
@@ -258,6 +287,7 @@ fn main() -> ExitCode {
         allow_shell: opts.allow_shell,
         reader: run.interactive.then(|| LineReader::new(!opts.no_edit)),
         tail: Vec::new(),
+        color: opts.color.unwrap_or_else(color_auto),
     };
     if let Err(code) = run.begin(&mut vm, &mut host) {
         return code;
