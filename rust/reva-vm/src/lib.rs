@@ -42,6 +42,7 @@ pub mod machine;
 pub mod mem;
 pub mod start;
 pub mod translate;
+pub mod version;
 pub mod vfs;
 pub mod x86;
 

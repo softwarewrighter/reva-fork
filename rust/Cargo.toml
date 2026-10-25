@@ -3,7 +3,7 @@ resolver = "2"
 members = ["reva-vm", "reva-cli", "reva-web"]
 
 [workspace.package]
-version = "0.1.0"
+version = "2026.1025.0"
 edition = "2021"
 publish = false
 license = "MIT"

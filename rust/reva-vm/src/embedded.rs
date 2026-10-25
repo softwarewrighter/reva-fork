@@ -34,7 +34,7 @@ pub fn install_relative(path: &str) -> Option<&str> {
 }
 
 /// Split what booting printed into reva.f's progress marks (`'1 emit` ...)
-/// and the rest (normally the `Reva 2011.2 Linux` banner and the first
+/// and the rest (normally the [`crate::version::BANNER`] and the first
 /// prompt; anything else means something went wrong).
 pub fn split_boot_output(out: &str) -> (&str, &str) {
     let n = out
@@ -61,9 +61,14 @@ pub const STRINGS_MARKER: &str = "hide (compstrend)";
 /// string area before it writes an executable.
 pub const STRINGS_SAVE: &str = "(compstr) @ (compstrend) @ over - setextra\n";
 
+/// `reva.f` defines its banner word here.  The line after it gets
+/// [`crate::version::VER_WORD`]: this fork's `.ver`.
+pub const VER_MARKER: &str = ": .ver ";
+
 /// The boot source: `reva.f` up to [`BOOT_MARKER`] with [`STRINGS_SAVE`]
-/// inserted before [`STRINGS_MARKER`], then [`BOOT_TAIL`].  These two
-/// additions together stand in for "save an executable, then run it".
+/// inserted before [`STRINGS_MARKER`], the fork's `.ver` after the
+/// [`VER_MARKER`] line, then [`BOOT_TAIL`].  `STRINGS_SAVE` and `BOOT_TAIL`
+/// together stand in for "save an executable, then run it".
 pub fn boot_source() -> &'static str {
     static SRC: std::sync::OnceLock<String> = std::sync::OnceLock::new();
     SRC.get_or_init(|| {
@@ -71,10 +76,16 @@ pub fn boot_source() -> &'static str {
             Some(i) => &REVA_F[..i],
             None => REVA_F,
         };
-        match head.find(STRINGS_MARKER) {
-            Some(j) => format!("{}{STRINGS_SAVE}{}{BOOT_TAIL}", &head[..j], &head[j..]),
-            None => format!("{head}{BOOT_TAIL}"),
+        let mut src = match head.find(STRINGS_MARKER) {
+            Some(j) => format!("{}{STRINGS_SAVE}{}", &head[..j], &head[j..]),
+            None => head.to_string(),
+        };
+        if let Some(k) = src.find(VER_MARKER) {
+            let eol = src[k..].find('\n').map_or(src.len(), |n| k + n + 1);
+            src.insert_str(eol, crate::version::VER_WORD);
         }
+        src.push_str(BOOT_TAIL);
+        src
     })
 }
 
