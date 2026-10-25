@@ -29,6 +29,7 @@ export async function hostSetup() {
   };
   return {
     storage,
+    start: s.start,
     input: s.input,
     title: s.title,
     notes: [`files are kept in ${s.root}`, ...s.notes],

@@ -10,7 +10,8 @@
 //!   VM writes or deletes is written back through the commands below.
 //!   The root is `~/Reva`, or the package folder.
 //! * **Packages.**  `--package DIR` opens a folder with a `reva-package.json`
-//!   manifest (`name`, `start`: files to `include` at start).  CoSy is one,
+//!   manifest (`name`, `start`: files to `include` at start, and again
+//!   after Forth's `restart`).  CoSy is one,
 //!   kept in its own repository; this app knows nothing about CoSy.
 //! * **Batch use.**  `--eval TEXT` feeds lines after start and
 //!   `--print-output` copies the VM's output to stdout, so the app can be
@@ -61,7 +62,9 @@ struct Manifest {
 struct Session {
     title: String,
     root: String,
-    /// Lines to feed after boot: `include` of each start file, then `--eval`s.
+    /// `include` of each start file: fed after boot and again after `restart`.
+    start: Vec<String>,
+    /// The `--eval` lines, fed once after the start lines.
     input: Vec<String>,
     print_output: bool,
     /// Notes for the user (skipped files, a missing manifest, ...).
@@ -140,12 +143,11 @@ fn build_state(o: Options) -> Result<State, String> {
             (root, Manifest::default())
         }
     };
-    let mut input: Vec<String> = manifest
+    let start = manifest
         .start
         .iter()
         .map(|f| format!("include {f}"))
         .collect();
-    input.extend(o.evals);
     let title = match &manifest.name {
         Some(n) => format!("{n} on Reva"),
         None => "Reva Forth".to_string(),
@@ -154,7 +156,8 @@ fn build_state(o: Options) -> Result<State, String> {
         session: Session {
             title,
             root: root.display().to_string(),
-            input,
+            start,
+            input: o.evals,
             print_output: o.print_output,
             notes,
         },
