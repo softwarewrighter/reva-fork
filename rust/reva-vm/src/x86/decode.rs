@@ -6,6 +6,7 @@
 //! condition codes).  The `66` operand-size prefix is honoured for the
 //! generic `Ev`/`Gv`/`Iv` forms; `F2`/`F3` for string instructions.
 
+use super::fpu::FpuOp;
 use super::*;
 use crate::fault::Fault;
 use crate::mem::Memory;
@@ -123,6 +124,214 @@ impl Cursor<'_> {
             bytes,
         }
     }
+}
+
+/// An x87 instruction: `b` is its first byte (`D8`–`DF`).
+fn fpu_op(c: &mut Cursor, b: u8) -> Result<FpuOp, Fault> {
+    use fpu::{FArith::*, FConst, FMem, FSrc, FUnary};
+    let (r, rm) = c.modrm()?;
+    // arithmetic, in `D8 /r` order: dst = st(0) or memory source
+    const D8: [Option<fpu::FArith>; 8] = [
+        Some(Add),
+        Some(Mul),
+        None,
+        None,
+        Some(Sub),
+        Some(Subr),
+        Some(Div),
+        Some(Divr),
+    ];
+    // `DC`/`DE` register forms name st(i) as the destination, and swap the
+    // plain and reversed subtract and divide
+    const DC: [Option<fpu::FArith>; 8] = [
+        Some(Add),
+        Some(Mul),
+        None,
+        None,
+        Some(Subr),
+        Some(Sub),
+        Some(Divr),
+        Some(Div),
+    ];
+    let arith_mem = |fmt: FMem, m: MemRef| match D8[r as usize] {
+        Some(op) => FpuOp::Arith {
+            op,
+            dst: 0,
+            src: FSrc::Mem(fmt, m),
+            pop: false,
+        },
+        None => FpuOp::Compare {
+            src: FSrc::Mem(fmt, m),
+            pops: u8::from(r == 3),
+            unordered: false,
+        },
+    };
+    let store = |to, mem, pop, trunc| FpuOp::Store {
+        to,
+        mem,
+        pop,
+        trunc,
+    };
+    let bad = || c.bad();
+    Ok(match (b, rm) {
+        (0xd8, Opd::Mem(m)) => arith_mem(FMem::F32, m),
+        (0xdc, Opd::Mem(m)) => arith_mem(FMem::F64, m),
+        (0xda, Opd::Mem(m)) => arith_mem(FMem::I32, m),
+        (0xde, Opd::Mem(m)) => arith_mem(FMem::I16, m),
+        (0xd8, Opd::Reg(i)) => match D8[r as usize] {
+            Some(op) => FpuOp::Arith {
+                op,
+                dst: 0,
+                src: FSrc::St(i),
+                pop: false,
+            },
+            None => FpuOp::Compare {
+                src: FSrc::St(i),
+                pops: u8::from(r == 3),
+                unordered: false,
+            },
+        },
+        (0xdc | 0xde, Opd::Reg(i)) => match (DC[r as usize], b, r, i) {
+            (Some(op), ..) => FpuOp::Arith {
+                op,
+                dst: i,
+                src: FSrc::St(0),
+                pop: b == 0xde,
+            },
+            (None, 0xde, 3, 1) => FpuOp::Compare {
+                src: FSrc::St(1),
+                pops: 2,
+                unordered: false,
+            },
+            // DC D0+i / D8+i: aliases of fcom / fcomp
+            (None, 0xdc, _, _) => FpuOp::Compare {
+                src: FSrc::St(i),
+                pops: u8::from(r == 3),
+                unordered: false,
+            },
+            _ => return Err(bad()),
+        },
+        (0xd9, Opd::Mem(m)) => match r {
+            0 => FpuOp::Load(FSrc::Mem(FMem::F32, m)),
+            2 | 3 => store(FMem::F32, m, r == 3, false),
+            5 => FpuOp::Ldcw(m),
+            7 => FpuOp::Stcw(m),
+            _ => return Err(bad()),
+        },
+        (0xd9, Opd::Reg(i)) => match (r, i) {
+            (0, _) => FpuOp::Load(FSrc::St(i)),
+            (1, _) => FpuOp::Xch(i),
+            (2, 0) => FpuOp::Nop,
+            (4, 0) => FpuOp::Unary(FUnary::Chs),
+            (4, 1) => FpuOp::Unary(FUnary::Abs),
+            (4, 4) => FpuOp::Tst,
+            (4, 5) => FpuOp::Xam,
+            (5, 7) => return Err(bad()),
+            (5, _) => FpuOp::LoadConst(
+                [
+                    FConst::One,
+                    FConst::L2t,
+                    FConst::L2e,
+                    FConst::Pi,
+                    FConst::Lg2,
+                    FConst::Ln2,
+                    FConst::Zero,
+                ][i as usize],
+            ),
+            (6, _) => [
+                FpuOp::Unary(FUnary::F2xm1),
+                FpuOp::Yl2x,
+                FpuOp::Ptan,
+                FpuOp::Patan,
+                FpuOp::Xtract,
+                FpuOp::Prem1,
+                FpuOp::Decstp,
+                FpuOp::Incstp,
+            ][i as usize],
+            (7, _) => [
+                FpuOp::Prem,
+                FpuOp::Yl2xp1,
+                FpuOp::Unary(FUnary::Sqrt),
+                FpuOp::Sincos,
+                FpuOp::Unary(FUnary::Rndint),
+                FpuOp::Scale,
+                FpuOp::Unary(FUnary::Sin),
+                FpuOp::Unary(FUnary::Cos),
+            ][i as usize],
+            _ => return Err(bad()),
+        },
+        (0xda, Opd::Reg(i)) => match r {
+            // fcmovb, fcmove, fcmovbe, fcmovu
+            0..=3 => FpuOp::Cmov {
+                cc: [0x2, 0x4, 0x6, 0xa][r as usize],
+                i,
+            },
+            5 if i == 1 => FpuOp::Compare {
+                src: FSrc::St(1),
+                pops: 2,
+                unordered: true,
+            },
+            _ => return Err(bad()),
+        },
+        (0xdb, Opd::Mem(m)) => match r {
+            0 => FpuOp::Load(FSrc::Mem(FMem::I32, m)),
+            1..=3 => store(FMem::I32, m, r != 2, r == 1),
+            5 => FpuOp::Load(FSrc::Mem(FMem::F80, m)),
+            7 => store(FMem::F80, m, true, false),
+            _ => return Err(bad()),
+        },
+        (0xdb, Opd::Reg(i)) => match (r, i) {
+            // fcmovnb, fcmovne, fcmovnbe, fcmovnu
+            (0..=3, _) => FpuOp::Cmov {
+                cc: [0x3, 0x5, 0x7, 0xb][r as usize],
+                i,
+            },
+            (4, 2) => FpuOp::Clex,
+            (4, 3) => FpuOp::Init,
+            (5 | 6, _) => FpuOp::Comi {
+                i,
+                pop: false,
+                unordered: r == 5,
+            },
+            _ => return Err(bad()),
+        },
+        (0xdd, Opd::Mem(m)) => match r {
+            0 => FpuOp::Load(FSrc::Mem(FMem::F64, m)),
+            1..=3 => match r {
+                1 => store(FMem::I64, m, true, true),
+                _ => store(FMem::F64, m, r == 3, false),
+            },
+            7 => FpuOp::Stsw(Some(m)),
+            _ => return Err(bad()),
+        },
+        (0xdd, Opd::Reg(i)) => match r {
+            0 => FpuOp::Free(i),
+            2 | 3 => FpuOp::StoreSt { i, pop: r == 3 },
+            4 | 5 => FpuOp::Compare {
+                src: FSrc::St(i),
+                pops: u8::from(r == 5),
+                unordered: true,
+            },
+            _ => return Err(bad()),
+        },
+        (0xdf, Opd::Mem(m)) => match r {
+            0 => FpuOp::Load(FSrc::Mem(FMem::I16, m)),
+            1..=3 => store(FMem::I16, m, r != 2, r == 1),
+            5 => FpuOp::Load(FSrc::Mem(FMem::I64, m)),
+            7 => store(FMem::I64, m, true, false),
+            _ => return Err(bad()),
+        },
+        (0xdf, Opd::Reg(i)) => match (r, i) {
+            (4, 0) => FpuOp::Stsw(None),
+            (5 | 6, _) => FpuOp::Comi {
+                i,
+                pop: true,
+                unordered: r == 5,
+            },
+            _ => return Err(bad()),
+        },
+        _ => return Err(bad()),
+    })
 }
 
 /// Decode the instruction at `eip`.
@@ -292,6 +501,9 @@ pub fn decode(mem: &Memory, eip: u32) -> Result<Insn, Fault> {
             _ => return Err(c.bad()),
         },
         0x90 => Op::Nop,
+        // fwait: exceptions are masked, so there is nothing to wait for
+        0x9b => Op::Nop,
+        0xd8..=0xdf => Op::Fpu(fpu_op(&mut c, b)?),
         0x91..=0x97 => Op::Xchg {
             size: osz,
             a: Opd::Reg(EAX),
@@ -698,11 +910,11 @@ mod tests {
     #[test]
     fn unsupported_reports_bytes() {
         let mut m = Memory::new(0x3000);
-        m.write_bytes(0x2000, &[0xd9, 0xe8, 0x90]).unwrap(); // fld1
+        m.write_bytes(0x2000, &[0x0f, 0x0b, 0x90]).unwrap(); // ud2
         match decode(&m, 0x2000) {
             Err(Fault::BadOpcode { eip, bytes }) => {
                 assert_eq!(eip, 0x2000);
-                assert_eq!(&bytes[..3], &[0xd9, 0xe8, 0x90]);
+                assert_eq!(&bytes[..3], &[0x0f, 0x0b, 0x90]);
             }
             other => panic!("{other:?}"),
         }

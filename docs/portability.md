@@ -12,7 +12,7 @@ Every message below ends with `(see docs/portability.md)`, which points here.
 |---|---|---|
 | 4-byte cells, little-endian memory, Reva's register roles (`inline{ }` bytes, `cells/` as `sar eax,2`) | **runs** | The VM keeps cells 32-bit on 64-bit hosts and in WebAssembly: a fixed design rule, so saved data and machine-code words stay valid |
 | Integer x86 instructions that Reva and its libraries emit | **runs** | The VM decodes that subset (DESIGN.md §3.2) |
-| x87 floating point | **stops**, until the x87 subset lands | roadmap item 3 |
+| x87 floating point | **runs**, with `f64` registers: 80-bit values round to double on load, so the last extended-precision bits can differ | DESIGN.md §3.10 |
 | MMX, SSE, segment registers, I/O ports, privileged or system instructions | **stops** | no portable meaning, or not used by Reva's own code |
 | A C library other than the virtual libc | **stops** at its first function, with a note naming the library | see "Native libraries" below |
 | `shell` (C `system`) | **stops**, unless the CLI was started with `--allow-shell` | running OS commands is the user's choice, not the program's |
@@ -68,7 +68,7 @@ The fault names the instruction family, the bytes and the Forth word that
 contains them:
 
 ```text
-*** unsupported x87 floating point instruction at 0x0014792c: d9 e8 c3 00 00 00 00 00 (see docs/portability.md) (in x87+0x0, eip 0x0014792c)
+*** unsupported SSE instruction at 0x0014792c: 0f 58 c1 c3 00 00 00 00 (see docs/portability.md) (in sse+0x0, eip 0x0014792c)
 ```
 
 The families named are x87 floating point, MMX, SSE, SSE2, segment
@@ -94,5 +94,5 @@ only a host that allows it runs the command:
 ## Checking a program before you run it
 
 Search for what will stop: `lib "` lines name native libraries, and
-`inline{ }` or `asm{ }` blocks with floating-point or vector instructions
-will fault when they run. A static report tool is planned.
+`inline{ }` or `asm{ }` blocks with vector (MMX/SSE) instructions will
+fault when they run. A static report tool is planned.

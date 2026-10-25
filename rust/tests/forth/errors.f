@@ -9,6 +9,6 @@ nosuchword
 | stack underflow is detected between words
 drop drop drop
 3 . cr
-| unsupported instruction (x87 fld1) reports the bytes
-: fp inline{ d9 e8 } ; fp
+| unsupported instruction (SSE addps) reports the bytes
+: fp inline{ 0f 58 c1 } ; fp
 4 . cr

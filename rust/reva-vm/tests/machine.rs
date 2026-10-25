@@ -379,3 +379,20 @@ fn save_writes_an_image_that_starts_with_its_words() {
     assert!(eval(&mut vm, &mut host, "added").contains("unknown word:  added"));
     assert!(Start::image(b"not an image".to_vec()).is_err());
 }
+
+#[test]
+fn the_float_library_loads_and_passes_its_own_tests() {
+    let (mut vm, mut host) = booted();
+    let out = eval(
+        &mut vm,
+        &mut host,
+        "true to testing needs testing needs math/floats test",
+    );
+    assert!(out.contains("Executed 35/35 tests"), "{out}");
+    let out = eval(
+        &mut vm,
+        &mut host,
+        "~floats 1 s>f 3 s>f f/ f. 2 s>f fsqrt f. \" -2.5\" >float drop f>s . fpi pad f! pad 8 + w@ .x",
+    );
+    assert_eq!(out, "0.33333 1.41421 -3 00004000 ");
+}
