@@ -87,6 +87,10 @@ gets (both are part of the regression suite).
 
 - Faults name the Forth word: `*** bad memory access ... (in bad+0xc, ...)`.
 - `reva --trace` logs every step to stderr.
+- Code the core cannot run (native libraries, `shell`, x87/MMX/SSE and
+  privileged instructions) stops with a message pointing to
+  [docs/portability.md](../docs/portability.md); `reva --allow-shell` lets
+  `shell` run OS commands.
 - `cargo run -p reva-vm --example probe -- ': f 1 2 + ;' 'see f'` runs
   lines and disassembles words.
 
