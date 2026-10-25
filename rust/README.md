@@ -37,6 +37,7 @@ rust/
   reva-vm/     the core library (VM, gateways, images, translator hooks)
   reva-cli/    the `reva` command
   reva-web/    wasm32 module + www/ (reva.js, index.html) + test/smoke.mjs
+  reva-serve/  one-binary local web app: embeds a site, serves 127.0.0.1 (std only; ../docs/serve.md)
   tests/forth/ Forth scripts used by the regression suite
   work/reg-rs/ reg-rs regression tests (.rgt specs + golden .out/.err)
   scripts/     build-web.sh, regress.sh, add-regress.sh,
@@ -60,6 +61,8 @@ WebAssembly:
 scripts/build-web.sh                      # → reva-web/www/reva.wasm
 python3 -m http.server -d reva-web/www    # open http://localhost:8000
 node reva-web/test/smoke.mjs              # headless check
+scripts/make-web-zip.sh                   # → target/web/reva-web-VERSION.zip (../docs/web.md)
+scripts/build-serve.sh                    # → target/serve/reva-serve-VERSION-TARGET (../docs/serve.md)
 ```
 
 ## Tests
