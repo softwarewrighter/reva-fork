@@ -41,3 +41,4 @@ desktop:
 test: wasm
     cd rust && cargo test --release --workspace
     node rust/reva-web/test/smoke.mjs
+    node rust/reva-web/test/lineedit.mjs

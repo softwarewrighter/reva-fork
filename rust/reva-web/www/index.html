@@ -83,7 +83,7 @@
     <b>Reva Forth</b> <span id="hint">— portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code>
     or <code>needs turtle/fractals 5 koch-demo</code></span></header>
   <div id="out" aria-live="polite"></div>
-  <form id="f"><span>ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
+  <form id="f"><span id="prompt">ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
     <button type="button" id="stop" title="Stop the running word (Ctrl-C)" disabled>Stop</button></form>
   <div id="panes"></div>
 </main>
@@ -98,6 +98,8 @@
   import { loadPackage } from "./package.js";
   import { splitView } from "./split.js";
   import { aboutDialog, packageAbout, showHint } from "./about.js";
+  import { lineEditor } from "./lineedit.js";
+  import { packageId } from "./package.js";
   const MAX_CHUNKS = 4000;
   const out = document.getElementById("out");
   const line = document.getElementById("line");
@@ -119,10 +121,15 @@
   // fetch): lines typed before the VM is up wait in `early`.
   const early = [];
   let feedLine = (text) => early.push(text);
+  // History and Emacs keys (lineedit.js) are set up once the package is
+  // known, since each package keeps its own history; until then the line
+  // is a plain input.
+  let editor = null;
   document.getElementById("f").addEventListener("submit", (e) => {
     e.preventDefault();
     const text = line.value;
     line.value = "";
+    editor?.accept(text);
     echo(text + "\n");
     feedLine(text);
   });
@@ -146,6 +153,10 @@
       notes.push(`package ${pkgDir} not loaded: ${e.message ?? e}`);
     }
   }
+  // History: one list per package (browser: ?package=; desktop: --package).
+  const historyKey = pkg?.historyKey
+    ?? (host.package ? `reva:${packageId(host.package)}:history` : "reva:history");
+  editor = lineEditor(line, { prompt: document.getElementById("prompt"), key: historyKey });
   const title = pkg?.title ?? host.title;
   if (title) {
     document.title = title;
