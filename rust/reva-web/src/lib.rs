@@ -141,6 +141,29 @@ pub extern "C" fn reva_output_clear() {
     with(|w| w.host.out.clear(), ())
 }
 
+/// Stop the running code at the next step of [`reva_run`] (the Stop
+/// button): queued input is dropped and the interpreter loop restarts with
+/// `*** interrupted`, keeping the dictionary.
+#[no_mangle]
+pub extern "C" fn reva_interrupt() {
+    with(|w| w.vm.interrupt(), ())
+}
+
+/// The wall clock, for `time&date`, `ms@` and file times: the page sets
+/// it before each [`reva_run`] (the module has no imports, so it cannot
+/// read one).  Until then the clock reads as the Unix epoch.
+#[no_mangle]
+pub extern "C" fn reva_set_time(secs: f64, micros: u32) {
+    let secs = secs.max(0.0) as u64;
+    with(
+        |w| {
+            w.host.clock = Some((secs, micros));
+            w.host.fs.set_time(secs);
+        },
+        (),
+    )
+}
+
 /// The `bye` status once [`reva_run`] has returned 2.
 #[no_mangle]
 pub extern "C" fn reva_exit_code() -> i32 {
@@ -256,6 +279,17 @@ mod tests {
         want.extend_from_slice(&[3, 0, 0, 0]);
         want.extend_from_slice(b"xyz");
         assert_eq!(rec, &want[..]);
+        // a runaway loop, stopped
+        feed(": spin repeat again ; spin\n");
+        assert_eq!(reva_run(10_000), YIELDED);
+        reva_interrupt();
+        while reva_run(1000) == YIELDED {}
+        assert!(output().contains("*** interrupted (in spin"));
+        // the clock the page sets
+        reva_set_time(1_792_886_400.0, 0);
+        feed("time&date . . .\n");
+        while reva_run(1000) == YIELDED {}
+        assert_eq!(output(), "2026 10 25 \nok> ");
         feed("3 ~sys.(bye)\n");
         while reva_run(1000) == YIELDED {}
         assert_eq!(reva_exit_code(), 3);

@@ -183,6 +183,43 @@ with shared state (open descriptors, working directory), and the same
 of the VM, which stays deterministic and image-safe (open files and
 directory streams are host state, not part of an image).
 
+### 3.8 The browser: a worker, time slices, interrupt
+
+The page must never wait for the VM. Booting `reva.f` is one call of
+140 to 300 ms that cannot be sliced, and a step budget is not a time
+budget (200k steps is 8 ms on a desktop, several times that on a phone).
+So the browser host runs the VM in a **Web Worker** (`www/reva-worker.js`)
+and the page only draws and stores (`www/reva.js` `start()`):
+
+- **Time slices.** `Reva.run` runs 50k-step chunks until about 8 ms have
+  passed, posts the output, and yields. Yields use a `MessageChannel`
+  message (no 4 ms timer clamp), but at least every 25 ms a `setTimeout`,
+  because a port's messages can starve other tasks (Node does this, and
+  `scheduler.yield()` does it by design). That fair turn is what lets
+  `input` and `stop` messages in while the VM computes. Measured: about 90%
+  of the unsliced speed.
+- **Messages:** `init`, `input`, `close`, `stop` to the worker; `output`,
+  `status`, `files`, `error` back (table in `reva-worker.js`). Workers
+  cannot see `localStorage`, so changed files travel to the page, which
+  saves them whenever the VM waits for input or halts.
+- **Drawing:** the page appends output at most once per animation frame and
+  caps the console's length.
+- **Input** never blocks a thread: `key` returns `NEED_INPUT` and the
+  worker is idle until the next `input` message.
+- **Interrupt:** `Machine::interrupt` (`reva_interrupt`) is taken at the
+  next step of `run`: queued input is dropped and the VM recovers as from a
+  fault (`*** interrupted (in WORD)`), keeping the dictionary. Code inside
+  a nested call runs to completion within one step, so if the worker does
+  not answer in 2 s the page terminates it and starts a fresh one.
+- **Clock:** the module has no imports, so the page passes `Date.now()` in
+  (`reva_set_time`) before each slice; tests keep the fixed clock, and the
+  smoke test checks that 1k- and 1M-step slices print the same transcript.
+- **Fallback:** where a worker cannot start, the same loop runs on the
+  page's thread, using `scheduler.yield()` to let the page draw.
+
+No `SharedArrayBuffer` or `Atomics.wait` (they need COOP/COEP headers that
+a plain static server does not send), so any static directory serves it.
+
 ## 4. Non-functional requirements
 
 | Quality | How it is addressed |
@@ -196,6 +233,7 @@ directory streams are host state, not part of an image).
 | **Upgradability** | Images contain only vx86 bytes and are versioned; translations are caches, never persisted. |
 | **Performance** | Interpreter with decode cache now; basic-block translation to x86-64 / ARM64 / wasm later (§6). |
 | **Usability** | `reva` behaves like the original REPL (banner, `ok>`, `reva.f`'s error messages); piped input runs as a batch without prompts. |
+| **Responsiveness (browser)** | The VM runs in a Web Worker; the page draws once per frame. Measured in headless Chromium: the longest frame gap during a 15 s computation is 17 ms (on the page's thread before: 50 ms, and boot froze it for 133 ms). Stop takes effect within one 8 ms slice (§3.8). |
 | **Data durability (browser)** | Files Forth code writes are saved to `localStorage` after every run slice that ends waiting for input or halted; a failed save (quota) is logged, not fatal. |
 
 ## 5. Deliberate deviations from newcore
@@ -251,8 +289,9 @@ block translation should land within ~2× of the original x86 Reva.
    personality) and restarts as its executable did (§3.6). ✅ File words
    and file system calls through `Host::fs`, with an in-memory file system
    for the browser (bundled files plus `localStorage`) and `lib/` embedded
-   (§3.7). Next: loading images in the browser; then `(save)` / `makeexe`
-   writing images.
+   (§3.7). ✅ The browser host runs the VM in a Web Worker with time slices
+   and Stop (§3.8). Next: loading images in the browser; then `(save)` /
+   `makeexe` writing images.
 3. x87 subset (as a 8-deep `f64` stack) for `lib/math/floats`, with 80-bit
    memory operands (`fld`/`fstp tbyte`).
 4. OS layer: ✅ virtual libc and a portable `syscall` subset (§3.6). Next:

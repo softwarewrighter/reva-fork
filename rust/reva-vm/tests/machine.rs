@@ -261,3 +261,17 @@ fn file_words_reach_the_host_file_system() {
         "out0 "
     );
 }
+
+#[test]
+fn interrupt_stops_a_loop_and_keeps_the_dictionary() {
+    let (mut vm, mut host) = booted();
+    vm.feed(b": kept 42 ; : spin repeat again ; spin\n");
+    assert_eq!(vm.run(&mut host, 100_000), Status::Yielded);
+    vm.feed(b"this queued line is dropped\n");
+    vm.interrupt();
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    let out = host.take_output();
+    assert!(out.contains("*** interrupted (in spin"), "{out}");
+    assert!(!out.contains("dropped"), "{out}");
+    assert_eq!(eval(&mut vm, &mut host, "kept ."), "42 ");
+}

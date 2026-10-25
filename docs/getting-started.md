@@ -103,14 +103,16 @@ scripts/build-web.sh                        # builds reva-web/www/reva.wasm
 python3 -m http.server -d reva-web/www      # then open http://localhost:8000
 ```
 
-The page is a small console running the same core. Long-running or looping
-code does not freeze the page: the VM runs in slices and yields to the
-browser between them.
+The page is a small console running the same core. The VM runs in a Web
+Worker, so booting, long computations and endless loops never freeze the
+page. **Stop** (or Ctrl-C) interrupts the running word and returns to the
+`ok>` prompt with your definitions kept. Serve the directory over HTTP: a
+worker cannot start from a `file://` page.
 
 In the browser, files live in memory: `lib/` is built in (so `needs`
 works), and files your code writes are kept in the browser's
 `localStorage`, so they are still there after a reload. A page can bundle
-its own files too; see `Reva.load` in `reva-web/www/reva.js`.
+its own files too; see `start` in `reva-web/www/reva.js`.
 
 ## Files
 
