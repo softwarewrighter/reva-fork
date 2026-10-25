@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} < tests/forth/numbers.f"
+timeout = 60
+exit_code = 0
+desc = "number parsing (bases, prefixes, chars, doubles) and (.r)"

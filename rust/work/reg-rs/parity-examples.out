@@ -1,0 +1,146 @@
+132 examples: error 36, fault 22, missing 9, runs 54, timeout 11
+
+Most common first missing word (top 10):
+
+- `k32` (2)
+- `u32` (2)
+- `Foo` (1)
+- `make` (1)
+- `parse-result` (1)
+- `set-po` (1)
+- `tcpsock` (1)
+
+| Example | Area | Status |
+|---|---|---|
+| `examples/3n1.f` | core | runs |
+| `examples/alg-test.f` | lib | fault: unsupported instruction at 0x0014b018: d9 ee e8 c9 51 ff ff 0f |
+| `examples/argv.f` | core | runs |
+| `examples/asm.f` | core | runs |
+| `examples/automatic.f` | core | runs |
+| `examples/base64.f` | lib | runs |
+| `examples/beer.f` | core | runs |
+| `examples/bf/bf.f` | core | runs |
+| `examples/bf/bf1.f` | core | runs |
+| `examples/bf/bf2.f` | core | runs |
+| `examples/block-editor.f` | os | timeout |
+| `examples/bmi.f` | core | timeout |
+| `examples/brownian.f` | lib | timeout |
+| `examples/calendar.f` | lib | runs |
+| `examples/catch.f` | core | runs |
+| `examples/cgi.f` | net | runs |
+| `examples/class.f` | core | runs |
+| `examples/codesize.f` | lib | runs |
+| `examples/console-colors.f` | os | timeout |
+| `examples/data/array.f` | lib | runs |
+| `examples/data/binarytree.f` | lib | runs |
+| `examples/data/hash.f` | lib | runs |
+| `examples/data/parray.f` | lib | runs |
+| `examples/datediff.f` | lib | fault: '(save)' is not implemented in this port yet |
+| `examples/db-report.f` | db | error: could not load sqlite3_open |
+| `examples/defer.f` | core | runs |
+| `examples/dhttpd.f` | net | missing: `tcpsock` |
+| `examples/dllexplorer.f` | core | missing: `k32` |
+| `examples/doers.f` | lib | runs |
+| `examples/dump.f` | core | fault: '(save)' is not implemented in this port yet |
+| `examples/ed.4th` | os | timeout |
+| `examples/ekeys.f` | core | timeout |
+| `examples/fib.f` | core | runs |
+| `examples/fib2.f` | lib | error: could not load mp_int_alloc |
+| `examples/fizzbuzz.f` | core | runs |
+| `examples/gcd.f` | core | runs |
+| `examples/gettext.f` | lib | missing: `set-po` |
+| `examples/gl/gl-scene.f` | gui | fault: unsupported instruction at 0x00149e38: d9 ee e8 a9 63 ff ff 0f |
+| `examples/gl/gl-shading.f` | gui | fault: unsupported instruction at 0x00147e88: d9 ee e8 59 83 ff ff 0f |
+| `examples/gl/gl-twod.f` | gui | fault: unsupported instruction at 0x00147e88: d9 ee e8 59 83 ff ff 0f |
+| `examples/gpgme.f` | lib | error: could not load gpgme_check_version |
+| `examples/gtk.f` | gui | error: could not load gtk_init |
+| `examples/gui/hello1.f` | gui | error: could not load window_xy |
+| `examples/gui/hello2.f` | gui | error: could not load window_xy |
+| `examples/gui/hello3.f` | gui | error: could not load window_xy |
+| `examples/gui/hello4.f` | gui | error: could not load window_xy |
+| `examples/hanoi.f` | core | runs |
+| `examples/hello/hello-app.f` | lib | fault: '(save)' is not implemented in this port yet |
+| `examples/hello/hello-guiapp.f` | gui | error: could not load libiconv_open |
+| `examples/hello/hello.f` | core | runs |
+| `examples/hello/hello2.f` | core | runs |
+| `examples/hello/hello3.f` | core | runs |
+| `examples/hello/hello4.f` | core | runs |
+| `examples/hello/hello5.f` | core | runs |
+| `examples/hello/hello6.f` | core | runs |
+| `examples/hello/hello7.f` | core | runs |
+| `examples/http.f` | net | runs |
+| `examples/ignorecase.f` | core | missing: `Foo` |
+| `examples/iskey.f` | core | timeout |
+| `examples/iup/binary-clock.f` | gui | error: could not load libiconv_open |
+| `examples/iup/brownian.f` | gui | error: could not load libiconv_open |
+| `examples/iup/callback-test.f` | gui | error: could not load libiconv_open |
+| `examples/iup/cd-test.f` | gui | error: could not load libiconv_open |
+| `examples/iup/console.f` | gui | error: could not load libiconv_open |
+| `examples/iup/db-test.f` | gui | error: could not load libiconv_open |
+| `examples/iup/file-dlg.f` | gui | error: could not load libiconv_open |
+| `examples/iup/frame-test.f` | gui | error: could not load libiconv_open |
+| `examples/iup/gl-test.f` | gui | error: could not load libiconv_open |
+| `examples/iup/gui-test.f` | gui | error: could not load libiconv_open |
+| `examples/iup/gui-test2.f` | gui | error: could not load libiconv_open |
+| `examples/iup/hello-world.f` | gui | error: could not load libiconv_open |
+| `examples/iup/hello-world2.f` | gui | error: could not load libiconv_open |
+| `examples/iup/hello-world3.f` | gui | error: could not load libiconv_open |
+| `examples/iup/image-convert.f` | gui | error: could not load libiconv_open |
+| `examples/iup/iup.f` | gui | error: could not load libiconv_open |
+| `examples/iup/menu-test.f` | gui | error: could not load libiconv_open |
+| `examples/iup/new-test.f` | gui | error: could not load libiconv_open |
+| `examples/iup/pdf-test.f` | gui | error: could not load libiconv_open |
+| `examples/iup/simple-button.f` | gui | error: could not load libiconv_open |
+| `examples/json.f` | net | runs |
+| `examples/keys.f` | core | fault: stack underflow |
+| `examples/makeexe.f` | core | fault: '(save)' is not implemented in this port yet |
+| `examples/map.f` | lib | runs |
+| `examples/md5.f` | lib | fault: '(save)' is not implemented in this port yet |
+| `examples/mevarchim.f` | lib | fault: '(save)' is not implemented in this port yet |
+| `examples/notready/caravan.f` | os | missing: `make` |
+| `examples/notready/galife.f` | lib | error: could not load library: asm |
+| `examples/notready/meteor.f` | core | fault: bad memory access: 1 byte(s) at 0x00000000 |
+| `examples/notready/meteor2.f` | core | fault: bad memory access: 1 byte(s) at 0x00000000 |
+| `examples/notready/normalize.f` | lib | error: could not load libiconv_open |
+| `examples/notready/upsies-downsies.f` | os | timeout |
+| `examples/onstart.f` | core | fault: '(save)' is not implemented in this port yet |
+| `examples/pi/pi.f` | core | runs |
+| `examples/pi/pi2.f` | core | runs |
+| `examples/pi/pispigot.f` | lib | runs |
+| `examples/process.f` | os | runs |
+| `examples/quoth.f` | lib | runs |
+| `examples/revafind.f` | os | fault: '(save)' is not implemented in this port yet |
+| `examples/robotron.f` | core | fault: '(save)' is not implemented in this port yet |
+| `examples/see2.f` | lib | runs |
+| `examples/sha1.f` | lib | fault: 'open/r' is not implemented in this port yet |
+| `examples/sieve.f` | core | timeout |
+| `examples/smtp.f` | net | timeout |
+| `examples/sockets.f` | net | runs |
+| `examples/special.f` | core | fault: '(save)' is not implemented in this port yet |
+| `examples/sqlite.f` | db | fault: stack underflow |
+| `examples/sqlite2.f` | db | error: could not load sqlite3_open |
+| `examples/sqlite3.f` | db | error: could not load sqlite3_open |
+| `examples/stars.f` | core | runs |
+| `examples/sudoku-sp.f` | lib | runs |
+| `examples/sudoku.f` | lib | runs |
+| `examples/sunrise.f` | lib | fault: unsupported instruction at 0x00148ec8: d9 ee e8 19 73 ff ff 0f |
+| `examples/task.f` | lib | runs |
+| `examples/test.f` | lib | runs |
+| `examples/testing.f` | core | runs |
+| `examples/thehouse.f` | core | runs |
+| `examples/threads.f` | os | error: could not load pthread_mutex_init |
+| `examples/tictactoe.f` | os | timeout |
+| `examples/tinyelf.f` | lib | runs |
+| `examples/utf8.f` | lib | error: could not load libiconv_open |
+| `examples/widgets.f` | core | runs |
+| `examples/widgets2.f` | core | runs |
+| `examples/widgets3.f` | core | runs |
+| `examples/winapp.f` | lib | missing: `k32` |
+| `examples/winhello.f` | core | missing: `u32` |
+| `examples/winlife.f` | lib | missing: `u32` |
+| `examples/words.f` | lib | runs |
+| `examples/xml.f` | lib | runs |
+| `examples/xmlparse.f` | lib | error: could not load XML_ParserCreate |
+| `examples/xmlrpc.f` | net | missing: `parse-result` |
+| `examples/zemanim.f` | lib | fault: unsupported instruction at 0x0014b070: d9 ee e8 71 51 ff ff 0f |
+| `examples/zipdb.f` | db | fault: stack underflow |

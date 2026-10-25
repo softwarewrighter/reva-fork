@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} < tests/forth/strings.f"
+timeout = 60
+exit_code = 0
+desc = "parse place +place cmp cmpi zcount fnvhash fill move"

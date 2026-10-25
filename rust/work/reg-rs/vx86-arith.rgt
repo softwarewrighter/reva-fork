@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} < tests/forth/arith.f"
+timeout = 60
+exit_code = 0
+desc = "arithmetic and logic words built from reva.f machine-code bytes"

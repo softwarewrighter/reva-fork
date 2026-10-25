@@ -1,0 +1,11 @@
+[package]
+name = "reva-vm"
+description = "Portable Reva Forth core: an IA-32-subset virtual machine plus the newcore routines in Rust"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]

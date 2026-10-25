@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} -e 'variable p last @ p ! : step p @ dup >name count type space @ p ! ; : all p @ 0if ;then step all ; all cr' < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "full dictionary after booting reva.f"
