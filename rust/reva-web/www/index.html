@@ -80,8 +80,8 @@
 <main>
   <header><button type="button" id="about-btn" title="About this program, its licenses and source">About</button>
     <button type="button" id="gfx" title="Show the turtle graphics window" hidden>Graphics</button>
-    <b>Reva Forth</b> — portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code>
-    or <code>needs turtle/fractals 5 koch-demo</code></header>
+    <b>Reva Forth</b> <span id="hint">— portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code>
+    or <code>needs turtle/fractals 5 koch-demo</code></span></header>
   <div id="out" aria-live="polite"></div>
   <form id="f"><span>ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
     <button type="button" id="stop" title="Stop the running word (Ctrl-C)" disabled>Stop</button></form>
@@ -97,7 +97,7 @@
   import { CanvasChannel } from "./ui.js";
   import { loadPackage } from "./package.js";
   import { splitView } from "./split.js";
-  import { aboutDialog, packageAbout } from "./about.js";
+  import { aboutDialog, packageAbout, showHint } from "./about.js";
   const MAX_CHUNKS = 4000;
   const out = document.getElementById("out");
   const line = document.getElementById("line");
@@ -152,6 +152,9 @@
     document.querySelector("header b").textContent = title;
   }
   if (pkg?.icon) document.querySelector('link[rel="icon"]').href = pkg.icon;
+  // A package's "hint" replaces Reva's in the header (`code` in backticks).
+  const hint = pkg?.hint ?? host.package?.hint;
+  if (typeof hint === "string") showHint(document.getElementById("hint"), `— ${hint}`);
   // About: the package's entry (from the page's ?package= or the desktop
   // host), then reva-fork's.
   const about = aboutDialog({ pkg: pkg?.about ?? packageAbout(host.package), openUrl: host.openUrl });

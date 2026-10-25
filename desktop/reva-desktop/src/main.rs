@@ -75,6 +75,8 @@ struct Manifest {
     /// The About dialog's entry for the package (see www/about.js); passed
     /// to the page as is, which checks it.
     about: Option<serde_json::Value>,
+    /// The page header's hint (`code` in backticks).
+    hint: Option<String>,
 }
 
 /// The `canvas` values the page knows.
@@ -190,8 +192,8 @@ struct Session {
     print_output: bool,
     /// Where graphics go (`--canvas`, else the manifest's `canvas`).
     canvas: Option<String>,
-    /// With `--package`: `{ name, title, about }` from the manifest, for
-    /// the About dialog.
+    /// With `--package`: `{ name, title, about, hint }` from the manifest,
+    /// for the About dialog and the header.
     package: Option<serde_json::Value>,
     /// Notes for the user (skipped files, a missing manifest, ...).
     notes: Vec<String>,
@@ -306,7 +308,12 @@ fn build_state(o: Options) -> Result<State, String> {
             print_output: o.print_output,
             canvas,
             package: package.map(|_| {
-                serde_json::json!({ "name": manifest.name, "title": manifest.title, "about": manifest.about })
+                serde_json::json!({
+                    "name": manifest.name,
+                    "title": manifest.title,
+                    "about": manifest.about,
+                    "hint": manifest.hint,
+                })
             }),
             notes,
         },
