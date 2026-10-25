@@ -73,13 +73,13 @@ STAGE=$OUT/$SITE
 ZIP=$OUT/$SITE.zip
 rm -rf "$STAGE" "$ZIP"
 mkdir -p "$STAGE"
-for f in index.html host.js reva.js reva-worker.js reva.wasm ui.js canvas.html split.js package.js; do
+for f in index.html host.js reva.js reva-worker.js reva.wasm ui.js canvas.html split.js package.js about.js; do
     cp "$WWW/$f" "$STAGE/$f"
 done
 cp "$RUST/../LICENSE" "$STAGE/LICENSE.txt"
 cp "$RUST/../LICENSE-MIT" "$STAGE/LICENSE-MIT.txt"
 
-# The page's defaults, as two meta tags (index.html reads them when the URL
+# The page's defaults and the build stamp (About), as meta tags (index.html reads them when the URL
 # has no ?package= or ?canvas=).
 pkgmeta=
 if [ -n "$PKG" ]; then
@@ -91,9 +91,11 @@ if [ -n "$PKG" ]; then
     done)
     pkgmeta=pkg/
 fi
-awk -v pkg="$pkgmeta" -v canvas="$CANVAS" '
+build=$("$HERE/build-stamp.sh")
+awk -v pkg="$pkgmeta" -v canvas="$CANVAS" -v build="$build" '
     index($0, "<meta name=\"reva-package\" content=\"\">") { sub(/content=""/, "content=\"" pkg "\"") }
     index($0, "<meta name=\"reva-canvas\" content=\"\">") { sub(/content=""/, "content=\"" canvas "\"") }
+    index($0, "<meta name=\"reva-build\" content=\"\">") { sub(/content=""/, "content=\"" build "\"") }
     { print }' "$WWW/index.html" > "$STAGE/index.html"
 grep -q "name=\"reva-canvas\" content=\"$CANVAS\"" "$STAGE/index.html" \
     || die "index.html has no reva-canvas meta tag to set"
