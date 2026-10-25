@@ -299,6 +299,29 @@ pub fn decode(mem: &Memory, eip: u32) -> Result<Insn, Fault> {
         },
         0x98 if osz == Size::D => Op::Cwde,
         0x99 if osz == Size::D => Op::Cdq,
+        // mov AL/EAX <-> [moffs32] (lib/util/locals emits a3)
+        0xa0..=0xa3 => {
+            let size = if b & 1 == 0 { Size::B } else { osz };
+            let m = Opd::Mem(MemRef {
+                base: None,
+                index: None,
+                scale: 1,
+                disp: c.u32()?,
+            });
+            if b & 2 == 0 {
+                Op::Mov {
+                    size,
+                    dst: Opd::Reg(EAX),
+                    src: m,
+                }
+            } else {
+                Op::Mov {
+                    size,
+                    dst: m,
+                    src: Opd::Reg(EAX),
+                }
+            }
+        }
         0xa4..=0xa7 | 0xaa..=0xaf => {
             let size = if b & 1 == 0 { Size::B } else { osz };
             let op = match b & !1 {
@@ -551,6 +574,56 @@ mod tests {
             }
         );
         assert_eq!(i.len, 1);
+    }
+
+    #[test]
+    fn mov_moffs32() {
+        // a3 is what lib/util/locals compiles: mov [locptr+n], eax
+        let at = |disp| {
+            Opd::Mem(MemRef {
+                base: None,
+                index: None,
+                scale: 1,
+                disp,
+            })
+        };
+        let i = dec(&[0xa3, 0x8c, 0x6c, 0x14, 0x00]);
+        assert_eq!(i.len, 5);
+        assert_eq!(
+            i.op,
+            Op::Mov {
+                size: Size::D,
+                dst: at(0x146c8c),
+                src: Opd::Reg(EAX)
+            }
+        );
+        let i = dec(&[0xa1, 0x00, 0x21, 0, 0]);
+        assert_eq!(
+            i.op,
+            Op::Mov {
+                size: Size::D,
+                dst: Opd::Reg(EAX),
+                src: at(0x2100)
+            }
+        );
+        let i = dec(&[0xa0, 0x00, 0x21, 0, 0]);
+        assert_eq!(
+            i.op,
+            Op::Mov {
+                size: Size::B,
+                dst: Opd::Reg(EAX),
+                src: at(0x2100)
+            }
+        );
+        let i = dec(&[0xa2, 0x00, 0x21, 0, 0]);
+        assert_eq!(
+            i.op,
+            Op::Mov {
+                size: Size::B,
+                dst: at(0x2100),
+                src: Opd::Reg(EAX)
+            }
+        );
     }
 
     #[test]
