@@ -128,8 +128,8 @@ what "save and run the executable" did (`embedded::boot_source`):
 
 Why not implement `(save)` and run the result? A browser cannot exec a file,
 and the image would be identical to the memory we already have. A saved
-image (`--save-image`) is the portable form of that executable: it starts
-the same way.
+image is the portable form of that executable: it starts the same way, and
+`(save)` writes one (§3.9).
 
 **Virtual install prefix.** The core reports its program path as
 `/reva/bin/lin/reva`, the original layout, so `reva.f`'s `libdir` gives
@@ -223,6 +223,44 @@ and the page only draws and stores (`www/reva.js` `start()`):
 No `SharedArrayBuffer` or `Atomics.wait` (they need COOP/COEP headers that
 a plain static server does not send), so any static directory serves it.
 
+### 3.9 Saved images and `restart`
+
+Reva turned a program into an executable with `save NAME` (`(save)` under
+it) and relaunched itself with `restart`. Both are host matters here.
+
+- **Images.** `(save)` ( a n -- ) writes the machine's state as an image
+  (`image.rs`: statics, dictionary, code, heap; vx86 bytes only) to the
+  named file through `Host::fs`, with `ioerr` as for the file words.
+  `reva.f`'s `save` wrapper runs unchanged around it (it hands over the
+  compiled-string area and prints the sizes). `save` may run from a file
+  being included or inside a word; loading an image therefore resets the
+  interpreter's source, `>in`, compile state and catch frame, as a freshly
+  started executable had them, and starts at `cold`. `reva --save-image`
+  writes the same format from outside.
+- **Starting from one.** `reva --image FILE`; in the browser
+  `start(wasm, { image })` (a URL or bytes; the worker fetches it), or
+  `reva_boot_image` in the module's C ABI. An image skips compiling
+  `reva.f` and whatever was loaded before saving, which is what a
+  page needs to start a large program at once.
+- **`restart`** is a core word (gate appended after the libc gates, so
+  image addresses stay stable). It runs the `onexit` list as `bye` does,
+  then the machine stops with `Status::Restart`. The host keeps a
+  `reva_vm::Start`, the way it made the machine (boot with `argv`, or
+  image bytes), makes a new machine from it, and hands over the input not
+  yet read (`Machine::take_input`; the rest of the current line is gone,
+  as it was in the old process). What the host owns survives: files, and
+  the console. The CLI then includes its files and evaluates its `-e`
+  texts again; the browser module does all of this inside `reva_run`, so
+  JavaScript sees only output (a new banner). This replaces wrapper loops
+  that relaunch on a special exit status.
+- **Why the host and not the VM.** A restart is "run the program again"; a
+  VM that reset itself would have to know how it was made (boot file,
+  image, arguments) and would mix host policy into the core. One `Start`
+  type keeps it identical on every host.
+
+A script that calls `restart` unconditionally restarts for ever, as it did
+on the original (and as a launcher loop would); stop it with Ctrl-C.
+
 ## 4. Non-functional requirements
 
 | Quality | How it is addressed |
@@ -233,7 +271,8 @@ a plain static server does not send), so any static directory serves it.
 | **Maintainability / understandability** | Small modules with literate headers; the boot source is `reva.f` verbatim plus two documented lines (§3.6) — no fork of the Forth code. |
 | **Testability** | Unit tests per module, API tests (`reva-vm/tests`), and a reg-rs golden-output suite (`work/reg-rs`) over the CLI and the wasm build. |
 | **Serviceability** | `describe_addr`, `--trace`, `--show-boot`, the `probe` example (`see WORD` disassembles). |
-| **Upgradability** | Images contain only vx86 bytes and are versioned; translations are caches, never persisted. |
+| **Upgradability** | Images contain only vx86 bytes and are versioned; translations are caches, never persisted. New gates are appended, so images keep working across core versions with the same image version. |
+| **Startup time (browser)** | A page can start from an image (§3.9) instead of compiling `reva.f` and its program at every load. |
 | **Performance** | Interpreter with decode cache now; basic-block translation to x86-64 / ARM64 / wasm later (§6). |
 | **Usability** | `reva` behaves like the original REPL (banner, `ok>`, `reva.f`'s error messages); piped input runs as a batch without prompts. |
 | **Responsiveness (browser)** | The VM runs in a Web Worker; the page draws once per frame. Measured in headless Chromium: the longest frame gap during a 15 s computation is 17 ms (on the page's thread before: 50 ms, and boot froze it for 133 ms). Stop takes effect within one 8 ms slice (§3.8). |
@@ -293,8 +332,10 @@ block translation should land within ~2× of the original x86 Reva.
    and file system calls through `Host::fs`, with an in-memory file system
    for the browser (bundled files plus `localStorage`) and `lib/` embedded
    (§3.7). ✅ The browser host runs the VM in a Web Worker with time slices
-   and Stop (§3.8). Next: loading images in the browser; then `(save)` /
-   `makeexe` writing images.
+   and Stop (§3.8). ✅ `save`/`(save)` write images, which start on the
+   CLI and in the browser; `restart` (§3.9). `makeexe` (a native
+   executable) is not planned: an image plus the `reva` binary or the web
+   build is the portable form.
 3. x87 subset (as a 8-deep `f64` stack) for `lib/math/floats`, with 80-bit
    memory operands (`fld`/`fstp tbyte`).
 4. OS layer: ✅ virtual libc and a portable `syscall` subset (§3.6); ✅

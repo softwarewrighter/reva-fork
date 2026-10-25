@@ -8,12 +8,18 @@
 //! Protocol (mirrors [`reva_vm::Machine`]):
 //!
 //! 1. `reva_boot()` — create the VM and run `reva.f`; returns a status.
+//!    Or start from a saved image: copy its bytes to
+//!    `reva_fs_buffer(n)` and call `reva_boot_image(n)`; it returns -2 if
+//!    the bytes are not an image this core loads (the reason is the
+//!    `reva_fs_len()` bytes at `reva_fs_data()`).
 //! 2. To send input: `p = reva_input_buffer(n)`, copy `n` bytes to `p`,
 //!    then `reva_feed(n)`.
 //! 3. `reva_run(budget)` → 0 yielded (call again soon), 1 needs input,
 //!    2 halted (`reva_exit_code()`).  Keep budgets small enough that the
 //!    page stays responsive; JavaScript yields to the event loop between
-//!    calls.
+//!    calls.  `restart` is handled inside `reva_run`: the VM is made again
+//!    the way it was first made (reva.f or the image), keeps its files and
+//!    the input not yet read, and prints its banner again.
 //! 4. Output accumulates; read `reva_output_len()` bytes at
 //!    `reva_output_ptr()` and then `reva_output_clear()`.
 //!
@@ -32,12 +38,14 @@
 use std::cell::RefCell;
 
 use reva_vm::vfs::MemFs;
-use reva_vm::{embedded, BufferHost, Machine, Status};
+use reva_vm::{embedded, BufferHost, Machine, Start, Status};
 
 struct Web {
     vm: Machine,
     host: BufferHost,
     input: Vec<u8>,
+    /// How `vm` was made, for `restart`.
+    start: Start,
 }
 
 thread_local! {
@@ -52,12 +60,14 @@ const YIELDED: i32 = 0;
 const NEED_INPUT: i32 = 1;
 const HALTED: i32 = 2;
 const NOT_BOOTED: i32 = -1;
+const BAD_IMAGE: i32 = -2;
 
 fn code(s: Status) -> i32 {
     match s {
         Status::Yielded => YIELDED,
         Status::NeedInput => NEED_INPUT,
         Status::Halted(_) => HALTED,
+        Status::Restart => YIELDED,
     }
 }
 
@@ -70,24 +80,73 @@ fn with<R>(f: impl FnOnce(&mut Web) -> R, default: R) -> R {
 /// the first output.
 #[no_mangle]
 pub extern "C" fn reva_boot() -> i32 {
-    let mut vm = Machine::new(&["reva", embedded::BOOT_PATH]);
+    let start = Start::reva();
+    let vm = start
+        .machine()
+        .expect("booting reva.f always makes a machine");
+    begin(start, vm)
+}
+
+/// Create the VM from the image in the [`reva_fs_buffer`] (`len` bytes),
+/// as `reva --image` does.  Returns a status, or -2 with the reason in the
+/// buffer if the bytes are not an image this core loads.
+#[no_mangle]
+pub extern "C" fn reva_boot_image(len: u32) -> i32 {
+    let mut bytes = FSBUF.with(|b| std::mem::take(&mut *b.borrow_mut()));
+    bytes.truncate(len as usize);
+    match Start::image(bytes) {
+        Ok((start, vm)) => begin(start, vm),
+        Err(e) => {
+            FSBUF.with(|b| *b.borrow_mut() = e.to_string().into_bytes());
+            BAD_IMAGE
+        }
+    }
+}
+
+fn begin(start: Start, mut vm: Machine) -> i32 {
     let mut host = BufferHost::new();
     if let Some(fs) = PENDING.with(|p| p.borrow_mut().take()) {
         host.fs = fs;
     }
-    let status = vm.run_until_blocked(&mut host);
-    // Drop reva.f's progress marks; keep the banner and first prompt.
-    let out = String::from_utf8_lossy(&host.out).into_owned();
-    let (_, rest) = embedded::split_boot_output(&out);
-    host.out = rest.as_bytes().to_vec();
+    let status = startup(&mut vm, &mut host);
     WEB.with(|w| {
         *w.borrow_mut() = Some(Web {
             vm,
             host,
             input: Vec::new(),
+            start,
         })
     });
     code(status)
+}
+
+/// Run a new machine until it first waits, keeping what it printed except
+/// reva.f's progress marks.
+fn startup(vm: &mut Machine, host: &mut BufferHost) -> Status {
+    let before = host.out.len();
+    let status = vm.run_until_blocked(host);
+    let out = String::from_utf8_lossy(&host.out[before..]).into_owned();
+    let (_, rest) = embedded::split_boot_output(&out);
+    host.out.truncate(before);
+    host.out.extend_from_slice(rest.as_bytes());
+    status
+}
+
+/// `restart`: a new machine made as the first one was, with the old one's
+/// files, output and unread input.
+fn restart(w: &mut Web) -> Status {
+    let (input, closed) = w.vm.take_input();
+    // The same start made the first machine (an image was checked then).
+    w.vm = w.start.machine().expect("a start that worked once");
+    match startup(&mut w.vm, &mut w.host) {
+        Status::NeedInput => {}
+        s => return s,
+    }
+    w.vm.feed(&input);
+    if closed {
+        w.vm.close_input();
+    }
+    Status::Yielded
 }
 
 /// A buffer of `len` bytes for the caller to fill before [`reva_feed`].
@@ -123,7 +182,13 @@ pub extern "C" fn reva_close_input() {
 /// Run up to `budget` steps.
 #[no_mangle]
 pub extern "C" fn reva_run(budget: u32) -> i32 {
-    with(|w| code(w.vm.run(&mut w.host, budget as u64)), NOT_BOOTED)
+    with(
+        |w| match w.vm.run(&mut w.host, budget as u64) {
+            Status::Restart => code(restart(w)),
+            s => code(s),
+        },
+        NOT_BOOTED,
+    )
 }
 
 #[no_mangle]
@@ -200,6 +265,13 @@ pub extern "C" fn reva_fs_buffer(len: u32) -> *mut u8 {
 #[no_mangle]
 pub extern "C" fn reva_fs_data() -> *const u8 {
     FSBUF.with(|b| b.borrow().as_ptr())
+}
+
+/// How many bytes [`reva_fs_data`] holds (after [`reva_boot_image`]
+/// failed, the reason).
+#[no_mangle]
+pub extern "C" fn reva_fs_len() -> u32 {
+    FSBUF.with(|b| b.borrow().len() as u32)
 }
 
 /// Add the file in the buffer: a path of `path_len` bytes, then the
@@ -293,6 +365,43 @@ mod tests {
         feed("3 ~sys.(bye)\n");
         while reva_run(1000) == YIELDED {}
         assert_eq!(reva_exit_code(), 3);
+    }
+
+    fn run_out() -> String {
+        while reva_run(1000) == YIELDED {}
+        output()
+    }
+
+    #[test]
+    fn images_and_restart() {
+        // each test runs on its own thread, so this is a fresh module state
+        assert_eq!(reva_boot(), NEED_INPUT);
+        output();
+        feed(": hi .\" from the image\" ; save /app.img\n");
+        assert!(run_out().contains("Saving: /app.img"));
+        let n = reva_fs_changes() as usize;
+        let rec = unsafe { std::slice::from_raw_parts(reva_fs_data(), n) }.to_vec();
+        let image = &rec[5 + 8 + 4..];
+        // a fresh start from the image
+        let p = reva_fs_buffer(image.len() as u32);
+        unsafe { std::ptr::copy_nonoverlapping(image.as_ptr(), p, image.len()) };
+        assert_eq!(reva_boot_image(image.len() as u32), NEED_INPUT);
+        assert_eq!(output(), "Reva 2011.2 Linux\n\nok> ");
+        feed(": gone ; hi restart\nhi gone\n");
+        // restart: the banner again, the image's words, not later ones;
+        // the next line was not read yet, so it reaches the new machine
+        let out = run_out();
+        assert!(
+            out.starts_with("from the imageReva 2011.2 Linux\n\nok> from the image"),
+            "{out:?}"
+        );
+        assert!(out.contains("unknown word:  gone"), "{out:?}");
+        // not an image
+        let p = reva_fs_buffer(4);
+        unsafe { std::ptr::copy_nonoverlapping(b"nope".as_ptr(), p, 4) };
+        assert_eq!(reva_boot_image(4), BAD_IMAGE);
+        let why = unsafe { std::slice::from_raw_parts(reva_fs_data(), reva_fs_len() as usize) };
+        assert_eq!(why, b"image is truncated");
     }
 
     fn put(path: &str, data: &[u8]) {

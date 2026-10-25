@@ -60,6 +60,8 @@ gates! {
     BootRestart,
     // more virtual libc functions (appended: gate addresses are in images)
     HostOpendir, HostReaddir, HostClosedir,
+    // `restart`: the host starts a new machine the way it started this one
+    Restart,
     HostSystem,
 }
 
@@ -777,7 +779,6 @@ impl Machine {
             Gate::UnloadLib => "(-lib)",
             Gate::CallFn => "(call)",
             Gate::OsFunc => "(func)",
-            Gate::Save => "(save)",
             _ => g.name(),
         })
     }
@@ -1448,6 +1449,11 @@ impl Machine {
                 self.iterate_list(host, OnStartThunk.addr(), st::EXIT_LIST)?;
                 Ok(Next::Halt(code as i32))
             }
+            Restart => {
+                // like `bye` (onexit handlers run), but the host starts over
+                self.iterate_list(host, OnStartThunk.addr(), st::EXIT_LIST)?;
+                Ok(Next::Restart)
+            }
 
             // --- OS services not yet provided by the portable core ---
             // --- portable OS layer (ffi.rs) ---
@@ -1467,8 +1473,9 @@ impl Machine {
             Read => self.word_read(host).map(|()| Ret),
             Write => self.word_write(host).map(|()| Ret),
             Fsize => self.word_fsize(host).map(|()| Ret),
+            Save => self.word_save(host).map(|()| Ret),
 
-            MakeExe | LzPack | LzDepack | LzMax | Save => Err(Self::not_implemented(g)),
+            MakeExe | LzPack | LzDepack | LzMax => Err(Self::not_implemented(g)),
         }
     }
 }
