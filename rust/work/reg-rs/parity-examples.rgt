@@ -1,4 +1,4 @@
-command = "scripts/parity-examples.sh"
-timeout = 60
+command = "cargo build -q --release -p reva-cli && REVA=target/release/reva scripts/parity-examples.sh"
+timeout = 300
 exit_code = 0
-desc = "status of every program in examples/ on the portable core (accept improvements with rebase, then --write)"
+desc = "status of every program in examples/ on the portable core, release build so timeouts do not depend on the build (accept improvements with rebase, then --write)"

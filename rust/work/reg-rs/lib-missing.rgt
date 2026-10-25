@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} -e 'needs no/such-lib' -e '1 . cr' -e '\" libnothere.so\" lib nothere 1 func: nofunc : t nofunc ; t' -e '2 . cr' -e '\" HOME\" getenv nip 0 > . cr' < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "a missing library or C function is reported by reva.f and the session goes on; getenv reaches the host"

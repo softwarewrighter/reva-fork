@@ -13,9 +13,11 @@ const check = (what, got, want) => {
   console.log(`${ok ? "ok  " : "FAIL"} ${what}: ${JSON.stringify(got)}`);
 };
 
+// The boot ends as Reva's saved executable started: banner, then a prompt.
+const BANNER = "Reva 2011.2 Linux\n\nok> ";
 check("boot status", reva.status, NEED_INPUT);
 reva.feed("2 3 + . : sq dup * ; 7 sq .\n");
-check("arith", await (async () => { let o = ""; await reva.run((s) => (o += s)); return o; })(), "5 49 ");
+check("arith", await (async () => { let o = ""; await reva.run((s) => (o += s)); return o; })(), BANNER + "5 49 \nok> ");
 
 reva.feed(": forever forever ; forever\n");
 check("infinite loop yields", reva.step(5000), YIELDED);
@@ -27,8 +29,8 @@ check("key waits", reva2.step(100000), NEED_INPUT);
 reva2.feed("\x01\x02");
 let out2 = "";
 await reva2.run((s) => (out2 += s));
-check("key resumes", out2, "3 ");
-reva2.feed("9 (bye)\n");
+check("key resumes", out2, BANNER + "3 \nok> ");
+reva2.feed("9 ~sys.(bye)\n");
 check("halts", await reva2.run(), HALTED);
 check("exit code", reva2.exitCode, 9);
 

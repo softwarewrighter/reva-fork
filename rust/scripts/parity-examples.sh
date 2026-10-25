@@ -11,6 +11,8 @@
 #   runs            exits normally, no error printed
 #   missing: WORD   stopped at the first word the core does not define yet
 #   fault: MESSAGE  a VM fault (bad address, unsupported instruction, ...)
+#   error: MESSAGE  reva.f reported an error (a C function or library it
+#                   could not load, ...)
 #   timeout         still running after the time limit (interactive/looping)
 # Area is a heuristic from the program's `needs` lines.
 set -uo pipefail
@@ -34,14 +36,20 @@ area() {
 
 classify() {
     local out code
-    out=$(cd "$root" && timeout "$LIMIT" "rust/$REVA" "$1" < /dev/null 2>&1)
+    # tr: reva.f's REPL emits a NUL when it ends after an error
+    out=$(cd "$root" && timeout "$LIMIT" "rust/$REVA" "$1" < /dev/null 2>&1 | tr -d '\0'; exit "${PIPESTATUS[0]}")
     code=$?
     if [[ $code -eq 124 ]]; then echo "timeout"; return; fi
     local fault missing
-    fault=$(grep -m1 -oE '^\*\*\* [^(]*' <<<"$out" | sed 's/^\*\*\* //; s/[[:space:]]*$//')
+    fault=$(grep -m1 -E '^\*\*\* ' <<<"$out" | sed 's/^\*\*\* //; s/ (in [^()]*, eip [^)]*)$//; s/[[:space:]]*$//')
     if [[ -n "$fault" ]]; then echo "fault: $fault"; return; fi
-    missing=$(grep -m1 -E '^[^[:space:]]+\?$' <<<"$out" | sed 's/?$//')
+    # reva.f's handler: "ERROR: unknown word:  foo"; the bare core: "foo?"
+    missing=$(grep -m1 -oE '^ERROR: unknown word: +[^[:space:]]+' <<<"$out" | awk '{print $NF}')
+    [[ -n "$missing" ]] || missing=$(grep -m1 -E '^[^[:space:]]+\?$' <<<"$out" | sed 's/?$//')
     if [[ -n "$missing" ]]; then echo "missing: \`$missing\`"; return; fi
+    local err
+    err=$(grep -m1 -oE '^ERROR: .*' <<<"$out" | sed 's/^ERROR: //; s/[[:space:]]\+/ /g; s/ *$//')
+    if [[ -n "$err" ]]; then echo "error: $err"; return; fi
     echo "runs"
 }
 
