@@ -162,6 +162,9 @@ rmdir/list/chdir/cwd), that a host lends through `Host::fs`:
 
 - **CLI:** `StdFs`, the real file system; `/reva/` maps to the install
   root. Descriptors are the host's own numbers (from 3), not OS fds.
+  VM paths are always `/`-rooted and `/`-separated; on Windows the host
+  path `C:\dir` is the VM path `/C:/dir` and back (`vm_path`/`host_path`
+  in `reva-cli/src/fs.rs`), so one `vfs::normalize` serves every host.
 - **Browser and tests:** `MemFs`, an in-memory tree. It records which
   paths changed, and `reva-web` exports them so `reva.js` can keep them in
   `localStorage` and put them back before the next boot. A page bundles
