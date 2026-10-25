@@ -1,7 +1,7 @@
 # The desktop app
 
 `reva-desktop` is the Reva REPL in its own window, on Linux and macOS
-(Windows later). It shows the same page as the browser build and runs the
+(Windows builds, but is untested; see [packaging.md](packaging.md#5-windows-10-and-later)). It shows the same page as the browser build and runs the
 same WebAssembly VM, so a program behaves the same in both. What it adds:
 files live in a folder on disk instead of browser storage, and it can open a
 *package*, a folder with its own start files (CoSy is one).
@@ -25,8 +25,9 @@ and:
 - **macOS:** Xcode's command line tools (`xcode-select --install`).
 
 The first build compiles Tauri and takes a few minutes; later builds take
-seconds. `desktop/build.sh --bundle` makes installers (`.deb`/`.rpm`, or
-`.app`/`.dmg`) and needs `cargo install tauri-cli` first.
+seconds. `desktop/build.sh --bundle` makes installers (`.deb`/`.rpm`,
+`.app`/`.dmg`, or NSIS/MSI on Windows) and needs `cargo install tauri-cli`
+first; [packaging.md](packaging.md) covers signing and what to ship.
 
 ## Run
 
