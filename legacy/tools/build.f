@@ -1,4 +1,5 @@
-| Program to rebuild Reva
+| Program to rebuild Reva (legacy 32-bit x86 build; deprecated).
+| Run from the repository root; binaries live in legacy/bin/<os>/.
 |
 
 needs os/shell
@@ -15,7 +16,7 @@ create nasm-tail , , ,
 
 here " dl -Wl,-allow_stack_execute" asciiz,
 here " dl -m32" asciiz,
-here " kernel32 src/revares.o" asciiz,
+here " kernel32 legacy/src/revares.o" asciiz,
 create gcc-tail , , ,
 
 here " mac/" asciiz,
@@ -40,7 +41,7 @@ create filename 256 allot
 		" gcc -nostartfiles  -o "
 	then
 	;
-: bin/ os 0if " bin\\" else " bin/" then filename place 
+: bin/ os 0if " legacy\\bin\\" else " legacy/bin/" then filename place 
 	is-cross @ if 0 else os then
 	cells os-dirs + @ 
 	count filename +place
@@ -96,7 +97,7 @@ The following options may be used:
 	." Building the core..." cr
 	" nasm -Ox -o core.o -DOS=" cmdline place
 	build-type @ cells nasm-tail + @ count cmdline +place
-	"  src/newcore.asm" cmdline +place
+	"  -Ilegacy/ legacy/src/newcore.asm" cmdline +place
 	cmdline ctype cr
 	cmdline run
 	

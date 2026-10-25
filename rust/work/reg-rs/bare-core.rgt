@@ -1,0 +1,4 @@
+command = """${REVA:-target/debug/reva} --no-boot -e "'A emit 10 emit 7 (bye)" < /dev/null"""
+timeout = 60
+exit_code = 7
+desc = "bare core without reva.f; (bye) exit status"

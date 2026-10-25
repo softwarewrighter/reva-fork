@@ -1,0 +1,8 @@
+ok   boot status: 1
+ok   arith: "Reva 2011.2 Linux\n\nok> 5 49 \nok> "
+ok   infinite loop yields: 0
+ok   still yielding: 0
+ok   key waits: 1
+ok   key resumes: "Reva 2011.2 Linux\n\nok> 3 \nok> "
+ok   halts: 2
+ok   exit code: 9

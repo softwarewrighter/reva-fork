@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} < tests/forth/include.f"
+timeout = 60
+exit_code = 0
+desc = "include, nested files, ioerr"

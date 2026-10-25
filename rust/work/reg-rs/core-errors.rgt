@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} < tests/forth/errors.f"
+timeout = 60
+exit_code = 0
+desc = "fault reporting and REPL recovery, definition rollback, underflow"

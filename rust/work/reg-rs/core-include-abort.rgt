@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} tests/forth/abort.f -e '3 . cr' < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "unknown word aborts the rest of an included file"

@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} < tests/forth/stack.f"
+timeout = 60
+exit_code = 0
+desc = "stack words (EAX=TOS, ESI=data stack)"
