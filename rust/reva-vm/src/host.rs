@@ -25,6 +25,26 @@ pub trait Host {
     fn read_input_blocking(&mut self) -> Option<Vec<u8>> {
         None
     }
+
+    /// Environment lookup for `getenv`.  `None`: not set (the default, so a
+    /// host without an environment, like the browser, needs nothing).
+    fn getenv(&mut self, _name: &str) -> Option<String> {
+        None
+    }
+
+    /// `setenv`/`putenv`.  The default ignores it.
+    fn setenv(&mut self, _name: &str, _value: &str) {}
+
+    /// Wall-clock time as (seconds, microseconds) since the Unix epoch, for
+    /// `time&date`, `ms@` and friends.  `None` (the default) reads as 0, so
+    /// the VM itself never touches a clock and stays deterministic.
+    fn now(&mut self) -> Option<(u64, u32)> {
+        None
+    }
+
+    /// `ms`: pause for `ms` milliseconds.  The default returns at once (a
+    /// browser cannot block).
+    fn sleep_ms(&mut self, _ms: u32) {}
 }
 
 /// A host that captures output in memory and serves files from a map.
@@ -33,6 +53,7 @@ pub trait Host {
 pub struct BufferHost {
     pub out: Vec<u8>,
     pub files: HashMap<String, Vec<u8>>,
+    pub env: HashMap<String, String>,
 }
 
 impl BufferHost {
@@ -56,5 +77,13 @@ impl Host for BufferHost {
             .get(path)
             .cloned()
             .or_else(|| crate::embedded::file(path).map(<[u8]>::to_vec))
+    }
+
+    fn getenv(&mut self, name: &str) -> Option<String> {
+        self.env.get(name).cloned()
+    }
+
+    fn setenv(&mut self, name: &str, value: &str) {
+        self.env.insert(name.to_string(), value.to_string());
     }
 }

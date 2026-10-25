@@ -10,7 +10,9 @@
 //! The exit status is the `bye` code (0 at end of input).
 
 use std::io::{self, BufRead, IsTerminal, Read, Write};
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use reva_vm::{embedded, Host, Machine, Status};
 
@@ -32,16 +34,56 @@ struct StdHost {
     out: io::BufWriter<io::Stdout>,
 }
 
+/// Where `/reva/...` (the core's virtual install prefix) lives on disk:
+/// `$REVA_HOME`, else the checkout this binary was built from.
+fn install_root() -> PathBuf {
+    match std::env::var_os("REVA_HOME") {
+        Some(h) => PathBuf::from(h),
+        None => Path::new(env!("CARGO_MANIFEST_DIR")).join("../.."),
+    }
+}
+
+/// File lookup shared by both hosts: embedded sources, then the install
+/// prefix, then the path as given (relative to the working directory).
+fn read_file(path: &str) -> Option<Vec<u8>> {
+    if let Some(b) = embedded::file(path) {
+        return Some(b.to_vec());
+    }
+    if let Some(rel) = embedded::install_relative(path) {
+        return std::fs::read(install_root().join(rel)).ok();
+    }
+    std::fs::read(path).ok()
+}
+
+/// Process environment and clock, shared by both hosts.
+macro_rules! os_services {
+    () => {
+        fn getenv(&mut self, name: &str) -> Option<String> {
+            std::env::var(name).ok()
+        }
+        fn setenv(&mut self, name: &str, value: &str) {
+            std::env::set_var(name, value);
+        }
+        fn now(&mut self) -> Option<(u64, u32)> {
+            let d = SystemTime::now().duration_since(UNIX_EPOCH).ok()?;
+            Some((d.as_secs(), d.subsec_micros()))
+        }
+        fn sleep_ms(&mut self, ms: u32) {
+            std::thread::sleep(Duration::from_millis(ms.into()));
+        }
+    };
+}
+
 impl Host for StdHost {
     fn write(&mut self, bytes: &[u8]) {
         let _ = self.out.write_all(bytes);
     }
 
     fn read_file(&mut self, path: &str) -> Option<Vec<u8>> {
-        embedded::file(path)
-            .map(<[u8]>::to_vec)
-            .or_else(|| std::fs::read(path).ok())
+        read_file(path)
     }
+
+    os_services!();
 
     fn read_input_blocking(&mut self) -> Option<Vec<u8>> {
         let _ = self.out.flush();
@@ -61,10 +103,10 @@ impl Host for Capture {
         self.0.extend_from_slice(bytes);
     }
     fn read_file(&mut self, path: &str) -> Option<Vec<u8>> {
-        embedded::file(path)
-            .map(<[u8]>::to_vec)
-            .or_else(|| std::fs::read(path).ok())
+        read_file(path)
     }
+
+    os_services!();
 }
 
 #[derive(Default)]
@@ -145,20 +187,32 @@ fn main() -> ExitCode {
         None => Machine::new(&["reva", &boot_path]),
     };
 
-    // Boot quietly.  Anything other than reva.f's progress digits means the
-    // boot went wrong, so show it.
+    // Boot quietly.  reva.f prints progress marks, then (as the restarted
+    // system) its banner and first prompt; anything else means the boot
+    // went wrong, so show it.
     let mut capture = Capture(Vec::new());
     if let Status::Halted(code) = vm.run_until_blocked(&mut capture) {
         io::stdout().write_all(&capture.0).ok();
         eprintln!("reva: halted during boot");
         return exit_code(code);
     }
-    let boot_out = String::from_utf8_lossy(&capture.0);
-    if opts.show_boot || !boot_out.chars().all(|c| c.is_ascii_digit()) {
-        eprint!("{boot_out}");
+    let boot_out = String::from_utf8_lossy(&capture.0).into_owned();
+    let (marks, rest) = embedded::split_boot_output(&boot_out);
+    let normal = !rest.contains("***") && (rest.is_empty() || rest.starts_with("Reva "));
+    if opts.show_boot || !normal {
+        eprint!("{marks}{rest}");
         if !boot_out.ends_with('\n') && !boot_out.is_empty() {
             eprintln!();
         }
+    }
+    let interactive = io::stdin().is_terminal() && opts.save_image.is_none();
+    if interactive {
+        // The banner and first `ok>` prompt, as Reva showed them.
+        if normal && !opts.show_boot {
+            print!("{rest}");
+        }
+    } else {
+        vm.quiet_prompt();
     }
     vm.set_trace(opts.trace);
 
@@ -204,9 +258,8 @@ fn main() -> ExitCode {
         };
     }
 
-    // Interactive: one line at a time.
+    // Interactive: one line at a time; reva.f prints the prompt.
     loop {
-        let _ = host.out.write_all(b"ok> ");
         let _ = host.out.flush();
         let mut line = String::new();
         match stdin.lock().read_line(&mut line) {

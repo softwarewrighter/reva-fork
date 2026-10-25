@@ -22,7 +22,8 @@
 //! let mut vm = Machine::new(&["reva", reva_vm::embedded::BOOT_PATH]);
 //! let mut host = BufferHost::new();
 //! assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
-//! host.take_output(); // boot progress digits
+//! host.take_output(); // boot progress marks, banner, first prompt
+//! vm.quiet_prompt();   // no `ok>` before each line
 //! vm.feed(b": sq dup * ; 7 sq .\n");
 //! vm.run_until_blocked(&mut host);
 //! assert_eq!(host.take_output(), "49 ");
@@ -30,6 +31,7 @@
 
 pub mod embedded;
 pub mod fault;
+pub mod ffi;
 pub mod gates;
 pub mod heap;
 pub mod host;

@@ -104,6 +104,46 @@ cached per address; memory marks 256-byte pages that hold decoded code, and
 a write into such a page queues it for invalidation (decode cache and any
 translator). Writes to data pages cost one bit test.
 
+### 3.6 Booting all of `reva.f`, and what stands in for its last step
+
+`reva.f` is a build script: it compiles the whole system, then saves a new
+native executable with `(save)` and exits. The saved executable, when run,
+starts with fresh stacks, runs the `onstartup` list (which allocates
+`scratch`, `pad` and the compiled-string area) and calls `appstart` (banner,
+command line, then the `catch`-protected interpreter loop).
+
+The port boots `reva.f` verbatim up to that last step, then does in place
+what "save and run the executable" did (`embedded::boot_source`):
+
+1. Before `reva.f` hides `(compstr)`, one inserted line hands the string area
+   to `setextra`, exactly as `save` does, so the startup code finds the
+   strings compiled during the boot.
+2. Instead of `(save) bye`, the tail runs `(boot-restart)`: drop the boot
+   file from `argv`, abandon the include frames, and jump to `cold`. It is
+   also given `reva.f`'s interpreter loop (`exception-reset`), so fault
+   recovery returns to the same loop rather than the core's bare REPL.
+
+Why not implement `(save)` and run the result? A browser cannot exec a file,
+and the image would be identical to the memory we already have. A saved
+image (`--save-image`) is the portable form of that executable: it starts
+the same way.
+
+**Virtual install prefix.** The core reports its program path as
+`/reva/bin/lin/reva`, the original layout, so `reva.f`'s `libdir` gives
+`/reva/lib/` without changing a line. Hosts map `/reva/` to real files: the
+CLI to `$REVA_HOME` or the checkout it was built from; the web host to
+embedded files (next step).
+
+**The OS layer (`ffi.rs`).** `reva.f` selects its Linux personality
+(`os` = 1) and reaches the OS through `lib`/`func:` and `syscall`. The port
+serves one virtual library, libc, whose functions (`getenv`, `putenv`,
+`localtime`, `errno`) are gateways over `Host`; any other library or
+function resolves to 0, as a failed `dlopen`/`dlsym` did, so `reva.f` names
+what is missing. Linux i386 `syscall` numbers used outside file I/O (time,
+`gettimeofday`, `nanosleep`, `getpid`, terminal `ioctl`) map to `Host`; the
+rest return `-ENOSYS`. The VM itself never reads a clock or the environment,
+so it stays deterministic and the browser host needs nothing.
+
 ## 4. Non-functional requirements
 
 | Quality | How it is addressed |
@@ -111,12 +151,12 @@ translator). Writes to data pages cost one bit test.
 | **Portability / availability** | Pure Rust, no `unsafe` in the VM, no dependencies; one core for CLI and `wasm32` (module has zero imports). |
 | **Reliability** | All memory access bounds-checked; null guard; return-stack floor; data-stack underflow check between words; faults recover to the REPL and roll back a half-made definition (as newcore did). |
 | **Traceability** | Every gateway names its newcore routine; deviations are commented; fault reports name the Forth word and offset (`in bad+0xc`); `--trace` logs each step. |
-| **Maintainability / understandability** | Small modules with literate headers; the boot source is `reva.f` verbatim, cut at one marker — no fork of the Forth code. |
+| **Maintainability / understandability** | Small modules with literate headers; the boot source is `reva.f` verbatim plus two documented lines (§3.6) — no fork of the Forth code. |
 | **Testability** | Unit tests per module, API tests (`reva-vm/tests`), and a reg-rs golden-output suite (`work/reg-rs`) over the CLI and the wasm build. |
 | **Serviceability** | `describe_addr`, `--trace`, `--show-boot`, the `probe` example (`see WORD` disassembles). |
 | **Upgradability** | Images contain only vx86 bytes and are versioned; translations are caches, never persisted. |
 | **Performance** | Interpreter with decode cache now; basic-block translation to x86-64 / ARM64 / wasm later (§6). |
-| **Usability** | `reva` behaves like the original REPL; piped input runs as a batch. |
+| **Usability** | `reva` behaves like the original REPL (banner, `ok>`, `reva.f`'s error messages); piped input runs as a batch without prompts. |
 
 ## 5. Deliberate deviations from newcore
 
@@ -129,6 +169,14 @@ translator). Writes to data pages cost one bit test.
 4. `free` of a non-allocated address is ignored instead of crashing.
 5. `fnvhash` of an empty string returns the offset basis (newcore looped
    2³² times).
+6. `;;` does not turn a "call" into a tail jump when the five bytes before
+   the `ret` end in alignment padding. newcore patched whatever byte sat at
+   `here-5`; that was harmless on the x86 build only because, at its
+   addresses, the byte was never `E8`. Here `reva.f`'s `::` (a `:` executed
+   inside a definition, which pads with `nop`s) hit an `E8` inside the
+   previous call's offset and corrupted it. This was the bug that stopped
+   the boot at the assembler.
+7. `localtime` is UTC: the port has no time-zone database.
 
 ## 6. The road to native speed
 
@@ -154,10 +202,13 @@ block translation should land within ~2× of the original x86 Reva.
 
 1. ✅ vx86 core, gateways, resumable dispatcher, CLI, wasm host, `reva.f`
    prefix boots (through `does>`/`THROW:`).
-2. Boot further into `reva.f`: the embedded x86 assembler (pure Forth), then
-   file words (`open/r`, `read`, …) through `Host`, then `(save)`/`makeexe`
-   writing images.
-3. x87 subset (as a 8-deep `f64` stack) for `lib/math/floats`.
-4. OS layer: `(lib)`/`(func)` via a host FFI table (native: `libloading`;
-   web: JS imports); `syscall` mapped to a small portable set.
+2. ✅ All of `reva.f` boots (assembler, contexts, `needs`, FFI layer, OS
+   personality) and restarts as its executable did (§3.6). Next: file words
+   (`open/r`, `read`, …) through `Host`, with a virtual file system for the
+   browser (bundled read-only files plus browser storage); then `(save)` /
+   `makeexe` writing images; loading images in the browser.
+3. x87 subset (as a 8-deep `f64` stack) for `lib/math/floats`, with 80-bit
+   memory operands (`fld`/`fstp tbyte`).
+4. OS layer: ✅ virtual libc and a portable `syscall` subset (§3.6). Next:
+   native libraries via `libloading` (CLI) and JS imports (web).
 5. Translators: x86-64, then ARM64, then wasm.

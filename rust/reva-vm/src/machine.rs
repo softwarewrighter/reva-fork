@@ -54,6 +54,13 @@ pub mod st {
         // DEFER vectors: each cell holds the address the deferred word runs
         PROMPT, APPSTART, KEY, FINDINTERNAL, IS_WORD, TYPE, EMIT, DO_CR,
         EXCEPTION, CTRLC, HEAPGONE, DICTGONE, HEADER_,
+        // portable OS layer (not in newcore.asm): `data: errno` points at
+        // ERRNO; ENV_BUF/ENV_LEN and TM_BUF are heap buffers for `getenv`
+        // and `localtime` results (0 until first use)
+        ERRNO, ENV_BUF, ENV_LEN, TM_BUF,
+        // where fault recovery re-enters the interpreter loop: reva.f's
+        // `exception-reset`, set by `(boot-restart)` (0: the core's REPL)
+        REPL_ENTRY,
     }
 }
 
@@ -119,6 +126,10 @@ pub struct Machine {
     pub steps: u64,
     /// Write a line per step to stderr (see [`Machine::set_trace`]).
     trace: bool,
+    /// Code-space range `[start, end)` most recently filled with alignment
+    /// `nop`s; `;;` uses it to avoid reading padding as a `call` (see
+    /// `Machine::ssemi`).  Transient: not part of an image.
+    pub(crate) last_pad: (u32, u32),
 }
 
 impl Machine {
@@ -151,6 +162,7 @@ impl Machine {
             translator: None,
             steps: 0,
             trace: false,
+            last_pad: (0, 0),
         }
     }
 
@@ -204,7 +216,10 @@ impl Machine {
             self.mem.write_u32(a, v).expect("statics");
         }
         self.mem
-            .write_bytes(APP_FILE_NAME, b"reva\0")
+            .write_bytes(APP_FILE_NAME, crate::embedded::APP_PATH.as_bytes())
+            .expect("appname");
+        self.mem
+            .write_u8(APP_FILE_NAME + crate::embedded::APP_PATH.len() as u32, 0)
             .expect("appname");
     }
 
@@ -368,6 +383,7 @@ impl Machine {
             ("slurp", Slurp.addr(), fc),
             ("setextra", SetExtra.addr(), fc),
             ("getextra", GetExtra.addr(), fc),
+            ("(boot-restart)", BootRestart.addr(), fc),
         ];
         let mut d = D0;
         let mut prev = 0;
@@ -392,6 +408,14 @@ impl Machine {
     /// Queue input bytes (keyboard data, pasted text, piped stdin).
     pub fn feed(&mut self, bytes: &[u8]) {
         self.input.extend(bytes);
+    }
+
+    /// Turn off the interactive prompt (`reva.f` prints `ok> ` before each
+    /// line it reads).  For batch use: piped input, tests, embedding.
+    pub fn quiet_prompt(&mut self) {
+        self.mem
+            .write_u32(st::PROMPT, Gate::Noop.addr())
+            .expect("prompt");
     }
 
     /// Mark the end of input: once the queue drains, `key` returns EOF and
@@ -645,10 +669,14 @@ impl Machine {
         self.cpu.r[EAX as usize] = 0;
         self.cpu.r[ESP as usize] = RP0;
         self.cpu.df = false;
-        // Restart the interactive loop.  If `appstart` is still the core's
-        // own (which would re-include the boot file), go straight to the REPL.
+        // Restart the interactive loop: reva.f's own (`exception-reset`,
+        // which runs `interp` under `catch`) once booted; otherwise the
+        // core's REPL, or `appstart` if a program installed its own.
+        let entry = self.var(st::REPL_ENTRY);
         let app = self.var(st::APPSTART);
-        self.cpu.eip = if app == Gate::Hello.addr() {
+        self.cpu.eip = if entry != 0 {
+            entry
+        } else if app == Gate::Hello.addr() {
             Gate::Repl.addr()
         } else {
             app
