@@ -43,6 +43,8 @@ usage: reva-desktop [options]
   --package DIR    open DIR (a folder with reva-package.json); its files are
                    the VM's files, and its start files are included
   --root DIR       keep files in DIR instead of ~/Reva (ignored with --package)
+  --canvas WHERE   where turtle graphics go: window (default), pane, or split
+                   (REPL and graphics side by side); overrides the manifest
   -e, --eval TEXT  feed TEXT as a line after start (repeatable)
   --print-output   copy everything Reva prints to stdout (for scripts and tests)
   -h, --help       this text
@@ -68,7 +70,12 @@ struct Manifest {
     id: Option<String>,
     #[serde(default)]
     start: Vec<String>,
+    /// Where graphics go: "window", "pane" or "split" (see www/split.js).
+    canvas: Option<String>,
 }
+
+/// The `canvas` values the page knows.
+const CANVAS: &[&str] = &["window", "pane", "split"];
 
 /// How a package brands the app, applied at run time so one installed
 /// `reva-desktop` can look like each package it opens:
@@ -178,6 +185,8 @@ struct Session {
     /// The `--eval` lines, fed once after the start lines.
     input: Vec<String>,
     print_output: bool,
+    /// Where graphics go (`--canvas`, else the manifest's `canvas`).
+    canvas: Option<String>,
     /// Notes for the user (skipped files, a missing manifest, ...).
     notes: Vec<String>,
 }
@@ -194,6 +203,7 @@ struct Options {
     root: Option<PathBuf>,
     evals: Vec<String>,
     print_output: bool,
+    canvas: Option<String>,
 }
 
 fn parse_args() -> Result<Options, String> {
@@ -204,6 +214,13 @@ fn parse_args() -> Result<Options, String> {
         match a.as_str() {
             "--package" => o.package = Some(value(&a)?.into()),
             "--root" => o.root = Some(value(&a)?.into()),
+            "--canvas" => {
+                let v = value(&a)?;
+                if !CANVAS.contains(&v.as_str()) {
+                    return Err(format!("--canvas {v}: use one of {}", CANVAS.join(", ")));
+                }
+                o.canvas = Some(v);
+            }
             "-e" | "--eval" => o.evals.push(value(&a)?),
             "--print-output" => o.print_output = true,
             "-h" | "--help" => {
@@ -262,6 +279,18 @@ fn build_state(o: Options) -> Result<State, String> {
         .collect();
     let package = o.package.is_some().then_some(root.as_path());
     let brand = branding(package, &manifest, &mut notes);
+    let canvas = match (o.canvas, manifest.canvas) {
+        (Some(c), _) => Some(c),
+        (None, Some(c)) if CANVAS.contains(&c.as_str()) => Some(c),
+        (None, Some(c)) => {
+            notes.push(format!(
+                "canvas {c:?} ignored: use one of {}",
+                CANVAS.join(", ")
+            ));
+            None
+        }
+        (None, None) => None,
+    };
     Ok(State {
         session: Session {
             title: brand.title.clone(),
@@ -269,6 +298,7 @@ fn build_state(o: Options) -> Result<State, String> {
             start,
             input: o.evals,
             print_output: o.print_output,
+            canvas,
             notes,
         },
         root,

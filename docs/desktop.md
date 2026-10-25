@@ -113,6 +113,15 @@ What run time cannot change, so a package needs its own entry or bundle:
   resource icon or a shortcut's icon. A shortcut to `reva-desktop.exe
   --package DIR` with the package's `.ico` covers it.
 
+### Where graphics go: `canvas`
+
+`"canvas": "split"` in the manifest, or `--canvas split` on the command
+line (which wins), shows the REPL and the turtle graphics side by side in
+the main window, with a draggable divider, as in the browser (see
+[web.md](web.md#the-split-view)). `pane` puts them below the REPL; `window`
+(the default) opens a second native window. The split and pane are the
+browser's iframe pane, so they behave the same in both.
+
 Coming next: a package may bring its own page (panes, keys, drawing) through
 the UI service; until then a package runs in the REPL window.
 

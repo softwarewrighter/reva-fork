@@ -14,7 +14,12 @@
 //
 // Where a window goes is the host's business (host.js): the desktop app
 // opens a second native window; in a browser a popup, or, where popups
-// are blocked (or `where: "pane"` asks for it), a pane below the REPL.
+// are blocked (or `where: "pane"` asks for it), a pane: below the REPL,
+// or beside it in the split view (split.js).  Panes are iframes and talk
+// by postMessage in the desktop app too, so a pane works the same there.
+//
+// A window that changes size redraws at its new resolution: it sends
+// "redraw", and the page asks the VM for the whole drawing, as for "ready".
 
 /**
  * Open (or find) the window `name` (`<name>.html` beside this page).
@@ -116,6 +121,9 @@ export class CanvasChannel {
     switch (m.type) {
       case "ready":
         this.ready = true;
+        this.session.ui({ channel: "canvas", resend: true });
+        break;
+      case "redraw":
         this.session.ui({ channel: "canvas", resend: true });
         break;
       case "drawn":
