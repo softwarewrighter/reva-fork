@@ -113,6 +113,13 @@ What run time cannot change, so a package needs its own entry or bundle:
   resource icon or a shortcut's icon. A shortcut to `reva-desktop.exe
   --package DIR` with the package's `.ico` covers it.
 
+### About
+
+The window's **About** button shows the package's `about` entry (see
+[web.md](web.md#the-about-dialog)) above reva-fork's version, build,
+credits, licenses and links. Links open in the system browser through the
+`open_url` command (http and https only).
+
 ### Where graphics go: `canvas`
 
 `"canvas": "split"` in the manifest, or `--canvas split` on the command

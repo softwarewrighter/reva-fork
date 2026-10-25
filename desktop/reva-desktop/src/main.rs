@@ -72,6 +72,9 @@ struct Manifest {
     start: Vec<String>,
     /// Where graphics go: "window", "pane" or "split" (see www/split.js).
     canvas: Option<String>,
+    /// The About dialog's entry for the package (see www/about.js); passed
+    /// to the page as is, which checks it.
+    about: Option<serde_json::Value>,
 }
 
 /// The `canvas` values the page knows.
@@ -187,6 +190,9 @@ struct Session {
     print_output: bool,
     /// Where graphics go (`--canvas`, else the manifest's `canvas`).
     canvas: Option<String>,
+    /// With `--package`: `{ name, title, about }` from the manifest, for
+    /// the About dialog.
+    package: Option<serde_json::Value>,
     /// Notes for the user (skipped files, a missing manifest, ...).
     notes: Vec<String>,
 }
@@ -299,6 +305,9 @@ fn build_state(o: Options) -> Result<State, String> {
             input: o.evals,
             print_output: o.print_output,
             canvas,
+            package: package.map(|_| {
+                serde_json::json!({ "name": manifest.name, "title": manifest.title, "about": manifest.about })
+            }),
             notes,
         },
         root,
@@ -445,6 +454,34 @@ fn open_window(app: tauri::AppHandle, name: String, title: String) -> Result<(),
         .map_err(|e| format!("{name}: {e}"))
 }
 
+/// Open an http(s) link (the About dialog's) in the system browser.  Any
+/// other scheme is refused, so the page cannot launch local programs.
+#[tauri::command]
+fn open_url(url: String) -> Result<(), String> {
+    if !web_url(&url) {
+        return Err(format!("not an http(s) link: {url}"));
+    }
+    let mut c = if cfg!(target_os = "macos") {
+        std::process::Command::new("open")
+    } else if cfg!(windows) {
+        std::process::Command::new("explorer")
+    } else {
+        std::process::Command::new("xdg-open")
+    };
+    c.arg(&url)
+        .spawn()
+        .map(|mut child| drop(std::thread::spawn(move || child.wait())))
+        .map_err(|e| format!("{url}: {e}"))
+}
+
+/// An `http://` or `https://` URL with no whitespace or control characters.
+fn web_url(url: &str) -> bool {
+    let lower = url.to_ascii_lowercase();
+    (lower.starts_with("https://") || lower.starts_with("http://"))
+        && url.len() < 2048
+        && !url.chars().any(|c| c.is_whitespace() || c.is_control())
+}
+
 #[tauri::command]
 fn halt(app: tauri::AppHandle, code: i32) {
     app.exit(code);
@@ -474,6 +511,7 @@ fn main() -> ExitCode {
             remove_file,
             print,
             open_window,
+            open_url,
             halt
         ])
         .on_window_event(|win, ev| {
@@ -577,6 +615,16 @@ mod tests {
         assert!(!icon("../ok.png", &mut notes));
         assert_eq!(notes.len(), 3);
         fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn only_web_links_open() {
+        assert!(web_url("https://cosy.com/CoSy/"));
+        assert!(web_url("HTTP://example.org/x"));
+        assert!(!web_url("file:///etc/passwd"));
+        assert!(!web_url("javascript:alert(1)"));
+        assert!(!web_url("https://a b"));
+        assert!(!web_url("-a https://x"));
     }
 
     #[test]

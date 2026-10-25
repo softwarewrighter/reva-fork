@@ -48,6 +48,23 @@ REPL and the graphics pane side by side, both full height, 50/50 to start.
 The desktop app shows the same split with `--canvas split` or a package's
 `"canvas": "split"` (see [desktop.md](desktop.md)).
 
+## The About dialog
+
+The **About** button in the header opens a dialog with:
+
+- the package's entry, when a package is open (from its manifest's
+  `about`, below);
+- then reva-fork's: version, credits, links to the source and docs, and
+  the licenses (`LICENSE`, `LICENSE-MIT`, `docs/licenses.md` on GitHub);
+- the build: `VERSION COMMIT DATE` from the page's `reva-build` meta tag,
+  which `make-web-zip.sh` and `desktop/build.sh` stamp
+  (`rust/scripts/build-stamp.sh`; `-dirty` marks uncommitted changes). From
+  the source tree it says "development build".
+
+Esc, the Close button or a click outside closes it. It is the same in the
+zips, in reva-serve binaries and in the desktop app, where links open in the
+system browser.
+
 ## Packages from a static directory: `?package=DIR/`
 
 `DIR/reva-package.json` is the manifest the [desktop app](desktop.md) reads
@@ -74,6 +91,7 @@ a folder:
 | `icon` | the page's icon (favicon) |
 | `id` | names the localStorage prefix, `reva:<id>:fs:` (default from `name`), so two packages on one site keep their files apart |
 | `canvas` | where graphics go, unless the URL says |
+| `about` | the package's entry in the About dialog: `{ "name", "version", "description", "credits": [text], "links": [{ "label", "url" }] }`, all optional (`name` defaults to `title`); only http(s) links become links |
 
 Paths must be plain relative paths (no `..`, no leading `/`); others are
 skipped with a note. Files the VM writes are stored in localStorage and win
@@ -140,5 +158,9 @@ use [reva-serve](serve.md), which embeds it in one binary.
   drawing: on resize it sizes its backing store to the pane and asks the
   VM to send the drawing again (the same `resend` used when a window
   opens), so memory stays bounded and the lines stay sharp at any size.
+* **About text is data, not markup.** The manifest's `about` goes into the
+  page with `textContent` only, and a link is made only from an http(s)
+  URL, so a package cannot inject HTML or a `javascript:` link. The
+  desktop's `open_url` command refuses other schemes too.
 * **Typing before boot.** Lines entered while a package is still loading
   are queued and fed after its start files.
