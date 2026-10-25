@@ -115,6 +115,19 @@ removed. Code running inside a host callback (a redefined `emit`, `type` or
 worker with a fresh one. Saved files survive that, but the session's
 definitions are lost.
 
+## `save` writes an image, not an executable
+
+`save NAME` (and `(save)`, which takes `a n`) writes a vx86 image, about
+1.5 MB, that starts with `reva --image NAME` or in the browser; it is not a
+program you can run by itself, and `makeexename` adds no extension.
+`makeexe` is not available. An image starts as the saved executable did:
+`onstartup` handlers, then the banner and prompt, with no file being
+included. A prompt turned off when saving (piped input) stays off.
+
+`restart` runs the `onexit` handlers, as `bye` does, then starts again
+from the same boot or image. The rest of the line it is on is not run.
+A file that always calls `restart` restarts for ever (Ctrl-C stops it).
+
 ## C functions: only a virtual libc
 
 `lib`/`func:` work as before, but the only library is a virtual libc with

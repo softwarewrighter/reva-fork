@@ -75,6 +75,10 @@ pub enum Status {
     NeedInput,
     /// `bye` (or end of input at the prompt).  The value is the exit code.
     Halted(i32),
+    /// `restart`: the host makes a new machine the way it made this one
+    /// (see [`crate::Start`]) and carries over the unread input
+    /// ([`Machine::take_input`]).  This machine stays stopped.
+    Restart,
 }
 
 /// What a gateway routine asks the dispatcher to do next.
@@ -84,6 +88,7 @@ pub(crate) enum Next {
     Call(u32, Gate),
     NeedInput,
     Halt(i32),
+    Restart,
     NestedReturn,
 }
 
@@ -91,6 +96,7 @@ pub(crate) enum Flow {
     Continue,
     NeedInput,
     Halt(i32),
+    Restart,
     NestedReturn,
 }
 
@@ -122,6 +128,8 @@ pub struct Machine {
     pub(crate) input: VecDeque<u8>,
     pub(crate) input_closed: bool,
     pub(crate) halted: Option<i32>,
+    /// Set by `restart`; like `halted`, it stops the machine for good.
+    pub(crate) restart: bool,
     pub(crate) nested: u32,
     translator: Option<Box<dyn Translator>>,
     /// Instructions + gateway entries executed (for diagnostics/benchmarks).
@@ -165,6 +173,7 @@ impl Machine {
             input: VecDeque::new(),
             input_closed: false,
             halted: None,
+            restart: false,
             nested: 0,
             translator: None,
             steps: 0,
@@ -393,6 +402,7 @@ impl Machine {
             ("setextra", SetExtra.addr(), fc),
             ("getextra", GetExtra.addr(), fc),
             ("(boot-restart)", BootRestart.addr(), fc),
+            ("restart", Restart.addr(), fc),
         ];
         let mut d = D0;
         let mut prev = 0;
@@ -427,6 +437,13 @@ impl Machine {
             .expect("prompt");
     }
 
+    /// Take the input not yet read, and whether input was closed, for the
+    /// machine that replaces this one after [`Status::Restart`].  The rest
+    /// of the line being interpreted is already in the VM and is dropped.
+    pub fn take_input(&mut self) -> (Vec<u8>, bool) {
+        (self.input.drain(..).collect(), self.input_closed)
+    }
+
     /// Mark the end of input: once the queue drains, `key` returns EOF and
     /// the interpreter exits as Reva did on Ctrl-D.
     pub fn close_input(&mut self) {
@@ -452,6 +469,9 @@ impl Machine {
             if let Some(code) = self.halted {
                 return Status::Halted(code);
             }
+            if self.restart {
+                return Status::Restart;
+            }
             if std::mem::take(&mut self.interrupt) {
                 self.input.clear();
                 self.recover(host, Fault::Interrupted);
@@ -464,6 +484,10 @@ impl Machine {
                     self.halted = Some(code);
                     return Status::Halted(code);
                 }
+                Ok(Flow::Restart) => {
+                    self.restart = true;
+                    return Status::Restart;
+                }
                 Ok(Flow::NestedReturn) => self.recover(
                     host,
                     Fault::BadGate {
@@ -475,6 +499,7 @@ impl Machine {
         }
         match self.halted {
             Some(code) => Status::Halted(code),
+            None if self.restart => Status::Restart,
             None => Status::Yielded,
         }
     }
@@ -630,6 +655,7 @@ impl Machine {
             }
             Next::NeedInput => Ok(Flow::NeedInput),
             Next::Halt(c) => Ok(Flow::Halt(c)),
+            Next::Restart => Ok(Flow::Restart),
             Next::NestedReturn => Ok(Flow::NestedReturn),
         }
     }
@@ -664,6 +690,10 @@ impl Machine {
                 },
                 Ok(Flow::Halt(code)) => {
                     self.halted = Some(code);
+                    break Ok(());
+                }
+                Ok(Flow::Restart) => {
+                    self.restart = true;
                     break Ok(());
                 }
                 Err(f) => break Err(f),
