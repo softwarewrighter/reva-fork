@@ -7,10 +7,12 @@ in the browser (WebAssembly).
 
 ## What is here
 
-- **The original Reva** (`src/`, `lib/`, `examples/`, `bin/`, …), as
-  imported. Its README is preserved as [README.reva](README.reva). The
-  x86 assembly core and the prebuilt 32-bit binaries are **deprecated**;
-  see [DEPRECATED.md](DEPRECATED.md).
+- **The Reva Forth system** (`src/reva.f`, `lib/`, `examples/`, `tests/`,
+  `tools/`, …), as imported. Its README is preserved as
+  [README.reva](README.reva).
+- **The original x86 implementation** — assembly core, build machinery,
+  prebuilt 32-bit binaries — is **deprecated** and lives under
+  [`legacy/`](legacy/); see [DEPRECATED.md](DEPRECATED.md).
 - **The portable core** ([`rust/`](rust/)). Reva compiles Forth straight to
   x86 machine code, and much of `src/reva.f` is *written* in machine code.
   Rather than rewrite all of that, the port executes the small IA-32 subset
