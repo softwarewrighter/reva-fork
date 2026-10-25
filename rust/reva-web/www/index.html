@@ -83,6 +83,12 @@
   for (const n of host.notes ?? []) append(`note: ${n}\n`, "echo");
   await reva.ready;
   starting.remove();
+  // Start lines (a package's start files) are read again after `restart`;
+  // input lines only once.
+  for (const text of host.start ?? []) {
+    echo(text + "\n");
+    reva.feedStart(text + "\n");
+  }
   for (const text of host.input ?? []) {
     echo(text + "\n");
     reva.feed(text + "\n");

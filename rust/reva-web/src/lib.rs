@@ -13,13 +13,16 @@
 //!    the bytes are not an image this core loads (the reason is the
 //!    `reva_fs_len()` bytes at `reva_fs_data()`).
 //! 2. To send input: `p = reva_input_buffer(n)`, copy `n` bytes to `p`,
-//!    then `reva_feed(n)`.
+//!    then `reva_feed(n)`.  `reva_feed_start(n)` instead marks the bytes as
+//!    *start input* (a page's start files): fed now, and again after every
+//!    `restart`, as the CLI re-runs its file arguments.
 //! 3. `reva_run(budget)` → 0 yielded (call again soon), 1 needs input,
 //!    2 halted (`reva_exit_code()`).  Keep budgets small enough that the
 //!    page stays responsive; JavaScript yields to the event loop between
 //!    calls.  `restart` is handled inside `reva_run`: the VM is made again
-//!    the way it was first made (reva.f or the image), keeps its files and
-//!    the input not yet read, and prints its banner again.
+//!    the way it was first made (reva.f or the image), keeps its files,
+//!    reads the start input again, then the input not yet read, and prints
+//!    its banner again.
 //! 4. Output accumulates; read `reva_output_len()` bytes at
 //!    `reva_output_ptr()` and then `reva_output_clear()`.
 //!
@@ -44,6 +47,8 @@ struct Web {
     vm: Machine,
     host: BufferHost,
     input: Vec<u8>,
+    /// Start input ([`reva_feed_start`]), fed again after each `restart`.
+    replay: Vec<u8>,
     /// How `vm` was made, for `restart`.
     start: Start,
 }
@@ -114,6 +119,7 @@ fn begin(start: Start, mut vm: Machine) -> i32 {
             vm,
             host,
             input: Vec::new(),
+            replay: Vec::new(),
             start,
         })
     });
@@ -133,7 +139,7 @@ fn startup(vm: &mut Machine, host: &mut BufferHost) -> Status {
 }
 
 /// `restart`: a new machine made as the first one was, with the old one's
-/// files, output and unread input.
+/// files and output, the start input again, then the unread input.
 fn restart(w: &mut Web) -> Status {
     let (input, closed) = w.vm.take_input();
     // The same start made the first machine (an image was checked then).
@@ -142,6 +148,7 @@ fn restart(w: &mut Web) -> Status {
         Status::NeedInput => {}
         s => return s,
     }
+    w.vm.feed(&w.replay);
     w.vm.feed(&input);
     if closed {
         w.vm.close_input();
@@ -168,6 +175,19 @@ pub extern "C" fn reva_feed(len: u32) {
         |w| {
             let n = (len as usize).min(w.input.len());
             w.vm.feed(&w.input[..n]);
+        },
+        (),
+    )
+}
+
+/// Like [`reva_feed`], and keep the bytes to feed again after `restart`.
+#[no_mangle]
+pub extern "C" fn reva_feed_start(len: u32) {
+    with(
+        |w| {
+            let n = (len as usize).min(w.input.len());
+            w.vm.feed(&w.input[..n]);
+            w.replay.extend_from_slice(&w.input[..n]);
         },
         (),
     )
@@ -402,6 +422,21 @@ mod tests {
         assert_eq!(reva_boot_image(4), BAD_IMAGE);
         let why = unsafe { std::slice::from_raw_parts(reva_fs_data(), reva_fs_len() as usize) };
         assert_eq!(why, b"image is truncated");
+    }
+
+    #[test]
+    fn restart_reads_the_start_input_again() {
+        assert_eq!(reva_boot(), NEED_INPUT);
+        output();
+        put("/app.f", b": hello .\" hello\" ; ");
+        let start = "include /app.f\n";
+        let p = reva_input_buffer(start.len() as u32);
+        unsafe { std::ptr::copy_nonoverlapping(start.as_ptr(), p, start.len()) };
+        reva_feed_start(start.len() as u32);
+        feed(": gone ; restart\nhello gone\n");
+        let out = run_out();
+        assert!(out.contains("ok> hello"), "{out:?}");
+        assert!(out.contains("unknown word:  gone"), "{out:?}");
     }
 
     fn put(path: &str, data: &[u8]) {
