@@ -12,5 +12,13 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
+# Decodes a package's icon; already in the tree through Tauri.
+png = "0.18"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+
+# Sets the program name before GTK starts, so a package's `id` becomes the
+# Wayland app_id / X11 WM_CLASS (see Branding in main.rs).  Already in the
+# tree through Tauri's GTK stack, so it adds no crate.
+[target.'cfg(target_os = "linux")'.dependencies]
+glib = "0.18"

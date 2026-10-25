@@ -38,4 +38,39 @@ check "runs a package's start files" "package started" "$out"
 out=$(run --package "$work/pkg" --print-output -e ': gone ;' -e restart -e gone -e bye | tr -d '\0\n')
 check "restart includes the start files again" "portableok> package startedok> ERROR: unknown word:  gone" "$out"
 
+# branding: the manifest's title, icon and id reach the X11 window
+# (needs xprop and xdotool; skipped without them, and on macOS)
+if [[ "$(uname)" == Linux ]] && command -v xprop >/dev/null && command -v xdotool >/dev/null; then
+    cp -r "$work/pkg" "$work/brand"
+    printf '\x89PNG\r\n\x1a\n' > "$work/brand/not.png"
+    base64 -d > "$work/brand/icon.png" <<'PNG'
+iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFElEQVR42mM8kWL0n4GBgYGJAQoAJJ4CYfpMJrQAAAAASUVORK5CYII=
+PNG
+    echo '{"name": "Smoke", "title": "Smoke Pkg", "icon": "icon.png", "id": "reva-smoke", "start": ["src/start.f"]}' \
+        > "$work/brand/reva-package.json"
+    # a script, not a function: xvfb-run is sh, which drops exported functions
+    cat > "$work/probe" <<'SH'
+#!/usr/bin/env bash
+# probe app args...: start the app, print its window's WM_CLASS, WM_NAME, icon size
+"$@" & pid=$!
+for _ in $(seq 60); do
+    w=$(xdotool search --class reva-smoke 2>/dev/null | tail -1)
+    [[ -n "$w" ]] && break
+    sleep 0.5
+done
+[[ -n "$w" ]] && xprop -id "$w" WM_CLASS WM_NAME && xprop -id "$w" -notype 32c _NET_WM_ICON | cut -d, -f1-2
+kill $pid
+SH
+    chmod +x "$work/probe"
+    if [[ -z "${DISPLAY:-}" ]]; then probe_run() { timeout 60 xvfb-run -a "$work/probe" "$@" 2>/dev/null; }
+    else probe_run() { timeout 60 "$work/probe" "$@" 2>/dev/null; }; fi
+    out=$(probe_run "$app" --package "$work/brand")
+    check "the manifest names the window" 'WM_NAME(STRING) = "Smoke Pkg"' "$out"
+    check "the manifest sets the app id" 'WM_CLASS(STRING) = "reva-smoke"' "$out"
+    check "the manifest sets the icon" '_NET_WM_ICON = 2, 2' "$out"
+    echo '{"name": "Smoke", "icon": "not.png", "start": ["src/start.f"]}' > "$work/brand/reva-package.json"
+    out=$(run --package "$work/brand" --print-output -e bye)
+    check "a broken icon is a note, not a failure" "package started" "$out"
+fi
+
 exit $fail

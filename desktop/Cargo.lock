@@ -2469,6 +2469,8 @@ dependencies = [
 name = "reva-desktop"
 version = "0.1.0"
 dependencies = [
+ "glib",
+ "png",
  "serde",
  "serde_json",
  "tauri",
