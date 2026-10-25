@@ -22,7 +22,7 @@ else needs to be installed.
 ## Using `reva`
 
 Interactively, `reva` shows an `ok>` prompt; type Forth and press Enter.
-Leave with Ctrl-D (end of input) or `0 (bye)`.
+Leave with Ctrl-D (end of input) or `bye`.
 
 Piped input runs as a batch and exits at the end of input:
 
@@ -61,16 +61,24 @@ Other ways to run code:
 | `reva --image app.img` | start from a saved image |
 | `reva --help` | all options |
 
-The exit status is the value given to `(bye)`, or 0 at end of input:
+The exit status is 0 after `bye` or at end of input. `reva.f` keeps the
+core's `(bye)`, which exits with a status from the stack, in the `~sys`
+context:
 
 ```bash
-echo '3 (bye)' | reva; echo $?      # 3
+echo '3 ~sys.(bye)' | reva; echo $?      # 3
 ```
+
+When standard input is a terminal, `reva` starts as Reva always did: it
+prints the banner (`Reva 2011.2 Linux`) and an `ok>` prompt before each
+line. Piped or redirected input gets neither, so batch output is just what
+the program prints.
 
 ## Errors
 
-An unknown word is echoed with `?` and the rest of that line is skipped;
-the session continues:
+An unknown word is reported by `reva.f`'s handler and the rest of that line
+is skipped; the session continues. Inside an included file the message also
+shows the source that follows (up to 64 characters):
 
 ```forth
 1 .
@@ -78,8 +86,9 @@ nosuchword 2 .
 3 .
 ```
 ```output
-1 nosuchword?
-3
+1
+ERROR: unknown word:  nosuchword
+...3
 ```
 
 A fault (for example reading address 0) is reported with the Forth word it

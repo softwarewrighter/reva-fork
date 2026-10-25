@@ -53,6 +53,10 @@ gates! {
     LBracket, RBracket, Parsews, Align, StoreHere, Compile, Single, Double,
     FromDigit, ToDigit, TwoDup, Comma, Comma3, Comma2, Comma1, Parse, ParseEsc,
     Save, PrintR, Link, Link2, Iterate, Slurp, SetExtra, GetExtra,
+    // functions of the virtual libc, reached through `(call)` (see ffi.rs)
+    HostGetenv, HostPutenv, HostLocaltime,
+    // end of the embedded boot: restart as the saved executable would
+    BootRestart,
 }
 
 impl Gate {
@@ -197,10 +201,14 @@ impl Machine {
 
     /// `PROC _align`: pad code space to 4 bytes with `nop`s.
     fn align_code(&mut self) -> R {
-        let mut h = self.here();
+        let start = self.here();
+        let mut h = start;
         while h & 3 != 0 {
             self.mem.write_u8(h, 0x90)?;
             h += 1;
+        }
+        if h != start {
+            self.last_pad = (start, h);
         }
         self.setv(st::H, h)
     }
@@ -217,11 +225,22 @@ impl Machine {
     /// compiled was of a `notail` class; an indirect `call [abs]` becomes
     /// `jmp [abs]`.  The byte tests are the original's, including which
     /// offsets it inspects.
+    ///
+    /// Deliberate difference: if the last thing in code space is alignment
+    /// padding (a header was made, e.g. by `:` executed inside a definition
+    /// as in `reva.f`'s `::`), the five bytes before `ret` are not one
+    /// instruction and the original would patch whatever byte happens to be
+    /// there — harmless only when that byte is not `E8`/`FF`.  Layout here
+    /// differs from the x86 build, so that coincidence must not be relied on.
     fn ssemi(&mut self) -> R {
         let h = self.reserve_code(1)?;
         self.mem.write_u8(h, 0xc3)?;
         self.setv(st::H, h + 1)?;
         let b = h.wrapping_sub(5);
+        let (ps, pe) = self.last_pad;
+        if pe == h && ps > b {
+            return Ok(());
+        }
         match self.mem.read_u8(b)? {
             0xe8 => {
                 if self.var(st::SSEMI_DO_TAIL) == 0x90 {
@@ -862,9 +881,12 @@ impl Machine {
                 Ok(Ret)
             }
             OsType => {
+                // The original passed `n` to write(2); a negative count (as
+                // `srcstr` yields at the keyboard: `src` is 0 there) made the
+                // kernel refuse with EFAULT and print nothing.  Same here.
                 let n = self.upop()?;
                 let a = self.upop()?;
-                if n != 0 {
+                if n != 0 && (n as i32) > 0 {
                     host.write(self.mem.slice(a, n)?);
                 }
                 Ok(Ret)
@@ -927,6 +949,23 @@ impl Machine {
                 self.setv(st::RP0_SAVED, self.cpu.r[ESP as usize])?;
                 self.iterate_list(host, OnStartThunk.addr(), st::START_LIST)?;
                 Ok(Call(self.var(st::APPSTART), ColdDone))
+            }
+            BootRestart => {
+                // reva.f's last step saved a native executable; running that
+                // executable started with fresh stacks and no source file,
+                // ran the `onstartup` list (which allocates `scratch`, `pad`
+                // ...) and then `appstart`.  Do the same in place: drop the
+                // boot file from argv, abandon the include frames, restart.
+                // TOS is reva.f's interpreter loop, for fault recovery.
+                let repl = self.upop()?;
+                self.setv(st::REPL_ENTRY, repl)?;
+                self.setv(st::ARGC, 1)?;
+                self.setv(st::SOURCE, 0)?;
+                self.setv(st::TP, TIB)?;
+                self.setv(st::TIN, TIB)?;
+                self.setv(st::IS_COMPILING, 0)?;
+                self.cpu.r[ESP as usize] = RP0;
+                Ok(Jump(Cold.addr()))
             }
             ColdDone => {
                 self.set_eax(u32::MAX);
@@ -1411,10 +1450,18 @@ impl Machine {
             }
 
             // --- OS services not yet provided by the portable core ---
-            MakeExe | Syscall | LzPack | LzDepack | LzMax | LoadLib | UnloadLib | CallFn
-            | OsFunc | OpenR | OpenRw | Creat | Close | Read | Write | Fsize | Save => {
-                Err(Self::not_implemented(g))
+            // --- portable OS layer (ffi.rs) ---
+            LoadLib => self.ffi_loadlib().map(|()| Ret),
+            UnloadLib => self.ffi_unloadlib().map(|()| Ret),
+            OsFunc => self.ffi_func().map(|()| Ret),
+            CallFn => self.ffi_call(host).map(|()| Ret),
+            Syscall => self.ffi_syscall(host).map(|()| Ret),
+            HostGetenv | HostPutenv | HostLocaltime => {
+                Err(Fault::NotImplemented("a C function called without (call)"))
             }
+
+            MakeExe | LzPack | LzDepack | LzMax | OpenR | OpenRw | Creat | Close | Read | Write
+            | Fsize | Save => Err(Self::not_implemented(g)),
         }
     }
 }

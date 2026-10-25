@@ -48,16 +48,18 @@ fn with<R>(f: impl FnOnce(&mut Web) -> R, default: R) -> R {
     WEB.with(|w| w.borrow_mut().as_mut().map(f).unwrap_or(default))
 }
 
-/// Create the VM and boot `reva.f`.  Boot progress digits are discarded;
-/// anything else boot printed is kept as the first output.
+/// Create the VM and boot `reva.f`.  Boot progress marks are discarded;
+/// the banner, the first prompt and anything else boot printed are kept as
+/// the first output.
 #[no_mangle]
 pub extern "C" fn reva_boot() -> i32 {
     let mut vm = Machine::new(&["reva", embedded::BOOT_PATH]);
     let mut host = BufferHost::new();
     let status = vm.run_until_blocked(&mut host);
-    if host.out.iter().all(u8::is_ascii_digit) {
-        host.out.clear();
-    }
+    // Drop reva.f's progress marks; keep the banner and first prompt.
+    let out = String::from_utf8_lossy(&host.out).into_owned();
+    let (_, rest) = embedded::split_boot_output(&out);
+    host.out = rest.as_bytes().to_vec();
     WEB.with(|w| {
         *w.borrow_mut() = Some(Web {
             vm,
@@ -147,15 +149,15 @@ mod tests {
     fn the_c_abi_drives_a_session() {
         assert_eq!(reva_run(10), NOT_BOOTED);
         assert_eq!(reva_boot(), NEED_INPUT);
-        assert_eq!(output(), "");
+        assert_eq!(output(), "Reva 2011.2 Linux\n\nok> ");
         feed("2 3 + . : sq dup * ; 7 sq .\n");
         let mut s = YIELDED;
         while s == YIELDED {
             s = reva_run(1000);
         }
         assert_eq!(s, NEED_INPUT);
-        assert_eq!(output(), "5 49 ");
-        feed("3 (bye)\n");
+        assert_eq!(output(), "5 49 \nok> ");
+        feed("3 ~sys.(bye)\n");
         while reva_run(1000) == YIELDED {}
         assert_eq!(reva_exit_code(), 3);
     }
