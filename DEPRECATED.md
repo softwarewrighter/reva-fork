@@ -1,15 +1,19 @@
 # Deprecated: the 32-bit x86 implementation
 
 The portable core in [`rust/`](rust/) replaces the 32-bit x86 implementation.
-The following are **deprecated** and will be retired in stages:
+The following are **deprecated** and are being retired in stages.
+
+**Current stage: 2 — moved.** Everything below now lives under
+[`legacy/`](legacy/) (see [legacy/README.md](legacy/README.md) for the map
+and for building it).
 
 | Item | What it is |
 |---|---|
 | `src/newcore.asm`, `src/coremac.asm`, `src/common.asm`, `src/brieflz.asm` | x86 assembly core |
 | `src/linux.asm`, `src/macosx.asm`, `src/windows.asm` | per-OS x86 layers |
-| `src/Makefile`, top-level `Makefile`, `src/revares.o`, `src/reva.rc`, `src/zero`, `test344.bat` | x86 build machinery |
-| `bin/lin/`, `bin/mac/`, `bin/win/` | prebuilt 32-bit binaries and libraries |
-| top-level scratch files (`a.f`, `x.asm`, `x.c`, `sha1*`, `z*.tex`/`.pdf`/`.log`, …) | experiments from the original tree |
+| `src/Makefile`, top-level `Makefile`, `tools/build.f`, `src/revares.o`, `src/reva.rc`, `src/reva.ico`, `src/zero`, `test344.bat`, `exclude.lst`, `include.lst` | x86 build and distribution machinery |
+| `bin/` (`lin/`, `mac/`, `win/`, `help.db`, …) | prebuilt 32-bit binaries and libraries |
+| top-level scratch files (`a.f`, `x.asm`, `x.c`, `sha/`, `sha1*`, `z*.tex`/`.pdf`/`.log`, test binaries, …) | experiments from the original tree |
 
 **Not deprecated:** `src/reva.f`, `src/help.txt`, `lib/`, `examples/`,
 `tests/`, `bench/`. These are the Forth system itself; the portable core runs
@@ -20,13 +24,14 @@ them.
 Each step is a separate change, so history stays readable and any step can be
 reverted on its own:
 
-1. **Deprecate** (this notice). Nothing moves; the old build keeps working
-   for anyone with a 32-bit x86 toolchain.
-2. **Move** the items above under `legacy/` (with `git mv`, preserving
-   history), adjusting the legacy Makefile's paths so it still builds.
+1. ✅ **Deprecate** (this notice). Nothing moved.
+2. ✅ **Move** the items above under `legacy/` (with `git mv`, preserving
+   history), adjusting the legacy Makefile's and build tool's paths so it
+   still builds from the repository root (`make -f legacy/Makefile`).
 3. **Delete** `legacy/` once the portable core covers what it provided
    (full `reva.f` boot, file words, `(save)`, FFI) and nothing references it.
-   Git history and the `master` branch keep the original import.
+   Git history and the `master` branch keep the original import. Before
+deleting, salvage any scratch `.f` files worth keeping as regression tests.
 
 The original licensing is unaffected by any of this; see
 [LICENSING.md](LICENSING.md).
