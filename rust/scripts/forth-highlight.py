@@ -18,10 +18,27 @@ and colour from token tables (--table, repeatable; default
 lib/highlight/forth.tbl, the table the REPLs' `pp` uses, see
 docs/highlight.md). Python 3 standard library only.
 """
-import argparse, html, os, re, shutil, subprocess, sys, tempfile
+import argparse, glob, html, os, re, shutil, subprocess, sys, tempfile
 
 LEXICAL = ("com", "stk", "str", "num", "colon", "def")
-DEFAULT_TABLE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "lib", "highlight", "forth.tbl")
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+def default_tables():
+    """reva-fork's lib/highlight/forth.tbl, then any *.tbl beside this script.
+
+    The same script runs from reva-fork (rust/scripts/) and from a package
+    such as ba-cosy-zip-fork (reva-fork-subset/, with reva-fork beside the
+    checkout or named by $REVA_FORK); a package's own table sits beside it.
+    """
+    forth = [os.path.join(HERE, "..", "..", "lib", "highlight", "forth.tbl"),
+             os.path.join(HERE, "..", "..", "reva-fork", "lib", "highlight", "forth.tbl")]
+    if os.environ.get("REVA_FORK"):
+        forth.insert(0, os.path.join(os.environ["REVA_FORK"], "lib", "highlight", "forth.tbl"))
+    found = [p for p in forth if os.path.isfile(p)][:1]
+    if not found:
+        sys.exit("forth-highlight: reva-fork's lib/highlight/forth.tbl not found; "
+                 "set REVA_FORK=/path/to/reva-fork or pass --table")
+    return found + sorted(glob.glob(os.path.join(HERE, "*.tbl")))
 STYLES, WORDS = {}, {}
 
 def load_table(path):
@@ -99,9 +116,10 @@ def main():
     ap.add_argument("--png")
     ap.add_argument("--scale", type=float, default=2.0)
     ap.add_argument("--table", action="append", default=[],
-                    help="token table, repeatable (default: lib/highlight/forth.tbl)")
+                    help="token table, repeatable (default: reva-fork's lib/highlight/forth.tbl, "
+                         "then *.tbl beside this script)")
     a = ap.parse_args()
-    for t in a.table or [DEFAULT_TABLE]:
+    for t in a.table or default_tables():
         load_table(t)
     text = open(a.file, encoding="utf-8", errors="replace").read().split("\n")
     first, last = 1, len(text)
