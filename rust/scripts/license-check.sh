@@ -7,8 +7,8 @@
 # 2. Every tracked binary (ELF, PE, Mach-O, object file, archive) must be on
 #    the reviewed list below, with its license.  Each listed path must also
 #    appear in docs/licenses.md, so the inventory and the gate cannot drift.
-# 3. If cargo-deny is installed, `cargo deny check licenses` must pass
-#    (rust/deny.toml holds the allowlist).  Without it, a note is printed.
+# 3. If cargo-deny is installed, `cargo deny check licenses` must pass in
+#    each Cargo workspace (rust/deny.toml, desktop/deny.toml hold the lists).  Without it, a note is printed.
 #
 # Only git-tracked files are checked, so build output never trips the gate.
 # Exit 1 on any failure.  Works with the bash 3.2 that macOS ships.
@@ -104,8 +104,11 @@ for f in $(echo "$reviewed" | awk '{print $1}'); do
 done
 
 if command -v cargo-deny >/dev/null 2>&1; then
-    (cd rust && cargo deny --log-level error check licenses) || fail "cargo deny check licenses failed"
-    crates="checked by cargo-deny"
+    for ws in rust desktop; do
+        (cd "$ws" && cargo deny --log-level error check licenses >/dev/null) \
+            || fail "$ws: cargo deny check licenses failed (run it in $ws/ for details)"
+    done
+    crates="crates checked by cargo-deny in rust/ and desktop/"
 else
     crates="cargo-deny not installed: crate licenses not checked (cargo install cargo-deny)"
 fi
