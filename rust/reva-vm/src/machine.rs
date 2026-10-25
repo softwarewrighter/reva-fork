@@ -145,6 +145,10 @@ pub struct Machine {
     pub(crate) dirs: Vec<Option<crate::fileio::DirStream>>,
     /// Set by [`Machine::interrupt`]; taken at the next step of [`Machine::run`].
     interrupt: bool,
+    /// Native libraries `(lib)` could not serve: the last one asked for,
+    /// and those already reported (see `ffi.rs`).  Transient.
+    pub(crate) missing_lib: Option<String>,
+    pub(crate) reported_libs: Vec<String>,
 }
 
 impl Machine {
@@ -181,6 +185,8 @@ impl Machine {
             last_pad: (0, 0),
             dirs: Vec::new(),
             interrupt: false,
+            missing_lib: None,
+            reported_libs: Vec::new(),
         }
     }
 

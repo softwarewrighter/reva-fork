@@ -55,6 +55,22 @@ pub trait Host {
     /// `ms`: pause for `ms` milliseconds.  The default returns at once (a
     /// browser cannot block).
     fn sleep_ms(&mut self, _ms: u32) {}
+
+    /// A diagnostic from the VM itself, not from Forth code (one line,
+    /// newline included), such as a note that a native library is not
+    /// available.  The default mixes it into the output; the CLI sends it
+    /// to stderr.
+    fn diag(&mut self, line: &str) {
+        self.write(line.as_bytes());
+    }
+
+    /// The C library's `system(cmd)`, behind Reva's `shell`: run an OS
+    /// command and return its wait status.  `None` (the default) means the
+    /// host does not allow it, and the VM faults with a message saying so;
+    /// the CLI allows it only with `--allow-shell`, and the browser never.
+    fn system(&mut self, _cmd: &str) -> Option<i32> {
+        None
+    }
 }
 
 /// A host that captures output in memory, with an in-memory file system
