@@ -26,7 +26,8 @@ rust/
   reva-web/    wasm32 module + www/ (reva.js, index.html) + test/smoke.mjs
   tests/forth/ Forth scripts used by the regression suite
   work/reg-rs/ reg-rs regression tests (.rgt specs + golden .out/.err)
-  scripts/     build-web.sh, regress.sh, add-regress.sh
+  scripts/     build-web.sh, regress.sh, add-regress.sh,
+               doc-check.sh (run docs/ samples), parity-examples.sh
 ```
 
 ## Build and run
@@ -67,6 +68,11 @@ scripts/add-regress.sh NAME '${REVA:-target/debug/reva} < tests/forth/NAME.f' 'w
 and review the captured `work/reg-rs/NAME.out` before committing: a baseline
 asserts the output is *correct*. Accept an intended change with
 `REG_RS_DATA_DIR=work/reg-rs reg-rs rebase -p NAME`.
+
+Documentation lives in [`../docs/`](../docs/README.md); its Forth samples are
+checked by `scripts/doc-check.sh ../docs/*.md`, and
+`scripts/parity-examples.sh` reports how far every program in `examples/`
+gets (both are part of the regression suite).
 
 ## Debugging
 

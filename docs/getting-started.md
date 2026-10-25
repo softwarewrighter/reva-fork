@@ -1,0 +1,108 @@
+# Getting started
+
+Replaces the old wiki's install pages (`linux.wiki`, `mac.wiki`): the
+portable core is one self-contained binary, so there is no `PATH` /
+`LD_LIBRARY_PATH` / `DYLD_LIBRARY_PATH` setup, no `/proc` lookup, and no
+per-OS `bin/` directory.
+
+## Build
+
+You need a Rust toolchain (`rustup`, Rust 1.82 or newer).
+
+```bash
+git clone https://github.com/softwarewrighter/reva-fork
+cd reva-fork/rust
+cargo build --release
+```
+
+The binary is `rust/target/release/reva`. It runs on Linux, macOS and
+Windows, on x86-64 and ARM64 alike. `reva.f` is compiled into it; nothing
+else needs to be installed.
+
+## Using `reva`
+
+Interactively, `reva` shows an `ok>` prompt; type Forth and press Enter.
+Leave with Ctrl-D (end of input) or `0 (bye)`.
+
+Piped input runs as a batch and exits at the end of input:
+
+```bash
+echo '2 3 + .' | reva
+```
+
+which prints:
+
+```forth
+2 3 + .
+```
+```output
+5
+```
+
+Definitions work as you would expect:
+
+```forth
+: sq dup * ;
+: cube dup sq * ;
+3 cube .
+```
+```output
+27
+```
+
+Other ways to run code:
+
+| Command | Does |
+|---|---|
+| `reva file.f` | include `file.f`, then read stdin |
+| `reva -e 'text'` | evaluate `text` (after any files), then read stdin |
+| `reva file.f < /dev/null` | run a file as a batch |
+| `reva --save-image app.img -e '...'` | save the state after loading, then exit |
+| `reva --image app.img` | start from a saved image |
+| `reva --help` | all options |
+
+The exit status is the value given to `(bye)`, or 0 at end of input:
+
+```bash
+echo '3 (bye)' | reva; echo $?      # 3
+```
+
+## Errors
+
+An unknown word is echoed with `?` and the rest of that line is skipped;
+the session continues:
+
+```forth
+1 .
+nosuchword 2 .
+3 .
+```
+```output
+1 nosuchword?
+3
+```
+
+A fault (for example reading address 0) is reported with the Forth word it
+happened in, and the session continues with an empty stack. A definition
+that fails half way is removed.
+
+## In the browser
+
+```bash
+cd rust
+scripts/build-web.sh                        # builds reva-web/www/reva.wasm
+python3 -m http.server -d reva-web/www      # then open http://localhost:8000
+```
+
+The page is a small console running the same core. Long-running or looping
+code does not freeze the page: the VM runs in slices and yields to the
+browser between them.
+
+## What works today
+
+The portable core runs `src/reva.f` up to its built-in assembler: the core
+words, stack and arithmetic words, comparisons, `if`/`else`/`then` and the
+`0if`/`=if`/… family, recursion, `variable`, `constant`, `create`/`does>`,
+`catch`/`throw`, `include`. Later parts of `reva.f` — `needs` and libraries,
+`."`, loops, files — are not available yet. [parity.md](parity.md) tracks
+this in detail.
