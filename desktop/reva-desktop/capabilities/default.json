@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "The main window may use the app's own commands and nothing else",
-  "windows": ["main"],
+  "description": "The app's windows (main, and canvas for turtle graphics) may use its own commands, core defaults (events between windows) and nothing else",
+  "windows": ["main", "canvas"],
   "permissions": ["core:default"]
 }

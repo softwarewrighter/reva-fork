@@ -21,6 +21,12 @@
 // Give `files` to bundle your own, and `storage` (e.g. localStorage) to keep
 // what Forth code writes: each changed file is stored under `prefix + path`
 // whenever the VM stops for input or halts, and restored on the next load.
+//
+// UI channels: the VM's turtle draws into a display list (see
+// rust/reva-vm/src/canvas.rs); after each slice its new ops are handed to
+// `onUi` as `{ type: "ui", channel: "canvas", ops: Float32Array }` (or
+// `reset: true` after a `restart`), never one message per line.  See ui.js
+// for the page's side.
 
 export const YIELDED = 0, NEED_INPUT = 1, HALTED = 2;
 const BAD_IMAGE = -2;
@@ -218,6 +224,24 @@ export class Reva {
 
   get exitCode() { return this.x.reva_exit_code(); }
 
+  /**
+   * Hand UI messages produced since the last call to `onUi`: a reset after
+   * `restart`, then the canvas ops in batches of bounded size.
+   */
+  flushUi(onUi) {
+    if (!this.x.reva_canvas_take) return; // a module built before the canvas
+    if (this.x.reva_canvas_reset()) onUi({ type: "ui", channel: "canvas", reset: true });
+    for (let n; (n = this.x.reva_canvas_take());) {
+      const ops = new Float32Array(this.x.memory.buffer, this.x.reva_canvas_ptr(), n).slice();
+      onUi({ type: "ui", channel: "canvas", ops });
+    }
+  }
+
+  /** A UI message from the page: `{ channel: "canvas", resend: true }`. */
+  ui(m) {
+    if (m.channel === "canvas" && m.resend) this.x.reva_canvas_resend?.();
+  }
+
   /** One slice of at most `budget` VM steps. */
   step(budget = 200000) {
     this.status = this.x.reva_run(budget);
@@ -228,9 +252,10 @@ export class Reva {
    * Run until the VM needs input or halts, in slices of about `sliceMs`
    * milliseconds (checked every `budget` steps), handing output to
    * `onOutput` after each slice and yielding to the event loop between
-   * slices.  Saves changed files to `storage` when it stops.
+   * slices.  Saves changed files to `storage` when it stops.  UI messages
+   * (the canvas) go to `onUi` after each slice.
    */
-  async run(onOutput = () => {}, { sliceMs = 8, budget = 50000, clock = true } = {}) {
+  async run(onOutput = () => {}, { sliceMs = 8, budget = 50000, clock = true, onUi = null } = {}) {
     for (;;) {
       if (clock) this.setClock();
       const t0 = performance.now();
@@ -239,6 +264,7 @@ export class Reva {
       while (s === YIELDED && performance.now() - t0 < sliceMs);
       const out = this.takeOutput();
       if (out) onOutput(out);
+      if (onUi) this.flushUi(onUi);
       if (s !== YIELDED) {
         if (this.storage) this.persist();
         return s;
@@ -253,11 +279,13 @@ export class Reva {
  *
  * Options: `image` (start from a saved image: URL or bytes), `files`
  * (bundled, `{ path: string | bytes }`), `storage` and
- * `prefix` (persistence), `onOutput(text)`, `onStatus(status)` (RUNNING,
+ * `prefix` (persistence), `onOutput(text)`, `onUi(message)` (UI channels:
+ * the canvas), `onStatus(status)` (RUNNING,
  * NEED_INPUT or HALTED), `worker` (false: run on this thread), `workerUrl`,
  * `createWorker(url)` (for tests), `stopTimeoutMs` (default 2000).
  *
  * Returns `{ kind, ready, feed(text), feedStart(text), closeInput(), stop(),
+ * ui(message) (page → VM, e.g. `{ channel: "canvas", resend: true }`),
  * idle(), status,
  * exitCode, terminate() }`; `ready` resolves after boot with its output
  * already sent to `onOutput`.
@@ -280,8 +308,9 @@ export function start(wasmUrl, options = {}) {
 }
 
 class Session {
-  constructor({ onOutput = () => {}, onStatus = () => {} }) {
+  constructor({ onOutput = () => {}, onStatus = () => {}, onUi = () => {} }) {
     this.onOutput = onOutput;
+    this.onUi = onUi;
     this.onStatus = onStatus;
     this.status = RUNNING;
     this.exitCode = 0;
@@ -318,7 +347,7 @@ class LocalSession extends Session {
     if (this.pumping || !this.reva) return;
     this.pumping = true;
     this.setStatus(RUNNING);
-    const s = await this.reva.run(this.onOutput);
+    const s = await this.reva.run(this.onOutput, { onUi: this.onUi });
     this.pumping = false;
     if (this.storage) saveChanges(this.storage, this.reva.changes(), this.prefix);
     this.setStatus(s, s === HALTED ? this.reva.exitCode : 0);
@@ -327,6 +356,10 @@ class LocalSession extends Session {
   feedStart(text) { this.reva.feedStart(text); this.pump(); }
   closeInput() { this.reva.closeInput(); this.pump(); }
   stop() { if (this.status === RUNNING) this.reva.interrupt(); }
+  ui(m) {
+    this.reva?.ui(m);
+    if (!this.pumping) this.reva?.flushUi(this.onUi);
+  }
   terminate() {}
 }
 
@@ -355,10 +388,14 @@ class WorkerSession extends Session {
           this.setStatus(m.status, m.exitCode);
           if (m.boot) booted();
           break;
+        case "ui": this.onUi(m); break;
         case "error": this.onOutput(`\n*** ${m.message}\n`); break;
       }
     };
     this.w.onerror = (e) => this.onOutput(`\n*** worker: ${e.message ?? e}\n`);
+    // A fresh worker has a fresh, empty drawing.
+    if (this.spawned) this.onUi({ type: "ui", channel: "canvas", reset: true });
+    this.spawned = true;
     // Files restored from storage go in again on a restart.
     const files = o.storage ? { ...o.files, ...storedFiles(o.storage, o.prefix) } : o.files;
     const abs = (u) => (typeof u === "string" || u instanceof URL ? new URL(u, globalThis.location?.href).href : u);
@@ -373,6 +410,7 @@ class WorkerSession extends Session {
     this.w.postMessage({ type: "start", text });
   }
   closeInput() { this.status = RUNNING; this.w.postMessage({ type: "close" }); }
+  ui(m) { this.w.postMessage({ ...m, type: "ui" }); }
   /**
    * Interrupt the running word.  If the worker does not answer in
    * `stopTimeoutMs` (a loop inside one VM step), replace it with a fresh

@@ -1,0 +1,119 @@
+| turtle/fractals: classic fractals drawn by recursion with turtle/core
+| vim: ft=reva :
+|
+| Each fractal is a word taking a depth; each `-demo` word clears the
+| canvas, places the turtle and sizes the step so the figure fills the
+| window.  Depths are capped (see `?depth`) so a typo cannot ask for
+| billions of lines; the turtle itself stops drawing at 1,000,000.
+|
+|   koch-demo  sierpinski-demo  dragon-demo  hilbert-demo  tree-demo
+|   plant-demo  fractals ( lists them )
+|
+| The fractals are written the Logo way, drawing while they recurse.  The
+| step length shrinks exactly ( `1 3 scale` ), and `tpush`/`tpop` save
+| and restore the whole turtle, step included.
+
+needs turtle/core
+push~
+~turtle
+
+: ?depth ( n max -- n ) 2dup > if ." (depth capped at " dup . ." ) " then min 0 max ;
+
+| Koch curve: each edge becomes four edges a third as long
+: koch ( depth -- )
+    dup 0if drop step ;then
+    1- dup koch 60 left dup koch 120 right dup koch 60 left koch ;
+: snowflake ( depth -- ) 3 0do dup koch 120 right loop drop ;
+: koch-demo ( depth -- )
+    7 ?depth clear blue color
+    penup -270 156 setxy 90 setheading pendown
+    540 step! dup 0do 1 3 scale loop snowflake ;
+
+| Sierpinski triangle: three half-size triangles in the corners
+: (tri) ( -- ) 3 0do step 120 left loop ;
+: sierpinski ( depth -- )
+    dup 0if drop (tri) ;then
+    1- tpush 1 2 scale
+    tpush dup sierpinski tpop
+    tpush penup step pendown dup sierpinski tpop
+    penup 60 left step 60 right pendown sierpinski
+    tpop ;
+: sierpinski-demo ( depth -- )
+    8 ?depth clear purple color
+    penup -350 -300 setxy 90 setheading pendown
+    700 step! sierpinski ;
+
+| Dragon curve: fold a strip of paper in half n times, unfold at 90 degrees
+: dragon ( depth sign -- )
+    over 0if 2drop step ;then
+    >r 1- dup 1 dragon r@ 90 * right -1 dragon r> drop ;
+: dragon-demo ( depth -- )
+    16 ?depth clear orange color
+    penup -200 -80 setxy 90 over 45 * - setheading pendown
+    480 step! dup 0do 70711 100000 scale loop 1 dragon ;
+
+| Hilbert curve: a path through every cell of a 2^n x 2^n grid
+: (h) ( n a -- n a n' a ) 2dup swap 1- swap ;
+: hilbert ( depth angle -- )
+    over 0if 2drop ;then
+    dup right (h) negate hilbert step
+    dup left (h) hilbert step
+    (h) hilbert dup left step
+    (h) negate hilbert right drop ;
+: hilbert-demo ( depth -- )
+    8 ?depth clear green color
+    penup -320 -320 setxy 0 setheading pendown
+    640 step! 1 over 1 swap << 1- scale 90 hilbert ;
+
+| Fractal tree: a trunk and two smaller trees, thinner and greener
+: tree ( len depth -- )
+    dup 0if 2drop ;then
+    tpush
+    dup 2 > if brown else green then color  dup width
+    over forward
+    25 left  over 2 3 */ over 1- tree
+    50 right over 2 3 */ over 1- tree
+    2drop tpop ;
+: tree-demo ( depth -- )
+    12 ?depth clear
+    penup 0 -380 setxy 0 setheading pendown
+    170 swap tree 1 width ;
+
+| A small L-system interpreter: a rule per character, expanded by
+| recursion (no strings are built).  F and G draw a step, f moves a step,
+| + and - turn by `angle`, [ and ] save and restore the turtle.
+create rules 128 2* cells allot
+variable angle
+: rules-clear ( -- ) rules 128 2* cells 0 fill ;
+: rule ( c a n -- ) rot 127 and 2* cells rules + tuck ! cell+ ! ;
+: rule@ ( c -- a n ) 127 and 2* cells rules + dup cell+ @ swap @ ;
+: (draw) ( c -- )
+    dup 'F = over 'G = or if drop step ;then
+    dup 'f = if drop penup step pendown ;then
+    dup '+ = if drop angle @ right ;then
+    dup '- = if drop angle @ left ;then
+    dup '[ = if drop tpush ;then
+    dup '] = if drop tpop ;then
+    drop ;
+: lsys ( a n depth -- )
+    -rot bounds ?do
+        i c@ over 0if (draw) else
+            dup rule@ nip if over 1- swap rule@ rot lsys else (draw) then
+        then
+    loop drop ;
+: plant-demo ( depth -- )
+    6 ?depth clear green color
+    rules-clear 25 angle !
+    'X " F+[[X]-X]-F[-FX]+X" rule
+    'F " FF" rule
+    penup -150 -390 setxy 25 setheading pendown
+    4 step! 1 over 6 swap - 1 swap << * 1 scale
+    " X" rot lsys ;
+
+: fractals ( -- )
+    ." Try (depth first):" cr
+    ."   5 koch-demo   6 sierpinski-demo   12 dragon-demo" cr
+    ."   6 hilbert-demo   10 tree-demo   5 plant-demo" cr
+    ." Save the drawing:  \" fractal.svg\" svg-save ." cr ;
+
+pop~
