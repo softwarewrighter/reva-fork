@@ -16,7 +16,12 @@ here="$(cd "$(dirname "$0")" && pwd)"
 www="$here/../rust/reva-web/www"
 rm -rf "$here/dist" && mkdir -p "$here/dist"
 cp "$www/index.html" "$www/reva.js" "$www/reva-worker.js" "$www/reva.wasm" \
-   "$www/ui.js" "$www/canvas.html" "$www/split.js" "$www/package.js" "$here/dist/"
+   "$www/ui.js" "$www/canvas.html" "$www/split.js" "$www/package.js" "$www/about.js" "$here/dist/"
+# the build stamp for the About dialog (reva-build meta tag)
+stamp=$("$here/../rust/scripts/build-stamp.sh")
+awk -v build="$stamp" '
+    index($0, "<meta name=\"reva-build\" content=\"\">") { sub(/content=""/, "content=\"" build "\"") }
+    { print }' "$www/index.html" > "$here/dist/index.html"
 cp "$here/host.js" "$here/dist/host.js"
 cd "$here"
 case "${1:-}" in
