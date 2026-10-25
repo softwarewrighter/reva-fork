@@ -37,7 +37,8 @@ reva-desktop --root DIR               # the REPL with files in DIR
 reva-desktop -e ': sq dup * ; 7 sq .' --print-output   # batch: feed lines, copy output to stdout
 ```
 
-`bye` closes the window. Stop (or Ctrl-C) interrupts a running word, as in
+`bye` closes the window. `restart` starts a fresh system in the same window
+and includes the package's start files again. Stop (or Ctrl-C) interrupts a running word, as in
 the browser.
 
 ## Files
@@ -62,7 +63,8 @@ A package is a folder with a `reva-package.json`:
 ```
 
 `name` titles the window; `start` lists files to `include`, in order, after
-Reva starts. Relative paths in Forth resolve against the package folder, so
+Reva starts, and again after Forth's `restart` (which starts a fresh system,
+as relaunching did; files on disk are kept). `--eval` lines are fed once. Relative paths in Forth resolve against the package folder, so
 a package can `include` its own sources. A folder without a manifest opens
 as a plain folder.
 

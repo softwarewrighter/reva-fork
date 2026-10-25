@@ -34,5 +34,8 @@ echo '{"name": "Smoke", "start": ["src/start.f"]}' > "$work/pkg/reva-package.jso
 echo ': hi ." package started" ; hi' > "$work/pkg/src/start.f"
 out=$(run --package "$work/pkg" --print-output -e bye)
 check "runs a package's start files" "package started" "$out"
+# a fresh system: the start file ran again, the word defined before is gone
+out=$(run --package "$work/pkg" --print-output -e ': gone ;' -e restart -e gone -e bye | tr -d '\0\n')
+check "restart includes the start files again" "Reva 2011.2 Linuxok> package startedok> ERROR: unknown word:  gone" "$out"
 
 exit $fail

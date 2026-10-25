@@ -6,6 +6,8 @@
 //   page → worker   init   { wasm: URL or bytes, files: { path: bytes },
 //                            image?: URL or bytes }
 //                   input  { text }      a line (or any text) to read
+//                   start  { text }      start input: read now and again
+//                                        after each `restart`
 //                   close  {}            end of input
 //                   stop   {}            interrupt the running word
 //   worker → page   output { text }      text printed since the last one
@@ -67,6 +69,10 @@ async function handle(m) {
       break;
     case "input":
       reva.feed(m.text);
+      pump();
+      break;
+    case "start":
+      reva.feedStart(m.text);
       pump();
       break;
     case "close":

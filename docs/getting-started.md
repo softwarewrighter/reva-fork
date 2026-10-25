@@ -148,7 +148,9 @@ echo hi | reva --image app.img          # from the image
 
 In the browser, pass the image to `start` (`start("reva.wasm", { image:
 "app.img" })` in `reva-web/www/reva.js`), or open the console page as
-`index.html?image=app.img`.
+`index.html?image=app.img`. A page's start files (`index.html?include=app.f`,
+or a desktop package's `start` list) are included again after `restart`, as
+the CLI re-runs its file arguments.
 
 `restart` starts over the way this run started (from `reva.f`, or from the
 image), as relaunching the program did. Definitions made since are gone;
