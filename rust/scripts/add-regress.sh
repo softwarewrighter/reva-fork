@@ -9,7 +9,7 @@
 # that the output is *correct*, not just current.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-[[ $# -ge 2 ]] || { sed -n '2,9p' "$0"; exit 2; }
+[[ $# -ge 2 ]] || { awk 'NR >= 2 && NR <= 9' "$0"; exit 2; }
 REG_RS="${REG_RS:-$(command -v reg-rs || true)}"
 [[ -n "$REG_RS" ]] || { echo "add-regress: reg-rs not found; set REG_RS" >&2; exit 2; }
 cargo build -q -p reva-cli
