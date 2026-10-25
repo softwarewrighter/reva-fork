@@ -2470,6 +2470,9 @@ name = "reva-desktop"
 version = "0.1.0"
 dependencies = [
  "glib",
+ "objc2",
+ "objc2-app-kit",
+ "objc2-foundation",
  "png",
  "serde",
  "serde_json",
