@@ -77,9 +77,7 @@ certificate.
 ## 3. The static web page
 
 ```bash
-cd rust && scripts/build-web.sh
-mkdir -p dist/reva-web && cp reva-web/www/* ../LICENSE ../LICENSE-MIT ../LICENSING.md dist/reva-web/
-(cd dist && zip -qr reva-web.zip reva-web)      # ~300 KB
+just web-zip            # or: rust/scripts/make-web-zip.sh  → rust/target/web/reva-web-VERSION.zip (~350 KB)
 ```
 
 Unzip it anywhere and serve it with any static server (`python3 -m
@@ -87,9 +85,9 @@ http.server -d reva-web`). It needs no special headers (no
 SharedArrayBuffer) and no particular MIME type for `.wasm` (it loads with
 `fetch` plus `WebAssembly.instantiate`). The page must be served over HTTP:
 a worker cannot start from `file://`. Saved images (`?image=app.img`) and
-other files can sit next to `index.html`. The CoSy demo zip will be built
-the same way in ba-cosy-zip-fork, once CoSy's files can be bundled into
-the page.
+other files can sit next to `index.html`. `--package DIR` bundles a
+package (CoSy's zip: `just cosy-zip` in ba-cosy-zip-fork). Options, the
+split-view default and how to test under a subpath: [web.md](web.md).
 
 ## 4. Desktop installers (Tauri 2)
 

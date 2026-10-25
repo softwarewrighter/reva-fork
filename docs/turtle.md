@@ -3,7 +3,8 @@
 Logo-style turtle graphics: Forth words move a turtle that draws lines on a
 2D canvas in a **separate graphics window**. It works the same in the
 [desktop app](desktop.md) (a second native window), in the browser (a popup
-window, or a pane below the REPL), and on the CLI. The CLI has no window, so
+window, a pane below the REPL, or the [split view](web.md#the-split-view)
+beside it), and on the CLI. The CLI has no window, so
 there you save the drawing as SVG instead.
 
 ```text
@@ -27,6 +28,7 @@ rust/scripts/build-web.sh
 python3 -m http.server -d rust/reva-web/www 8000
 #   open http://localhost:8000/   then type:  needs turtle/fractals 12 dragon-demo
 #   http://localhost:8000/?canvas=pane keeps the drawing inside the page
+#   http://localhost:8000/?canvas=split puts it beside the REPL (see web.md)
 
 # CLI: no window; write SVG files
 cd rust && cargo build --release
@@ -188,7 +190,9 @@ needs turtle/fractals
   `TURTLE x y heading visible`). A batch holds at most 16,384 records
   (512 KiB) and is sent as one transferable `Float32Array`. The window
   queues batches and draws at most 60,000 lines per animation frame into a
-  fixed 1600 × 1600 canvas that CSS scales, so resizing never redraws. A
+  canvas sized to the window (times the device pixel ratio, 256-4096 px).
+  When the window or pane is resized, it resizes the canvas and sends
+  `redraw`, and the VM sends the whole drawing again. A
   65,536-line dragon takes about 150 ms of VM time and appears within a
   few frames.
 * **One channel of the UI service.** Messages use the envelope
