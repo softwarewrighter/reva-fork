@@ -13,6 +13,7 @@ what has been carried over and what has not, yet).
 | [Example parity](parity-examples.md) | generated status of every program in `examples/` |
 | [Demo script](demo.md) | step by step: what to type in the CLI, the browser and the desktop app, and what you see |
 | [Packaging and Windows](packaging.md) | redistributable builds, license notices, installers, signing; building and testing on Windows 10+ |
+| [Browser and static site](web.md) | URL options, the split view, `?package=`, the uploadable zip (`just web-zip`) |
 | [Desktop app](desktop.md) | `reva-desktop`: build, run, files on disk, packages |
 | [Turtle graphics](turtle.md) | `~turtle`: Logo-style drawing in a graphics window; fractal demos; SVG |
 | [Portability](portability.md) | what stops on the portable core (native libraries, `shell`, x87/SIMD) and why |

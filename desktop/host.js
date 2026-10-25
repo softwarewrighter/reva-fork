@@ -32,6 +32,9 @@ export async function hostSetup() {
     start: s.start,
     input: s.input,
     title: s.title,
+    canvas: s.canvas ?? undefined,
+    // files are the folder's: the page must not pick its own storage prefix
+    keepsFiles: true,
     notes: [`files are kept in ${s.root}`, ...s.notes],
     output: s.print_output ? (text) => invoke("print", { text }) : undefined,
     // Let pending writes reach the disk before the window closes.
@@ -41,13 +44,15 @@ export async function hostSetup() {
 }
 
 // More windows (see www/ui.js): a second native window per name, opened by
-// the `open_window` command; messages go down as `reva-ui-down` events and
+// the `open_window` command (panes, as in the split view, are iframes in
+// the page, handled by ui.js as in a browser); messages go down as `reva-ui-down` events and
 // come up as `reva-ui-up` (the app adds `closed` when a window is closed).
 // Events are JSON, so drawing ops travel as plain arrays.
 const upListeners = new Map();
 let listening = null;
 
-function openWindow(name, { onMessage = () => {}, title = name } = {}) {
+function openWindow(name, { onMessage = () => {}, title = name, where = "window" } = {}) {
+  if (where !== "window") return null;
   const { core, event } = globalThis.__TAURI__;
   listening ??= event.listen("reva-ui-up", (e) => upListeners.get(e.payload?.window)?.(e.payload));
   let closed = false;
