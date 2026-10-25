@@ -69,6 +69,8 @@ gates! {
     TtForward, TtStep, TtRight, TtPen, TtColor, TtWidth, TtHome, TtClear,
     TtClean, TtSetxy, TtSetheading, TtSetstep, TtScale, TtShow, TtX, TtY,
     TtHeading, TtPush, TtPop, TtPath, TtSvg, TtBg, TtSegments,
+    // the virtual library `highlight` (highlight.rs), through `(call)`
+    HlType, HlColor,
 }
 
 impl Gate {
@@ -1475,9 +1477,8 @@ impl Machine {
             HostGetenv | HostPutenv | HostLocaltime | HostOpendir | HostReaddir | HostClosedir
             | HostSystem | TtForward | TtStep | TtRight | TtPen | TtColor | TtWidth | TtHome
             | TtClear | TtClean | TtSetxy | TtSetheading | TtSetstep | TtScale | TtShow | TtX
-            | TtY | TtHeading | TtPush | TtPop | TtPath | TtSvg | TtBg | TtSegments => {
-                Err(Fault::NotImplemented("a C function called without (call)"))
-            }
+            | TtY | TtHeading | TtPush | TtPop | TtPath | TtSvg | TtBg | TtSegments | HlType
+            | HlColor => Err(Fault::NotImplemented("a C function called without (call)")),
 
             // --- files (fileio.rs) ---
             OpenR => self.word_open(host, Access::Read).map(|()| Ret),
