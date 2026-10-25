@@ -10,12 +10,18 @@
 //   only receives output, status and changed files.  Where a worker cannot
 //   start, the same loop runs on the page's thread instead.
 //
+// The VM boots reva.f, or starts from a saved image (`image`: bytes or a
+// URL; make one with `reva --save-image` or `save` in Forth), which skips
+// compiling reva.f and whatever the image was built with.  Forth's
+// `restart` makes the VM again the same way, keeping files and input.
+//
 // Files live in memory inside the module (lib/ is built in, at /reva/lib/).
 // Give `files` to bundle your own, and `storage` (e.g. localStorage) to keep
 // what Forth code writes: each changed file is stored under `prefix + path`
 // whenever the VM stops for input or halts, and restored on the next load.
 
 export const YIELDED = 0, NEED_INPUT = 1, HALTED = 2;
+const BAD_IMAGE = -2;
 export const RUNNING = "running";
 
 // Files are bytes; Web Storage holds strings, so store one char per byte.
@@ -85,13 +91,18 @@ export function yieldNow() {
   });
 }
 
+const bytesOf = async (source) =>
+  typeof source === "string" || source instanceof URL
+    ? await (await fetch(source)).arrayBuffer()
+    : source;
+
 export class Reva {
   /**
    * @param {WebAssembly.Instance} instance
    * @param {{files?: Object<string, string|Uint8Array>, storage?: Storage,
-   *          prefix?: string}} [options]
+   *          prefix?: string, image?: Uint8Array}} [options]
    */
-  constructor(instance, { files = {}, storage = null, prefix = "reva:fs:" } = {}) {
+  constructor(instance, { files = {}, storage = null, prefix = "reva:fs:", image = null } = {}) {
     this.x = instance.exports;
     this.enc = new TextEncoder();
     this.dec = new TextDecoder();
@@ -99,16 +110,28 @@ export class Reva {
     this.prefix = prefix;
     for (const [path, data] of Object.entries(files)) this.put(path, data);
     if (storage) this.restore();
-    this.status = this.x.reva_boot();
+    this.status = image ? this.bootImage(image) : this.x.reva_boot();
   }
 
-  /** Load and boot from a URL (browser) or bytes (Node); see the constructor. */
-  static async load(source, options) {
-    const bytes = typeof source === "string" || source instanceof URL
-      ? await (await fetch(source)).arrayBuffer()
-      : source;
+  bootImage(image) {
+    const p = this.x.reva_fs_buffer(image.length);
+    new Uint8Array(this.x.memory.buffer, p, image.length).set(image);
+    const s = this.x.reva_boot_image(image.length);
+    if (s === BAD_IMAGE) {
+      const why = new Uint8Array(this.x.memory.buffer, this.x.reva_fs_data(), this.x.reva_fs_len());
+      throw new Error(`image: ${this.dec.decode(why)}`);
+    }
+    return s;
+  }
+
+  /**
+   * Load and start from a URL (browser) or bytes (Node); see the
+   * constructor.  `options.image` may be a URL too.
+   */
+  static async load(source, options = {}) {
+    const [bytes, image] = await Promise.all([bytesOf(source), options.image && bytesOf(options.image)]);
     const { instance } = await WebAssembly.instantiate(bytes, {});
-    return new Reva(instance, options);
+    return new Reva(instance, { ...options, image: image ? new Uint8Array(image) : null });
   }
 
   /** Fetch files to bundle: `{ "/demo/x.f": "files/x.f", ... }` → `files`. */
@@ -223,7 +246,8 @@ export class Reva {
 /**
  * Start a session for a page: the VM in a Web Worker where possible.
  *
- * Options: `files` (bundled, `{ path: string | bytes }`), `storage` and
+ * Options: `image` (start from a saved image: URL or bytes), `files`
+ * (bundled, `{ path: string | bytes }`), `storage` and
  * `prefix` (persistence), `onOutput(text)`, `onStatus(status)` (RUNNING,
  * NEED_INPUT or HALTED), `worker` (false: run on this thread), `workerUrl`,
  * `createWorker(url)` (for tests), `stopTimeoutMs` (default 2000).
@@ -274,7 +298,7 @@ class LocalSession extends Session {
   constructor(o) {
     super(o);
     this.kind = "main";
-    this.ready = Reva.load(o.wasmUrl, { files: o.files }).then(async (reva) => {
+    this.ready = Reva.load(o.wasmUrl, { files: o.files, image: o.image }).then(async (reva) => {
       this.reva = reva;
       reva.setClock();
       const out = reva.takeOutput();
@@ -329,7 +353,8 @@ class WorkerSession extends Session {
     this.w.onerror = (e) => this.onOutput(`\n*** worker: ${e.message ?? e}\n`);
     // Files restored from storage go in again on a restart.
     const files = o.storage ? { ...o.files, ...storedFiles(o.storage, o.prefix) } : o.files;
-    this.w.postMessage({ type: "init", wasm: o.wasmBytes ?? new URL(o.wasmUrl, globalThis.location?.href).href, files });
+    const abs = (u) => (typeof u === "string" || u instanceof URL ? new URL(u, globalThis.location?.href).href : u);
+    this.w.postMessage({ type: "init", wasm: o.wasmBytes ?? abs(o.wasmUrl), image: abs(o.image), files });
   }
   feed(text) { this.status = RUNNING; this.w.postMessage({ type: "input", text }); }
   closeInput() { this.status = RUNNING; this.w.postMessage({ type: "close" }); }
