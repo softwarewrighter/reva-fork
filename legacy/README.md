@@ -4,7 +4,7 @@ Deprecated (see [../DEPRECATED.md](../DEPRECATED.md)). Kept so the original
 build stays reproducible until the portable core in [`../rust/`](../rust/)
 covers everything it provides; it will then be deleted in a separate change.
 Git history follows every file here (`git log --follow legacy/...`), and the
-`master` branch keeps the original layout.
+first commit (`edc8cbe`, the fossil import) keeps the original layout.
 
 | Path | Was | What |
 |---|---|---|
