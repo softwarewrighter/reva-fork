@@ -63,6 +63,8 @@ gates! {
     // `restart`: the host starts a new machine the way it started this one
     Restart,
     HostSystem,
+    // `version`: print this build's version report (see version.rs)
+    Version,
 }
 
 impl Gate {
@@ -1453,6 +1455,10 @@ impl Machine {
                 // like `bye` (onexit handlers run), but the host starts over
                 self.iterate_list(host, OnStartThunk.addr(), st::EXIT_LIST)?;
                 Ok(Next::Restart)
+            }
+            Version => {
+                host.write(crate::version::info().as_bytes());
+                Ok(Ret)
             }
 
             // --- OS services not yet provided by the portable core ---

@@ -16,7 +16,7 @@ const check = (what, got, want) => {
 };
 
 // The boot ends as Reva's saved executable started: banner, then a prompt.
-const BANNER = "Reva 2011.2 Linux\n\nok> ";
+const BANNER = "reva-fork 2026.1025.0 portable\n\nok> ";
 check("boot status", reva.status, NEED_INPUT);
 reva.feed("2 3 + . : sq dup * ; 7 sq .\n");
 check("arith", await (async () => { let o = ""; await reva.run((s) => (o += s)); return o; })(), BANNER + "5 49 \nok> ");

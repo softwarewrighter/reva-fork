@@ -409,6 +409,7 @@ impl Machine {
             ("getextra", GetExtra.addr(), fc),
             ("(boot-restart)", BootRestart.addr(), fc),
             ("restart", Restart.addr(), fc),
+            ("version", Version.addr(), fc),
         ];
         let mut d = D0;
         let mut prev = 0;
