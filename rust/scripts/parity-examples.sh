@@ -20,6 +20,11 @@ cd "$(dirname "$0")/.."
 REVA="${REVA:-target/debug/reva}"
 LIMIT="${PARITY_TIMEOUT:-5}"
 root=..
+abs_root=$(cd "$root" && pwd)
+# Programs that `save` write an image to the working directory, so each
+# runs in a scratch directory, not in the checkout.
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
 
 area() {
     local n
@@ -37,7 +42,7 @@ area() {
 classify() {
     local out code
     # tr: reva.f's REPL emits a NUL when it ends after an error
-    out=$(cd "$root" && timeout "$LIMIT" "rust/$REVA" "$1" < /dev/null 2>&1 | tr -d '\0'; exit "${PIPESTATUS[0]}")
+    out=$(cd "$work" && timeout "$LIMIT" "$abs_root/rust/$REVA" "$abs_root/$1" < /dev/null 2>&1 | tr -d '\0'; exit "${PIPESTATUS[0]}")
     code=$?
     if [[ $code -eq 124 ]]; then echo "timeout"; return; fi
     local fault missing

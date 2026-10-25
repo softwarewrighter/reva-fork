@@ -1,5 +1,6 @@
 // Node smoke test for the WebAssembly build: boot reva.f, run some Forth,
-// exercise pausing for input and budget yields.  Prints a transcript (the
+// exercise pausing for input and budget yields, save an image and start
+// from it, restart.  Prints a transcript (the
 // reg-rs baseline) and exits non-zero on any mismatch.
 import { readFile } from "node:fs/promises";
 import { Worker } from "node:worker_threads";
@@ -85,6 +86,23 @@ const transcript = async (budget) => {
 };
 check("same output for 1k and 1M step slices", await transcript(1000) === await transcript(1000000), true);
 
+// An image saved by Forth (`save`) starts a new instance without reva.f's
+// compile, and `restart` makes the VM again from the same image.
+const maker = await Reva.load(wasm);
+maker.feed(": hi .\" from the image\" ; save /app.img\n");
+await maker.run();
+const image = maker.changes().find((c) => c.path === "/app.img")?.data;
+check("save writes an image", new TextDecoder().decode(image?.subarray(0, 8)), "REVAVX86");
+const fromImage = await Reva.load(wasm, { image });
+check("starts from the image", fromImage.takeOutput(), BANNER);
+fromImage.feed(": gone ; hi cr restart\nhi cr gone\n");
+let out8 = "";
+await fromImage.run((s) => (out8 += s));
+check("restart", out8.replace(/\.\.\.[^]*$/, "..."), "from the image\n" + BANNER + "from the image\n\nERROR: unknown word:  gone\n...");
+let badImage = "";
+try { await Reva.load(wasm, { image: new Uint8Array(4) }); } catch (e) { badImage = e.message; }
+check("not an image", badImage, "image: image is truncated");
+
 // A session in a worker thread, as a page runs it in a Web Worker.
 const nodeWorker = (url) => {
   const w = new Worker(new URL("./node-worker.mjs", import.meta.url));
@@ -119,5 +137,15 @@ check("worker interrupted", wout.startsWith("\n*** interrupted (in spin"), true)
 session.feed("7 ~sys.(bye)\n");
 check("worker halts", [await session.idle(), session.exitCode], [HALTED, 7]);
 session.terminate();
+
+let iout = "";
+const imageSession = start("reva.wasm", {
+  createWorker: nodeWorker, wasmBytes: wasm, image, onOutput: (s) => (iout += s),
+});
+await imageSession.ready;
+imageSession.feed("hi cr\n");
+await imageSession.idle();
+check("worker starts from an image", iout, BANNER + "from the image\n\nok> ");
+imageSession.terminate();
 
 process.exit(failed ? 1 : 0);

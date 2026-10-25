@@ -23,7 +23,10 @@ re-implemented in Rust. See [DESIGN.md](DESIGN.md) for the rationale.
 - Hosts: `reva` CLI (Linux/macOS/Windows, any CPU) and a WebAssembly module
   with a minimal web console; the VM runs in a Web Worker with time slices
   and a Stop button (DESIGN.md §3.8).
-- Not yet: `(save)`, native libraries, x87
+- Saved images: `save NAME` from Forth or `reva --save-image`; start one
+  with `reva --image` or in the browser (`start(..., { image })`).
+  `restart` makes the VM again the same way (DESIGN.md §3.9).
+- Not yet: native libraries, x87
   floats, native translation. See the roadmap in DESIGN.md.
 
 ## Layout
