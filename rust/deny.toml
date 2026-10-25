@@ -1,0 +1,30 @@
+# cargo-deny policy for the portable core: permissive licenses only.
+#
+#   cargo deny check licenses        (from rust/; run by scripts/license-check.sh)
+#
+# Why: everything this workspace builds is redistributed (CLI binary, wasm
+# module, desktop app), and the project ships no GPL, LGPL or AGPL code.
+# Any crate whose license is not on this list fails the check, including
+# crates with no license metadata.  See docs/licenses.md.
+
+[licenses]
+version = 2
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-3.0",
+    "CC0-1.0",
+    "Unlicense",
+]
+confidence-threshold = 0.9
+# The workspace has no dependencies yet; keep the list for the ones to come.
+unused-allowed-license = "allow"
+
+[licenses.private]
+# Workspace crates (publish = false) are MIT, checked by review, not here.
+ignore = true
