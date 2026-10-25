@@ -91,7 +91,8 @@ a folder:
 | `icon` | the page's icon (favicon) |
 | `id` | names the localStorage prefix, `reva:<id>:fs:` (default from `name`), so two packages on one site keep their files apart |
 | `canvas` | where graphics go, unless the URL says |
-| `about` | the package's entry in the About dialog: `{ "name", "version", "description", "credits": [text], "links": [{ "label", "url" }] }`, all optional (`name` defaults to `title`); only http(s) links become links |
+| `about` | the package's entry in the About dialog: `{ "name", "version", "description", "build", "credits": [text], "links": [{ "label", "url" }] }`, all optional (`name` defaults to `title`; `build` is the package's own commit and date, so a bug report names both layers); only http(s) links become links |
+| `hint` | replaces Reva's hint in the page header; `` `code` `` in backticks |
 
 Paths must be plain relative paths (no `..`, no leading `/`); others are
 skipped with a note. Files the VM writes are stored in localStorage and win

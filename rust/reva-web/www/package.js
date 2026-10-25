@@ -82,6 +82,7 @@ export async function loadPackage(dir, { base = globalThis.location?.href, fetch
     icon: plainPath(m.icon) ? new URL(m.icon, root).href : undefined,
     canvas: typeof m.canvas === "string" ? m.canvas : undefined,
     about: packageAbout(m),
+    hint: typeof m.hint === "string" && m.hint.length < 500 ? m.hint : undefined,
     start: start.map((f) => `include ${f}`),
     files,
     prefix: `reva:${packageId(m)}:fs:`,
