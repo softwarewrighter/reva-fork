@@ -1,6 +1,6 @@
 MIT License
 
-Portions copyright (c) 2026 Michael A Wright
+Copyright (c) 2026 Michael A. Wright
 
 This license applies to the portable Reva core in this directory (rust/).
 The original Reva Forth it runs is in the public domain; see ../LICENSE.
