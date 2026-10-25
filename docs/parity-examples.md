@@ -20,7 +20,7 @@ Most common first missing word (top 10):
 | Example | Area | Status |
 |---|---|---|
 | `examples/3n1.f` | core | runs |
-| `examples/alg-test.f` | lib | fault: unsupported instruction at 0x0014b018: d9 ee e8 c9 51 ff ff 0f |
+| `examples/alg-test.f` | lib | fault: unsupported x87 floating point instruction at 0x0014b018: d9 ee e8 c9 51 ff ff 0f (see docs/portability.md) |
 | `examples/argv.f` | core | runs |
 | `examples/asm.f` | core | runs |
 | `examples/automatic.f` | core | runs |
@@ -56,9 +56,9 @@ Most common first missing word (top 10):
 | `examples/fizzbuzz.f` | core | runs |
 | `examples/gcd.f` | core | runs |
 | `examples/gettext.f` | lib | missing: `set-po` |
-| `examples/gl/gl-scene.f` | gui | fault: unsupported instruction at 0x00149e38: d9 ee e8 a9 63 ff ff 0f |
-| `examples/gl/gl-shading.f` | gui | fault: unsupported instruction at 0x00147e88: d9 ee e8 59 83 ff ff 0f |
-| `examples/gl/gl-twod.f` | gui | fault: unsupported instruction at 0x00147e88: d9 ee e8 59 83 ff ff 0f |
+| `examples/gl/gl-scene.f` | gui | fault: unsupported x87 floating point instruction at 0x00149e38: d9 ee e8 a9 63 ff ff 0f (see docs/portability.md) |
+| `examples/gl/gl-shading.f` | gui | fault: unsupported x87 floating point instruction at 0x00147e88: d9 ee e8 59 83 ff ff 0f (see docs/portability.md) |
+| `examples/gl/gl-twod.f` | gui | fault: unsupported x87 floating point instruction at 0x00147e88: d9 ee e8 59 83 ff ff 0f (see docs/portability.md) |
 | `examples/gpgme.f` | lib | error: could not load gpgme_check_version |
 | `examples/gtk.f` | gui | error: could not load gtk_init |
 | `examples/gui/hello1.f` | gui | error: could not load window_xy |
@@ -130,7 +130,7 @@ Most common first missing word (top 10):
 | `examples/stars.f` | core | runs |
 | `examples/sudoku-sp.f` | lib | runs |
 | `examples/sudoku.f` | lib | runs |
-| `examples/sunrise.f` | lib | fault: unsupported instruction at 0x00148ec8: d9 ee e8 19 73 ff ff 0f |
+| `examples/sunrise.f` | lib | fault: unsupported x87 floating point instruction at 0x00148ec8: d9 ee e8 19 73 ff ff 0f (see docs/portability.md) |
 | `examples/task.f` | lib | runs |
 | `examples/test.f` | lib | runs |
 | `examples/testing.f` | core | runs |
@@ -149,5 +149,5 @@ Most common first missing word (top 10):
 | `examples/xml.f` | lib | runs |
 | `examples/xmlparse.f` | lib | error: could not load XML_ParserCreate |
 | `examples/xmlrpc.f` | net | missing: `parse-result` |
-| `examples/zemanim.f` | lib | fault: unsupported instruction at 0x0014b070: d9 ee e8 71 51 ff ff 0f |
+| `examples/zemanim.f` | lib | fault: unsupported x87 floating point instruction at 0x0014b070: d9 ee e8 71 51 ff ff 0f (see docs/portability.md) |
 | `examples/zipdb.f` | db | fault: stack underflow |

@@ -286,6 +286,36 @@ fn interrupt_stops_a_loop_and_keeps_the_dictionary() {
 }
 
 #[test]
+fn a_missing_native_library_is_named_once() {
+    let (mut vm, mut host) = booted();
+    let out = eval(
+        &mut vm,
+        &mut host,
+        "\" libnothere.so\" lib nothere 1 func: f1 1 func: f2 f1",
+    );
+    assert!(
+        out.starts_with("note: native library libnothere.so is not available"),
+        "{out}"
+    );
+    assert!(out.contains("could not load f1"), "{out}");
+    let again = eval(&mut vm, &mut host, "f2");
+    assert!(!again.contains("note:"), "{again}");
+    assert!(again.contains("could not load f2"), "{again}");
+}
+
+#[test]
+fn shell_needs_a_host_that_allows_it() {
+    let (mut vm, mut host) = booted();
+    let out = eval(&mut vm, &mut host, "needs os/shell \" ls\" shell 7 .");
+    assert!(
+        out.contains("shell (running an OS command) is not allowed here"),
+        "{out}"
+    );
+    // the fault ends the line; the session goes on
+    assert_eq!(eval(&mut vm, &mut host, "7 ."), "7 ");
+}
+
+#[test]
 fn restart_starts_over_and_keeps_files_and_unread_input() {
     let (mut vm, mut host) = booted();
     host.fs.put("/keep", b"kept");
