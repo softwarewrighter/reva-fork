@@ -33,6 +33,10 @@ export async function hostSetup() {
     input: s.input,
     title: s.title,
     canvas: s.canvas ?? undefined,
+    // the open package's manifest keys for the About dialog (about.js)
+    package: s.package ?? undefined,
+    // links (About) open in the system browser, not in this window
+    openUrl: (url) => invoke("open_url", { url }).catch(report),
     // files are the folder's: the page must not pick its own storage prefix
     keepsFiles: true,
     notes: [`files are kept in ${s.root}`, ...s.notes],

@@ -9,6 +9,9 @@
 <meta name="reva-package" content="">
 <!-- Where graphics go when nothing else says (window, pane or split). -->
 <meta name="reva-canvas" content="">
+<!-- "VERSION COMMIT DATE" of this build, for the About dialog (set by
+     make-web-zip.sh and desktop/build.sh; empty: the source tree). -->
+<meta name="reva-build" content="">
 <link rel="icon" href="data:,">
 <style>
   :root { --bg:#fbfaf7; --fg:#1d1d1b; --muted:#6b6a65; --accent:#1f6f5c; --line:#dcd9d0; }
@@ -28,7 +31,17 @@
   button { font:inherit; color:inherit; background:transparent; border:1px solid var(--line);
            border-radius:4px; padding:0 10px; cursor:pointer; }
   button:disabled { opacity:.4; cursor:default; }
-  #gfx { float:right; margin-left:8px; }
+  #gfx, #about-btn { float:right; margin-left:8px; }
+  dialog#about { max-width:min(560px, calc(100vw - 32px)); color:var(--fg); background:var(--bg);
+                 border:1px solid var(--line); border-radius:8px; padding:20px 24px; font-size:14px; }
+  dialog#about::backdrop { background:rgba(0,0,0,.35); }
+  dialog#about h2 { font-size:16px; margin:0 0 6px; color:var(--accent); }
+  dialog#about section + section { border-top:1px solid var(--line); margin-top:14px; padding-top:14px; }
+  dialog#about ul { margin:6px 0; padding-left:18px; }
+  dialog#about p { margin:6px 0; }
+  dialog#about .muted { color:var(--muted); }
+  dialog#about a { color:var(--accent); }
+  dialog#about .close { float:right; margin-top:8px; }
   #gfx[hidden] { display:none; }
   /* the graphics pane, where a popup window is not allowed */
   #panes iframe { width:100%; height:min(60vh, 640px); border:1px solid var(--line); border-radius:4px; margin-top:8px; }
@@ -65,7 +78,8 @@
 </head>
 <body>
 <main>
-  <header><button type="button" id="gfx" title="Show the turtle graphics window" hidden>Graphics</button>
+  <header><button type="button" id="about-btn" title="About this program, its licenses and source">About</button>
+    <button type="button" id="gfx" title="Show the turtle graphics window" hidden>Graphics</button>
     <b>Reva Forth</b> — portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code>
     or <code>needs turtle/fractals 5 koch-demo</code></header>
   <div id="out" aria-live="polite"></div>
@@ -83,6 +97,7 @@
   import { CanvasChannel } from "./ui.js";
   import { loadPackage } from "./package.js";
   import { splitView } from "./split.js";
+  import { aboutDialog, packageAbout } from "./about.js";
   const MAX_CHUNKS = 4000;
   const out = document.getElementById("out");
   const line = document.getElementById("line");
@@ -137,6 +152,10 @@
     document.querySelector("header b").textContent = title;
   }
   if (pkg?.icon) document.querySelector('link[rel="icon"]').href = pkg.icon;
+  // About: the package's entry (from the page's ?package= or the desktop
+  // host), then reva-fork's.
+  const about = aboutDialog({ pkg: pkg?.about ?? packageAbout(host.package), openUrl: host.openUrl });
+  document.getElementById("about-btn").addEventListener("click", () => about.open());
   // Where graphics go: ?canvas=window|pane|split, else the package's or
   // the host's choice, else the page's default (the reva-canvas meta),
   // else a window.
