@@ -61,6 +61,8 @@ pub mod st {
         // where fault recovery re-enters the interpreter loop: reva.f's
         // `exception-reset`, set by `(boot-restart)` (0: the core's REPL)
         REPL_ENTRY,
+        // the virtual libc's `readdir` result (a heap buffer, 0 until used)
+        DIRENT_BUF,
     }
 }
 
@@ -130,6 +132,9 @@ pub struct Machine {
     /// `nop`s; `;;` uses it to avoid reading padding as a `call` (see
     /// `Machine::ssemi`).  Transient: not part of an image.
     pub(crate) last_pad: (u32, u32),
+    /// Directories open through the virtual libc's `opendir` (see
+    /// `fileio.rs`).  Host state, like open files: not part of an image.
+    pub(crate) dirs: Vec<Option<crate::fileio::DirStream>>,
 }
 
 impl Machine {
@@ -163,6 +168,7 @@ impl Machine {
             steps: 0,
             trace: false,
             last_pad: (0, 0),
+            dirs: Vec::new(),
         }
     }
 

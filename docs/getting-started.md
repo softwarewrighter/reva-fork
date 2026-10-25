@@ -107,11 +107,35 @@ The page is a small console running the same core. Long-running or looping
 code does not freeze the page: the VM runs in slices and yields to the
 browser between them.
 
+In the browser, files live in memory: `lib/` is built in (so `needs`
+works), and files your code writes are kept in the browser's
+`localStorage`, so they are still there after a reload. A page can bundle
+its own files too; see `Reva.load` in `reva-web/www/reva.js`.
+
+## Files
+
+The file words work on the command line (real files) and in the browser
+(the in-memory files above). `ioerr` is 0 after success and a negative
+error number after failure:
+
+```forth
+" reva-demo.txt" creat value h
+" hello, file" h write  h close
+" reva-demo.txt" open/r value r
+pad 100 r read  pad swap type cr  r close
+" reva-demo.txt" delete  ioerr @ .
+" reva-demo.txt" open/r drop  ioerr @ .
+```
+```output
+hello, file
+0 -2
+```
+
+`-2` is "no such file". [gotchas.md](gotchas.md) lists the quirks.
+
 ## What works today
 
-The portable core runs `src/reva.f` up to its built-in assembler: the core
-words, stack and arithmetic words, comparisons, `if`/`else`/`then` and the
-`0if`/`=if`/… family, recursion, `variable`, `constant`, `create`/`does>`,
-`catch`/`throw`, `include`. Later parts of `reva.f` — `needs` and libraries,
-`."`, loops, files — are not available yet. [parity.md](parity.md) tracks
-this in detail.
+All of `src/reva.f` boots: the core words, the assembler, contexts,
+`needs` and the libraries in `lib/` that do not call native C libraries,
+and the file words. Floating point (x87) and native libraries are next.
+[parity.md](parity.md) tracks this in detail.

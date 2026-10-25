@@ -32,6 +32,7 @@
 pub mod embedded;
 pub mod fault;
 pub mod ffi;
+mod fileio;
 pub mod gates;
 pub mod heap;
 pub mod host;
@@ -40,6 +41,7 @@ pub mod layout;
 pub mod machine;
 pub mod mem;
 pub mod translate;
+pub mod vfs;
 pub mod x86;
 
 pub use fault::Fault;
