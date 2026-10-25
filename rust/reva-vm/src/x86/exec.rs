@@ -517,6 +517,7 @@ impl Cpu {
                     what: "int3 breakpoint",
                 })
             }
+            Op::Fpu(f) => self.fpu_exec(mem, f)?,
         }
         Ok(())
     }
