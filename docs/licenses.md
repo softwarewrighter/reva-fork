@@ -97,5 +97,22 @@ All under `legacy/` or `contrib/`; none is used by the portable core.
 
 ## Crate dependencies
 
-None. When one is added, `cargo deny check licenses` must pass, and the crate
-gets a line here saying why it is needed.
+**Portable core (`rust/`):** none. When one is added, `cargo deny check
+licenses` must pass, and the crate gets a line here saying why it is needed.
+
+**Desktop app (`desktop/`, its own workspace):** `tauri` (MIT/Apache-2.0)
+for the window and webview, `serde`/`serde_json` (MIT/Apache-2.0) for the
+package manifest and commands. Their ~320 transitive crates are permissive
+except five Servo CSS crates that Tauri's HTML handling uses: `cssparser`,
+`cssparser-macros`, `selectors`, `dtoa-short` and `option-ext`, under
+**MPL-2.0**. MPL-2.0 is weak, per-file copyleft and not GPL-family: used
+unmodified, it asks only that their source stays available (it is, on
+crates.io) and that the notice ships with the app. `desktop/deny.toml`
+allows MPL-2.0 for exactly these crates, so any other MPL dependency fails
+the check until someone decides. On Linux the app links the system's
+WebKitGTK (LGPL) dynamically and never bundles it: ship `.deb`/`.rpm`
+packages that depend on the distribution's `libwebkit2gtk-4.1-0`, not an
+AppImage that would carry it.
+
+The app's icon (`desktop/reva-desktop/icons/icon.png`) is a copy of
+`contrib/reva128.png` (Reva, public domain).

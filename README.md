@@ -52,6 +52,14 @@ scripts/build-web.sh                               # reva-web/www/reva.wasm
 python3 -m http.server -d reva-web/www             # open http://localhost:8000
 ```
 
+Desktop app (Linux, macOS; see [docs/desktop.md](docs/desktop.md)):
+
+```bash
+desktop/build.sh --install                         # once; needs WebKitGTK 4.1 headers on Linux
+reva-desktop                                       # the REPL in a window, files in ~/Reva
+reva-desktop --package DIR                         # open a package (start files in reva-package.json)
+```
+
 `needs` finds libraries in `lib/` of this checkout (or under `$REVA_HOME`)
 through the virtual install prefix `/reva/`.
 
@@ -61,6 +69,7 @@ through the virtual install prefix `/reva/`.
 |---|---|
 | [`rust/`](rust/README.md) | the portable core: `reva-vm` (VM library), `reva-cli` (the `reva` command), `reva-web` (WebAssembly module and web console), tests and scripts |
 | `src/reva.f`, `src/help.txt`, `lib/`, `examples/`, `tests/`, `bench/` | the Reva Forth system itself, as imported; the portable core runs it |
+| [`desktop/`](docs/desktop.md) | the desktop app (Tauri), in its own Cargo workspace so the core stays dependency-free |
 | [`docs/`](docs/README.md) | new documentation, written from the portable core; every Forth sample in it is executed by the test suite |
 | [`legacy/`](legacy/README.md) | the deprecated 32-bit x86 implementation: assembly core, build machinery, prebuilt binaries |
 | `www/` | the old wiki, deprecated (see below) |
@@ -98,8 +107,10 @@ still-supported topic rebuilt, then delete with the rest of `legacy/`.
 
 1. The x87 subset Reva's float library uses, including 80-bit memory
    operands.
-2. Native libraries: dynamic loading on the CLI, JavaScript imports on the
-   web.
+2. Virtual libraries (Rust bindings inside the VM; no generic native FFI,
+   see [docs/portability.md](docs/portability.md)): SQLite, then a UI
+   service (panes, keys, SVG, later WebGL 3D) for the browser and the
+   desktop app.
 3. Translators that turn hot vx86 code into x86-64, ARM64 and WebAssembly,
    to recover native speed (the interpreter is the reference semantics; the
    translations are caches over it).
