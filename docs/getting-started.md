@@ -109,9 +109,11 @@ browser between them.
 
 ## What works today
 
-The portable core runs `src/reva.f` up to its built-in assembler: the core
-words, stack and arithmetic words, comparisons, `if`/`else`/`then` and the
-`0if`/`=if`/… family, recursion, `variable`, `constant`, `create`/`does>`,
-`catch`/`throw`, `include`. Later parts of `reva.f` — `needs` and libraries,
-`."`, loops, files — are not available yet. [parity.md](parity.md) tracks
-this in detail.
+The portable core boots all of `src/reva.f`: the core words, control
+structures and loops, `create`/`does>`, `catch`/`throw`, strings and `."`,
+the embedded assembler, contexts, `include`, and `needs` with the libraries
+in `lib/`. File words (`open/r`, `read`, …), saved images via `(save)`, x87
+floats and native C libraries are not available yet.
+[parity.md](parity.md) tracks this in detail, and
+[parity-examples.md](parity-examples.md) lists every example program's
+status.
