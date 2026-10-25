@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} -e 'needs os/shell' -e '\" echo blocked\" shell' -e '1 . cr' -e ': x87 [ $d9 1, $e8 1, ] ; x87' -e '2 . cr' -e bye < /dev/null; ${REVA:-target/debug/reva} --allow-shell -e 'needs os/shell' -e '\" echo allowed; exit 3\" shell shell_code @ 256 / . cr' -e bye < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "shell is blocked unless --allow-shell; unsupported x86 code names its class; each stops with a pointer to docs/portability.md and the session goes on"

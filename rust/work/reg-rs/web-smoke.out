@@ -1,8 +1,29 @@
 ok   boot status: 1
-ok   arith: "Reva 2011.2 Linux\n\nok> 5 49 \nok> "
+ok   arith: "reva-fork 2026.1025.0 portable\n\nok> 5 49 \nok> "
 ok   infinite loop yields: 0
 ok   still yielding: 0
 ok   key waits: 1
-ok   key resumes: "Reva 2011.2 Linux\n\nok> 3 \nok> "
+ok   key resumes: "reva-fork 2026.1025.0 portable\n\nok> 3 \nok> "
 ok   halts: 2
 ok   exit code: 9
+ok   bundled file: "reva-fork 2026.1025.0 portable\n\nok> bundled\nok> \nok> "
+ok   persisted: "savedÃ©"
+ok   restored: "reva-fork 2026.1025.0 portable\n\nok> savedé0 \nok> "
+ok   removal persisted: null
+ok   needs from the built-in lib/: "loaded\nok> "
+ok   spinning: 0
+ok   interrupted: true
+ok   dictionary kept: "42 \nok> "
+ok   same output for 1k and 1M step slices: true
+ok   save writes an image: "REVAVX86"
+ok   starts from the image: "reva-fork 2026.1025.0 portable\n\nok> "
+ok   restart: "from the image\nreva-fork 2026.1025.0 portable\n\nok> from the image\n\nERROR: unknown word:  gone\n..."
+ok   not an image: "image: image is truncated"
+ok   worker boots: ["worker",1,"reva-fork 2026.1025.0 portable\n\nok> "]
+ok   worker runs: 1
+ok   worker output: "from the worker\nok> \nok> "
+ok   worker files saved by the page: "ok"
+ok   worker stop: 1
+ok   worker interrupted: true
+ok   worker halts: [2,7]
+ok   worker starts from an image: "reva-fork 2026.1025.0 portable\n\nok> from the image\n\nok> "

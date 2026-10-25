@@ -4,7 +4,7 @@ Deprecated (see [../DEPRECATED.md](../DEPRECATED.md)). Kept so the original
 build stays reproducible until the portable core in [`../rust/`](../rust/)
 covers everything it provides; it will then be deleted in a separate change.
 Git history follows every file here (`git log --follow legacy/...`), and the
-`master` branch keeps the original layout.
+first commit (`edc8cbe`, the fossil import) keeps the original layout.
 
 | Path | Was | What |
 |---|---|---|
@@ -12,7 +12,7 @@ Git history follows every file here (`git log --follow legacy/...`), and the
 | `src/Makefile`, `src/revares.o`, `src/reva.rc`, `src/reva.ico`, `src/zero` | `src/` | build pieces (`src/Makefile` was already stale in the import) |
 | `Makefile` | `/` | top-level build, paths updated |
 | `tools/build.f` | `tools/` | Reva's build program, paths updated |
-| `bin/` | `bin/` | prebuilt 32-bit binaries, libraries, `help.db` |
+| `bin/` | `bin/` | prebuilt 32-bit binaries, libraries, `help.db` (copyleft DLLs removed; see [../docs/licenses.md](../docs/licenses.md)) |
 | `lib` → `../lib` | — | symlink: the prebuilt binaries find `lib/` two levels above `bin/<os>/` |
 | `test344.bat`, `exclude.lst`, `include.lst` | `/` | Windows test artifact, distribution file lists |
 | `scratch/` | `/` | experiments from the original tree (inline-code trials, SHA-1 variants, test binaries, LaTeX output) |

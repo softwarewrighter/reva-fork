@@ -81,13 +81,58 @@ was before the `include`. Check the first `ERROR:` line in the output.
 ## Times are UTC
 
 `time&date` and `localtime` report UTC: the portable core has no time-zone
-database. The clock comes from the host (the browser host has none yet, so
-there it reads as the Unix epoch).
+database. The clock comes from the host (in the browser, the page passes
+`Date.now()` in before each slice).
+
+## Files: `ioerr` is `-errno`, and the browser keeps files in memory
+
+The file words keep the original's results: after `open/r`, `read`,
+`write`, `close`, `delete`, `rename`, `chdir`, ... `ioerr` is 0 on
+success and the negative Linux `errno` on failure (`-2` for a missing
+file), and a failed `open/r` returns that same negative number as the
+"handle". Test `ioerr @`, not the handle.
+
+Quirks of `reva.f` itself (unchanged, as on Linux x86):
+
+- `rename ( a1 n1 a2 n2 -- )` removes one more cell than it takes (its
+  system call reads three arguments). Keep a spare cell under the names.
+- `seek ( offs h -- )` leaves nothing; use `tell` for the position.
+- `creat` opens for writing only; reopen with `open/r` or `open/rw` to read.
+
+`lib/` is built into the core and appears at `/reva/lib/` (read-only)
+even without the files on disk, so `needs` works everywhere. In the
+browser all files are in memory: the page bundles its own, and what Forth
+code writes is kept in `localStorage` (about 5 MB per site, so keep demo
+files small). Empty directories are not kept, and modification times there
+read as 0.
+
+## Stop in the browser
+
+**Stop** (Ctrl-C) takes effect within one slice, about 8 ms, and acts like
+a fault: the rest of the input is dropped and a half-made definition is
+removed. Code running inside a host callback (a redefined `emit`, `type` or
+`cr`) cannot be interrupted that way; after 2 seconds the page replaces the
+worker with a fresh one. Saved files survive that, but the session's
+definitions are lost.
+
+## `save` writes an image, not an executable
+
+`save NAME` (and `(save)`, which takes `a n`) writes a vx86 image, about
+1.5 MB, that starts with `reva --image NAME` or in the browser; it is not a
+program you can run by itself, and `makeexename` adds no extension.
+`makeexe` is not available. An image starts as the saved executable did:
+`onstartup` handlers, then the banner and prompt, with no file being
+included. A prompt turned off when saving (piped input) stays off.
+
+`restart` runs the `onexit` handlers, as `bye` does, then starts again
+from the same boot or image. The rest of the line it is on is not run.
+A file that always calls `restart` restarts for ever (Ctrl-C stops it).
 
 ## C functions: only a virtual libc
 
 `lib`/`func:` work as before, but the only library is a virtual libc with
-`getenv`, `putenv`, `localtime` and `errno`. Any other library or function
+`getenv`, `putenv`, `localtime`, `opendir`/`readdir`/`closedir` and
+`errno`. Any other library or function
 fails to load, and `reva.f` reports it when the function is first called:
 `ERROR: could not load <name>`. Native libraries are roadmap item 4.
 

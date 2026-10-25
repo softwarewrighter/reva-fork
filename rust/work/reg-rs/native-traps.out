@@ -1,0 +1,8 @@
+
+*** shell (running an OS command) is not allowed here: the CLI allows it with --allow-shell; the browser never does (see docs/portability.md) (in core:CallFn, eip 0x000010d8)
+1 
+
+*** unsupported x87 floating point instruction at 0x00147940: d9 e8 c3 00 00 00 00 00 (see docs/portability.md) (in x87+0x0, eip 0x00147940)
+2 
+allowed
+3 

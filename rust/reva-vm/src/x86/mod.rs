@@ -232,6 +232,8 @@ pub enum Op {
     },
     Cdq,
     Cwde,
+    /// `bswap r32` (byte order reversal, e.g. for SHA-1's big-endian words)
+    Bswap(u8),
     Str {
         op: StrOp,
         size: Size,

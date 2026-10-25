@@ -61,6 +61,8 @@ pub mod st {
         // where fault recovery re-enters the interpreter loop: reva.f's
         // `exception-reset`, set by `(boot-restart)` (0: the core's REPL)
         REPL_ENTRY,
+        // the virtual libc's `readdir` result (a heap buffer, 0 until used)
+        DIRENT_BUF,
     }
 }
 
@@ -73,6 +75,10 @@ pub enum Status {
     NeedInput,
     /// `bye` (or end of input at the prompt).  The value is the exit code.
     Halted(i32),
+    /// `restart`: the host makes a new machine the way it made this one
+    /// (see [`crate::Start`]) and carries over the unread input
+    /// ([`Machine::take_input`]).  This machine stays stopped.
+    Restart,
 }
 
 /// What a gateway routine asks the dispatcher to do next.
@@ -82,6 +88,7 @@ pub(crate) enum Next {
     Call(u32, Gate),
     NeedInput,
     Halt(i32),
+    Restart,
     NestedReturn,
 }
 
@@ -89,6 +96,7 @@ pub(crate) enum Flow {
     Continue,
     NeedInput,
     Halt(i32),
+    Restart,
     NestedReturn,
 }
 
@@ -120,6 +128,8 @@ pub struct Machine {
     pub(crate) input: VecDeque<u8>,
     pub(crate) input_closed: bool,
     pub(crate) halted: Option<i32>,
+    /// Set by `restart`; like `halted`, it stops the machine for good.
+    pub(crate) restart: bool,
     pub(crate) nested: u32,
     translator: Option<Box<dyn Translator>>,
     /// Instructions + gateway entries executed (for diagnostics/benchmarks).
@@ -130,6 +140,15 @@ pub struct Machine {
     /// `nop`s; `;;` uses it to avoid reading padding as a `call` (see
     /// `Machine::ssemi`).  Transient: not part of an image.
     pub(crate) last_pad: (u32, u32),
+    /// Directories open through the virtual libc's `opendir` (see
+    /// `fileio.rs`).  Host state, like open files: not part of an image.
+    pub(crate) dirs: Vec<Option<crate::fileio::DirStream>>,
+    /// Set by [`Machine::interrupt`]; taken at the next step of [`Machine::run`].
+    interrupt: bool,
+    /// Native libraries `(lib)` could not serve: the last one asked for,
+    /// and those already reported (see `ffi.rs`).  Transient.
+    pub(crate) missing_lib: Option<String>,
+    pub(crate) reported_libs: Vec<String>,
 }
 
 impl Machine {
@@ -158,11 +177,16 @@ impl Machine {
             input: VecDeque::new(),
             input_closed: false,
             halted: None,
+            restart: false,
             nested: 0,
             translator: None,
             steps: 0,
             trace: false,
             last_pad: (0, 0),
+            dirs: Vec::new(),
+            interrupt: false,
+            missing_lib: None,
+            reported_libs: Vec::new(),
         }
     }
 
@@ -384,6 +408,8 @@ impl Machine {
             ("setextra", SetExtra.addr(), fc),
             ("getextra", GetExtra.addr(), fc),
             ("(boot-restart)", BootRestart.addr(), fc),
+            ("restart", Restart.addr(), fc),
+            ("version", Version.addr(), fc),
         ];
         let mut d = D0;
         let mut prev = 0;
@@ -418,10 +444,30 @@ impl Machine {
             .expect("prompt");
     }
 
+    /// Take the input not yet read, and whether input was closed, for the
+    /// machine that replaces this one after [`Status::Restart`].  The rest
+    /// of the line being interpreted is already in the VM and is dropped.
+    pub fn take_input(&mut self) -> (Vec<u8>, bool) {
+        (self.input.drain(..).collect(), self.input_closed)
+    }
+
     /// Mark the end of input: once the queue drains, `key` returns EOF and
     /// the interpreter exits as Reva did on Ctrl-D.
     pub fn close_input(&mut self) {
         self.input_closed = true;
+    }
+
+    /// Stop the running code (Ctrl-C, a Stop button): at its next step,
+    /// [`Machine::run`] drops queued input and recovers as from a fault
+    /// (`*** interrupted (in WORD ...)`), back to the interpreter loop with
+    /// the dictionary kept and a half-made definition removed.
+    ///
+    /// The host calls this between `run` calls, so code inside a nested
+    /// call (which runs to completion within one step) cannot be stopped
+    /// this way; a host that must always regain control runs the VM where
+    /// it can discard it (the browser's worker: `terminate()`).
+    pub fn interrupt(&mut self) {
+        self.interrupt = true;
     }
 
     /// Run up to `budget` steps (one instruction or one gateway each).
@@ -430,12 +476,24 @@ impl Machine {
             if let Some(code) = self.halted {
                 return Status::Halted(code);
             }
+            if self.restart {
+                return Status::Restart;
+            }
+            if std::mem::take(&mut self.interrupt) {
+                self.input.clear();
+                self.recover(host, Fault::Interrupted);
+                continue;
+            }
             match self.step(host) {
                 Ok(Flow::Continue) => {}
                 Ok(Flow::NeedInput) => return Status::NeedInput,
                 Ok(Flow::Halt(code)) => {
                     self.halted = Some(code);
                     return Status::Halted(code);
+                }
+                Ok(Flow::Restart) => {
+                    self.restart = true;
+                    return Status::Restart;
                 }
                 Ok(Flow::NestedReturn) => self.recover(
                     host,
@@ -448,6 +506,7 @@ impl Machine {
         }
         match self.halted {
             Some(code) => Status::Halted(code),
+            None if self.restart => Status::Restart,
             None => Status::Yielded,
         }
     }
@@ -603,6 +662,7 @@ impl Machine {
             }
             Next::NeedInput => Ok(Flow::NeedInput),
             Next::Halt(c) => Ok(Flow::Halt(c)),
+            Next::Restart => Ok(Flow::Restart),
             Next::NestedReturn => Ok(Flow::NestedReturn),
         }
     }
@@ -637,6 +697,10 @@ impl Machine {
                 },
                 Ok(Flow::Halt(code)) => {
                     self.halted = Some(code);
+                    break Ok(());
+                }
+                Ok(Flow::Restart) => {
+                    self.restart = true;
                     break Ok(());
                 }
                 Err(f) => break Err(f),
