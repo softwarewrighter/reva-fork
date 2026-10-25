@@ -88,6 +88,15 @@ fn images_round_trip_in_memory() {
 }
 
 #[test]
+fn mov_to_and_from_an_absolute_address_runs() {
+    // lib/util/locals compiles `mov [addr], eax` (a3) for every local[ word.
+    let (mut vm, mut host) = booted();
+    eval(&mut vm, &mut host, "variable v  : st [ $a3 1, v , ] drop ;");
+    eval(&mut vm, &mut host, ": ld dup [ $a1 1, v , ] ;");
+    assert_eq!(eval(&mut vm, &mut host, "42 st v @ . 7 ld ."), "42 42 ");
+}
+
+#[test]
 fn compiled_code_is_the_ia32_reva_emitted() {
     let (mut vm, mut host) = booted();
     eval(&mut vm, &mut host, ": sq dup * ;");
