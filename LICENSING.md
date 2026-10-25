@@ -8,10 +8,15 @@ keeps its own terms.
 | **Original Reva Forth** by Ron Aaron and the Reva development team: `src/` (including `src/reva.f`), `lib/`, `examples/`, `tools/`, `www/` (the old wiki), `legacy/` (the deprecated x86 core, binaries and scratch files), and everything else not listed below | Public domain, with an unconditional fall-back permission grant where public-domain dedication is not recognised | [LICENSE](LICENSE) |
 | Embedded x86 assembler in `src/reva.f` (adapted from FirmWorks) | As noted in LICENSE | [LICENSE](LICENSE) |
 | IUP libraries in `legacy/bin/` | IUP license | [LICENSE.IUP](LICENSE.IUP) |
+| Other third-party binaries and notices | Each listed with its license | [docs/licenses.md](docs/licenses.md) |
 | **New portions**: the portable core under `rust/`, `README.md`, `LICENSING.md`, `DEPRECATED.md`, `legacy/README.md`, `docs/`, `www/README.md` | MIT, Copyright (c) 2026 Michael A. Wright | [LICENSE-MIT](LICENSE-MIT), [rust/LICENSE](rust/LICENSE) |
 
 Notes:
 
+- The repository contains no GPL, LGPL or AGPL code, and
+  `rust/scripts/license-check.sh` keeps it that way (see
+  [docs/licenses.md](docs/licenses.md) for the policy, the reviewed binaries
+  and what was removed).
 - The portable core *embeds and runs* `src/reva.f`. That file stays in the
   public domain; the MIT terms cover only the new code around it.
 - The original README is preserved unchanged as [orig-README](orig-README).
