@@ -85,6 +85,13 @@ and review the captured `work/reg-rs/NAME.out` before committing: a baseline
 asserts the output is *correct*. Accept an intended change with
 `REG_RS_DATA_DIR=work/reg-rs reg-rs rebase -p NAME`.
 
+Source as color-highlighted HTML or PNG, for slides, docs and blog figures
+(Python 3 standard library; `--png` uses headless Chrome or Chromium):
+
+```bash
+scripts/forth-highlight.py ../lib/turtle/fractals --lines 22-30 --title 'Koch' --png koch.png
+```
+
 Documentation lives in [`../docs/`](../docs/README.md); its Forth samples are
 checked by `scripts/doc-check.sh ../docs/*.md`, and
 `scripts/parity-examples.sh` reports how far every program in `examples/`
