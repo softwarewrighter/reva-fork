@@ -87,7 +87,7 @@ with `argc` = 2, as on the original)
 | os | 9 | yes, through the host | files: done (CLI and browser); processes, threads: CLI host first; browser where meaningful |
 | net | 7 | CLI yes; browser decide | sockets, HTTP, CGI |
 | db | 5 | yes (SQLite), later | decided: SQLite compiled into the VM as a virtual library on every host; MySQL dropped (GPL client) |
-| gui | 29 | new UI library | decided: a host UI service (browser first, then a Tauri desktop shell); IUP/GTK/OpenGL/Win32 programs stay in `examples/` for reference |
+| gui | 29 | new UI library | decided: a host UI service (browser first, then the [desktop app](desktop.md), which exists now as a REPL window); IUP/GTK/OpenGL/Win32 programs stay in `examples/` for reference |
 
 ## Decisions
 
