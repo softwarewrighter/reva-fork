@@ -21,7 +21,7 @@ applies · **decide** — needs a decision on whether it is still supported.
 | `mac.wiki` | install on macOS, IUP/GTK setup | superseded / decide | install: [getting-started.md](getting-started.md); IUP: see GUI decision below |
 | `LICENSE.wiki` | license | superseded | [../LICENSE](../LICENSE), [../LICENSING.md](../LICENSING.md) |
 | `gotchas.wiki` | pitfalls | done (1 item pending FFI) | [gotchas.md](gotchas.md) |
-| `libraries.wiki` | `needs`, library layout | ready | `needs` works; libraries resolve under the virtual prefix `/reva/lib/` (CLI: the checkout or `$REVA_HOME`). Libraries that call native C libraries need FFI (roadmap 4) |
+| `libraries.wiki` | `needs`, library layout | ready | `needs` works; libraries resolve under the virtual prefix `/reva/lib/` (CLI: the checkout or `$REVA_HOME`). Libraries that call native C libraries stop with a note naming the library until a virtual library serves them ([portability.md](portability.md)) |
 | `tutorial.wiki` | basic tutorial | ready | see sections below |
 | `tutorial-intermediate.wiki` | `words`, `dump`, dictionary, internals | ready / rewrite | `words` and the dictionary work; internals chapters must be rewritten for the vx86 core |
 
@@ -75,7 +75,7 @@ with `argc` = 2, as on the original)
 
 | Cause | Programs | Roadmap |
 |---|---|---|
-| a native C library (`iconv`, IUP, SQLite, GTK, pthreads, ...) | 35 | 4 (FFI), or the GUI decision below |
+| a native C library (`iconv`, IUP, SQLite, GTK, pthreads, ...) | 35 | 4 (virtual libraries, [portability.md](portability.md)), or the GUI decision below |
 | `(save)`: writing an executable from Forth | 10 | 2 (images from Forth) |
 | x87 floating point (`fldz` ...) | 6 | 3 |
 | interactive or endless (time limit) | 12 | none: expected with stdin closed |

@@ -26,6 +26,7 @@ usage: reva [options] [file ...]
       --save-image PATH  after files and -e, save an image and exit
       --show-boot      print what booting printed (progress digits, errors)
       --trace          trace every VM step to stderr (very slow)
+      --allow-shell    let `shell` (C `system`) run OS commands; off by default
   -h, --help           this text
   -V, --version        version
 ";
@@ -35,6 +36,7 @@ mod fs;
 struct StdHost {
     out: io::BufWriter<io::Stdout>,
     fs: fs::StdFs,
+    allow_shell: bool,
 }
 
 /// Process environment, clock and file system, shared by both hosts.
@@ -66,6 +68,27 @@ impl Host for StdHost {
 
     os_services!();
 
+    /// VM notes go to stderr, after what Forth printed so far.
+    fn diag(&mut self, line: &str) {
+        let _ = self.out.flush();
+        eprint!("{line}");
+    }
+
+    /// `system(3)`: `sh -c cmd`, returning the wait status as C does.
+    /// Only with `--allow-shell`: Reva programs run OS commands freely, so
+    /// that is a choice for whoever starts them, not for the program.
+    fn system(&mut self, cmd: &str) -> Option<i32> {
+        if !self.allow_shell {
+            return None;
+        }
+        let _ = self.out.flush();
+        let status = std::process::Command::new("sh").arg("-c").arg(cmd).status();
+        Some(match status {
+            Ok(s) => wait_status(s),
+            Err(_) => 127 << 8,
+        })
+    }
+
     fn read_input_blocking(&mut self) -> Option<Vec<u8>> {
         let _ = self.out.flush();
         let mut line = String::new();
@@ -88,6 +111,21 @@ impl Host for Capture {
     }
 
     os_services!();
+
+    fn diag(&mut self, line: &str) {
+        eprint!("{line}");
+    }
+}
+
+#[cfg(unix)]
+fn wait_status(s: std::process::ExitStatus) -> i32 {
+    use std::os::unix::process::ExitStatusExt;
+    s.into_raw()
+}
+
+#[cfg(not(unix))]
+fn wait_status(s: std::process::ExitStatus) -> i32 {
+    s.code().unwrap_or(-1)
 }
 
 #[derive(Default)]
@@ -100,6 +138,7 @@ struct Options {
     save_image: Option<String>,
     show_boot: bool,
     trace: bool,
+    allow_shell: bool,
 }
 
 fn parse_args() -> Result<Options, String> {
@@ -115,6 +154,7 @@ fn parse_args() -> Result<Options, String> {
             "--save-image" => o.save_image = Some(value(&a)?),
             "--show-boot" => o.show_boot = true,
             "--trace" => o.trace = true,
+            "--allow-shell" => o.allow_shell = true,
             "-h" | "--help" => {
                 print!("{USAGE}");
                 std::process::exit(0);
@@ -203,6 +243,7 @@ fn main() -> ExitCode {
     let mut host = StdHost {
         out: io::BufWriter::new(io::stdout()),
         fs: capture.fs,
+        allow_shell: opts.allow_shell,
     };
     let mut pending = Vec::new();
     for f in &opts.files {
