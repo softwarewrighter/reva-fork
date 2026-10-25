@@ -82,20 +82,20 @@ still-supported topic rebuilt, then delete with the rest of `legacy/`.
 ## Status
 
 - **Works:** all of `reva.f`; the REPL; `include` and `needs`; contexts;
-  the embedded assembler; `time&date`, `ms@`, `getenv`. 54 of the 132
+  the embedded assembler; the file words (real files on the CLI; in the
+  browser, in memory and kept in `localStorage`); `time&date`, `ms@`,
+  `getenv`. 54 of the 132
   programs in `examples/` run unchanged
   ([generated report](docs/parity-examples.md)).
 - **Hosts:** the `reva` command on any 64-bit platform Rust supports, and a
   zero-import WebAssembly module with a minimal web console.
-- **Not yet:** file words (`open/r`, `read`, …) and a browser file system,
-  saved images via `(save)`/`makeexe`, x87 floating point, native C
+- **Not yet:** saved images via `(save)`/`makeexe`, x87 floating point, native C
   libraries, and translation to native code.
 
 ## Roadmap
 
-1. File words through the host, with a virtual file system in the browser
-   (bundled read-only files plus browser storage); then saved images, also
-   loadable in the browser.
+1. Saved images, also loadable in the browser (file words and the
+   browser file system are done).
 2. The x87 subset Reva's float library uses, including 80-bit memory
    operands.
 3. Native libraries: dynamic loading on the CLI, JavaScript imports on the

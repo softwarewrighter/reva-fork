@@ -7,13 +7,23 @@
 
 use std::collections::HashMap;
 
+use crate::vfs::{FileSystem, MemFs};
+
 pub trait Host {
     /// Output from `emit` and `type`.
     fn write(&mut self, bytes: &[u8]);
 
-    /// Whole-file read for `include` and `slurp`.  `None` means "not found";
-    /// the VM sets `ioerr` and Forth code decides what to do.
-    fn read_file(&mut self, _path: &str) -> Option<Vec<u8>> {
+    /// Sources the host serves for `include` and `slurp` *before* the file
+    /// system ([`Host::fs`]): the embedded boot source, normally
+    /// ([`crate::embedded::file`]).  `None` means "ask the file system".
+    fn read_file(&mut self, path: &str) -> Option<Vec<u8>> {
+        crate::embedded::file(path).map(<[u8]>::to_vec)
+    }
+
+    /// The file system behind `open/r`, `read`, `stat`, ... (see
+    /// [`crate::vfs`]).  `None` (the default): every file operation fails
+    /// with `ENOSYS`, and `include` finds only [`Host::read_file`] sources.
+    fn fs(&mut self) -> Option<&mut dyn FileSystem> {
         None
     }
 
@@ -47,12 +57,12 @@ pub trait Host {
     fn sleep_ms(&mut self, _ms: u32) {}
 }
 
-/// A host that captures output in memory and serves files from a map.
-/// Used by tests and by the WebAssembly front end.
+/// A host that captures output in memory, with an in-memory file system
+/// ([`MemFs`]).  Used by tests and by the WebAssembly front end.
 #[derive(Default)]
 pub struct BufferHost {
     pub out: Vec<u8>,
-    pub files: HashMap<String, Vec<u8>>,
+    pub fs: MemFs,
     pub env: HashMap<String, String>,
 }
 
@@ -72,11 +82,8 @@ impl Host for BufferHost {
         self.out.extend_from_slice(bytes);
     }
 
-    fn read_file(&mut self, path: &str) -> Option<Vec<u8>> {
-        self.files
-            .get(path)
-            .cloned()
-            .or_else(|| crate::embedded::file(path).map(<[u8]>::to_vec))
+    fn fs(&mut self) -> Option<&mut dyn FileSystem> {
+        Some(&mut self.fs)
     }
 
     fn getenv(&mut self, name: &str) -> Option<String> {

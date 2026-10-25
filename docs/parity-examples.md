@@ -5,7 +5,7 @@ Each program in `examples/` is run on the portable core with stdin
 closed and a 5s limit. See [parity.md](parity.md) for what the
 statuses mean and which areas are planned.
 
-132 examples: error 36, fault 22, missing 9, runs 54, timeout 11
+132 examples: error 36, fault 21, missing 9, runs 54, timeout 12
 
 Most common first missing word (top 10):
 
@@ -119,7 +119,7 @@ Most common first missing word (top 10):
 | `examples/revafind.f` | os | fault: '(save)' is not implemented in this port yet |
 | `examples/robotron.f` | core | fault: '(save)' is not implemented in this port yet |
 | `examples/see2.f` | lib | runs |
-| `examples/sha1.f` | lib | fault: 'open/r' is not implemented in this port yet |
+| `examples/sha1.f` | lib | timeout |
 | `examples/sieve.f` | core | timeout |
 | `examples/smtp.f` | net | timeout |
 | `examples/sockets.f` | net | runs |

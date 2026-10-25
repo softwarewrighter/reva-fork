@@ -48,6 +48,9 @@ pub const HOST_FUNCS: &[(&str, Gate)] = &[
     ("putenv", Gate::HostPutenv),
     ("localtime", Gate::HostLocaltime),
     ("gmtime", Gate::HostLocaltime),
+    ("opendir", Gate::HostOpendir),
+    ("readdir", Gate::HostReaddir),
+    ("closedir", Gate::HostClosedir),
 ];
 
 /// `errno` is data, not code: `data: errno` reads through this cell.
@@ -140,12 +143,14 @@ impl Machine {
         for i in (0..n as usize).rev() {
             args[i] = self.ffi_pop()?;
         }
+        let arg0 = args.first().copied().unwrap_or(0);
         let result = match Gate::from_addr(f) {
-            Some(Gate::HostGetenv) => self.c_getenv(host, args.first().copied().unwrap_or(0))?,
-            Some(Gate::HostPutenv) => self.c_putenv(host, args.first().copied().unwrap_or(0))?,
-            Some(Gate::HostLocaltime) => {
-                self.c_localtime(host, args.first().copied().unwrap_or(0))?
-            }
+            Some(Gate::HostGetenv) => self.c_getenv(host, arg0)?,
+            Some(Gate::HostPutenv) => self.c_putenv(host, arg0)?,
+            Some(Gate::HostLocaltime) => self.c_localtime(host, arg0)?,
+            Some(Gate::HostOpendir) => self.c_opendir(host, arg0)?,
+            Some(Gate::HostReaddir) => self.c_readdir(host, arg0)?,
+            Some(Gate::HostClosedir) => self.c_closedir(arg0)?,
             _ => return Err(Fault::NotImplemented("(call) of a native function")),
         };
         // upsh: the result becomes TOS.
@@ -158,7 +163,7 @@ impl Machine {
 
     /// A heap buffer of at least `len` bytes, kept in statics cells
     /// `buf`/`cap` (so it survives in saved images).
-    fn ffi_buffer(&mut self, buf: u32, cap: Option<u32>, len: u32) -> R<u32> {
+    pub(crate) fn ffi_buffer(&mut self, buf: u32, cap: Option<u32>, len: u32) -> R<u32> {
         let have = self.mem.read_u32(buf)?;
         let have_len = match cap {
             Some(c) => self.mem.read_u32(c)?,
@@ -232,7 +237,9 @@ impl Machine {
         for (i, slot) in a.iter_mut().enumerate().take(count as usize) {
             *slot = self.mem.read_u32(sp + 4 + 4 * i as u32)?;
         }
+        let file = self.sys_file(host, num, &a)?;
         let result = match num {
+            _ if file.is_some() => file.unwrap_or(0),
             SYS_TIME => {
                 let secs = host.now().map_or(0, |(s, _)| s as u32);
                 if a[0] != 0 {
