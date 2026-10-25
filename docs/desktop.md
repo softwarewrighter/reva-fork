@@ -91,7 +91,7 @@ looks like each package it opens:
 | Key | Effect | Default |
 |---|---|---|
 | `title` | window title and page header | `<name> on Reva`, or `Reva Forth` |
-| `icon` | PNG in the package (256×256 suits every desktop): the window icon, which is also the taskbar icon on Windows and X11 | Reva's icon |
+| `icon` | PNG in the package (256×256 suits every desktop): the window icon, which is also the taskbar icon on Windows and X11, and on macOS the Dock and app-switcher icon while the app runs | Reva's icon |
 | `id` | Linux only: the Wayland `app_id` and X11 `WM_CLASS` (letters, digits, `.` `-` `_`). Docks use it to find the package's `.desktop` entry, and with it the dock icon and name | `reva-desktop` |
 
 A bad `icon` or `id` is reported in the window's notes and the app opens with
@@ -105,10 +105,12 @@ What run time cannot change, so a package needs its own entry or bundle:
   With it, GNOME, KDE and Xfce show the package's icon in the dock and task
   switcher (Wayland included), not just on the window. CoSy's
   `install-desktop.sh` is an example.
-- **macOS dock and Finder.** macOS takes the dock icon from the running
-  `.app` bundle's `.icns`, and Tauri has no call to change it, so a branded
-  dock icon needs a bundle of its own (`desktop/build.sh --bundle` with the
-  package's `productName` and icons in `tauri.conf.json`). Not done yet.
+- **macOS Finder and Launchpad.** The Dock icon is set at run time
+  (NSApplication's `applicationIconImage`, once the app has finished
+  launching), but Finder, Launchpad and the Dock before launch show the
+  `.app` bundle's own `.icns`, and the menu bar shows the executable's name.
+  A package that wants those makes a small bundle of its own that runs
+  `reva-desktop --package DIR`; CoSy's `make-cosy-app.sh` is an example.
 - **Windows Explorer, Start menu and pinned taskbar.** These show the `.exe`
   resource icon or a shortcut's icon. A shortcut to `reva-desktop.exe
   --package DIR` with the package's `.ico` covers it.
