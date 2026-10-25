@@ -11,7 +11,9 @@
 //!   The root is `~/Reva`, or the package folder.
 //! * **Packages.**  `--package DIR` opens a folder with a `reva-package.json`
 //!   manifest (`name`, `start`: files to `include` at start, and again
-//!   after Forth's `restart`).  CoSy is one,
+//!   after Forth's `restart`).  The manifest may also brand the window:
+//!   `title`, `icon` (a PNG in the package) and `id` (the Linux app id
+//!   that matches a `.desktop` entry; see [`Branding`]).  CoSy is one,
 //!   kept in its own repository; this app knows nothing about CoSy.
 //! * **Batch use.**  `--eval TEXT` feeds lines after start and
 //!   `--print-output` copies the VM's output to stdout, so the app can be
@@ -53,8 +55,112 @@ const BUILTIN: &str = "/reva/";
 #[derive(Deserialize, Default)]
 struct Manifest {
     name: Option<String>,
+    /// Window title; default `<name> on Reva`.
+    title: Option<String>,
+    /// PNG in the package, for the window and the taskbar.
+    icon: Option<String>,
+    /// Linux app id (Wayland app_id, X11 WM_CLASS).
+    id: Option<String>,
     #[serde(default)]
     start: Vec<String>,
+}
+
+/// How a package brands the app, applied at run time so one installed
+/// `reva-desktop` can look like each package it opens:
+///
+/// * **title** of the window (and of the page header);
+/// * **icon** of the window, which is also the taskbar icon on Windows and
+///   on X11 desktops;
+/// * **id**, set as the program name before GTK starts: on Linux it becomes
+///   the Wayland `app_id` and the X11 `WM_CLASS`, which is how GNOME, KDE
+///   and others find the package's `.desktop` file, and with it the dock
+///   icon and name.  Elsewhere it is ignored.
+///
+/// What run time cannot change, and needs a separate bundle or entry: the
+/// macOS dock and Finder icon (from the `.app` bundle's `.icns`), the
+/// Windows Explorer and pinned-taskbar icon (from the `.exe` resource or a
+/// shortcut's icon), and the Linux launcher entry (a `.desktop` file with
+/// `StartupWMClass=<id>`).  See docs/desktop.md, "Branding".
+#[derive(Default)]
+struct Branding {
+    title: String,
+    /// RGBA pixels, width, height.
+    icon: Option<(Vec<u8>, u32, u32)>,
+    id: Option<String>,
+}
+
+/// A Linux app id: what GTK accepts as a program name and a `.desktop`
+/// file can match, kept to letters, digits, `.`, `-` and `_`.
+fn valid_id(id: &str) -> bool {
+    (1..=64).contains(&id.len())
+        && id
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_'))
+}
+
+/// The real file for `rel`, a relative path inside the package (no `..`).
+fn package_file(dir: &Path, rel: &str) -> Option<PathBuf> {
+    let rel = Path::new(rel);
+    let plain = rel.components().all(|c| matches!(c, Component::Normal(_)));
+    (plain && !rel.as_os_str().is_empty()).then(|| dir.join(rel))
+}
+
+/// Decode a PNG to RGBA, with the `png` crate Tauri already builds on
+/// (its own `image-png` feature would add four more crates).
+fn decode_png(bytes: &[u8]) -> Result<(Vec<u8>, u32, u32), String> {
+    use png::{ColorType, Transformations};
+    let mut d = png::Decoder::new(std::io::Cursor::new(bytes));
+    d.set_transformations(Transformations::normalize_to_color8() | Transformations::ALPHA);
+    let mut r = d.read_info().map_err(|e| e.to_string())?;
+    let mut buf = vec![0; r.output_buffer_size().ok_or("image too large")?];
+    let info = r.next_frame(&mut buf).map_err(|e| e.to_string())?;
+    buf.truncate(info.buffer_size());
+    let rgba = match info.color_type {
+        ColorType::Rgba => buf,
+        ColorType::GrayscaleAlpha => buf
+            .chunks_exact(2)
+            .flat_map(|ga| [ga[0], ga[0], ga[0], ga[1]])
+            .collect(),
+        c => return Err(format!("unexpected color type {c:?}")),
+    };
+    Ok((rgba, info.width, info.height))
+}
+
+fn branding(dir: Option<&Path>, m: &Manifest, notes: &mut Vec<String>) -> Branding {
+    let title = match (&m.title, &m.name) {
+        (Some(t), _) => t.clone(),
+        (None, Some(n)) => format!("{n} on Reva"),
+        (None, None) => "Reva Forth".to_string(),
+    };
+    let icon = match (dir, &m.icon) {
+        (Some(dir), Some(rel)) => match package_file(dir, rel).map(fs::read) {
+            Some(Ok(b)) => match decode_png(&b) {
+                Ok(img) => Some(img),
+                Err(e) => {
+                    notes.push(format!("icon {rel}: not a usable PNG ({e}); using Reva's"));
+                    None
+                }
+            },
+            Some(Err(e)) => {
+                notes.push(format!("icon {rel}: {e}; using Reva's"));
+                None
+            }
+            None => {
+                notes.push(format!("icon {rel} is not a path inside the package"));
+                None
+            }
+        },
+        _ => None,
+    };
+    let id = match &m.id {
+        Some(id) if valid_id(id) => Some(id.clone()),
+        Some(id) => {
+            notes.push(format!("id {id:?} ignored: use letters, digits, . - _"));
+            None
+        }
+        None => None,
+    };
+    Branding { title, icon, id }
 }
 
 /// What the page needs to start, sent by `session`.
@@ -74,6 +180,7 @@ struct Session {
 struct State {
     session: Session,
     root: PathBuf,
+    brand: Branding,
 }
 
 #[derive(Default)]
@@ -148,13 +255,11 @@ fn build_state(o: Options) -> Result<State, String> {
         .iter()
         .map(|f| format!("include {f}"))
         .collect();
-    let title = match &manifest.name {
-        Some(n) => format!("{n} on Reva"),
-        None => "Reva Forth".to_string(),
-    };
+    let package = o.package.is_some().then_some(root.as_path());
+    let brand = branding(package, &manifest, &mut notes);
     Ok(State {
         session: Session {
-            title,
+            title: brand.title.clone(),
             root: root.display().to_string(),
             start,
             input: o.evals,
@@ -162,6 +267,7 @@ fn build_state(o: Options) -> Result<State, String> {
             notes,
         },
         root,
+        brand,
     })
 }
 
@@ -285,14 +391,21 @@ fn halt(app: tauri::AppHandle, code: i32) {
 }
 
 fn main() -> ExitCode {
-    let state = match parse_args().and_then(build_state) {
+    let mut state = match parse_args().and_then(build_state) {
         Ok(s) => s,
         Err(e) => {
             eprintln!("reva-desktop: {e}\n{USAGE}");
             return ExitCode::from(2);
         }
     };
-    let title = state.session.title.clone();
+    // Before GTK starts (Builder::build), or it keeps "reva-desktop".
+    #[cfg(target_os = "linux")]
+    if let Some(id) = &state.brand.id {
+        glib::set_prgname(Some(id.as_str()));
+        glib::set_application_name(&state.brand.title);
+    }
+    let title = state.brand.title.clone();
+    let icon = state.brand.icon.take();
     let app = tauri::Builder::default()
         .manage(Mutex::new(state))
         .invoke_handler(tauri::generate_handler![
@@ -302,11 +415,16 @@ fn main() -> ExitCode {
             print,
             halt
         ])
+        // The window is made here, not in tauri.conf.json, so it opens with
+        // the package's title and icon instead of showing Reva's first.
         .setup(move |app| {
-            use tauri::Manager;
-            if let Some(w) = app.get_webview_window("main") {
-                let _ = w.set_title(&title);
+            let mut w = tauri::WebviewWindowBuilder::new(app, "main", Default::default())
+                .title(&title)
+                .inner_size(960.0, 680.0);
+            if let Some((rgba, width, height)) = icon {
+                w = w.icon(tauri::image::Image::new_owned(rgba, width, height))?;
             }
+            w.build()?;
             Ok(())
         })
         .build(tauri::generate_context!());
@@ -334,6 +452,60 @@ mod tests {
         assert_eq!(real_path(root, "/a/../../x"), None);
         assert_eq!(real_path(root, "/reva/lib/x"), None);
         assert_eq!(real_path(root, "relative"), None);
+    }
+
+    #[test]
+    fn package_files_stay_in_the_package() {
+        let dir = Path::new("/p");
+        assert_eq!(
+            package_file(dir, "icons/a.png"),
+            Some(dir.join("icons/a.png"))
+        );
+        assert_eq!(package_file(dir, "../a.png"), None);
+        assert_eq!(package_file(dir, "/etc/a.png"), None);
+        assert_eq!(package_file(dir, ""), None);
+    }
+
+    #[test]
+    fn branding_defaults_and_checks() {
+        let mut notes = Vec::new();
+        let m: Manifest = serde_json::from_str(r#"{"name": "CoSy"}"#).unwrap();
+        let b = branding(None, &m, &mut notes);
+        assert_eq!(b.title, "CoSy on Reva");
+        let m: Manifest =
+            serde_json::from_str(r#"{"name": "CoSy", "title": "CoSy", "id": "co sy"}"#).unwrap();
+        let b = branding(None, &m, &mut notes);
+        assert_eq!((b.title.as_str(), b.id), ("CoSy", None));
+        assert_eq!(notes.len(), 1);
+        assert!(valid_id("cosy") && valid_id("org.example.Co_Sy-2"));
+        assert!(!valid_id("") && !valid_id("a/b") && !valid_id(&"x".repeat(65)));
+    }
+
+    #[test]
+    fn icons_must_be_png_files_in_the_package() {
+        let dir = std::env::temp_dir().join(format!("reva-desktop-test-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        // a 1x1 gray PNG with alpha, the smallest a real file can be
+        let mut ok = Vec::new();
+        let mut e = png::Encoder::new(&mut ok, 1, 1);
+        e.set_color(png::ColorType::GrayscaleAlpha);
+        e.write_header().unwrap().write_image_data(&[7, 9]).unwrap();
+        assert_eq!(decode_png(&ok), Ok((vec![7, 7, 7, 9], 1, 1)));
+        fs::write(dir.join("ok.png"), ok).unwrap();
+        fs::write(dir.join("bad.png"), b"GIF89a").unwrap();
+        let icon = |rel: &str, notes: &mut Vec<String>| {
+            let m = Manifest {
+                icon: Some(rel.into()),
+                ..Default::default()
+            };
+            branding(Some(&dir), &m, notes).icon.is_some()
+        };
+        let mut notes = Vec::new();
+        assert!(icon("ok.png", &mut notes) && notes.is_empty());
+        assert!(!icon("bad.png", &mut notes) && !icon("gone.png", &mut notes));
+        assert!(!icon("../ok.png", &mut notes));
+        assert_eq!(notes.len(), 3);
+        fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]
