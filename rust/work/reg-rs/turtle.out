@@ -1,0 +1,15 @@
+0 0 0 4 
+20 10 135 3 
+0 0 4 
+48 
+27 
+64 
+63 
+15 
+84 
+(depth capped at 8 ) 65535 
+0 
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-400 -400 800 800" width="800" height="800">
+<rect x="-400" y="-400" width="800" height="800" fill="#fbfaf7"/>
+<path fill="none" stroke="#1f6f5c" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="M-320 320 L-320 106.67 L-106.67 106.67 L-106.67 320 L106.67 320 L320 320 L320 106.67 L106.67 106.67 L106.67 -106.67 L320 -106.67 L320 -320 L106.67 -320 L-106.67 -320 L-106.67 -106.67 L-320 -106.67 L-320 -320"/>
+</svg>

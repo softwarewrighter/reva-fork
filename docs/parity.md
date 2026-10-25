@@ -88,7 +88,7 @@ with `argc` = 2, as on the original)
 | os | 9 | yes, through the host | files: done (CLI and browser); processes, threads: CLI host first; browser where meaningful |
 | net | 7 | CLI yes; browser decide | sockets, HTTP, CGI |
 | db | 5 | yes (SQLite), later | decided: SQLite compiled into the VM as a virtual library on every host; MySQL dropped (GPL client) |
-| gui | 29 | new UI library | decided: a host UI service (browser first, then the [desktop app](desktop.md), which exists now as a REPL window that packages can brand with their own title and icon); IUP/GTK/OpenGL/Win32 programs stay in `examples/` for reference |
+| gui | 29 | new UI library | decided: a host UI service (browser first, then the [desktop app](desktop.md), which exists now as a REPL window that packages can brand with their own title and icon); IUP/GTK/OpenGL/Win32 programs stay in `examples/` for reference. First channel done: 2D [turtle graphics](turtle.md) in a separate window (desktop, browser) or as SVG (CLI) |
 
 ## Decisions
 

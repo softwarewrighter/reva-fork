@@ -149,6 +149,9 @@ pub struct Machine {
     /// and those already reported (see `ffi.rs`).  Transient.
     pub(crate) missing_lib: Option<String>,
     pub(crate) reported_libs: Vec<String>,
+    /// The turtle and its drawing (canvas.rs, turtle.rs).  Host state, like
+    /// open files: not part of an image, and new after `restart`.
+    pub(crate) canvas: crate::canvas::Canvas,
 }
 
 impl Machine {
@@ -187,6 +190,7 @@ impl Machine {
             interrupt: false,
             missing_lib: None,
             reported_libs: Vec::new(),
+            canvas: crate::canvas::Canvas::new(),
         }
     }
 

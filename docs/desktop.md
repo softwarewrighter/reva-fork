@@ -38,6 +38,10 @@ reva-desktop --root DIR               # the REPL with files in DIR
 reva-desktop -e ': sq dup * ; 7 sq .' --print-output   # batch: feed lines, copy output to stdout
 ```
 
+Turtle graphics (`needs turtle/fractals 5 koch-demo`, see
+[turtle.md](turtle.md)) open in a second window beside the REPL; closing it
+is fine, the REPL's Graphics button or the next drawing brings it back.
+
 `bye` closes the window. `restart` starts a fresh system in the same window
 and includes the package's start files again. Stop (or Ctrl-C) interrupts a running word, as in
 the browser.
