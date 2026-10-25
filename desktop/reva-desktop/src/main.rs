@@ -93,8 +93,10 @@ const CANVAS: &[&str] = &["window", "pane", "split"];
 ///   and others find the package's `.desktop` file, and with it the dock
 ///   icon and name.  Elsewhere it is ignored.
 ///
+/// On macOS the icon also replaces the Dock icon (see `set_dock_icon`).
+///
 /// What run time cannot change, and needs a separate bundle or entry: the
-/// macOS dock and Finder icon (from the `.app` bundle's `.icns`), the
+/// macOS Finder and Launchpad icon (from the `.app` bundle's `.icns`), the
 /// Windows Explorer and pinned-taskbar icon (from the `.exe` resource or a
 /// shortcut's icon), and the Linux launcher entry (a `.desktop` file with
 /// `StartupWMClass=<id>`).  See docs/desktop.md, "Branding".
@@ -103,6 +105,9 @@ struct Branding {
     title: String,
     /// RGBA pixels, width, height.
     icon: Option<(Vec<u8>, u32, u32)>,
+    /// The icon file as read, for the macOS Dock (NSImage decodes it).
+    icon_png: Option<Vec<u8>>,
+    #[cfg_attr(not(target_os = "linux"), allow(dead_code))]
     id: Option<String>,
 }
 
@@ -149,10 +154,14 @@ fn branding(dir: Option<&Path>, m: &Manifest, notes: &mut Vec<String>) -> Brandi
         (None, Some(n)) => format!("{n} on Reva"),
         (None, None) => "Reva Forth".to_string(),
     };
+    let mut icon_png = None;
     let icon = match (dir, &m.icon) {
         (Some(dir), Some(rel)) => match package_file(dir, rel).map(fs::read) {
             Some(Ok(b)) => match decode_png(&b) {
-                Ok(img) => Some(img),
+                Ok(img) => {
+                    icon_png = Some(b);
+                    Some(img)
+                }
                 Err(e) => {
                     notes.push(format!("icon {rel}: not a usable PNG ({e}); using Reva's"));
                     None
@@ -177,7 +186,31 @@ fn branding(dir: Option<&Path>, m: &Manifest, notes: &mut Vec<String>) -> Brandi
         }
         None => None,
     };
-    Branding { title, icon, id }
+    Branding {
+        title,
+        icon,
+        icon_png,
+        id,
+    }
+}
+
+/// Show `png` as the app's Dock and app-switcher icon.  macOS takes these
+/// from the running bundle, not from windows, so `set_icon` alone leaves
+/// Reva's; NSApplication's `applicationIconImage` replaces it until the app
+/// quits.  Finder and Launchpad still show the bundle's own icon.
+#[cfg(target_os = "macos")]
+fn set_dock_icon(png: &[u8]) {
+    use objc2::{AllocAnyThread, MainThreadMarker};
+    use objc2_app_kit::{NSApplication, NSImage};
+    use objc2_foundation::NSData;
+    let Some(mtm) = MainThreadMarker::new() else {
+        return;
+    };
+    let data = NSData::with_bytes(png);
+    if let Some(img) = NSImage::initWithData(NSImage::alloc(), &data) {
+        // SAFETY: on the main thread (mtm), with a non-nil image.
+        unsafe { NSApplication::sharedApplication(mtm).setApplicationIconImage(Some(&img)) };
+    }
 }
 
 /// What the page needs to start, sent by `session`.
@@ -511,6 +544,8 @@ fn main() -> ExitCode {
     }
     let title = state.brand.title.clone();
     let icon = state.brand.icon.take();
+    #[cfg_attr(not(target_os = "macos"), allow(unused_variables))]
+    let dock_png = state.brand.icon_png.take();
     let app = tauri::Builder::default()
         .manage(Mutex::new(state))
         .invoke_handler(tauri::generate_handler![
@@ -547,7 +582,15 @@ fn main() -> ExitCode {
         .build(tauri::generate_context!());
     match app {
         Ok(app) => {
-            let code = app.run_return(|_, _| {});
+            // On Ready, after macOS has finished launching and applied the
+            // bundle's icon, which would otherwise replace ours.
+            let code = app.run_return(move |_, ev| {
+                #[cfg(target_os = "macos")]
+                if let (tauri::RunEvent::Ready, Some(png)) = (&ev, &dock_png) {
+                    set_dock_icon(png);
+                }
+                let _ = &ev;
+            });
             ExitCode::from(code.clamp(0, 255) as u8)
         }
         Err(e) => {
