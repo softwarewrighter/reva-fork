@@ -88,7 +88,8 @@ still-supported topic rebuilt, then delete with the rest of `legacy/`.
   programs in `examples/` run unchanged
   ([generated report](docs/parity-examples.md)).
 - **Hosts:** the `reva` command on any 64-bit platform Rust supports, and a
-  zero-import WebAssembly module with a minimal web console.
+  zero-import WebAssembly module with a minimal web console that runs it in
+  a Web Worker (the page never freezes; Stop interrupts a running word).
 - **Not yet:** saved images via `(save)`/`makeexe`, x87 floating point, native C
   libraries, and translation to native code.
 

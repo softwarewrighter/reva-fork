@@ -2,13 +2,14 @@
 // exercise pausing for input and budget yields.  Prints a transcript (the
 // reg-rs baseline) and exits non-zero on any mismatch.
 import { readFile } from "node:fs/promises";
-import { Reva, YIELDED, NEED_INPUT, HALTED } from "../www/reva.js";
+import { Worker } from "node:worker_threads";
+import { Reva, start, YIELDED, NEED_INPUT, HALTED } from "../www/reva.js";
 
 const wasm = await readFile(new URL("../www/reva.wasm", import.meta.url));
 const reva = await Reva.load(wasm);
 let failed = 0;
 const check = (what, got, want) => {
-  const ok = got === want;
+  const ok = JSON.stringify(got) === JSON.stringify(want);
   if (!ok) failed++;
   console.log(`${ok ? "ok  " : "FAIL"} ${what}: ${JSON.stringify(got)}`);
 };
@@ -61,5 +62,62 @@ reva4.feed("needs util/locals .\" loaded\"\n");
 let out5 = "";
 await reva4.run((s) => (out5 += s));
 check("needs from the built-in lib/", out5, "loaded\nok> ");
+
+// Interrupting a runaway loop keeps the dictionary.
+reva4.feed(": kept 42 ; : spin repeat again ; spin\n");
+check("spinning", reva4.step(10000), YIELDED);
+reva4.interrupt();
+let out6 = "";
+await reva4.run((s) => (out6 += s));
+check("interrupted", out6.startsWith("\n*** interrupted (in spin"), true);
+reva4.feed("kept .\n");
+let out7 = "";
+await reva4.run((s) => (out7 += s));
+check("dictionary kept", out7, "42 \nok> ");
+
+// Slicing changes when output appears, never what it is.
+const transcript = async (budget) => {
+  const r = await Reva.load(wasm);
+  r.feed(": tri 0 swap 0 do i + loop ; 1000 0 do i tri drop loop 200000 tri . 10 0 do i . loop cr bye\n");
+  let o = "";
+  await r.run((s) => (o += s), { budget, sliceMs: 1, clock: false });
+  return o;
+};
+check("same output for 1k and 1M step slices", await transcript(1000) === await transcript(1000000), true);
+
+// A session in a worker thread, as a page runs it in a Web Worker.
+const nodeWorker = (url) => {
+  const w = new Worker(new URL("./node-worker.mjs", import.meta.url));
+  const adapter = {
+    postMessage: (m, t) => w.postMessage(m, t),
+    terminate: () => w.terminate(),
+    set onmessage(f) { w.on("message", (data) => f({ data })); },
+    set onerror(f) { w.on("error", f); },
+  };
+  return adapter;
+};
+const storage2 = new MemStorage();
+let wout = "";
+const session = start("reva.wasm", {
+  createWorker: nodeWorker, storage: storage2, wasmBytes: wasm,
+  files: { "/demo/w.f": ": w .\" from the worker\" ;" },
+  onOutput: (s) => (wout += s),
+});
+await session.ready;
+check("worker boots", [session.kind, session.status, wout], ["worker", NEED_INPUT, BANNER]);
+wout = "";
+session.feed("include /demo/w.f w\n\" /demo/out\" creat value h \" ok\" h write h close\n");
+check("worker runs", await session.idle(), NEED_INPUT);
+check("worker output", wout, "from the worker\nok> \nok> ");
+check("worker files saved by the page", storage2.getItem("reva:fs:/demo/out"), "ok");
+wout = "";
+session.feed(": spin repeat again ; spin\n");
+await new Promise((r) => setTimeout(r, 50));
+session.stop();
+check("worker stop", await session.idle(), NEED_INPUT);
+check("worker interrupted", wout.startsWith("\n*** interrupted (in spin"), true);
+session.feed("7 ~sys.(bye)\n");
+check("worker halts", [await session.idle(), session.exitCode], [HALTED, 7]);
+session.terminate();
 
 process.exit(failed ? 1 : 0);

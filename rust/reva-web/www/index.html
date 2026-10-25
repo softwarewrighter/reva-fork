@@ -19,37 +19,71 @@
   form { display:flex; gap:8px; border-top:1px solid var(--line); padding-top:8px; }
   #line { flex:1; font:inherit; color:inherit; background:transparent; border:0; outline:none; }
   .echo { color: var(--muted); }
+  button { font:inherit; color:inherit; background:transparent; border:1px solid var(--line);
+           border-radius:4px; padding:0 10px; cursor:pointer; }
+  button:disabled { opacity:.4; cursor:default; }
 </style>
 </head>
 <body>
 <main>
   <header><b>Reva Forth</b> — portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code></header>
   <div id="out" aria-live="polite"></div>
-  <form id="f"><span>ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus></form>
+  <form id="f"><span>ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
+    <button type="button" id="stop" title="Stop the running word (Ctrl-C)" disabled>Stop</button></form>
 </main>
 <script type="module">
-  import { Reva, HALTED } from "./reva.js";
+  // The VM runs in a Web Worker (see reva.js `start`), so this page only
+  // draws: output is appended at most once per animation frame, and the
+  // console keeps its last MAX_CHUNKS pieces so a chatty program cannot
+  // grow the page without bound.
+  import { start, RUNNING, HALTED } from "./reva.js";
+  const MAX_CHUNKS = 4000;
   const out = document.getElementById("out");
   const line = document.getElementById("line");
-  const write = (s, cls) => {
+  const stop = document.getElementById("stop");
+  let pending = "", frame = 0;
+  const append = (s, cls) => {
     const span = document.createElement("span");
     if (cls) span.className = cls;
     span.textContent = s;
     out.append(span);
+    while (out.childElementCount > MAX_CHUNKS) out.firstElementChild.remove();
     out.scrollTop = out.scrollHeight;
+    return span;
   };
+  const flush = () => { frame = 0; if (pending) append(pending); pending = ""; };
+  const write = (s) => { pending += s; frame ||= requestAnimationFrame(flush); };
+  const echo = (s) => { flush(); append(s, "echo"); };
+
   // Files Forth code writes are kept in this browser (localStorage).
-  const reva = await Reva.load("reva.wasm", { storage: localStorage });
-  write(reva.takeOutput());
-  document.getElementById("f").addEventListener("submit", async (e) => {
+  // reva.status starts as RUNNING (booting); onStatus reports each change.
+  const reva = start("reva.wasm", {
+    storage: localStorage,
+    onOutput: write,
+    onStatus: (s) => {
+      stop.disabled = s !== RUNNING;
+      if (s === HALTED) {
+        echo(`\n[exited with status ${reva.exitCode}]\n`);
+        line.disabled = true;
+      }
+    },
+  });
+  const starting = append("starting...\n", "echo");
+  await reva.ready;
+  starting.remove();
+
+  document.getElementById("f").addEventListener("submit", (e) => {
     e.preventDefault();
     const text = line.value;
     line.value = "";
-    write(text + "\n", "echo");
+    echo(text + "\n");
     reva.feed(text + "\n");
-    if (await reva.run((s) => write(s)) === HALTED) {
-      write(`\n[exited with status ${reva.exitCode}]\n`, "echo");
-      line.disabled = true;
+  });
+  stop.addEventListener("click", () => reva.stop());
+  document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key === "c" && !window.getSelection()?.toString()) {
+      e.preventDefault();
+      reva.stop();
     }
   });
 </script>

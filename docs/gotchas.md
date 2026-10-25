@@ -81,8 +81,8 @@ was before the `include`. Check the first `ERROR:` line in the output.
 ## Times are UTC
 
 `time&date` and `localtime` report UTC: the portable core has no time-zone
-database. The clock comes from the host (the browser host has none yet, so
-there it reads as the Unix epoch).
+database. The clock comes from the host (in the browser, the page passes
+`Date.now()` in before each slice).
 
 ## Files: `ioerr` is `-errno`, and the browser keeps files in memory
 
@@ -105,6 +105,15 @@ browser all files are in memory: the page bundles its own, and what Forth
 code writes is kept in `localStorage` (about 5 MB per site, so keep demo
 files small). Empty directories are not kept, and modification times there
 read as 0.
+
+## Stop in the browser
+
+**Stop** (Ctrl-C) takes effect within one slice, about 8 ms, and acts like
+a fault: the rest of the input is dropped and a half-made definition is
+removed. Code running inside a host callback (a redefined `emit`, `type` or
+`cr`) cannot be interrupted that way; after 2 seconds the page replaces the
+worker with a fresh one. Saved files survive that, but the session's
+definitions are lost.
 
 ## C functions: only a virtual libc
 
