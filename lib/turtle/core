@@ -1,0 +1,89 @@
+| turtle/core: Logo-style turtle graphics on a canvas
+| vim: ft=reva :
+|
+| The turtle lives on the host side of the VM (rust/reva-vm/src/canvas.rs):
+| position and heading are kept in floating point there, so these words
+| take plain integers (pixels, degrees, $RRGGBB colours) and need no
+| floats.  What it draws goes to a graphics window (the desktop app, the
+| browser page) and can be saved as SVG anywhere, the CLI included.
+| World: 800x800 pixels, origin in the centre, y up; heading 0 is north
+| and `right` turns clockwise.  See docs/turtle.md.
+
+push~
+context: ~turtle
+~priv
+
+" turtle" lib libturtle
+1 func: tt_forward
+0 func: tt_step
+1 func: tt_right
+1 func: tt_pen
+1 func: tt_color
+1 func: tt_width
+0 func: tt_home
+0 func: tt_clear
+0 func: tt_clean
+2 func: tt_setxy
+1 func: tt_setheading
+1 func: tt_setstep
+2 func: tt_scale
+1 func: tt_show
+0 func: tt_x
+0 func: tt_y
+0 func: tt_heading
+0 func: tt_push
+0 func: tt_pop
+2 func: tt_path
+2 func: tt_svg
+1 func: tt_bg
+0 func: tt_segments
+
+~turtle
+| moving and turning
+: forward ( n -- ) tt_forward drop ;
+: back ( n -- ) negate forward ;
+: right ( deg -- ) tt_right drop ;
+: left ( deg -- ) negate right ;
+: setxy ( x y -- ) tt_setxy drop ;
+: setheading ( deg -- ) tt_setheading drop ;
+: home ( -- ) tt_home drop ;
+: xy@ ( -- x y ) tt_x tt_y ;
+: heading@ ( -- deg ) tt_heading ;
+
+| the pen
+: penup ( -- ) 0 tt_pen drop ;
+: pendown ( -- ) 1 tt_pen drop ;
+: color ( rgb -- ) tt_color drop ;
+: width ( n -- ) tt_width drop ;
+: bg ( rgb -- ) tt_bg drop ;
+
+| the step: a length kept by the turtle, so fractals can shrink it
+| exactly ( `1 3 scale` ) instead of rounding at each level
+: step ( -- ) tt_step drop ;
+: step! ( n -- ) tt_setstep drop ;
+: scale ( num den -- ) tt_scale drop ;
+
+| saving the turtle ( position, heading, pen, colour, width, step )
+: tpush ( -- ) tt_push 0if ." turtle stack full" cr then ;
+: tpop ( -- ) tt_pop 0if ." turtle stack empty" cr then ;
+
+| the drawing
+: clear ( -- ) tt_clear drop ;
+: clean ( -- ) tt_clean drop ;
+: show ( -- ) 1 tt_show drop ;
+: hide ( -- ) 0 tt_show drop ;
+: segments ( -- n ) tt_segments ;
+: path ( a n -- ) tt_path drop ;
+: svg-save ( a n -- ior ) tt_svg ;
+
+| short Logo names
+: fd forward ;  : bk back ;  : rt right ;  : lt left ;
+: pu penup ;  : pd pendown ;  : cs clear ;  : seth setheading ;
+
+| colours
+$000000 constant black   $ffffff constant white   $c0392b constant red
+$1f6f5c constant green   $2a5db0 constant blue    $d4a017 constant gold
+$7b4a2a constant brown   $8e44ad constant purple  $e67e22 constant orange
+
+pop~
+with~ ~turtle

@@ -73,4 +73,8 @@ SH
     check "a broken icon is a note, not a failure" "package started" "$out"
 fi
 
+# turtle graphics: the drawing reaches the second (canvas) window
+out=$(run --root "$work/home" --print-output -e 'needs turtle/fractals 4 koch-demo' -e bye)
+check "turtle graphics draw in their own window" "[canvas: 768 lines]" "$out"
+
 exit $fail

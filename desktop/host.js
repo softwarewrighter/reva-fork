@@ -36,5 +36,30 @@ export async function hostSetup() {
     output: s.print_output ? (text) => invoke("print", { text }) : undefined,
     // Let pending writes reach the disk before the window closes.
     halted: (code) => setTimeout(() => invoke("halt", { code }), 300),
+    openWindow,
+  };
+}
+
+// More windows (see www/ui.js): a second native window per name, opened by
+// the `open_window` command; messages go down as `reva-ui-down` events and
+// come up as `reva-ui-up` (the app adds `closed` when a window is closed).
+// Events are JSON, so drawing ops travel as plain arrays.
+const upListeners = new Map();
+let listening = null;
+
+function openWindow(name, { onMessage = () => {}, title = name } = {}) {
+  const { core, event } = globalThis.__TAURI__;
+  listening ??= event.listen("reva-ui-up", (e) => upListeners.get(e.payload?.window)?.(e.payload));
+  let closed = false;
+  upListeners.set(name, (m) => {
+    if (m.type === "closed") closed = true;
+    onMessage(m);
+  });
+  core.invoke("open_window", { name, title }).catch((e) => console.warn("reva-desktop:", e));
+  return {
+    where: "window",
+    post: (m) => event.emitTo(name, "reva-ui-down", m.ops ? { ...m, ops: Array.from(m.ops) } : m),
+    closed: () => closed,
+    focus: () => core.invoke("open_window", { name, title }),
   };
 }
