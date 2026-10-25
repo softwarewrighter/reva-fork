@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 use reva_vm::translate::{decode_block, Block, NativeHandle, Translator};
 use reva_vm::x86::{Alu, MulDiv, Op};
-use reva_vm::{embedded, BufferHost, Machine, Status};
+use reva_vm::{embedded, BufferHost, Machine, Start, Status};
 
 fn booted() -> (Machine, BufferHost) {
     let mut vm = Machine::new(&["reva", embedded::BOOT_PATH]);
@@ -274,4 +274,56 @@ fn interrupt_stops_a_loop_and_keeps_the_dictionary() {
     assert!(out.contains("*** interrupted (in spin"), "{out}");
     assert!(!out.contains("dropped"), "{out}");
     assert_eq!(eval(&mut vm, &mut host, "kept ."), "42 ");
+}
+
+#[test]
+fn restart_starts_over_and_keeps_files_and_unread_input() {
+    let (mut vm, mut host) = booted();
+    host.fs.put("/keep", b"kept");
+    // `restart` runs the `onexit` list, as `bye` does
+    vm.feed(b": gone 1 ; :: .\" bye-handler \" ; ~sys.onexit restart this is dropped\n");
+    vm.feed(b"\" /keep\" slurp type\n");
+    assert_eq!(vm.run_until_blocked(&mut host), Status::Restart);
+    assert_eq!(host.take_output(), "bye-handler ");
+    // the old machine stays stopped
+    assert_eq!(vm.run(&mut host, 1000), Status::Restart);
+    let (input, closed) = vm.take_input();
+    assert_eq!(
+        (&input[..], closed),
+        (&b"\" /keep\" slurp type\n"[..], false)
+    );
+
+    let mut vm = Start::reva().machine().unwrap();
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    host.take_output();
+    vm.quiet_prompt();
+    vm.feed(&input);
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    assert_eq!(host.take_output(), "kept");
+    assert!(eval(&mut vm, &mut host, "gone").contains("unknown word:  gone"));
+}
+
+#[test]
+fn save_writes_an_image_that_starts_with_its_words() {
+    let (mut vm, mut host) = booted();
+    // from an included file, inside a definition: loading still starts clean
+    host.fs.put(
+        "/mk.f",
+        b": hi .\" saved\" ; : mk \" /app.img\" (save) ioerr @ . ; mk",
+    );
+    assert!(eval(&mut vm, &mut host, "include /mk.f").ends_with("0 "));
+    let bytes = host.fs.get("/app.img").unwrap().to_vec();
+    let (start, mut vm) = Start::image(bytes).unwrap();
+    let mut host = BufferHost::new();
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    // the banner; no prompt, as the quiet prompt was saved too
+    assert_eq!(host.take_output(), "Reva 2011.2 Linux\n");
+    assert_eq!(eval(&mut vm, &mut host, ": added 2 ; hi"), "saved");
+    // a restart from an image keeps the image's words, not later ones
+    let mut vm = start.machine().unwrap();
+    vm.run_until_blocked(&mut host);
+    host.take_output();
+    assert_eq!(eval(&mut vm, &mut host, "hi"), "saved");
+    assert!(eval(&mut vm, &mut host, "added").contains("unknown word:  added"));
+    assert!(Start::image(b"not an image".to_vec()).is_err());
 }

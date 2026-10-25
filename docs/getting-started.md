@@ -135,13 +135,48 @@ hello, file
 
 `-2` is "no such file". [gotchas.md](gotchas.md) lists the quirks.
 
+## Saved images and `restart`
+
+`save NAME` writes everything defined so far to an image file; starting
+from it skips compiling `reva.f` and your program again. The original
+wrote a native executable; here an image runs on every host:
+
+```bash
+echo ': hi ." from the image" cr ;  save app.img' | reva
+echo hi | reva --image app.img          # from the image
+```
+
+In the browser, pass the image to `start` (`start("reva.wasm", { image:
+"app.img" })` in `reva-web/www/reva.js`), or open the console page as
+`index.html?image=app.img`.
+
+`restart` starts over the way this run started (from `reva.f`, or from the
+image), as relaunching the program did. Definitions made since are gone;
+files are kept, and the lines not read yet are read by the new system. On
+the command line, files and `-e` texts given to `reva` run again.
+
+```forth
+: greet ." hello" cr ;
+greet
+restart
+greet
+2 3 + .
+```
+```output
+hello
+
+ERROR: unknown word:  greet
+...5
+```
+
 ## What works today
 
 The portable core boots all of `src/reva.f`: the core words, control
 structures and loops, `create`/`does>`, `catch`/`throw`, strings and `."`,
 the embedded assembler, contexts, `include`, `needs` with the libraries
-in `lib/`, and the file words (`open/r`, `read`, …). Saved images via
-`(save)`, x87 floats and native C libraries are not available yet.
+in `lib/`, the file words (`open/r`, `read`, …), and saved images with
+`save` and `restart`. x87 floats and native C libraries are not available
+yet.
 [parity.md](parity.md) tracks this in detail, and
 [parity-examples.md](parity-examples.md) lists every example program's
 status.

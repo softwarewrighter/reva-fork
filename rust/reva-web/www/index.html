@@ -57,7 +57,10 @@
 
   // Files Forth code writes are kept in this browser (localStorage).
   // reva.status starts as RUNNING (booting); onStatus reports each change.
+  // ?image=app.img starts from a saved image instead of booting reva.f.
+  const image = new URLSearchParams(location.search).get("image") ?? undefined;
   const reva = start("reva.wasm", {
+    image,
     storage: localStorage,
     onOutput: write,
     onStatus: (s) => {
