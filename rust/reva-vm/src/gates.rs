@@ -65,6 +65,10 @@ gates! {
     HostSystem,
     // `version`: print this build's version report (see version.rs)
     Version,
+    // the virtual library `turtle` (turtle.rs, canvas.rs), through `(call)`
+    TtForward, TtStep, TtRight, TtPen, TtColor, TtWidth, TtHome, TtClear,
+    TtClean, TtSetxy, TtSetheading, TtSetstep, TtScale, TtShow, TtX, TtY,
+    TtHeading, TtPush, TtPop, TtPath, TtSvg, TtBg, TtSegments,
 }
 
 impl Gate {
@@ -1469,7 +1473,11 @@ impl Machine {
             CallFn => self.ffi_call(host).map(|()| Ret),
             Syscall => self.ffi_syscall(host).map(|()| Ret),
             HostGetenv | HostPutenv | HostLocaltime | HostOpendir | HostReaddir | HostClosedir
-            | HostSystem => Err(Fault::NotImplemented("a C function called without (call)")),
+            | HostSystem | TtForward | TtStep | TtRight | TtPen | TtColor | TtWidth | TtHome
+            | TtClear | TtClean | TtSetxy | TtSetheading | TtSetstep | TtScale | TtShow | TtX
+            | TtY | TtHeading | TtPush | TtPop | TtPath | TtSvg | TtBg | TtSegments => {
+                Err(Fault::NotImplemented("a C function called without (call)"))
+            }
 
             // --- files (fileio.rs) ---
             OpenR => self.word_open(host, Access::Read).map(|()| Ret),

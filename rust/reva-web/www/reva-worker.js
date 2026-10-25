@@ -10,7 +10,14 @@
 //                                        after each `restart`
 //                   close  {}            end of input
 //                   stop   {}            interrupt the running word
+//                   ui     { channel, resend? }
+//                                        a UI channel: "canvas" + resend
+//                                        asks for the whole drawing again
 //   worker → page   output { text }      text printed since the last one
+//                   ui     { channel: "canvas", ops | reset }
+//                                        drawing ops since the last slice
+//                                        (Float32Array, transferred), or
+//                                        reset after `restart`
 //                   status { status, exitCode, boot? }
 //                                        "running", NEED_INPUT or HALTED
 //                   files  { list }      [{ path, data: bytes | null }]
@@ -25,6 +32,7 @@ import { Reva, RUNNING, HALTED } from "./reva.js";
 let reva = null;
 let pumping = false;
 const post = (m, transfer) => globalThis.postMessage(m, transfer);
+const postUi = (m) => post(m, m.ops ? [m.ops.buffer] : []);
 
 async function pump() {
   if (pumping || !reva) return;
@@ -32,7 +40,7 @@ async function pump() {
   post({ type: "status", status: RUNNING });
   let s;
   try {
-    s = await reva.run((text) => post({ type: "output", text }));
+    s = await reva.run((text) => post({ type: "output", text }), { onUi: postUi });
   } catch (e) {
     post({ type: "error", message: String(e?.message ?? e) });
     s = HALTED;
@@ -81,6 +89,10 @@ async function handle(m) {
       break;
     case "stop":
       if (pumping) reva.interrupt();
+      break;
+    case "ui":
+      reva?.ui(m);
+      if (!pumping) reva?.flushUi(postUi);
       break;
   }
 }
