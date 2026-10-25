@@ -5,6 +5,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use reva_vm::translate::{decode_block, Block, NativeHandle, Translator};
+use reva_vm::version::BANNER;
 use reva_vm::x86::{Alu, MulDiv, Op};
 use reva_vm::{embedded, BufferHost, Machine, Start, Status};
 
@@ -15,7 +16,7 @@ fn booted() -> (Machine, BufferHost) {
     let out = host.take_output();
     assert_eq!(
         embedded::split_boot_output(&out),
-        ("123645789ABCDE", "Reva 2011.2 Linux\n\nok> "),
+        ("123645789ABCDE", format!("{BANNER}\n\nok> ").as_str()),
         "boot printed something unexpected"
     );
     vm.quiet_prompt();
@@ -27,6 +28,18 @@ fn eval(vm: &mut Machine, host: &mut BufferHost, src: &str) -> String {
     vm.feed(b"\n");
     assert_eq!(vm.run_until_blocked(host), Status::NeedInput);
     host.take_output()
+}
+
+#[test]
+fn version_words_report_this_build() {
+    let (mut vm, mut host) = booted();
+    assert_eq!(
+        eval(&mut vm, &mut host, "version"),
+        reva_vm::version::info()
+    );
+    assert_eq!(eval(&mut vm, &mut host, ".ver"), BANNER);
+    // libraries still see the reva.f release
+    assert_eq!(eval(&mut vm, &mut host, "revaver type"), "2011.2");
 }
 
 #[test]
@@ -82,7 +95,7 @@ fn images_round_trip_in_memory() {
     assert_eq!(vm2.run_until_blocked(&mut host2), Status::NeedInput);
     // An image starts like Reva's saved executable: banner, then the
     // interpreter (the prompt stays as the saved system had it: quiet).
-    assert_eq!(host2.take_output(), "Reva 2011.2 Linux\n");
+    assert_eq!(host2.take_output(), format!("{BANNER}\n"));
     assert_eq!(eval(&mut vm2, &mut host2, "answer . keep @ ."), "42 99 ");
     assert!(Machine::load_image(&img[..20], &[]).is_err());
 }
@@ -326,7 +339,7 @@ fn save_writes_an_image_that_starts_with_its_words() {
     let mut host = BufferHost::new();
     assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
     // the banner; no prompt, as the quiet prompt was saved too
-    assert_eq!(host.take_output(), "Reva 2011.2 Linux\n");
+    assert_eq!(host.take_output(), format!("{BANNER}\n"));
     assert_eq!(eval(&mut vm, &mut host, ": added 2 ; hi"), "saved");
     // a restart from an image keeps the image's words, not later ones
     let mut vm = start.machine().unwrap();
