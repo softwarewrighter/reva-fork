@@ -88,7 +88,7 @@ gets (both are part of the regression suite).
 
 ## License
 
-MIT, portions copyright © 2026 Michael A Wright, for the code in this
+MIT, Copyright (c) 2026 Michael A. Wright, for the code in this
 directory (see [LICENSE](LICENSE)). The Reva
 Forth sources it embeds and runs (`src/reva.f`) remain in the public domain
 under the original terms; see [../LICENSING.md](../LICENSING.md).
