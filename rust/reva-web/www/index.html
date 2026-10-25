@@ -124,7 +124,6 @@
     span.textContent = s;
     out.append(span);
     while (out.childElementCount > MAX_CHUNKS) out.firstElementChild.remove();
-    out.scrollTop = out.scrollHeight;
     return span;
   };
   // Forth output may carry ANSI colour (ansi.js): one span per flush, with
@@ -143,9 +142,22 @@
     }
     return span;
   };
-  const flush = () => { frame = 0; if (pending) appendOut(pending); pending = ""; };
+  // Follow the output only if the view was at the bottom before the write,
+  // so a reader who scrolled up is not pulled down; scroll after the
+  // coloured runs are in, so a long `pp` listing ends in view.
+  const atBottom = () => out.scrollHeight - out.scrollTop - out.clientHeight < 24;
+  const toBottom = () => { out.scrollTop = out.scrollHeight; };
+  const flush = () => {
+    frame = 0;
+    if (!pending) return;
+    const follow = atBottom();
+    appendOut(pending);
+    pending = "";
+    if (follow) toBottom();
+  };
   const write = (s) => { pending += s; frame ||= requestAnimationFrame(flush); };
-  const echo = (s) => { flush(); append(s, "echo"); };
+  // Echoed input (a submitted line, notes) always brings the view down.
+  const echo = (s) => { flush(); append(s, "echo"); toBottom(); };
   // The form is live from the start (a package can take a moment to
   // fetch): lines typed before the VM is up wait in `early`.
   const early = [];
