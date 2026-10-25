@@ -36,8 +36,8 @@ far less work than rewriting everything that produces it.
 
 ```
             ┌──────────── hosts ────────────┐
-            │  reva-cli (terminal, files)    │   push input, pull output,
-            │  reva-web (wasm32, JS glue)    │   run in budgeted slices
+            │  reva-cli (terminal, StdFs)    │   push input, pull output,
+            │  reva-web (wasm32, MemFs, JS)  │   run in budgeted slices
             └───────────────┬────────────────┘
                             │ Host trait, Status
 ┌───────────────────────────▼──────────────────────────────┐
@@ -47,6 +47,9 @@ far less work than rewriting everything that produces it.
 │  gates     newcore.asm routines in Rust, at fixed addrs    │
 │  mem       flat u32-addressed memory, code-page tracking   │
 │  heap      allocate/free/resize                            │
+│  ffi       virtual libc, Linux syscall subset              │
+│  fileio    file words + file syscalls over Host::fs        │
+│  vfs       FileSystem trait, MemFs, embedded lib/          │
 │  image     save/load (vx86 bytes only)                     │
 │  translate hooks for native/wasm translators               │
 └──────────────────────────────────────────────────────────┘
@@ -125,24 +128,138 @@ what "save and run the executable" did (`embedded::boot_source`):
 
 Why not implement `(save)` and run the result? A browser cannot exec a file,
 and the image would be identical to the memory we already have. A saved
-image (`--save-image`) is the portable form of that executable: it starts
-the same way.
+image is the portable form of that executable: it starts the same way, and
+`(save)` writes one (§3.9).
 
 **Virtual install prefix.** The core reports its program path as
 `/reva/bin/lin/reva`, the original layout, so `reva.f`'s `libdir` gives
 `/reva/lib/` without changing a line. Hosts map `/reva/` to real files: the
-CLI to `$REVA_HOME` or the checkout it was built from; the web host to
-embedded files (next step).
+CLI to `$REVA_HOME` or the checkout it was built from; every host also sees
+the copy of `lib/` compiled into the core (§3.7).
 
 **The OS layer (`ffi.rs`).** `reva.f` selects its Linux personality
 (`os` = 1) and reaches the OS through `lib`/`func:` and `syscall`. The port
 serves one virtual library, libc, whose functions (`getenv`, `putenv`,
 `localtime`, `errno`) are gateways over `Host`; any other library or
 function resolves to 0, as a failed `dlopen`/`dlsym` did, so `reva.f` names
-what is missing. Linux i386 `syscall` numbers used outside file I/O (time,
+what is missing, and the VM adds a one-line note naming the library
+(`Host::diag`; stderr on the CLI). `system` is served but runs only where
+the host allows it (`Host::system`: the CLI with `--allow-shell`, never the
+browser); otherwise it faults with how to allow it. Linux i386 `syscall` numbers used outside file I/O (time,
 `gettimeofday`, `nanosleep`, `getpid`, terminal `ioctl`) map to `Host`; the
 rest return `-ENOSYS`. The VM itself never reads a clock or the environment,
 so it stays deterministic and the browser host needs nothing.
+
+### 3.7 Files
+
+`reva.f`'s file words bottom out in newcore's `open/r`, `open/rw`, `creat`,
+`close`, `read`, `write`, `fsize`, and in Linux system calls (`lseek`,
+`rename`, `unlink`, `stat`, `chdir`, `getcwd`; `mkdir`/`rmdir` and
+`opendir`/`readdir` in `lib/os/dir`). The port keeps both layers as they
+are and implements the bottom one (`fileio.rs`) over a small trait,
+`vfs::FileSystem` (open/close/read/write/seek/stat/remove/rename/mkdir/
+rmdir/list/chdir/cwd), that a host lends through `Host::fs`:
+
+- **CLI:** `StdFs`, the real file system; `/reva/` maps to the install
+  root. Descriptors are the host's own numbers (from 3), not OS fds.
+- **Browser and tests:** `MemFs`, an in-memory tree. It records which
+  paths changed, and `reva-web` exports them so `reva.js` can keep them in
+  `localStorage` and put them back before the next boot. A page bundles
+  its own files the same way (`Reva.load(url, { files, storage })`).
+
+Results follow the kernel: a value or `-errno`, and `ioerr` is 0 or the
+negative result, exactly as newcore's `call_linux_return` left it, so
+library code that tests `ioerr` behaves as before. Descriptors 0–2 stay
+the console (writing to 1 or 2 is output).
+
+**`lib/` is embedded** (`build.rs`, feature `embed-lib`, on by default) and
+appears read-only at `/reva/lib/` under both file systems: `needs` works in
+the browser with no fetches, and an installed CLI binary needs no
+checkout. On the CLI a file on disk wins over the embedded copy; in
+`MemFs` the first write copies an embedded file. Cost: about 0.7 MB in the
+binary and the `.wasm` (text, so it compresses well when served gzipped);
+a host that does not want it builds without the feature.
+
+Why a trait rather than more `Host` methods? The operations come as a set
+with shared state (open descriptors, working directory), and the same
+`MemFs` serves the browser and every test; the trait keeps that state out
+of the VM, which stays deterministic and image-safe (open files and
+directory streams are host state, not part of an image).
+
+### 3.8 The browser: a worker, time slices, interrupt
+
+The page must never wait for the VM. Booting `reva.f` is one call of
+140 to 300 ms that cannot be sliced, and a step budget is not a time
+budget (200k steps is 8 ms on a desktop, several times that on a phone).
+So the browser host runs the VM in a **Web Worker** (`www/reva-worker.js`)
+and the page only draws and stores (`www/reva.js` `start()`):
+
+- **Time slices.** `Reva.run` runs 50k-step chunks until about 8 ms have
+  passed, posts the output, and yields. Yields use a `MessageChannel`
+  message (no 4 ms timer clamp), but at least every 25 ms a `setTimeout`,
+  because a port's messages can starve other tasks (Node does this, and
+  `scheduler.yield()` does it by design). That fair turn is what lets
+  `input` and `stop` messages in while the VM computes. Measured: about 90%
+  of the unsliced speed.
+- **Messages:** `init`, `input`, `close`, `stop` to the worker; `output`,
+  `status`, `files`, `error` back (table in `reva-worker.js`). Workers
+  cannot see `localStorage`, so changed files travel to the page, which
+  saves them whenever the VM waits for input or halts.
+- **Drawing:** the page appends output at most once per animation frame and
+  caps the console's length.
+- **Input** never blocks a thread: `key` returns `NEED_INPUT` and the
+  worker is idle until the next `input` message.
+- **Interrupt:** `Machine::interrupt` (`reva_interrupt`) is taken at the
+  next step of `run`: queued input is dropped and the VM recovers as from a
+  fault (`*** interrupted (in WORD)`), keeping the dictionary. Code inside
+  a nested call runs to completion within one step, so if the worker does
+  not answer in 2 s the page terminates it and starts a fresh one.
+- **Clock:** the module has no imports, so the page passes `Date.now()` in
+  (`reva_set_time`) before each slice; tests keep the fixed clock, and the
+  smoke test checks that 1k- and 1M-step slices print the same transcript.
+- **Fallback:** where a worker cannot start, the same loop runs on the
+  page's thread, using `scheduler.yield()` to let the page draw.
+
+No `SharedArrayBuffer` or `Atomics.wait` (they need COOP/COEP headers that
+a plain static server does not send), so any static directory serves it.
+
+### 3.9 Saved images and `restart`
+
+Reva turned a program into an executable with `save NAME` (`(save)` under
+it) and relaunched itself with `restart`. Both are host matters here.
+
+- **Images.** `(save)` ( a n -- ) writes the machine's state as an image
+  (`image.rs`: statics, dictionary, code, heap; vx86 bytes only) to the
+  named file through `Host::fs`, with `ioerr` as for the file words.
+  `reva.f`'s `save` wrapper runs unchanged around it (it hands over the
+  compiled-string area and prints the sizes). `save` may run from a file
+  being included or inside a word; loading an image therefore resets the
+  interpreter's source, `>in`, compile state and catch frame, as a freshly
+  started executable had them, and starts at `cold`. `reva --save-image`
+  writes the same format from outside.
+- **Starting from one.** `reva --image FILE`; in the browser
+  `start(wasm, { image })` (a URL or bytes; the worker fetches it), or
+  `reva_boot_image` in the module's C ABI. An image skips compiling
+  `reva.f` and whatever was loaded before saving, which is what a
+  page needs to start a large program at once.
+- **`restart`** is a core word (gate appended after the libc gates, so
+  image addresses stay stable). It runs the `onexit` list as `bye` does,
+  then the machine stops with `Status::Restart`. The host keeps a
+  `reva_vm::Start`, the way it made the machine (boot with `argv`, or
+  image bytes), makes a new machine from it, and hands over the input not
+  yet read (`Machine::take_input`; the rest of the current line is gone,
+  as it was in the old process). What the host owns survives: files, and
+  the console. The CLI then includes its files and evaluates its `-e`
+  texts again; the browser module does all of this inside `reva_run`, so
+  JavaScript sees only output (a new banner). This replaces wrapper loops
+  that relaunch on a special exit status.
+- **Why the host and not the VM.** A restart is "run the program again"; a
+  VM that reset itself would have to know how it was made (boot file,
+  image, arguments) and would mix host policy into the core. One `Start`
+  type keeps it identical on every host.
+
+A script that calls `restart` unconditionally restarts for ever, as it did
+on the original (and as a launcher loop would); stop it with Ctrl-C.
 
 ## 4. Non-functional requirements
 
@@ -154,9 +271,12 @@ so it stays deterministic and the browser host needs nothing.
 | **Maintainability / understandability** | Small modules with literate headers; the boot source is `reva.f` verbatim plus two documented lines (§3.6) — no fork of the Forth code. |
 | **Testability** | Unit tests per module, API tests (`reva-vm/tests`), and a reg-rs golden-output suite (`work/reg-rs`) over the CLI and the wasm build. |
 | **Serviceability** | `describe_addr`, `--trace`, `--show-boot`, the `probe` example (`see WORD` disassembles). |
-| **Upgradability** | Images contain only vx86 bytes and are versioned; translations are caches, never persisted. |
+| **Upgradability** | Images contain only vx86 bytes and are versioned; translations are caches, never persisted. New gates are appended, so images keep working across core versions with the same image version. |
+| **Startup time (browser)** | A page can start from an image (§3.9) instead of compiling `reva.f` and its program at every load. |
 | **Performance** | Interpreter with decode cache now; basic-block translation to x86-64 / ARM64 / wasm later (§6). |
 | **Usability** | `reva` behaves like the original REPL (banner, `ok>`, `reva.f`'s error messages); piped input runs as a batch without prompts. |
+| **Responsiveness (browser)** | The VM runs in a Web Worker; the page draws once per frame. Measured in headless Chromium: the longest frame gap during a 15 s computation is 17 ms (on the page's thread before: 50 ms, and boot froze it for 133 ms). Stop takes effect within one 8 ms slice (§3.8). |
+| **Data durability (browser)** | Files Forth code writes are saved to `localStorage` after every run slice that ends waiting for input or halted; a failed save (quota) is logged, not fatal. |
 
 ## 5. Deliberate deviations from newcore
 
@@ -177,6 +297,11 @@ so it stays deterministic and the browser host needs nothing.
    previous call's offset and corrupted it. This was the bug that stopped
    the boot at the assembler.
 7. `localtime` is UTC: the port has no time-zone database.
+8. Opening a directory with `open/r` fails with `EISDIR` (Linux opened it
+   and failed on `read`). `read` from descriptor 0 fails with `EBADF`:
+   keyboard input reaches Forth only through `key`, which can pause the VM.
+9. `stat` fills the i386 `struct stat` and repeats `st_mtime` in
+   `st_ctime`: `reva.f`'s `mtime` reads the ctime cell (offset 48).
 
 ## 6. The road to native speed
 
@@ -203,12 +328,20 @@ block translation should land within ~2× of the original x86 Reva.
 1. ✅ vx86 core, gateways, resumable dispatcher, CLI, wasm host, `reva.f`
    prefix boots (through `does>`/`THROW:`).
 2. ✅ All of `reva.f` boots (assembler, contexts, `needs`, FFI layer, OS
-   personality) and restarts as its executable did (§3.6). Next: file words
-   (`open/r`, `read`, …) through `Host`, with a virtual file system for the
-   browser (bundled read-only files plus browser storage); then `(save)` /
-   `makeexe` writing images; loading images in the browser.
+   personality) and restarts as its executable did (§3.6). ✅ File words
+   and file system calls through `Host::fs`, with an in-memory file system
+   for the browser (bundled files plus `localStorage`) and `lib/` embedded
+   (§3.7). ✅ The browser host runs the VM in a Web Worker with time slices
+   and Stop (§3.8). ✅ `save`/`(save)` write images, which start on the
+   CLI and in the browser; `restart` (§3.9). `makeexe` (a native
+   executable) is not planned: an image plus the `reva` binary or the web
+   build is the portable form.
 3. x87 subset (as a 8-deep `f64` stack) for `lib/math/floats`, with 80-bit
    memory operands (`fld`/`fstp tbyte`).
-4. OS layer: ✅ virtual libc and a portable `syscall` subset (§3.6). Next:
-   native libraries via `libloading` (CLI) and JS imports (web).
+4. OS layer: ✅ virtual libc and a portable `syscall` subset (§3.6); ✅
+   clear stops for native libraries, `shell` (CLI `--allow-shell`) and
+   unsupported instruction families ([portability.md](../docs/portability.md)).
+   No generic native FFI: Forth passes 32-bit VM pointers, so C libraries
+   come as virtual libraries (Rust bindings in the VM). Next: SQLite, then a
+   UI service for the browser and the desktop app.
 5. Translators: x86-64, then ARM64, then wasm.

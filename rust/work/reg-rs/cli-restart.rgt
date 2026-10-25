@@ -1,0 +1,4 @@
+command = "printf ': gone ; x restart\\nx gone\\n' | ${REVA:-target/debug/reva} -e ': x .\" (-e ran) \" ;'"
+timeout = 60
+exit_code = 0
+desc = "restart: a new machine, made the same way; files and -e run again, unread input carries over"

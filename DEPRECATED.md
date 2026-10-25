@@ -30,7 +30,8 @@ reverted on its own:
    still builds from the repository root (`make -f legacy/Makefile`).
 3. **Delete** `legacy/` once the portable core covers what it provided
    (full `reva.f` boot, file words, `(save)`, FFI) and nothing references it.
-   Git history and the `master` branch keep the original import. Before
+   Git history keeps the original import (the first commit, `edc8cbe`,
+   "imported from fossil repo"). Before
 deleting, salvage any scratch `.f` files worth keeping as regression tests.
 
 ## Documentation: the old wiki (`www/`)

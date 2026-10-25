@@ -5,8 +5,9 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use reva_vm::translate::{decode_block, Block, NativeHandle, Translator};
+use reva_vm::version::BANNER;
 use reva_vm::x86::{Alu, MulDiv, Op};
-use reva_vm::{embedded, BufferHost, Machine, Status};
+use reva_vm::{embedded, BufferHost, Machine, Start, Status};
 
 fn booted() -> (Machine, BufferHost) {
     let mut vm = Machine::new(&["reva", embedded::BOOT_PATH]);
@@ -15,7 +16,7 @@ fn booted() -> (Machine, BufferHost) {
     let out = host.take_output();
     assert_eq!(
         embedded::split_boot_output(&out),
-        ("123645789ABCDE", "Reva 2011.2 Linux\n\nok> "),
+        ("123645789ABCDE", format!("{BANNER}\n\nok> ").as_str()),
         "boot printed something unexpected"
     );
     vm.quiet_prompt();
@@ -27,6 +28,18 @@ fn eval(vm: &mut Machine, host: &mut BufferHost, src: &str) -> String {
     vm.feed(b"\n");
     assert_eq!(vm.run_until_blocked(host), Status::NeedInput);
     host.take_output()
+}
+
+#[test]
+fn version_words_report_this_build() {
+    let (mut vm, mut host) = booted();
+    assert_eq!(
+        eval(&mut vm, &mut host, "version"),
+        reva_vm::version::info()
+    );
+    assert_eq!(eval(&mut vm, &mut host, ".ver"), BANNER);
+    // libraries still see the reva.f release
+    assert_eq!(eval(&mut vm, &mut host, "revaver type"), "2011.2");
 }
 
 #[test]
@@ -82,9 +95,18 @@ fn images_round_trip_in_memory() {
     assert_eq!(vm2.run_until_blocked(&mut host2), Status::NeedInput);
     // An image starts like Reva's saved executable: banner, then the
     // interpreter (the prompt stays as the saved system had it: quiet).
-    assert_eq!(host2.take_output(), "Reva 2011.2 Linux\n");
+    assert_eq!(host2.take_output(), format!("{BANNER}\n"));
     assert_eq!(eval(&mut vm2, &mut host2, "answer . keep @ ."), "42 99 ");
     assert!(Machine::load_image(&img[..20], &[]).is_err());
+}
+
+#[test]
+fn mov_to_and_from_an_absolute_address_runs() {
+    // lib/util/locals compiles `mov [addr], eax` (a3) for every local[ word.
+    let (mut vm, mut host) = booted();
+    eval(&mut vm, &mut host, "variable v  : st [ $a3 1, v , ] drop ;");
+    eval(&mut vm, &mut host, ": ld dup [ $a1 1, v , ] ;");
+    assert_eq!(eval(&mut vm, &mut host, "42 st v @ . 7 ld ."), "42 42 ");
 }
 
 #[test]
@@ -187,4 +209,173 @@ fn the_virtual_libc_reaches_the_host() {
         eval(&mut vm, &mut host, "time&date . . . . . ."),
         "1970 1 1 0 0 0 "
     );
+}
+
+#[test]
+fn file_words_reach_the_host_file_system() {
+    let (mut vm, mut host) = booted();
+    let run = |vm: &mut Machine, host: &mut BufferHost, s: &str| eval(vm, host, s);
+    // creat / write / close, then open/r / fsize / read
+    assert_eq!(
+        run(
+            &mut vm,
+            &mut host,
+            "\" /t\" creat value h ioerr @ . \" abc\" h write ioerr @ . h close"
+        ),
+        "0 0 "
+    );
+    assert_eq!(host.fs.get("/t"), Some(&b"abc"[..]));
+    assert_eq!(
+        run(
+            &mut vm,
+            &mut host,
+            "\" /t\" open/r value r r fsize . pad 10 r read . pad 3 type r close"
+        ),
+        "3 3 abc"
+    );
+    // seek / tell on a read-write handle
+    assert_eq!(
+        run(
+            &mut vm,
+            &mut host,
+            "\" /t\" open/rw value w 1 w seek \" X\" w write w tell . w close"
+        ),
+        "2 "
+    );
+    assert_eq!(host.fs.get("/t"), Some(&b"aXc"[..]));
+    // failure: ioerr is -errno (ENOENT), and the fd is the same value
+    assert_eq!(
+        run(&mut vm, &mut host, "\" /nope\" open/r . ioerr @ ."),
+        "-2 -2 "
+    );
+    // stat (mode word), rename (reva.f's takes one extra cell), delete
+    assert_eq!(
+        run(
+            &mut vm,
+            &mut host,
+            "\" /t\" stat $ffff and . \
+                                 0 \" /t\" \" /u\" rename ioerr @ . \" /u\" delete ioerr @ ."
+        ),
+        "33188 0 0 "
+    );
+    assert_eq!(host.fs.get("/u"), None);
+    // directories: mkdir, chdir, getcwd, relative paths, opendir
+    assert_eq!(
+        run(
+            &mut vm,
+            &mut host,
+            "needs os/dir \" /d\" mkdir \" /d\" chdir getcwd type space \
+                                 \" f\" creat close \" /d\" opendir closedir type ."
+        ),
+        "/d .0 "
+    );
+    assert_eq!(host.fs.get("/d/f"), Some(&b""[..]));
+    // `include` reads the same file system
+    host.fs.put("/d/g.f", b": g 6 7 * ;");
+    assert_eq!(run(&mut vm, &mut host, "include g.f g ."), "42 ");
+    // what changed, for a host that persists files
+    let mut changed: Vec<String> = host.fs.take_changes().into_iter().map(|(p, _)| p).collect();
+    changed.sort();
+    assert_eq!(changed, ["/d/f", "/t", "/u"]);
+    // the console descriptors
+    assert_eq!(
+        run(&mut vm, &mut host, "\" out\" 1 write ioerr @ ."),
+        "out0 "
+    );
+}
+
+#[test]
+fn interrupt_stops_a_loop_and_keeps_the_dictionary() {
+    let (mut vm, mut host) = booted();
+    vm.feed(b": kept 42 ; : spin repeat again ; spin\n");
+    assert_eq!(vm.run(&mut host, 100_000), Status::Yielded);
+    vm.feed(b"this queued line is dropped\n");
+    vm.interrupt();
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    let out = host.take_output();
+    assert!(out.contains("*** interrupted (in spin"), "{out}");
+    assert!(!out.contains("dropped"), "{out}");
+    assert_eq!(eval(&mut vm, &mut host, "kept ."), "42 ");
+}
+
+#[test]
+fn a_missing_native_library_is_named_once() {
+    let (mut vm, mut host) = booted();
+    let out = eval(
+        &mut vm,
+        &mut host,
+        "\" libnothere.so\" lib nothere 1 func: f1 1 func: f2 f1",
+    );
+    assert!(
+        out.starts_with("note: native library libnothere.so is not available"),
+        "{out}"
+    );
+    assert!(out.contains("could not load f1"), "{out}");
+    let again = eval(&mut vm, &mut host, "f2");
+    assert!(!again.contains("note:"), "{again}");
+    assert!(again.contains("could not load f2"), "{again}");
+}
+
+#[test]
+fn shell_needs_a_host_that_allows_it() {
+    let (mut vm, mut host) = booted();
+    let out = eval(&mut vm, &mut host, "needs os/shell \" ls\" shell 7 .");
+    assert!(
+        out.contains("shell (running an OS command) is not allowed here"),
+        "{out}"
+    );
+    // the fault ends the line; the session goes on
+    assert_eq!(eval(&mut vm, &mut host, "7 ."), "7 ");
+}
+
+#[test]
+fn restart_starts_over_and_keeps_files_and_unread_input() {
+    let (mut vm, mut host) = booted();
+    host.fs.put("/keep", b"kept");
+    // `restart` runs the `onexit` list, as `bye` does
+    vm.feed(b": gone 1 ; :: .\" bye-handler \" ; ~sys.onexit restart this is dropped\n");
+    vm.feed(b"\" /keep\" slurp type\n");
+    assert_eq!(vm.run_until_blocked(&mut host), Status::Restart);
+    assert_eq!(host.take_output(), "bye-handler ");
+    // the old machine stays stopped
+    assert_eq!(vm.run(&mut host, 1000), Status::Restart);
+    let (input, closed) = vm.take_input();
+    assert_eq!(
+        (&input[..], closed),
+        (&b"\" /keep\" slurp type\n"[..], false)
+    );
+
+    let mut vm = Start::reva().machine().unwrap();
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    host.take_output();
+    vm.quiet_prompt();
+    vm.feed(&input);
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    assert_eq!(host.take_output(), "kept");
+    assert!(eval(&mut vm, &mut host, "gone").contains("unknown word:  gone"));
+}
+
+#[test]
+fn save_writes_an_image_that_starts_with_its_words() {
+    let (mut vm, mut host) = booted();
+    // from an included file, inside a definition: loading still starts clean
+    host.fs.put(
+        "/mk.f",
+        b": hi .\" saved\" ; : mk \" /app.img\" (save) ioerr @ . ; mk",
+    );
+    assert!(eval(&mut vm, &mut host, "include /mk.f").ends_with("0 "));
+    let bytes = host.fs.get("/app.img").unwrap().to_vec();
+    let (start, mut vm) = Start::image(bytes).unwrap();
+    let mut host = BufferHost::new();
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    // the banner; no prompt, as the quiet prompt was saved too
+    assert_eq!(host.take_output(), format!("{BANNER}\n"));
+    assert_eq!(eval(&mut vm, &mut host, ": added 2 ; hi"), "saved");
+    // a restart from an image keeps the image's words, not later ones
+    let mut vm = start.machine().unwrap();
+    vm.run_until_blocked(&mut host);
+    host.take_output();
+    assert_eq!(eval(&mut vm, &mut host, "hi"), "saved");
+    assert!(eval(&mut vm, &mut host, "added").contains("unknown word:  added"));
+    assert!(Start::image(b"not an image".to_vec()).is_err());
 }

@@ -457,6 +457,7 @@ impl Cpu {
                 let v = self.cond(cc) as u32;
                 self.write(mem, dst, Size::B, v)?;
             }
+            Op::Bswap(r) => self.r[r as usize] = self.r[r as usize].swap_bytes(),
             Op::Cmovcc { cc, dst, src } => {
                 let v = self.read(mem, src, Size::D)?;
                 if self.cond(cc) {

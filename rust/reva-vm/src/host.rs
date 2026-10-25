@@ -7,13 +7,23 @@
 
 use std::collections::HashMap;
 
+use crate::vfs::{FileSystem, MemFs};
+
 pub trait Host {
     /// Output from `emit` and `type`.
     fn write(&mut self, bytes: &[u8]);
 
-    /// Whole-file read for `include` and `slurp`.  `None` means "not found";
-    /// the VM sets `ioerr` and Forth code decides what to do.
-    fn read_file(&mut self, _path: &str) -> Option<Vec<u8>> {
+    /// Sources the host serves for `include` and `slurp` *before* the file
+    /// system ([`Host::fs`]): the embedded boot source, normally
+    /// ([`crate::embedded::file`]).  `None` means "ask the file system".
+    fn read_file(&mut self, path: &str) -> Option<Vec<u8>> {
+        crate::embedded::file(path).map(<[u8]>::to_vec)
+    }
+
+    /// The file system behind `open/r`, `read`, `stat`, ... (see
+    /// [`crate::vfs`]).  `None` (the default): every file operation fails
+    /// with `ENOSYS`, and `include` finds only [`Host::read_file`] sources.
+    fn fs(&mut self) -> Option<&mut dyn FileSystem> {
         None
     }
 
@@ -45,15 +55,34 @@ pub trait Host {
     /// `ms`: pause for `ms` milliseconds.  The default returns at once (a
     /// browser cannot block).
     fn sleep_ms(&mut self, _ms: u32) {}
+
+    /// A diagnostic from the VM itself, not from Forth code (one line,
+    /// newline included), such as a note that a native library is not
+    /// available.  The default mixes it into the output; the CLI sends it
+    /// to stderr.
+    fn diag(&mut self, line: &str) {
+        self.write(line.as_bytes());
+    }
+
+    /// The C library's `system(cmd)`, behind Reva's `shell`: run an OS
+    /// command and return its wait status.  `None` (the default) means the
+    /// host does not allow it, and the VM faults with a message saying so;
+    /// the CLI allows it only with `--allow-shell`, and the browser never.
+    fn system(&mut self, _cmd: &str) -> Option<i32> {
+        None
+    }
 }
 
-/// A host that captures output in memory and serves files from a map.
-/// Used by tests and by the WebAssembly front end.
+/// A host that captures output in memory, with an in-memory file system
+/// ([`MemFs`]).  Used by tests and by the WebAssembly front end.
 #[derive(Default)]
 pub struct BufferHost {
     pub out: Vec<u8>,
-    pub files: HashMap<String, Vec<u8>>,
+    pub fs: MemFs,
     pub env: HashMap<String, String>,
+    /// What `now` reports: set by the embedder (the browser sets it before
+    /// each run); `None` (the default) keeps tests deterministic.
+    pub clock: Option<(u64, u32)>,
 }
 
 impl BufferHost {
@@ -72,15 +101,16 @@ impl Host for BufferHost {
         self.out.extend_from_slice(bytes);
     }
 
-    fn read_file(&mut self, path: &str) -> Option<Vec<u8>> {
-        self.files
-            .get(path)
-            .cloned()
-            .or_else(|| crate::embedded::file(path).map(<[u8]>::to_vec))
+    fn fs(&mut self) -> Option<&mut dyn FileSystem> {
+        Some(&mut self.fs)
     }
 
     fn getenv(&mut self, name: &str) -> Option<String> {
         self.env.get(name).cloned()
+    }
+
+    fn now(&mut self) -> Option<(u64, u32)> {
+        self.clock
     }
 
     fn setenv(&mut self, name: &str, value: &str) {

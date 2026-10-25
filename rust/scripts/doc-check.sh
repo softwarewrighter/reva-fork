@@ -11,9 +11,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 REVA="${REVA:-target/debug/reva}"
+# Text filters use sed-rs (https://github.com/sw-cli-tools/sed-rs), not the
+# system sed, so they behave the same on macOS, Linux and Windows.
+SED_RS="${SED_RS:-$(command -v sed-rs || true)}"
+[[ -n "$SED_RS" ]] || { echo "doc-check: sed-rs not found; install it or set SED_RS" >&2; exit 2; }
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
-norm() { sed -e 's/[[:space:]]*$//' | sed -e ':a' -e '/^\n*$/{$d;N;ba' -e '}'; }
+norm() { "$SED_RS" -e 's/[[:space:]]*$//' | "$SED_RS" -e ':a' -e '/^\n*$/{$d;N;ba' -e '}'; }
 status=0
 for md in "$@"; do
     rm -f "$work"/*
@@ -31,12 +35,12 @@ for md in "$@"; do
         n=$(basename "$src" .f)
         [[ -e "$work/$n.out" ]] || { echo "$md:$(cat "$work/$n.line"): forth sample has no output block"; failed=$((failed+1)); total=$((total+1)); continue; }
         total=$((total+1))
-        got=$("$REVA" < "$src" 2>&1 | norm)
+        got=$("$REVA" < "$src" 2>&1 | tr -d '\000' | norm)
         want=$(norm < "$work/$n.out")
         if [[ "$got" != "$want" ]]; then
             failed=$((failed+1))
             echo "$md:$(cat "$work/$n.line"): sample output differs"
-            diff <(echo "$want") <(echo "$got") | sed 's/^/    /' || true
+            diff <(echo "$want") <(echo "$got") | "$SED_RS" -e 's/^/    /' || true
         fi
     done
     if [[ $failed -eq 0 ]]; then

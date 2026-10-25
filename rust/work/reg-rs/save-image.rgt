@@ -1,0 +1,4 @@
+command = "r=$(pwd) d=$(mktemp -d) && cd $d && printf ': hi .\" from the saved image\" cr ;\\nsave app.img\\n' | $r/${REVA:-target/debug/reva} > /dev/null && printf 'hi\\n: more2 ; restart\\nhi more2\\n' | $r/${REVA:-target/debug/reva} --image app.img; s=$?; cd $r; rm -rf $d; exit $s"
+timeout = 60
+exit_code = 0
+desc = "save (from Forth) writes an image; --image starts from it, and restart starts from it again"

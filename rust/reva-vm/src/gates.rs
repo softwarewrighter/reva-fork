@@ -18,6 +18,7 @@ use crate::fault::Fault;
 use crate::host::Host;
 use crate::layout::*;
 use crate::machine::{st, Machine, Next};
+use crate::vfs::Access;
 use crate::x86::{EAX, EBX, EDI, EDX, ESI, ESP};
 
 macro_rules! gates {
@@ -57,6 +58,13 @@ gates! {
     HostGetenv, HostPutenv, HostLocaltime,
     // end of the embedded boot: restart as the saved executable would
     BootRestart,
+    // more virtual libc functions (appended: gate addresses are in images)
+    HostOpendir, HostReaddir, HostClosedir,
+    // `restart`: the host starts a new machine the way it started this one
+    Restart,
+    HostSystem,
+    // `version`: print this build's version report (see version.rs)
+    Version,
 }
 
 impl Gate {
@@ -96,19 +104,19 @@ impl Machine {
     // ---- register / stack helpers (the upsh/upop/drop macros) ---------
 
     #[inline]
-    fn eax(&self) -> u32 {
+    pub(crate) fn eax(&self) -> u32 {
         self.cpu.r[EAX as usize]
     }
     #[inline]
-    fn set_eax(&mut self, v: u32) {
+    pub(crate) fn set_eax(&mut self, v: u32) {
         self.cpu.r[EAX as usize] = v;
     }
     #[inline]
-    fn nos(&self) -> R<u32> {
+    pub(crate) fn nos(&self) -> R<u32> {
         self.mem.read_u32(self.cpu.r[SI])
     }
     #[inline]
-    fn set_nos(&mut self, v: u32) -> R {
+    pub(crate) fn set_nos(&mut self, v: u32) -> R {
         self.mem.write_u32(self.cpu.r[SI], v)
     }
     #[inline]
@@ -119,7 +127,7 @@ impl Machine {
         Ok(())
     }
     #[inline]
-    fn upsh(&mut self, v: u32) -> R {
+    pub(crate) fn upsh(&mut self, v: u32) -> R {
         self.dup()?;
         self.set_eax(v);
         Ok(())
@@ -133,13 +141,13 @@ impl Machine {
         Ok(())
     }
     #[inline]
-    fn upop(&mut self) -> R<u32> {
+    pub(crate) fn upop(&mut self) -> R<u32> {
         let v = self.eax();
         self.drop1()?;
         Ok(v)
     }
     #[inline]
-    fn setv(&mut self, a: u32, v: u32) -> R {
+    pub(crate) fn setv(&mut self, a: u32, v: u32) -> R {
         self.mem.write_u32(a, v)
     }
     #[inline]
@@ -651,7 +659,10 @@ impl Machine {
         let n = self.eax();
         let a = self.nos()?;
         let path = String::from_utf8_lossy(self.mem.slice(a, n)?).into_owned();
-        let loaded = match host.read_file(&path) {
+        let bytes = host
+            .read_file(&path)
+            .or_else(|| host.fs().and_then(|fs| fs.read_whole(&path).ok()));
+        let loaded = match bytes {
             Some(bytes) => match self.heap.alloc(bytes.len() as u32) {
                 Some(p) => {
                     self.mem.write_bytes(p, &bytes)?;
@@ -770,14 +781,6 @@ impl Machine {
             Gate::UnloadLib => "(-lib)",
             Gate::CallFn => "(call)",
             Gate::OsFunc => "(func)",
-            Gate::OpenR => "open/r",
-            Gate::OpenRw => "open/rw",
-            Gate::Creat => "creat",
-            Gate::Close => "close",
-            Gate::Read => "read",
-            Gate::Write => "write",
-            Gate::Fsize => "fsize",
-            Gate::Save => "(save)",
             _ => g.name(),
         })
     }
@@ -1448,20 +1451,37 @@ impl Machine {
                 self.iterate_list(host, OnStartThunk.addr(), st::EXIT_LIST)?;
                 Ok(Next::Halt(code as i32))
             }
+            Restart => {
+                // like `bye` (onexit handlers run), but the host starts over
+                self.iterate_list(host, OnStartThunk.addr(), st::EXIT_LIST)?;
+                Ok(Next::Restart)
+            }
+            Version => {
+                host.write(crate::version::info().as_bytes());
+                Ok(Ret)
+            }
 
             // --- OS services not yet provided by the portable core ---
             // --- portable OS layer (ffi.rs) ---
             LoadLib => self.ffi_loadlib().map(|()| Ret),
             UnloadLib => self.ffi_unloadlib().map(|()| Ret),
-            OsFunc => self.ffi_func().map(|()| Ret),
+            OsFunc => self.ffi_func(host).map(|()| Ret),
             CallFn => self.ffi_call(host).map(|()| Ret),
             Syscall => self.ffi_syscall(host).map(|()| Ret),
-            HostGetenv | HostPutenv | HostLocaltime => {
-                Err(Fault::NotImplemented("a C function called without (call)"))
-            }
+            HostGetenv | HostPutenv | HostLocaltime | HostOpendir | HostReaddir | HostClosedir
+            | HostSystem => Err(Fault::NotImplemented("a C function called without (call)")),
 
-            MakeExe | LzPack | LzDepack | LzMax | OpenR | OpenRw | Creat | Close | Read | Write
-            | Fsize | Save => Err(Self::not_implemented(g)),
+            // --- files (fileio.rs) ---
+            OpenR => self.word_open(host, Access::Read).map(|()| Ret),
+            OpenRw => self.word_open(host, Access::ReadWrite).map(|()| Ret),
+            Creat => self.word_open(host, Access::Create).map(|()| Ret),
+            Close => self.word_close(host).map(|()| Ret),
+            Read => self.word_read(host).map(|()| Ret),
+            Write => self.word_write(host).map(|()| Ret),
+            Fsize => self.word_fsize(host).map(|()| Ret),
+            Save => self.word_save(host).map(|()| Ret),
+
+            MakeExe | LzPack | LzDepack | LzMax => Err(Self::not_implemented(g)),
         }
     }
 }

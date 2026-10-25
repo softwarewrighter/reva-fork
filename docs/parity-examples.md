@@ -5,7 +5,7 @@ Each program in `examples/` is run on the portable core with stdin
 closed and a 5s limit. See [parity.md](parity.md) for what the
 statuses mean and which areas are planned.
 
-132 examples: error 36, fault 22, missing 9, runs 54, timeout 11
+132 examples: error 36, fault 11, missing 9, runs 64, timeout 12
 
 Most common first missing word (top 10):
 
@@ -20,7 +20,7 @@ Most common first missing word (top 10):
 | Example | Area | Status |
 |---|---|---|
 | `examples/3n1.f` | core | runs |
-| `examples/alg-test.f` | lib | fault: unsupported instruction at 0x0014b018: d9 ee e8 c9 51 ff ff 0f |
+| `examples/alg-test.f` | lib | fault: unsupported x87 floating point instruction at 0x0014b02c: d9 ee e8 b5 51 ff ff 0f (see docs/portability.md) |
 | `examples/argv.f` | core | runs |
 | `examples/asm.f` | core | runs |
 | `examples/automatic.f` | core | runs |
@@ -42,13 +42,13 @@ Most common first missing word (top 10):
 | `examples/data/binarytree.f` | lib | runs |
 | `examples/data/hash.f` | lib | runs |
 | `examples/data/parray.f` | lib | runs |
-| `examples/datediff.f` | lib | fault: '(save)' is not implemented in this port yet |
+| `examples/datediff.f` | lib | runs |
 | `examples/db-report.f` | db | error: could not load sqlite3_open |
 | `examples/defer.f` | core | runs |
 | `examples/dhttpd.f` | net | missing: `tcpsock` |
 | `examples/dllexplorer.f` | core | missing: `k32` |
 | `examples/doers.f` | lib | runs |
-| `examples/dump.f` | core | fault: '(save)' is not implemented in this port yet |
+| `examples/dump.f` | core | runs |
 | `examples/ed.4th` | os | timeout |
 | `examples/ekeys.f` | core | timeout |
 | `examples/fib.f` | core | runs |
@@ -56,9 +56,9 @@ Most common first missing word (top 10):
 | `examples/fizzbuzz.f` | core | runs |
 | `examples/gcd.f` | core | runs |
 | `examples/gettext.f` | lib | missing: `set-po` |
-| `examples/gl/gl-scene.f` | gui | fault: unsupported instruction at 0x00149e38: d9 ee e8 a9 63 ff ff 0f |
-| `examples/gl/gl-shading.f` | gui | fault: unsupported instruction at 0x00147e88: d9 ee e8 59 83 ff ff 0f |
-| `examples/gl/gl-twod.f` | gui | fault: unsupported instruction at 0x00147e88: d9 ee e8 59 83 ff ff 0f |
+| `examples/gl/gl-scene.f` | gui | fault: unsupported x87 floating point instruction at 0x00149e4c: d9 ee e8 95 63 ff ff 0f (see docs/portability.md) |
+| `examples/gl/gl-shading.f` | gui | fault: unsupported x87 floating point instruction at 0x00147e9c: d9 ee e8 45 83 ff ff 0f (see docs/portability.md) |
+| `examples/gl/gl-twod.f` | gui | fault: unsupported x87 floating point instruction at 0x00147e9c: d9 ee e8 45 83 ff ff 0f (see docs/portability.md) |
 | `examples/gpgme.f` | lib | error: could not load gpgme_check_version |
 | `examples/gtk.f` | gui | error: could not load gtk_init |
 | `examples/gui/hello1.f` | gui | error: could not load window_xy |
@@ -66,7 +66,7 @@ Most common first missing word (top 10):
 | `examples/gui/hello3.f` | gui | error: could not load window_xy |
 | `examples/gui/hello4.f` | gui | error: could not load window_xy |
 | `examples/hanoi.f` | core | runs |
-| `examples/hello/hello-app.f` | lib | fault: '(save)' is not implemented in this port yet |
+| `examples/hello/hello-app.f` | lib | runs |
 | `examples/hello/hello-guiapp.f` | gui | error: could not load libiconv_open |
 | `examples/hello/hello.f` | core | runs |
 | `examples/hello/hello2.f` | core | runs |
@@ -100,37 +100,37 @@ Most common first missing word (top 10):
 | `examples/iup/simple-button.f` | gui | error: could not load libiconv_open |
 | `examples/json.f` | net | runs |
 | `examples/keys.f` | core | fault: stack underflow |
-| `examples/makeexe.f` | core | fault: '(save)' is not implemented in this port yet |
+| `examples/makeexe.f` | core | runs |
 | `examples/map.f` | lib | runs |
-| `examples/md5.f` | lib | fault: '(save)' is not implemented in this port yet |
-| `examples/mevarchim.f` | lib | fault: '(save)' is not implemented in this port yet |
+| `examples/md5.f` | lib | runs |
+| `examples/mevarchim.f` | lib | runs |
 | `examples/notready/caravan.f` | os | missing: `make` |
 | `examples/notready/galife.f` | lib | error: could not load library: asm |
 | `examples/notready/meteor.f` | core | fault: bad memory access: 1 byte(s) at 0x00000000 |
 | `examples/notready/meteor2.f` | core | fault: bad memory access: 1 byte(s) at 0x00000000 |
 | `examples/notready/normalize.f` | lib | error: could not load libiconv_open |
 | `examples/notready/upsies-downsies.f` | os | timeout |
-| `examples/onstart.f` | core | fault: '(save)' is not implemented in this port yet |
+| `examples/onstart.f` | core | runs |
 | `examples/pi/pi.f` | core | runs |
 | `examples/pi/pi2.f` | core | runs |
 | `examples/pi/pispigot.f` | lib | runs |
 | `examples/process.f` | os | runs |
 | `examples/quoth.f` | lib | runs |
-| `examples/revafind.f` | os | fault: '(save)' is not implemented in this port yet |
-| `examples/robotron.f` | core | fault: '(save)' is not implemented in this port yet |
+| `examples/revafind.f` | os | runs |
+| `examples/robotron.f` | core | runs |
 | `examples/see2.f` | lib | runs |
-| `examples/sha1.f` | lib | fault: 'open/r' is not implemented in this port yet |
+| `examples/sha1.f` | lib | timeout |
 | `examples/sieve.f` | core | timeout |
 | `examples/smtp.f` | net | timeout |
 | `examples/sockets.f` | net | runs |
-| `examples/special.f` | core | fault: '(save)' is not implemented in this port yet |
+| `examples/special.f` | core | runs |
 | `examples/sqlite.f` | db | fault: stack underflow |
 | `examples/sqlite2.f` | db | error: could not load sqlite3_open |
 | `examples/sqlite3.f` | db | error: could not load sqlite3_open |
 | `examples/stars.f` | core | runs |
 | `examples/sudoku-sp.f` | lib | runs |
 | `examples/sudoku.f` | lib | runs |
-| `examples/sunrise.f` | lib | fault: unsupported instruction at 0x00148ec8: d9 ee e8 19 73 ff ff 0f |
+| `examples/sunrise.f` | lib | fault: unsupported x87 floating point instruction at 0x00148edc: d9 ee e8 05 73 ff ff 0f (see docs/portability.md) |
 | `examples/task.f` | lib | runs |
 | `examples/test.f` | lib | runs |
 | `examples/testing.f` | core | runs |
@@ -149,5 +149,5 @@ Most common first missing word (top 10):
 | `examples/xml.f` | lib | runs |
 | `examples/xmlparse.f` | lib | error: could not load XML_ParserCreate |
 | `examples/xmlrpc.f` | net | missing: `parse-result` |
-| `examples/zemanim.f` | lib | fault: unsupported instruction at 0x0014b070: d9 ee e8 71 51 ff ff 0f |
+| `examples/zemanim.f` | lib | fault: unsupported x87 floating point instruction at 0x0014b084: d9 ee e8 5d 51 ff ff 0f (see docs/portability.md) |
 | `examples/zipdb.f` | db | fault: stack underflow |
