@@ -8,6 +8,7 @@
 ../docs/parity-examples.md: 0 sample(s) ok
 ../docs/parity.md: 0 sample(s) ok
 ../docs/portability.md: 0 sample(s) ok
+../docs/repl.md: 0 sample(s) ok
 ../docs/serve.md: 0 sample(s) ok
 ../docs/turtle.md: 6 sample(s) ok
 ../docs/web.md: 0 sample(s) ok

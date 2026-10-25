@@ -12,8 +12,12 @@
 //! `restart` starts over the way this run started (boot or `--image`),
 //! includes the files and evaluates the `-e` texts again, then goes on
 //! reading the input that is left.
+//!
+//! At a terminal, the line is edited before Forth sees it: history
+//! (`~/.reva_history`, or `$REVA_HISTORY`), Up/Down, Ctrl-R search and
+//! Emacs keys (see `lineedit.rs`, `term.rs` and docs/repl.md).
 
-use std::io::{self, BufRead, IsTerminal, Read, Write};
+use std::io::{self, IsTerminal, Read, Write};
 use std::process::ExitCode;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -31,11 +35,17 @@ usage: reva [options] [file ...]
       --show-boot      print what booting printed (progress digits, errors)
       --trace          trace every VM step to stderr (very slow)
       --allow-shell    let `shell` (C `system`) run OS commands; off by default
+      --no-edit        at a terminal, read plain lines (no history or line editing)
   -h, --help           this text
   -V, --version        version
 ";
 
 mod fs;
+mod history;
+mod lineedit;
+mod term;
+
+use term::{Input, LineReader};
 
 struct StdHost {
     out: io::BufWriter<io::Stdout>,
@@ -44,6 +54,23 @@ struct StdHost {
     /// While booting: output is collected here so the progress digits
     /// stay quiet.
     capture: Option<Vec<u8>>,
+    /// Interactive: reads (and edits) lines from the terminal.
+    reader: Option<LineReader>,
+    /// What was printed since the last newline: the prompt, for redraws.
+    tail: Vec<u8>,
+}
+
+impl StdHost {
+    /// The next line typed (interactive runs only), with its newline.
+    fn read_line(&mut self) -> Input {
+        let _ = self.out.flush();
+        let prompt = String::from_utf8_lossy(&self.tail).into_owned();
+        self.tail.clear();
+        match &mut self.reader {
+            Some(r) => r.read_line(&prompt),
+            None => Input::Eof,
+        }
+    }
 }
 
 /// Process environment, clock and file system, shared by both hosts.
@@ -74,6 +101,16 @@ impl Host for StdHost {
             Some(c) => c.extend_from_slice(bytes),
             None => {
                 let _ = self.out.write_all(bytes);
+                match bytes.iter().rposition(|&b| b == b'\n') {
+                    Some(i) => {
+                        self.tail.clear();
+                        self.tail.extend_from_slice(&bytes[i + 1..]);
+                    }
+                    None => self.tail.extend_from_slice(bytes),
+                }
+                if self.tail.len() > 256 {
+                    self.tail.drain(..self.tail.len() - 256);
+                }
             }
         }
     }
@@ -105,11 +142,9 @@ impl Host for StdHost {
         if self.capture.is_some() {
             return None;
         }
-        let _ = self.out.flush();
-        let mut line = String::new();
-        match io::stdin().lock().read_line(&mut line) {
-            Ok(_) => Some(line.into_bytes()),
-            Err(_) => None,
+        match self.read_line() {
+            Input::Line(l) => Some(l.into_bytes()),
+            Input::Eof => Some(Vec::new()),
         }
     }
 }
@@ -136,6 +171,7 @@ struct Options {
     show_boot: bool,
     trace: bool,
     allow_shell: bool,
+    no_edit: bool,
 }
 
 fn parse_args() -> Result<Options, String> {
@@ -152,6 +188,7 @@ fn parse_args() -> Result<Options, String> {
             "--show-boot" => o.show_boot = true,
             "--trace" => o.trace = true,
             "--allow-shell" => o.allow_shell = true,
+            "--no-edit" => o.no_edit = true,
             "-h" | "--help" => {
                 print!("{USAGE}");
                 std::process::exit(0);
@@ -219,6 +256,8 @@ fn main() -> ExitCode {
         fs: fs::StdFs::default(),
         capture: None,
         allow_shell: opts.allow_shell,
+        reader: run.interactive.then(|| LineReader::new(!opts.no_edit)),
+        tail: Vec::new(),
     };
     if let Err(code) = run.begin(&mut vm, &mut host) {
         return code;
@@ -258,11 +297,9 @@ fn main() -> ExitCode {
 
     // Interactive: one line at a time; reva.f prints the prompt.
     loop {
-        let _ = host.out.flush();
-        let mut line = String::new();
-        match stdin.lock().read_line(&mut line) {
-            Ok(0) | Err(_) => vm.close_input(),
-            Ok(_) => vm.feed(line.as_bytes()),
+        match host.read_line() {
+            Input::Eof => vm.close_input(),
+            Input::Line(l) => vm.feed(l.as_bytes()),
         }
         let status = run.until_blocked(&mut vm, &mut host);
         let _ = host.out.flush();
@@ -317,7 +354,7 @@ impl Run<'_> {
         if self.interactive {
             // The banner and first `ok>` prompt, as Reva showed them.
             if normal && !opts.show_boot {
-                let _ = host.out.write_all(rest.as_bytes());
+                host.write(rest.as_bytes());
             }
         } else {
             vm.quiet_prompt();
