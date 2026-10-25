@@ -16,9 +16,22 @@
 //!    calls.
 //! 4. Output accumulates; read `reva_output_len()` bytes at
 //!    `reva_output_ptr()` and then `reva_output_clear()`.
+//!
+//! Files (an in-memory [`MemFs`] over the embedded `lib/`; see
+//! `reva_vm::vfs`):
+//!
+//! * `p = reva_fs_buffer(n)`, copy a path and then the file's bytes to
+//!   `p`, and `reva_fs_put(path_len)` adds the file.  This works before
+//!   `reva_boot` too, so a page can restore saved files and bundle its
+//!   own before `reva.f` runs.
+//! * `n = reva_fs_changes()` collects every file written or removed since
+//!   the last call into the buffer at `reva_fs_data()`: records of
+//!   `kind:u8` (1 written, 0 removed), `path_len:u32le`, path,
+//!   `data_len:u32le`, data.  `www/reva.js` keeps them in `localStorage`.
 
 use std::cell::RefCell;
 
+use reva_vm::vfs::MemFs;
 use reva_vm::{embedded, BufferHost, Machine, Status};
 
 struct Web {
@@ -29,6 +42,10 @@ struct Web {
 
 thread_local! {
     static WEB: RefCell<Option<Web>> = const { RefCell::new(None) };
+    /// Files added before boot (moved into the host by `reva_boot`).
+    static PENDING: RefCell<Option<MemFs>> = const { RefCell::new(None) };
+    /// The buffer behind `reva_fs_buffer` and `reva_fs_changes`.
+    static FSBUF: RefCell<Vec<u8>> = const { RefCell::new(Vec::new()) };
 }
 
 const YIELDED: i32 = 0;
@@ -55,6 +72,9 @@ fn with<R>(f: impl FnOnce(&mut Web) -> R, default: R) -> R {
 pub extern "C" fn reva_boot() -> i32 {
     let mut vm = Machine::new(&["reva", embedded::BOOT_PATH]);
     let mut host = BufferHost::new();
+    if let Some(fs) = PENDING.with(|p| p.borrow_mut().take()) {
+        host.fs = fs;
+    }
     let status = vm.run_until_blocked(&mut host);
     // Drop reva.f's progress marks; keep the banner and first prompt.
     let out = String::from_utf8_lossy(&host.out).into_owned();
@@ -127,6 +147,72 @@ pub extern "C" fn reva_exit_code() -> i32 {
     with(|w| w.vm.halted().unwrap_or(0), 0)
 }
 
+/// The file system: the booted host's, or the one waiting for boot.
+fn with_fs<R>(f: impl FnOnce(&mut MemFs) -> R) -> R {
+    let mut f = Some(f);
+    let booted = WEB.with(|w| {
+        w.borrow_mut()
+            .as_mut()
+            .map(|w| (f.take().unwrap())(&mut w.host.fs))
+    });
+    match booted {
+        Some(r) => r,
+        None => {
+            PENDING.with(|p| (f.take().unwrap())(p.borrow_mut().get_or_insert_with(MemFs::new)))
+        }
+    }
+}
+
+/// A buffer of `len` bytes for [`reva_fs_put`].
+#[no_mangle]
+pub extern "C" fn reva_fs_buffer(len: u32) -> *mut u8 {
+    FSBUF.with(|b| {
+        let mut b = b.borrow_mut();
+        b.resize(len as usize, 0);
+        b.as_mut_ptr()
+    })
+}
+
+/// The buffer's address (after [`reva_fs_changes`]).
+#[no_mangle]
+pub extern "C" fn reva_fs_data() -> *const u8 {
+    FSBUF.with(|b| b.borrow().as_ptr())
+}
+
+/// Add the file in the buffer: a path of `path_len` bytes, then the
+/// contents.  Returns 0, or -1 if `path_len` is too long.
+#[no_mangle]
+pub extern "C" fn reva_fs_put(path_len: u32) -> i32 {
+    let buf = FSBUF.with(|b| std::mem::take(&mut *b.borrow_mut()));
+    let n = path_len as usize;
+    if n > buf.len() {
+        return -1;
+    }
+    let path = String::from_utf8_lossy(&buf[..n]).into_owned();
+    with_fs(|fs| fs.put(&path, &buf[n..]));
+    0
+}
+
+/// Collect the files changed since the last call (see the module docs);
+/// returns the number of bytes at [`reva_fs_data`].
+#[no_mangle]
+pub extern "C" fn reva_fs_changes() -> u32 {
+    let changes = with_fs(MemFs::take_changes);
+    FSBUF.with(|b| {
+        let mut b = b.borrow_mut();
+        b.clear();
+        for (path, data) in changes {
+            b.push(data.is_some() as u8);
+            b.extend_from_slice(&(path.len() as u32).to_le_bytes());
+            b.extend_from_slice(path.as_bytes());
+            let data = data.unwrap_or_default();
+            b.extend_from_slice(&(data.len() as u32).to_le_bytes());
+            b.extend_from_slice(&data);
+        }
+        b.len() as u32
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -157,8 +243,30 @@ mod tests {
         }
         assert_eq!(s, NEED_INPUT);
         assert_eq!(output(), "5 49 \nok> ");
+        // files: one added from outside, one written by Forth
+        put("/home/a.f", b": greet .\" hi\" ; ");
+        assert_eq!(reva_fs_changes(), 0);
+        feed("include /home/a.f greet\n\" /home/b\" creat value h \" xyz\" h write h close\n");
+        while reva_run(1000) == YIELDED {}
+        assert_eq!(output(), "hi\nok> \nok> ");
+        let n = reva_fs_changes() as usize;
+        let rec = unsafe { std::slice::from_raw_parts(reva_fs_data(), n) };
+        let mut want = vec![1u8, 7, 0, 0, 0];
+        want.extend_from_slice(b"/home/b");
+        want.extend_from_slice(&[3, 0, 0, 0]);
+        want.extend_from_slice(b"xyz");
+        assert_eq!(rec, &want[..]);
         feed("3 ~sys.(bye)\n");
         while reva_run(1000) == YIELDED {}
         assert_eq!(reva_exit_code(), 3);
+    }
+
+    fn put(path: &str, data: &[u8]) {
+        let p = reva_fs_buffer((path.len() + data.len()) as u32);
+        unsafe {
+            std::ptr::copy_nonoverlapping(path.as_ptr(), p, path.len());
+            std::ptr::copy_nonoverlapping(data.as_ptr(), p.add(path.len()), data.len());
+        }
+        assert_eq!(reva_fs_put(path.len() as u32), 0);
     }
 }

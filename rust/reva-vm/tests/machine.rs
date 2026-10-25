@@ -188,3 +188,76 @@ fn the_virtual_libc_reaches_the_host() {
         "1970 1 1 0 0 0 "
     );
 }
+
+#[test]
+fn file_words_reach_the_host_file_system() {
+    let (mut vm, mut host) = booted();
+    let run = |vm: &mut Machine, host: &mut BufferHost, s: &str| eval(vm, host, s);
+    // creat / write / close, then open/r / fsize / read
+    assert_eq!(
+        run(
+            &mut vm,
+            &mut host,
+            "\" /t\" creat value h ioerr @ . \" abc\" h write ioerr @ . h close"
+        ),
+        "0 0 "
+    );
+    assert_eq!(host.fs.get("/t"), Some(&b"abc"[..]));
+    assert_eq!(
+        run(
+            &mut vm,
+            &mut host,
+            "\" /t\" open/r value r r fsize . pad 10 r read . pad 3 type r close"
+        ),
+        "3 3 abc"
+    );
+    // seek / tell on a read-write handle
+    assert_eq!(
+        run(
+            &mut vm,
+            &mut host,
+            "\" /t\" open/rw value w 1 w seek \" X\" w write w tell . w close"
+        ),
+        "2 "
+    );
+    assert_eq!(host.fs.get("/t"), Some(&b"aXc"[..]));
+    // failure: ioerr is -errno (ENOENT), and the fd is the same value
+    assert_eq!(
+        run(&mut vm, &mut host, "\" /nope\" open/r . ioerr @ ."),
+        "-2 -2 "
+    );
+    // stat (mode word), rename (reva.f's takes one extra cell), delete
+    assert_eq!(
+        run(
+            &mut vm,
+            &mut host,
+            "\" /t\" stat $ffff and . \
+                                 0 \" /t\" \" /u\" rename ioerr @ . \" /u\" delete ioerr @ ."
+        ),
+        "33188 0 0 "
+    );
+    assert_eq!(host.fs.get("/u"), None);
+    // directories: mkdir, chdir, getcwd, relative paths, opendir
+    assert_eq!(
+        run(
+            &mut vm,
+            &mut host,
+            "needs os/dir \" /d\" mkdir \" /d\" chdir getcwd type space \
+                                 \" f\" creat close \" /d\" opendir closedir type ."
+        ),
+        "/d .0 "
+    );
+    assert_eq!(host.fs.get("/d/f"), Some(&b""[..]));
+    // `include` reads the same file system
+    host.fs.put("/d/g.f", b": g 6 7 * ;");
+    assert_eq!(run(&mut vm, &mut host, "include g.f g ."), "42 ");
+    // what changed, for a host that persists files
+    let mut changed: Vec<String> = host.fs.take_changes().into_iter().map(|(p, _)| p).collect();
+    changed.sort();
+    assert_eq!(changed, ["/d/f", "/t", "/u"]);
+    // the console descriptors
+    assert_eq!(
+        run(&mut vm, &mut host, "\" out\" 1 write ioerr @ ."),
+        "out0 "
+    );
+}

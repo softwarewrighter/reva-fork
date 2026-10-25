@@ -10,10 +10,10 @@
 //! The exit status is the `bye` code (0 at end of input).
 
 use std::io::{self, BufRead, IsTerminal, Read, Write};
-use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use reva_vm::vfs::FileSystem;
 use reva_vm::{embedded, Host, Machine, Status};
 
 const USAGE: &str = "\
@@ -30,32 +30,14 @@ usage: reva [options] [file ...]
   -V, --version        version
 ";
 
+mod fs;
+
 struct StdHost {
     out: io::BufWriter<io::Stdout>,
+    fs: fs::StdFs,
 }
 
-/// Where `/reva/...` (the core's virtual install prefix) lives on disk:
-/// `$REVA_HOME`, else the checkout this binary was built from.
-fn install_root() -> PathBuf {
-    match std::env::var_os("REVA_HOME") {
-        Some(h) => PathBuf::from(h),
-        None => Path::new(env!("CARGO_MANIFEST_DIR")).join("../.."),
-    }
-}
-
-/// File lookup shared by both hosts: embedded sources, then the install
-/// prefix, then the path as given (relative to the working directory).
-fn read_file(path: &str) -> Option<Vec<u8>> {
-    if let Some(b) = embedded::file(path) {
-        return Some(b.to_vec());
-    }
-    if let Some(rel) = embedded::install_relative(path) {
-        return std::fs::read(install_root().join(rel)).ok();
-    }
-    std::fs::read(path).ok()
-}
-
-/// Process environment and clock, shared by both hosts.
+/// Process environment, clock and file system, shared by both hosts.
 macro_rules! os_services {
     () => {
         fn getenv(&mut self, name: &str) -> Option<String> {
@@ -71,16 +53,15 @@ macro_rules! os_services {
         fn sleep_ms(&mut self, ms: u32) {
             std::thread::sleep(Duration::from_millis(ms.into()));
         }
+        fn fs(&mut self) -> Option<&mut dyn FileSystem> {
+            Some(&mut self.fs)
+        }
     };
 }
 
 impl Host for StdHost {
     fn write(&mut self, bytes: &[u8]) {
         let _ = self.out.write_all(bytes);
-    }
-
-    fn read_file(&mut self, path: &str) -> Option<Vec<u8>> {
-        read_file(path)
     }
 
     os_services!();
@@ -96,14 +77,14 @@ impl Host for StdHost {
 }
 
 /// Collects output during boot so the progress digits stay quiet.
-struct Capture(Vec<u8>);
+struct Capture {
+    out: Vec<u8>,
+    fs: fs::StdFs,
+}
 
 impl Host for Capture {
     fn write(&mut self, bytes: &[u8]) {
-        self.0.extend_from_slice(bytes);
-    }
-    fn read_file(&mut self, path: &str) -> Option<Vec<u8>> {
-        read_file(path)
+        self.out.extend_from_slice(bytes);
     }
 
     os_services!();
@@ -190,13 +171,16 @@ fn main() -> ExitCode {
     // Boot quietly.  reva.f prints progress marks, then (as the restarted
     // system) its banner and first prompt; anything else means the boot
     // went wrong, so show it.
-    let mut capture = Capture(Vec::new());
+    let mut capture = Capture {
+        out: Vec::new(),
+        fs: fs::StdFs::default(),
+    };
     if let Status::Halted(code) = vm.run_until_blocked(&mut capture) {
-        io::stdout().write_all(&capture.0).ok();
+        io::stdout().write_all(&capture.out).ok();
         eprintln!("reva: halted during boot");
         return exit_code(code);
     }
-    let boot_out = String::from_utf8_lossy(&capture.0).into_owned();
+    let boot_out = String::from_utf8_lossy(&capture.out).into_owned();
     let (marks, rest) = embedded::split_boot_output(&boot_out);
     let normal = !rest.contains("***") && (rest.is_empty() || rest.starts_with("Reva "));
     if opts.show_boot || !normal {
@@ -218,6 +202,7 @@ fn main() -> ExitCode {
 
     let mut host = StdHost {
         out: io::BufWriter::new(io::stdout()),
+        fs: capture.fs,
     };
     let mut pending = Vec::new();
     for f in &opts.files {
