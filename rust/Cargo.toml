@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["reva-vm", "reva-cli", "reva-web"]
+members = ["reva-vm", "reva-cli", "reva-web", "reva-serve"]
 
 [workspace.package]
 version = "2026.1025.0"

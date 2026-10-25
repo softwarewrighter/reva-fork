@@ -21,6 +21,14 @@ web-zip *ARGS:
 web-dev: wasm
     python3 -m http.server -d rust/reva-web/www 8000
 
+# reva-serve, the one-binary local web app, for this machine (or TARGETs: mac, linux, windows); args go to build-serve.sh
+serve-build *ARGS:
+    rust/scripts/build-serve.sh {{ARGS}}
+
+# build reva-serve for this machine from the source tree and run it (opens the browser; Ctrl-C stops)
+serve:
+    cd rust && cargo run --release -p reva-serve
+
 # the CLI (rust/target/release/reva)
 cli:
     cd rust && cargo build --release -p reva-cli
