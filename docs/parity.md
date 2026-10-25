@@ -7,7 +7,8 @@ everything still supported, not a copy of the old pages: the new pages are
 written from the implementation and their samples are checked by tests.
 
 Status legend: **done** — rebuilt and checked · **partial** — some of it ·
-**blocked** — needs a roadmap item first (see
+**ready** — what it covers works on the portable core; the page is not
+rebuilt yet · **blocked** — needs a roadmap item first (see
 [DESIGN.md §7](../rust/DESIGN.md#7-roadmap)) · **superseded** — no longer
 applies · **decide** — needs a decision on whether it is still supported.
 
@@ -20,9 +21,9 @@ applies · **decide** — needs a decision on whether it is still supported.
 | `mac.wiki` | install on macOS, IUP/GTK setup | superseded / decide | install: [getting-started.md](getting-started.md); IUP: see GUI decision below |
 | `LICENSE.wiki` | license | superseded | [../LICENSE](../LICENSE), [../LICENSING.md](../LICENSING.md) |
 | `gotchas.wiki` | pitfalls | done (1 item pending FFI) | [gotchas.md](gotchas.md) |
-| `libraries.wiki` | `needs`, library layout | blocked | needs the rest of `reva.f` (`needs`) — roadmap 2 |
-| `tutorial.wiki` | basic tutorial | blocked | see sections below |
-| `tutorial-intermediate.wiki` | `words`, `dump`, dictionary, internals | blocked | needs the rest of `reva.f`; internals chapters must be rewritten for the vx86 core |
+| `libraries.wiki` | `needs`, library layout | ready | `needs` works; libraries resolve under the virtual prefix `/reva/lib/` (CLI: the checkout or `$REVA_HOME`). Libraries that call native C libraries need FFI (roadmap 4) |
+| `tutorial.wiki` | basic tutorial | ready (files: blocked) | see sections below |
+| `tutorial-intermediate.wiki` | `words`, `dump`, dictionary, internals | ready / rewrite | `words` and the dictionary work; internals chapters must be rewritten for the vx86 core |
 
 ### Manual chapters linked from `index.wiki`
 
@@ -35,46 +36,51 @@ covers the same ground.
 | Installation, Command-line parameters | done | [getting-started.md](getting-started.md) |
 | Glossary, Built-in help system | blocked | `src/help.txt` (6,000 lines, in the repository) is the source: generate a glossary page from it, with a note per word on whether it works yet |
 | Turnkey (standalone applications) | partial | images: `reva --save-image` / `--image`; `(save)`/`makeexe` from Forth are roadmap 2 |
-| Cells and Stacks, Words and the dictionary, Numbers, Strings | partial | material exists across [gotchas.md](gotchas.md) and [DESIGN.md](../rust/DESIGN.md); write topic pages once `reva.f` boots fully |
-| Deferred words, Contexts, Libraries | blocked | rest of `reva.f` |
+| Cells and Stacks, Words and the dictionary, Numbers, Strings | partial | material exists across [gotchas.md](gotchas.md) and [DESIGN.md](../rust/DESIGN.md); `reva.f` now boots fully, so topic pages can be written |
+| Deferred words, Contexts, Libraries | ready | `defer`/`is`, `context:`/`with~`/`~ctx.word`, `needs` all work |
 | Design goals, Tips and Tricks, Comparisons (RetroForth/HelFORTH, ANS), Benchmarks | decide | historical; benchmarks to be redone with `bench/` on the new core |
 | Development | superseded | [../rust/README.md](../rust/README.md) (tests, reg-rs, doc-check) |
 
 ### Basic tutorial, by section
 
-The tutorial uses words that `reva.f` defines after the current boot cut
-(`."`, `mod`, loops, `needs`, file words), so it is rebuilt as a whole once
-`reva.f` boots fully. Sections whose subject already works are marked so they
-can be written first.
+`reva.f` now boots fully, so everything the tutorial uses works except the
+file words (roadmap 2, next) and floats (roadmap 3). Sections are rebuilt as
+pages are written.
 
 | Section | Subject works today? | Status |
 |---|---|---|
-| Forth Syntax | yes | blocked (uses `."`) |
-| Stack Manipulation | mostly (`dup drop swap over rot nip tuck`; not `pick`) | blocked |
-| Arithmetic, More Arithmetic, Arithmetic Overflow | partly (`+ - * /`; not `mod`, `/mod`, `negate`) | blocked |
-| Defining a New Word | yes | blocked |
-| Convert Algebraic Expressions | partly | blocked |
-| Character Input and Output | partly (`emit`, `key`, char constants) | blocked |
-| Compiling from Files | yes (`include`) | blocked |
-| Variables, Constants | yes | blocked |
-| Logical Operators, Conditionals | yes | blocked |
-| Loops | no | blocked |
-| Text Input and Output | no (`."`, `accept`) | blocked |
-| Changing Numeric Base | yes (`hex`, `decimal`, `binary`, prefixes) | blocked |
-| Libraries | no (`needs`) | blocked |
-| Files & File Handling | no (file words) | blocked |
+| Forth Syntax | yes | ready |
+| Stack Manipulation | yes | ready |
+| Arithmetic, More Arithmetic, Arithmetic Overflow | yes | ready |
+| Defining a New Word | yes | ready |
+| Convert Algebraic Expressions | yes | ready |
+| Character Input and Output | yes | ready |
+| Compiling from Files | yes (`include`) | ready |
+| Variables, Constants | yes | ready |
+| Logical Operators, Conditionals | yes | ready |
+| Loops | yes | ready |
+| Text Input and Output | yes (`."`; `accept` reads the input queue) | ready |
+| Changing Numeric Base | yes (`hex`, `decimal`, `binary`, prefixes) | ready |
+| Libraries | yes (`needs`) | ready |
+| Files & File Handling | no (`open/r` and friends) | blocked — roadmap 2 |
 
 ## Example programs
 
 [parity-examples.md](parity-examples.md) is generated by running every
-program in `examples/` (132 of them) on the portable core. Today none runs
-to completion: the most common blocker is `needs` (73 programs), followed by
-`."` (16). Booting the rest of `reva.f` is therefore the single most valuable
-next step for parity.
+program in `examples/` (132 of them) on the portable core. With all of
+`reva.f` booting, 54 run cleanly (none did before). The rest, by cause:
+
+| Cause | Programs | Roadmap |
+|---|---|---|
+| a native C library (`iconv`, IUP, SQLite, GTK, pthreads, ...) | 35 | 4 (FFI), or the GUI decision below |
+| `(save)` / `open/r`: files and executables | 11 | 2 (file words, images from Forth) |
+| x87 floating point (`fldz` ...) | 6 | 3 |
+| interactive or endless (time limit) | 11 | none: expected with stdin closed |
+| other faults and missing words (one is `lib/asm`, which ran the external FASM assembler) | 15 | investigate per program |
 
 | Area | Programs | Proposed support | Notes |
 |---|---|---|---|
-| core | 45 | yes | pure Forth; needs the rest of `reva.f` |
+| core | 45 | yes | pure Forth; `reva.f` boots fully |
 | lib | 37 | yes | `needs` + the libraries in `lib/` |
 | os | 9 | yes, through the host | files, processes, threads: CLI host first; browser where meaningful |
 | net | 7 | CLI yes; browser decide | sockets, HTTP, CGI |

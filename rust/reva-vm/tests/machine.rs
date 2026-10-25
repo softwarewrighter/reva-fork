@@ -12,11 +12,13 @@ fn booted() -> (Machine, BufferHost) {
     let mut vm = Machine::new(&["reva", embedded::BOOT_PATH]);
     let mut host = BufferHost::new();
     assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    let out = host.take_output();
     assert_eq!(
-        host.take_output(),
-        "12364",
+        embedded::split_boot_output(&out),
+        ("123645789ABCDE", "Reva 2011.2 Linux\n\nok> "),
         "boot printed something unexpected"
     );
+    vm.quiet_prompt();
     (vm, host)
 }
 
@@ -78,6 +80,9 @@ fn images_round_trip_in_memory() {
     let mut vm2 = Machine::load_image(&img, &["reva"]).expect("load");
     let mut host2 = BufferHost::new();
     assert_eq!(vm2.run_until_blocked(&mut host2), Status::NeedInput);
+    // An image starts like Reva's saved executable: banner, then the
+    // interpreter (the prompt stays as the saved system had it: quiet).
+    assert_eq!(host2.take_output(), "Reva 2011.2 Linux\n");
     assert_eq!(eval(&mut vm2, &mut host2, "answer . keep @ ."), "42 99 ");
     assert!(Machine::load_image(&img[..20], &[]).is_err());
 }
@@ -164,5 +169,22 @@ fn writes_to_executed_code_reach_the_translator() {
         rec.borrow().invalidated.contains(&page),
         "{:?}",
         rec.borrow().invalidated
+    );
+}
+
+#[test]
+fn the_virtual_libc_reaches_the_host() {
+    let (mut vm, mut host) = booted();
+    host.env.insert("REVA_TEST".into(), "forty-two".into());
+    assert_eq!(
+        eval(&mut vm, &mut host, "\" REVA_TEST\" getenv type"),
+        "forty-two"
+    );
+    eval(&mut vm, &mut host, "\" REVA_SET\" \" yes\" setenv");
+    assert_eq!(host.env.get("REVA_SET").map(String::as_str), Some("yes"));
+    // BufferHost has no clock: time&date reads as the Unix epoch, in UTC
+    assert_eq!(
+        eval(&mut vm, &mut host, "time&date . . . . . ."),
+        "1970 1 1 0 0 0 "
     );
 }

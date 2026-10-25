@@ -10,12 +10,17 @@ re-implemented in Rust. See [DESIGN.md](DESIGN.md) for the rationale.
 
 ## Status
 
-- `src/reva.f` boots verbatim up to its embedded assembler: primitives,
-  control structures, classes, `does>`, `THROW:`, `catch`/`throw`.
+- All of `src/reva.f` boots verbatim (assembler, contexts, `needs`, the
+  FFI layer, the Linux personality) and restarts as its saved executable
+  did: banner, `ok>` prompt, `reva.f`'s error handling. See DESIGN.md §3.6.
+- `needs` loads libraries from `lib/` (via the virtual prefix `/reva/lib/`;
+  set `$REVA_HOME` to use another tree).
+- A virtual libc (`getenv`, `putenv`, `localtime`) and a portable `syscall`
+  subset; `time&date`, `ms@`, `getenv` work.
 - Hosts: `reva` CLI (Linux/macOS/Windows, any CPU) and a WebAssembly module
   with a minimal web console.
-- Not yet: the rest of `reva.f`, file I/O words, `(save)`, FFI, x87 floats,
-  native translation. See the roadmap in DESIGN.md.
+- Not yet: file I/O words (`open/r` …), `(save)`, native libraries, x87
+  floats, native translation. See the roadmap in DESIGN.md.
 
 ## Layout
 

@@ -76,7 +76,20 @@ Numbers are 32-bit cells. Literals are checked for overflow, so
 Typed at the prompt, an unknown word only skips the rest of its line. In a
 file read with `include` (or given on the command line), the first unknown
 word abandons the *rest of the file*, and the stack is restored to what it
-was before the `include`. Check the first `?` in the output.
+was before the `include`. Check the first `ERROR:` line in the output.
+
+## Times are UTC
+
+`time&date` and `localtime` report UTC: the portable core has no time-zone
+database. The clock comes from the host (the browser host has none yet, so
+there it reads as the Unix epoch).
+
+## C functions: only a virtual libc
+
+`lib`/`func:` work as before, but the only library is a virtual libc with
+`getenv`, `putenv`, `localtime` and `errno`. Any other library or function
+fails to load, and `reva.f` reports it when the function is first called:
+`ERROR: could not load <name>`. Native libraries are roadmap item 4.
 
 ## Pending (not yet ported)
 

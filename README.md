@@ -18,8 +18,9 @@ in the browser (WebAssembly).
   Rather than rewrite all of that, the port executes the small IA-32 subset
   Reva actually uses, with the assembly core's routines re-implemented in
   Rust. `src/reva.f` runs unchanged — byte-for-byte machine-code words,
-  control structures, `does>`, `catch`/`throw` — on Linux, macOS and Windows,
-  on x86-64 and ARM64, and in a web page.
+  control structures, `does>`, `catch`/`throw`, the embedded assembler,
+  `needs` — on Linux, macOS and Windows, on x86-64 and ARM64, and in a web
+  page.
 
 Documentation: [docs/](docs/README.md) — rebuilt from the portable core, with
 tested samples; the old wiki in `www/` is deprecated
@@ -44,9 +45,10 @@ See [rust/README.md](rust/README.md).
 
 ## Status
 
-The portable core boots `src/reva.f` up to its embedded x86 assembler.
-Next: the rest of `reva.f`, file and FFI words, x87 floats, saved images
-via `(save)`, then native translators.
+The portable core boots all of `src/reva.f` and runs it as the original
+did: `needs` and the libraries, contexts, the REPL and its error handling.
+54 of the 132 example programs run unchanged. Next: file words, x87 floats,
+saved images via `(save)`, native libraries, then native translators.
 
 ## Branches
 

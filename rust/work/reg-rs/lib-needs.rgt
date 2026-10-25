@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} -e 'needs string/trim needs util/locals needs util/misc needs choices needs math/mod needs date/calendar needs os/shell needs os/dir needs os/fs needs debugger .needs cr' < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "needs loads libraries from lib/ through the virtual prefix /reva/lib/"
