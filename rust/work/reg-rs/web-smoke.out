@@ -11,3 +11,14 @@ ok   persisted: "savedÃ©"
 ok   restored: "Reva 2011.2 Linux\n\nok> savedé0 \nok> "
 ok   removal persisted: null
 ok   needs from the built-in lib/: "loaded\nok> "
+ok   spinning: 0
+ok   interrupted: true
+ok   dictionary kept: "42 \nok> "
+ok   same output for 1k and 1M step slices: true
+ok   worker boots: ["worker",1,"Reva 2011.2 Linux\n\nok> "]
+ok   worker runs: 1
+ok   worker output: "from the worker\nok> \nok> "
+ok   worker files saved by the page: "ok"
+ok   worker stop: 1
+ok   worker interrupted: true
+ok   worker halts: [2,7]

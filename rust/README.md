@@ -21,7 +21,8 @@ re-implemented in Rust. See [DESIGN.md](DESIGN.md) for the rationale.
   `Host::fs`: real files on the CLI, an in-memory file system in the
   browser (kept in `localStorage`); `lib/` is built in. See DESIGN.md §3.7.
 - Hosts: `reva` CLI (Linux/macOS/Windows, any CPU) and a WebAssembly module
-  with a minimal web console.
+  with a minimal web console; the VM runs in a Web Worker with time slices
+  and a Stop button (DESIGN.md §3.8).
 - Not yet: `(save)`, native libraries, x87
   floats, native translation. See the roadmap in DESIGN.md.
 

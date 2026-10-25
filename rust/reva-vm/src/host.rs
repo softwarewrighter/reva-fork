@@ -64,6 +64,9 @@ pub struct BufferHost {
     pub out: Vec<u8>,
     pub fs: MemFs,
     pub env: HashMap<String, String>,
+    /// What `now` reports: set by the embedder (the browser sets it before
+    /// each run); `None` (the default) keeps tests deterministic.
+    pub clock: Option<(u64, u32)>,
 }
 
 impl BufferHost {
@@ -88,6 +91,10 @@ impl Host for BufferHost {
 
     fn getenv(&mut self, name: &str) -> Option<String> {
         self.env.get(name).cloned()
+    }
+
+    fn now(&mut self) -> Option<(u64, u32)> {
+        self.clock
     }
 
     fn setenv(&mut self, name: &str, value: &str) {
