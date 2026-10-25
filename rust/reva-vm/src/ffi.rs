@@ -111,9 +111,16 @@ impl Machine {
         let n = self.ffi_pop()?;
         let a = self.reg(EAX);
         let name = self.ffi_string(a, n)?;
-        let known = LIBC_NAMES.iter().any(|l| l.eq_ignore_ascii_case(&name));
-        self.missing_lib = (!known).then_some(name);
-        self.set_reg(EAX, if known { LIBC_HANDLE } else { 0 });
+        let is = |names: &[&str]| names.iter().any(|l| l.eq_ignore_ascii_case(&name));
+        let handle = if is(LIBC_NAMES) {
+            LIBC_HANDLE
+        } else if is(crate::turtle::TURTLE_NAMES) {
+            crate::turtle::TURTLE_HANDLE
+        } else {
+            0
+        };
+        self.missing_lib = (handle == 0).then_some(name);
+        self.set_reg(EAX, handle);
         Ok(())
     }
 
@@ -139,6 +146,9 @@ impl Machine {
             } else if let Some(&(_, cell)) = DATA_SYMBOLS.iter().find(|(d, _)| *d == name) {
                 addr = cell;
             }
+        }
+        if handle == crate::turtle::TURTLE_HANDLE {
+            addr = crate::turtle::lookup(name).map_or(0, Gate::addr);
         }
         if handle == 0 {
             if let Some(lib) = self.missing_lib.take() {
@@ -178,7 +188,11 @@ impl Machine {
             Some(Gate::HostReaddir) => self.c_readdir(host, arg0)?,
             Some(Gate::HostClosedir) => self.c_closedir(arg0)?,
             Some(Gate::HostSystem) => self.c_system(host, arg0)?,
-            _ => return Err(Fault::NativeCall { addr: f }),
+            Some(g) => match self.turtle_call(host, g, &args)? {
+                Some(r) => r,
+                None => return Err(Fault::NativeCall { addr: f }),
+            },
+            None => return Err(Fault::NativeCall { addr: f }),
         };
         // upsh: the result becomes TOS.
         let sp = self.reg(ESI).wrapping_sub(4);

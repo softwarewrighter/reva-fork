@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} tests/forth/turtle.f < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "turtle graphics: geometry, push/pop, bulk path, fractal segment counts, depth caps, SVG"
