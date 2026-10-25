@@ -60,6 +60,7 @@ Other ways to run code:
 | `reva --save-image app.img -e '...'` | save the state after loading, then exit |
 | `reva --image app.img` | start from a saved image |
 | `reva --help` | all options |
+| `reva -V` | version and build information (`--version`) |
 
 The exit status is 0 after `bye` or at end of input. `reva.f` keeps the
 core's `(bye)`, which exits with a status from the stack, in the `~sys`
@@ -70,9 +71,14 @@ echo '3 ~sys.(bye)' | reva; echo $?      # 3
 ```
 
 When standard input is a terminal, `reva` starts as Reva always did: it
-prints the banner (`Reva 2011.2 Linux`) and an `ok>` prompt before each
-line. Piped or redirected input gets neither, so batch output is just what
-the program prints.
+prints the banner (`reva-fork 2026.1025.0 portable`) and an `ok>` prompt before
+each line. Piped or redirected input gets neither, so batch output is just
+what the program prints.
+
+At the prompt, `version` prints the same report as `reva -V`: the version,
+copyright, license, repository, and the host, commit and time of the build.
+`.ver` prints the banner. `revaver` still gives `2011.2`, the release of
+`reva.f` this core runs, because libraries compare against it.
 
 ## Errors
 

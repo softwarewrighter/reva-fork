@@ -18,7 +18,7 @@ use std::process::ExitCode;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use reva_vm::vfs::FileSystem;
-use reva_vm::{embedded, Host, Machine, Start, Status};
+use reva_vm::{embedded, version, Host, Machine, Start, Status};
 
 const USAGE: &str = "\
 usage: reva [options] [file ...]
@@ -157,7 +157,7 @@ fn parse_args() -> Result<Options, String> {
                 std::process::exit(0);
             }
             "-V" | "--version" => {
-                println!("reva {} (portable vx86 core)", env!("CARGO_PKG_VERSION"));
+                print!("{}", version::info());
                 std::process::exit(0);
             }
             s if s.starts_with('-') && s.len() > 1 => return Err(format!("unknown option {s}")),
@@ -306,7 +306,8 @@ impl Run<'_> {
         }
         let boot_out = String::from_utf8_lossy(&boot_out).into_owned();
         let (marks, rest) = embedded::split_boot_output(&boot_out);
-        let normal = !rest.contains("***") && (rest.is_empty() || rest.starts_with("Reva "));
+        let normal =
+            !rest.contains("***") && (rest.is_empty() || rest.starts_with(version::BANNER));
         if opts.show_boot || !normal {
             eprint!("{marks}{rest}");
             if !boot_out.ends_with('\n') && !boot_out.is_empty() {

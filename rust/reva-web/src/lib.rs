@@ -331,6 +331,7 @@ pub extern "C" fn reva_fs_changes() -> u32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use reva_vm::version::BANNER;
 
     fn feed(s: &str) {
         let p = reva_input_buffer(s.len() as u32);
@@ -350,7 +351,7 @@ mod tests {
     fn the_c_abi_drives_a_session() {
         assert_eq!(reva_run(10), NOT_BOOTED);
         assert_eq!(reva_boot(), NEED_INPUT);
-        assert_eq!(output(), "Reva 2011.2 Linux\n\nok> ");
+        assert_eq!(output(), format!("{BANNER}\n\nok> "));
         feed("2 3 + . : sq dup * ; 7 sq .\n");
         let mut s = YIELDED;
         while s == YIELDED {
@@ -406,13 +407,13 @@ mod tests {
         let p = reva_fs_buffer(image.len() as u32);
         unsafe { std::ptr::copy_nonoverlapping(image.as_ptr(), p, image.len()) };
         assert_eq!(reva_boot_image(image.len() as u32), NEED_INPUT);
-        assert_eq!(output(), "Reva 2011.2 Linux\n\nok> ");
+        assert_eq!(output(), format!("{BANNER}\n\nok> "));
         feed(": gone ; hi restart\nhi gone\n");
         // restart: the banner again, the image's words, not later ones;
         // the next line was not read yet, so it reaches the new machine
         let out = run_out();
         assert!(
-            out.starts_with("from the imageReva 2011.2 Linux\n\nok> from the image"),
+            out.starts_with(&format!("from the image{BANNER}\n\nok> from the image")),
             "{out:?}"
         );
         assert!(out.contains("unknown word:  gone"), "{out:?}");
