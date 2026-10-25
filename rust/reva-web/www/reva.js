@@ -13,7 +13,9 @@
 // The VM boots reva.f, or starts from a saved image (`image`: bytes or a
 // URL; make one with `reva --save-image` or `save` in Forth), which skips
 // compiling reva.f and whatever the image was built with.  Forth's
-// `restart` makes the VM again the same way, keeping files and input.
+// `restart` makes the VM again the same way, keeping files and input, and
+// reads the *start input* again (`feedStart`: a page's start files, like
+// the file arguments the CLI re-runs).
 //
 // Files live in memory inside the module (lib/ is built in, at /reva/lib/).
 // Give `files` to bundle your own, and `storage` (e.g. localStorage) to keep
@@ -185,12 +187,15 @@ export class Reva {
       this.put(path, data);
   }
 
-  feed(text) {
+  feed(text, fn = "reva_feed") {
     const b = this.enc.encode(text);
     const p = this.x.reva_input_buffer(b.length);
     new Uint8Array(this.x.memory.buffer, p, b.length).set(b);
-    this.x.reva_feed(b.length);
+    this.x[fn](b.length);
   }
+
+  /** Feed `text` now and again after every `restart`. */
+  feedStart(text) { this.feed(text, "reva_feed_start"); }
 
   closeInput() { this.x.reva_close_input(); }
 
@@ -252,7 +257,8 @@ export class Reva {
  * NEED_INPUT or HALTED), `worker` (false: run on this thread), `workerUrl`,
  * `createWorker(url)` (for tests), `stopTimeoutMs` (default 2000).
  *
- * Returns `{ kind, ready, feed(text), closeInput(), stop(), idle(), status,
+ * Returns `{ kind, ready, feed(text), feedStart(text), closeInput(), stop(),
+ * idle(), status,
  * exitCode, terminate() }`; `ready` resolves after boot with its output
  * already sent to `onOutput`.
  */
@@ -318,6 +324,7 @@ class LocalSession extends Session {
     this.setStatus(s, s === HALTED ? this.reva.exitCode : 0);
   }
   feed(text) { this.reva.feed(text); this.pump(); }
+  feedStart(text) { this.reva.feedStart(text); this.pump(); }
   closeInput() { this.reva.closeInput(); this.pump(); }
   stop() { if (this.status === RUNNING) this.reva.interrupt(); }
   terminate() {}
@@ -329,6 +336,7 @@ class WorkerSession extends Session {
     super(o);
     this.kind = "worker";
     this.o = o;
+    this.startText = "";
     this.spawn();
   }
   spawn() {
@@ -355,8 +363,15 @@ class WorkerSession extends Session {
     const files = o.storage ? { ...o.files, ...storedFiles(o.storage, o.prefix) } : o.files;
     const abs = (u) => (typeof u === "string" || u instanceof URL ? new URL(u, globalThis.location?.href).href : u);
     this.w.postMessage({ type: "init", wasm: o.wasmBytes ?? abs(o.wasmUrl), image: abs(o.image), files });
+    // A replacement worker (see stop) runs the start input again too.
+    if (this.startText) this.w.postMessage({ type: "start", text: this.startText });
   }
   feed(text) { this.status = RUNNING; this.w.postMessage({ type: "input", text }); }
+  feedStart(text) {
+    this.startText += text;
+    this.status = RUNNING;
+    this.w.postMessage({ type: "start", text });
+  }
   closeInput() { this.status = RUNNING; this.w.postMessage({ type: "close" }); }
   /**
    * Interrupt the running word.  If the worker does not answer in
