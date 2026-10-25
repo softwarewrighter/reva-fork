@@ -113,7 +113,8 @@ python3 -m http.server -d /tmp/site 8000
 ```
 
 `file://` does not work: browsers do not start module workers or fetch
-files from `file://` pages.
+files from `file://` pages. To run the same tree with no server at all,
+use [reva-serve](serve.md), which embeds it in one binary.
 
 ## Design notes
 

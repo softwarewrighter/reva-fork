@@ -88,6 +88,8 @@ a worker cannot start from `file://`. Saved images (`?image=app.img`) and
 other files can sit next to `index.html`. `--package DIR` bundles a
 package (CoSy's zip: `just cosy-zip` in ba-cosy-zip-fork). Options, the
 split-view default and how to test under a subpath: [web.md](web.md).
+The same tree as one local binary per OS: [serve.md](serve.md)
+(`rust/scripts/build-serve.sh mac|linux|windows`).
 
 ## 4. Desktop installers (Tauri 2)
 

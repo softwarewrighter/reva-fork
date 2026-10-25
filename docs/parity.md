@@ -34,7 +34,7 @@ covers the same ground.
 | Chapter | Status | Replacement / plan |
 |---|---|---|
 | Installation, Command-line parameters | done | [getting-started.md](getting-started.md); a walk-through in [demo.md](demo.md) |
-| Distribution (the old `bin/` per OS, `tools/build.f`) | superseded | [packaging.md](packaging.md): one self-contained binary per target, a static web zip with an optional package ([web.md](web.md), `just web-zip`), desktop installers; Windows status and test plan |
+| Distribution (the old `bin/` per OS, `tools/build.f`) | superseded | [packaging.md](packaging.md): one self-contained binary per target, a static web zip with an optional package ([web.md](web.md), `just web-zip`), the same as one local binary ([serve.md](serve.md)), desktop installers; Windows status and test plan |
 | Glossary, Built-in help system | blocked | `src/help.txt` (6,000 lines, in the repository) is the source: generate a glossary page from it, with a note per word on whether it works yet; `help` will read a text index built from it instead of the SQLite `help.db` (see Decisions) |
 | Turnkey (standalone applications) | ready | `save NAME` (and `(save)`) write a vx86 image instead of an executable; start it with `reva --image NAME` or in the browser (`start(..., { image })`). `restart` starts over from the same image or boot |
 | Cells and Stacks, Words and the dictionary, Numbers, Strings | partial | material exists across [gotchas.md](gotchas.md) and [DESIGN.md](../rust/DESIGN.md); `reva.f` now boots fully, so topic pages can be written |
