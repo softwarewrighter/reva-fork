@@ -142,7 +142,10 @@ the copy of `lib/` compiled into the core (§3.7).
 serves one virtual library, libc, whose functions (`getenv`, `putenv`,
 `localtime`, `errno`) are gateways over `Host`; any other library or
 function resolves to 0, as a failed `dlopen`/`dlsym` did, so `reva.f` names
-what is missing. Linux i386 `syscall` numbers used outside file I/O (time,
+what is missing, and the VM adds a one-line note naming the library
+(`Host::diag`; stderr on the CLI). `system` is served but runs only where
+the host allows it (`Host::system`: the CLI with `--allow-shell`, never the
+browser); otherwise it faults with how to allow it. Linux i386 `syscall` numbers used outside file I/O (time,
 `gettimeofday`, `nanosleep`, `getpid`, terminal `ioctl`) map to `Host`; the
 rest return `-ENOSYS`. The VM itself never reads a clock or the environment,
 so it stays deterministic and the browser host needs nothing.
@@ -335,6 +338,10 @@ block translation should land within ~2× of the original x86 Reva.
    build is the portable form.
 3. x87 subset (as a 8-deep `f64` stack) for `lib/math/floats`, with 80-bit
    memory operands (`fld`/`fstp tbyte`).
-4. OS layer: ✅ virtual libc and a portable `syscall` subset (§3.6). Next:
-   native libraries via `libloading` (CLI) and JS imports (web).
+4. OS layer: ✅ virtual libc and a portable `syscall` subset (§3.6); ✅
+   clear stops for native libraries, `shell` (CLI `--allow-shell`) and
+   unsupported instruction families ([portability.md](../docs/portability.md)).
+   No generic native FFI: Forth passes 32-bit VM pointers, so C libraries
+   come as virtual libraries (Rust bindings in the VM). Next: SQLite, then a
+   UI service for the browser and the desktop app.
 5. Translators: x86-64, then ARM64, then wasm.

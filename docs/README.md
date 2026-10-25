@@ -11,6 +11,8 @@ what has been carried over and what has not, yet).
 | [Gotchas](gotchas.md) | pitfalls, old and new |
 | [Parity](parity.md) | old wiki topics and example programs vs. the portable core |
 | [Example parity](parity-examples.md) | generated status of every program in `examples/` |
+| [Desktop app](desktop.md) | `reva-desktop`: build, run, files on disk, packages |
+| [Portability](portability.md) | what stops on the portable core (native libraries, `shell`, x87/SIMD) and why |
 | [Licenses](licenses.md) | third-party files, their licenses, and the no-copyleft check |
 | [Design](../rust/DESIGN.md) | how the portable core works and why |
 

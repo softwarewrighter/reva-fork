@@ -62,6 +62,7 @@ gates! {
     HostOpendir, HostReaddir, HostClosedir,
     // `restart`: the host starts a new machine the way it started this one
     Restart,
+    HostSystem,
     // `version`: print this build's version report (see version.rs)
     Version,
 }
@@ -1464,12 +1465,11 @@ impl Machine {
             // --- portable OS layer (ffi.rs) ---
             LoadLib => self.ffi_loadlib().map(|()| Ret),
             UnloadLib => self.ffi_unloadlib().map(|()| Ret),
-            OsFunc => self.ffi_func().map(|()| Ret),
+            OsFunc => self.ffi_func(host).map(|()| Ret),
             CallFn => self.ffi_call(host).map(|()| Ret),
             Syscall => self.ffi_syscall(host).map(|()| Ret),
-            HostGetenv | HostPutenv | HostLocaltime | HostOpendir | HostReaddir | HostClosedir => {
-                Err(Fault::NotImplemented("a C function called without (call)"))
-            }
+            HostGetenv | HostPutenv | HostLocaltime | HostOpendir | HostReaddir | HostClosedir
+            | HostSystem => Err(Fault::NotImplemented("a C function called without (call)")),
 
             // --- files (fileio.rs) ---
             OpenR => self.word_open(host, Access::Read).map(|()| Ret),

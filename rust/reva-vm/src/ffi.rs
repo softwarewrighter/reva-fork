@@ -18,7 +18,17 @@
 //! Nothing here touches the real machine directly: the VM stays a pure
 //! function of its inputs, and a host decides what "the environment" and
 //! "the clock" are (the CLI: the process; the browser: nothing, for now).
-//! Native libraries through `libloading` are roadmap item 4.
+//!
+//! **No native libraries, by design.**  Forth passes 32-bit VM addresses as
+//! pointers, which native 64-bit (or wasm) code cannot use, so a generic
+//! `dlopen` path cannot work safely.  More C libraries arrive the way libc
+//! did: as *virtual libraries*, Rust bindings that marshal their arguments
+//! (see docs/portability.md).  When a library is not served, the first
+//! function looked up in it prints a one-line note naming the library
+//! ([`Host::diag`]), so "could not load iconv_open" comes with the reason.
+//!
+//! `system` (Reva's `shell`) is served, but runs only where the host allows
+//! it ([`Host::system`]): the CLI with `--allow-shell`, never the browser.
 
 use crate::fault::Fault;
 use crate::gates::Gate;
@@ -51,6 +61,7 @@ pub const HOST_FUNCS: &[(&str, Gate)] = &[
     ("opendir", Gate::HostOpendir),
     ("readdir", Gate::HostReaddir),
     ("closedir", Gate::HostClosedir),
+    ("system", Gate::HostSystem),
 ];
 
 /// `errno` is data, not code: `data: errno` reads through this cell.
@@ -101,6 +112,7 @@ impl Machine {
         let a = self.reg(EAX);
         let name = self.ffi_string(a, n)?;
         let known = LIBC_NAMES.iter().any(|l| l.eq_ignore_ascii_case(&name));
+        self.missing_lib = (!known).then_some(name);
         self.set_reg(EAX, if known { LIBC_HANDLE } else { 0 });
         Ok(())
     }
@@ -111,8 +123,10 @@ impl Machine {
     }
 
     /// `PROC _osfunc` ( a n handle -- fn ): the address of a host function,
-    /// or of a data symbol, or 0.
-    pub(crate) fn ffi_func(&mut self) -> R {
+    /// or of a data symbol, or 0.  A lookup in a library `(lib)` could not
+    /// serve (handle 0) notes that library once per session: `reva.f`
+    /// resolves lazily, so the library's own load is silent until then.
+    pub(crate) fn ffi_func(&mut self, host: &mut dyn Host) -> R {
         let handle = self.ffi_pop()?;
         let n = self.ffi_pop()?;
         let a = self.reg(EAX);
@@ -124,6 +138,18 @@ impl Machine {
                 addr = g.addr();
             } else if let Some(&(_, cell)) = DATA_SYMBOLS.iter().find(|(d, _)| *d == name) {
                 addr = cell;
+            }
+        }
+        if handle == 0 {
+            if let Some(lib) = self.missing_lib.take() {
+                if !self.reported_libs.contains(&lib) {
+                    host.diag(&format!(
+                        "note: native library {lib} is not available in the portable core \
+                         (see {})\n",
+                        crate::fault::PORTABILITY_DOC
+                    ));
+                    self.reported_libs.push(lib);
+                }
             }
         }
         self.set_reg(EAX, addr);
@@ -151,7 +177,8 @@ impl Machine {
             Some(Gate::HostOpendir) => self.c_opendir(host, arg0)?,
             Some(Gate::HostReaddir) => self.c_readdir(host, arg0)?,
             Some(Gate::HostClosedir) => self.c_closedir(arg0)?,
-            _ => return Err(Fault::NotImplemented("(call) of a native function")),
+            Some(Gate::HostSystem) => self.c_system(host, arg0)?,
+            _ => return Err(Fault::NativeCall { addr: f }),
         };
         // upsh: the result becomes TOS.
         let sp = self.reg(ESI).wrapping_sub(4);
@@ -196,6 +223,23 @@ impl Machine {
         self.mem.write_bytes(p, bytes)?;
         self.mem.write_u8(p + bytes.len() as u32, 0)?;
         Ok(p)
+    }
+
+    /// `int system(const char *)`: the host runs the command if it allows
+    /// that, else the call faults with how to allow it.  `system(NULL)`
+    /// asks whether a shell exists: 0 here, as nothing is promised.
+    fn c_system(&mut self, host: &mut dyn Host, cmd: u32) -> R<u32> {
+        if cmd == 0 {
+            return Ok(0);
+        }
+        let cmd = self.ffi_zstring(cmd)?;
+        match host.system(&cmd) {
+            Some(status) => Ok(status as u32),
+            None => Err(Fault::NotPermitted {
+                what: "shell (running an OS command)",
+                hint: "the CLI allows it with --allow-shell; the browser never does",
+            }),
+        }
     }
 
     /// `int putenv(char *)` with `name=value`.
