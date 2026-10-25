@@ -19,7 +19,9 @@ fail() { echo "license-check: $*"; status=1; }
 
 # Reviewed binaries: path, then license (see docs/licenses.md for the source
 # of each judgement).  Adding a binary means reviewing it and adding it here.
-reviewed=$(cat <<'EOF'
+# Read with `read -d ''`, not `$(cat <<EOF ...)`: bash 3.2 (macOS /bin/bash)
+# mis-parses a here-document inside `$( )` when the text has an apostrophe.
+read -r -d '' reviewed <<'EOF' || true
 legacy/bin/lin/build                    Reva (public domain)
 legacy/bin/lin/core                     Reva (public domain)
 legacy/bin/lin/reva                     Reva (public domain)
@@ -68,7 +70,6 @@ legacy/scratch/sha/sha.zip              archive of legacy/scratch/sha (public do
 legacy/scratch/sha1hash/upx-dialog.exe  SHA-1 dialog demo, axm 2003 (terms unknown; UPX-packed)
 contrib/rss_process.zip                 rss_process sources, Reinhold Software (permissive)
 EOF
-)
 is_reviewed() { echo "$reviewed" | awk '{print $1}' | grep -qxF -- "$1"; }
 
 # Binary by content (magic numbers) or by extension, so a renamed file is caught.
