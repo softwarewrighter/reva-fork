@@ -1,6 +1,6 @@
 number = 5
 slug = "local-sqlite-design"
-status = "pending"
+status = "in-progress"
 description = "Moved ahead of the checklist splits at the user's request (2026-10-26): SQLit..."
 role = "production"
 context_files = []
