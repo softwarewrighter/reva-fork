@@ -225,6 +225,17 @@ export class Reva {
   get exitCode() { return this.x.reva_exit_code(); }
 
   /**
+   * This build's facts (the page's footer): `{ name, version, copyright,
+   * license, repository, build_host, build_commit, build_time }`, from
+   * reva_vm::version through the module, so they match `reva -V`.
+   */
+  get build() {
+    const p = this.x.reva_build_info_ptr(), n = this.x.reva_build_info_len();
+    const text = this.dec.decode(new Uint8Array(this.x.memory.buffer, p, n));
+    return Object.fromEntries(text.split("\n").filter(Boolean).map((l) => l.split("\t")));
+  }
+
+  /**
    * Hand UI messages produced since the last call to `onUi`: a reset after
    * `restart`, then the canvas ops in batches of bounded size.
    */
@@ -284,11 +295,11 @@ export class Reva {
  * NEED_INPUT or HALTED), `worker` (false: run on this thread), `workerUrl`,
  * `createWorker(url)` (for tests), `stopTimeoutMs` (default 2000).
  *
- * Returns `{ kind, ready, feed(text), feedStart(text), closeInput(), stop(),
+ * Returns `{ kind, ready, build, feed(text), feedStart(text), closeInput(), stop(),
  * ui(message) (page → VM, e.g. `{ channel: "canvas", resend: true }`),
  * idle(), status,
  * exitCode, terminate() }`; `ready` resolves after boot with its output
- * already sent to `onOutput`.
+ * already sent to `onOutput`, and `build` (see `Reva.build`) set.
  */
 export function start(wasmUrl, options = {}) {
   const {
@@ -335,6 +346,7 @@ class LocalSession extends Session {
     this.kind = "main";
     this.ready = Reva.load(o.wasmUrl, { files: o.files, image: o.image }).then(async (reva) => {
       this.reva = reva;
+      this.build = reva.build;
       reva.setClock();
       const out = reva.takeOutput();
       if (out) this.onOutput(out);
@@ -385,6 +397,7 @@ class WorkerSession extends Session {
         case "files": if (o.storage) saveChanges(o.storage, m.list, o.prefix); break;
         case "status":
           clearTimeout(this.stopTimer);
+          if (m.build) this.build = m.build;
           this.setStatus(m.status, m.exitCode);
           if (m.boot) booted();
           break;

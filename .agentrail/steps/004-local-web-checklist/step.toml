@@ -1,6 +1,6 @@
 number = 4
 slug = "local-web-checklist"
-status = "pending"
+status = "in-progress"
 description = "Fix sw-checklist's reva-web FAILs (index.html, favicon.ico not found where it..."
 role = "production"
 context_files = []

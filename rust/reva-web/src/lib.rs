@@ -38,6 +38,11 @@
 //!   `kind:u8` (1 written, 0 removed), `path_len:u32le`, path,
 //!   `data_len:u32le`, data.  `www/reva.js` keeps them in `localStorage`.
 //!
+//! Build information (the page's footer): `reva_build_info_len()` bytes
+//! at `reva_build_info_ptr()`, `key\tvalue` lines from
+//! `reva_vm::version::fields()`: name, version, copyright, license,
+//! repository, build_host, build_commit and build_time.  Works before boot.
+//!
 //! The canvas (turtle graphics; see `reva_vm::canvas` for the op format):
 //!
 //! * `n = reva_canvas_take()` moves the drawing ops not yet taken (at most
@@ -272,6 +277,24 @@ pub extern "C" fn reva_set_time(secs: f64, micros: u32) {
 #[unsafe(no_mangle)]
 pub extern "C" fn reva_exit_code() -> i32 {
     with(|w| w.vm.halted().unwrap_or(0), 0)
+}
+
+/// This build's facts as `key\tvalue` lines (see the module docs).
+fn build_info() -> &'static str {
+    static INFO: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    INFO.get_or_init(reva_vm::version::fields)
+}
+
+/// Where [`build_info`]'s text starts.
+#[unsafe(no_mangle)]
+pub extern "C" fn reva_build_info_ptr() -> *const u8 {
+    build_info().as_ptr()
+}
+
+/// The length of [`build_info`]'s text in bytes.
+#[unsafe(no_mangle)]
+pub extern "C" fn reva_build_info_len() -> u32 {
+    build_info().len() as u32
 }
 
 /// The file system: the booted host's, or the one waiting for boot.
