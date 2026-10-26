@@ -1,8 +1,9 @@
 number = 4
 slug = "local-web-checklist"
-status = "pending"
+status = "completed"
 description = "Fix sw-checklist's reva-web FAILs (index.html, favicon.ico not found where it..."
 role = "production"
 context_files = []
 created_at = "2026-10-26T12:49:21"
-commits = []
+completed_at = "2026-10-26T14:55:19"
+commits = ["ce2e513ee01b748a68c23b2ae26e9d1da4e076c8"]

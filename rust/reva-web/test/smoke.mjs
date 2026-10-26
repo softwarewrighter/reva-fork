@@ -18,6 +18,10 @@ const check = (what, got, want) => {
 // The boot ends as Reva's saved executable started: banner, then a prompt.
 const BANNER = "reva-fork 2026.1026.0 portable\n\nok> ";
 check("boot status", reva.status, NEED_INPUT);
+// The footer's facts come from the module (reva_vm::version), as `reva -V`.
+const BUILD_KEYS = ["name", "version", "copyright", "license", "repository", "build_host", "build_commit", "build_time"];
+const build = reva.build;
+check("build facts", [Object.keys(build), build.name, build.version], [BUILD_KEYS, "reva-fork", BANNER.split(" ")[1]]);
 reva.feed("2 3 + . : sq dup * ; 7 sq .\n");
 check("arith", await (async () => { let o = ""; await reva.run((s) => (o += s)); return o; })(), BANNER + "5 49 \nok> ");
 
@@ -123,6 +127,7 @@ const session = start("reva.wasm", {
 });
 await session.ready;
 check("worker boots", [session.kind, session.status, wout], ["worker", NEED_INPUT, BANNER]);
+check("worker build facts match", JSON.stringify(session.build) === JSON.stringify(build), true);
 wout = "";
 session.feed("include /demo/w.f w\n\" /demo/out\" creat value h \" ok\" h write h close\n");
 check("worker runs", await session.idle(), NEED_INPUT);

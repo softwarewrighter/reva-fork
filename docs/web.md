@@ -65,6 +65,16 @@ Esc, the Close button or a click outside closes it. It is the same in the
 zips, in reva-serve binaries and in the desktop app, where links open in the
 system browser.
 
+## The footer
+
+A line under the REPL shows the copyright, the license, a link to the
+source, and which build of the VM is running: version, commit, build host
+and build time (hover for the license in full and the exact time). These
+come from the WebAssembly module (`reva_build_info_ptr`/`_len`, from
+`reva_vm::version`), so they are what `reva -V` and `version` print for
+the same build. `rust/reva-web/index.html` and `favicon.ico` are symlinks
+into `www/` for sw-checklist, which looks for them in the crate folder.
+
 ## Packages from a static directory: `?package=DIR/`
 
 `DIR/reva-package.json` is the manifest the [desktop app](desktop.md) reads
