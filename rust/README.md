@@ -67,6 +67,16 @@ scripts/build-serve.sh                    # → target/serve/reva-serve-VERSION-
 
 ## Tests
 
+The gate before every commit, from the repository root:
+
+```bash
+just check            # fmt, clippy, tests, wasm + node tests, desktop, goldens, licenses, sw-checklist
+just check --fast     # the same without the desktop workspace
+```
+
+`scripts/check.sh` lists the goldens known to fail on each OS and the
+most sw-checklist FAILs allowed; both may only go down. The pieces:
+
 ```bash
 cargo test                                # unit + API tests
 scripts/regress.sh                        # reg-rs golden-output suite

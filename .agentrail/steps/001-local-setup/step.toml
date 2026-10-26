@@ -1,6 +1,6 @@
 number = 1
 slug = "local-setup"
-status = "pending"
+status = "in-progress"
 description = "Bootstrap the local lane. (1) CLAUDE.md with `agentrail instructions apply` (..."
 role = "meta"
 context_files = []

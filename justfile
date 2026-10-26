@@ -37,6 +37,10 @@ cli:
 desktop:
     desktop/build.sh
 
+# the gate before every commit: fmt, clippy, tests, goldens, licenses, sw-checklist (--fast skips the desktop)
+check *ARGS:
+    rust/scripts/check.sh {{ARGS}}
+
 # tests of the portable core and the browser build
 test: wasm
     cd rust && cargo test --release --workspace
