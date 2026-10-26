@@ -1,3 +1,5 @@
+<p align="center"><img src="desktop/reva-desktop/icons/src/reva-fork-logo.png" width="160" alt="reva-fork logo"></p>
+
 # reva-fork: Reva Forth on 64-bit hosts and WebAssembly
 
 Copyright (c) 2026 Michael A. Wright
