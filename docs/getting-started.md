@@ -7,7 +7,7 @@ per-OS `bin/` directory.
 
 ## Build
 
-You need a Rust toolchain (`rustup`, Rust 1.82 or newer).
+You need a Rust toolchain (`rustup`, Rust 1.85 or newer: the code is edition 2024).
 
 ```bash
 git clone https://github.com/softwarewrighter/reva-fork

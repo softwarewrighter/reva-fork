@@ -129,7 +129,7 @@ mod raw {
     /// (Linux: 60 bytes, macOS: 72, the BSDs: 44).
     type Termios = [u64; 32];
 
-    extern "C" {
+    unsafe extern "C" {
         fn tcgetattr(fd: c_int, t: *mut Termios) -> c_int;
         fn tcsetattr(fd: c_int, action: c_int, t: *const Termios) -> c_int;
         fn cfmakeraw(t: *mut Termios);
@@ -227,7 +227,7 @@ mod raw {
     ))]
     pub fn width() -> Option<usize> {
         let mut ws = [0u16; 4]; // rows, cols, xpixel, ypixel
-                                // SAFETY: TIOCGWINSZ fills a struct winsize (four u16s).
+        // SAFETY: TIOCGWINSZ fills a struct winsize (four u16s).
         let ok = unsafe { ioctl(1, TIOCGWINSZ, ws.as_mut_ptr()) } == 0;
         (ok && ws[1] > 0)
             .then_some(ws[1] as usize)

@@ -17,7 +17,7 @@
 
 use crate::heap::Heap;
 use crate::layout::*;
-use crate::machine::{st, Machine};
+use crate::machine::{Machine, st};
 
 const MAGIC: &[u8; 8] = b"REVAVX86";
 const VERSION: u32 = 1;

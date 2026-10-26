@@ -31,7 +31,7 @@ use crate::host::Host;
 use crate::layout::*;
 use crate::mem::{Memory, PAGE_SIZE};
 use crate::translate::Translator;
-use crate::x86::{decode, Cpu, Insn, EAX, ESI, ESP};
+use crate::x86::{Cpu, EAX, ESI, ESP, Insn, decode};
 
 /// Addresses of the static variables and DEFER vectors.
 ///
@@ -280,8 +280,8 @@ impl Machine {
     /// Create the core dictionary, in the same order as `newcore.asm`'s
     /// `DICT` list (so the most recent core word is `getextra`).
     fn build_dictionary(&mut self) {
-        use st::*;
         use Gate::*;
+        use st::*;
         let (fc, mc, vc, cc, valc, dc) = (
             FClass.addr(),
             MClass.addr(),

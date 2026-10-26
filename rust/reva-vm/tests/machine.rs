@@ -4,10 +4,10 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use reva_vm::translate::{decode_block, Block, NativeHandle, Translator};
+use reva_vm::translate::{Block, NativeHandle, Translator, decode_block};
 use reva_vm::version::BANNER;
 use reva_vm::x86::{Alu, MulDiv, Op};
-use reva_vm::{embedded, BufferHost, Machine, Start, Status};
+use reva_vm::{BufferHost, Machine, Start, Status, embedded};
 
 fn booted() -> (Machine, BufferHost) {
     let mut vm = Machine::new(&["reva", embedded::BOOT_PATH]);

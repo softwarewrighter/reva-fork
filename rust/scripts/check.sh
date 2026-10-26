@@ -24,10 +24,10 @@ case "$(uname)" in
     *)      KNOWN_FAILURES="" ;;
 esac
 
-# sw-checklist FAILs on 2026-10-26: 51.  Lower this as steps fix them
+# sw-checklist FAILs: 51 on 2026-10-26, 49 after edition 2024.  Lower this as steps fix them
 # (.agentrail: local-edition-2024 ... local-split-front-ends); at 0 the
 # checklist is required outright.
-SW_CHECKLIST_MAX_FAILS=51
+SW_CHECKLIST_MAX_FAILS=49
 
 fast=0
 [[ "${1:-}" == --fast ]] && fast=1
