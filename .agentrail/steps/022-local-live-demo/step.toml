@@ -1,0 +1,8 @@
+number = 22
+slug = "local-live-demo"
+status = "pending"
+description = "Feature: a hosted live demo: GitHub Pages serving the web build (the static s..."
+role = "production"
+context_files = []
+created_at = "2026-10-26T12:49:22"
+commits = []

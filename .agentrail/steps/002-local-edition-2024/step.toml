@@ -1,0 +1,8 @@
+number = 2
+slug = "local-edition-2024"
+status = "pending"
+description = 'Move rust/ and desktop/ workspaces to edition = "2024" and rust-version = "1....'
+role = "production"
+context_files = []
+created_at = "2026-10-26T12:49:21"
+commits = []

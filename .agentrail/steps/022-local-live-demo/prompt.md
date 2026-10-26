@@ -1,0 +1,1 @@
+Feature: a hosted live demo: GitHub Pages serving the web build (the static site from `just web-zip`), deployed by a workflow, linked from README.md, with the turtle split view and a few example links (?eval=...). Follow ../X_eTaL's pages approach (committed pages built locally, or built in CI: decide with the user).

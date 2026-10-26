@@ -1,0 +1,1 @@
+Feature (parity): docs/parity.md lists 16 examples that fault or miss a word, unrelated to C libraries. For each: run it, find the cause (a vx86 instruction not decoded, a missing core word, an example bug, an interactive program), fix core causes test-first (decoder test or golden), and record the outcome in parity-examples.md. Report the new runs count.
