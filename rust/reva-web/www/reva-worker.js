@@ -18,8 +18,9 @@
 //                                        drawing ops since the last slice
 //                                        (Float32Array, transferred), or
 //                                        reset after `restart`
-//                   status { status, exitCode, boot? }
-//                                        "running", NEED_INPUT or HALTED
+//                   status { status, exitCode, boot?, build? }
+//                                        "running", NEED_INPUT or HALTED;
+//                                        after boot, the build facts
 //                   files  { list }      [{ path, data: bytes | null }]
 //                   error  { message }
 //
@@ -73,7 +74,7 @@ async function handle(m) {
       }
       reva.setClock();
       post({ type: "output", text: reva.takeOutput() });
-      post({ type: "status", status: reva.status, exitCode: 0, boot: true });
+      post({ type: "status", status: reva.status, exitCode: 0, boot: true, build: reva.build });
       break;
     case "input":
       reva.feed(m.text);
