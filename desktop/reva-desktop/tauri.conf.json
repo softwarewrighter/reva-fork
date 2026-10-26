@@ -16,7 +16,7 @@
   "bundle": {
     "active": true,
     "targets": ["deb", "rpm", "app", "dmg", "nsis", "msi"],
-    "icon": ["icons/icon.png", "icons/icon.ico"],
+    "icon": ["icons/icon.png", "icons/icon.ico", "icons/icon.icns"],
     "resources": {
       "../../LICENSE": "LICENSE",
       "../../LICENSE-MIT": "LICENSE-MIT",
