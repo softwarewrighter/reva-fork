@@ -24,6 +24,8 @@
   main { max-width: 900px; margin: 0 auto; padding: 16px; display:flex; flex-direction:column; height:100vh; }
   header { color: var(--muted); padding-bottom: 8px; border-bottom: 1px solid var(--line); }
   header b { color: var(--accent); }
+  footer { color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:6px; margin-top:8px; }
+  footer a { color:inherit; }
   #out { flex:1; overflow:auto; white-space:pre-wrap; word-break:break-word; margin:8px 0; }
   form { display:flex; gap:8px; border-top:1px solid var(--line); padding-top:8px; }
   #line { flex:1; font:inherit; color:inherit; background:transparent; border:0; outline:none; }
@@ -98,6 +100,7 @@
   <form id="f"><span id="prompt">ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
     <button type="button" id="stop" title="Stop the running word (Ctrl-C)" disabled>Stop</button></form>
   <div id="panes"></div>
+  <footer id="footer"></footer>
 </main>
 <script type="module">
   // The VM runs in a Web Worker (see reva.js `start`), so this page only
@@ -252,6 +255,20 @@
     if (canvas.win && !canvas.win.closed()) canvas.win.focus();
     else canvas.open();
   });
+  // The footer: copyright, license, source, and which build this is
+  // (build host, commit and time, from the wasm module: what `reva -V`
+  // prints).  Text goes in with textContent.
+  function footer(el, b, openUrl) {
+    if (!b) return;
+    const link = document.createElement("a");
+    link.href = b.repository;
+    link.textContent = "source";
+    if (openUrl) link.addEventListener("click", (e) => { e.preventDefault(); openUrl(b.repository); });
+    else link.target = "_blank";
+    el.append(`${b.copyright.replace("(c)", "©")} · MIT License · `, link,
+      ` · ${b.name} ${b.version} · build ${b.build_commit} on ${b.build_host}, ${b.build_time.replace("T", " ").slice(0, 16)}`);
+    el.title = `License: ${b.license}\nBuilt ${b.build_time}`;
+  }
   // Batch runs (the desktop's --print-output) report what the graphics
   // window drew, after giving it a moment to finish.
   async function halted(code) {
@@ -265,6 +282,7 @@
   for (const n of notes) append(`note: ${n}\n`, "echo");
   await reva.ready;
   starting.remove();
+  footer(document.getElementById("footer"), reva.build, host.openUrl);
   // Start lines (a package's start files) are read again after `restart`;
   // input lines only once.
   for (const text of [...(pkg?.start ?? []), ...(host.start ?? [])]) {
