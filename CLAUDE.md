@@ -308,7 +308,10 @@ reva-fork runs Ron Aaron's Reva Forth (`src/reva.f`, release 2011.2) on
 a portable core: vx86, an IA-32-subset virtual machine in Rust, with
 the original core's routines as Rust "gates". Hosts: the `reva` CLI,
 a WebAssembly build for the browser, `reva-serve`, and a Tauri desktop
-app. Version scheme `YYYY.MMDD.N` (see `rust/reva-vm/src/version.rs`).
+app. Version scheme `YYYY.MMDD.N` (see `rust/reva-vm/src/version.rs`):
+the day's version is set once (`.0`) and all of that day's work stays on
+it; `.1`, `.2` ... only for another release shipped to `main` the same
+day. Bump only when the user asks.
 
 Read before working:
 

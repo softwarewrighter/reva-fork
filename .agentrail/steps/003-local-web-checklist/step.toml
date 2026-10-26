@@ -1,8 +1,0 @@
-number = 3
-slug = "local-web-checklist"
-status = "pending"
-description = "Fix sw-checklist's reva-web FAILs (index.html, favicon.ico not found where it..."
-role = "production"
-context_files = []
-created_at = "2026-10-26T12:49:21"
-commits = []
