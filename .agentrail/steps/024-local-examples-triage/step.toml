@@ -1,0 +1,8 @@
+number = 24
+slug = "local-examples-triage"
+status = "pending"
+description = "Feature (parity): docs/parity.md lists 16 examples that fault or miss a word,..."
+role = "production"
+context_files = []
+created_at = "2026-10-26T12:49:22"
+commits = []
