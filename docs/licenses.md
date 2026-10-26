@@ -114,8 +114,9 @@ WebKitGTK (LGPL) dynamically and never bundles it: ship `.deb`/`.rpm`
 packages that depend on the distribution's `libwebkit2gtk-4.1-0`, not an
 AppImage that would carry it.
 
-The app's icon (`desktop/reva-desktop/icons/icon.png`) is a copy of
-`contrib/reva128.png` (Reva, public domain); `icon.ico`, which Windows
-builds need, is the same image at 16 to 128 pixels. The browser page's
-`favicon.png` and `favicon.ico` (`rust/reva-web/www/`, made by
-`rust/scripts/make-favicon.sh`) are the same image again.
+The app's icons (`desktop/reva-desktop/icons/icon.png`, `icon.ico`,
+`icon.icns`) and the browser page's `favicon.png` and `favicon.ico`
+(`rust/reva-web/www/`) are the reva-fork logo, Reva's public-domain gear
+(`contrib/reva*.png`) with a fork, provided by Michael A. Wright in 2026.
+The source is `desktop/reva-desktop/icons/src/reva-fork-logo.jpg`;
+`desktop/make-icons.sh` makes every size from it.
