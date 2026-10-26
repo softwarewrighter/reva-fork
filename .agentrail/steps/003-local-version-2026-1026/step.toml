@@ -1,0 +1,8 @@
+number = 3
+slug = "local-version-2026-1026"
+status = "in-progress"
+description = "Unplanned, at the user's request (2026-10-26): bump the version from 2026.102..."
+role = "production"
+context_files = []
+created_at = "2026-10-26T14:26:34"
+commits = []
