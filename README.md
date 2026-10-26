@@ -40,7 +40,7 @@ requirements and the deliberate deviations from the original core are in
 
 ## Quick start
 
-Requires a Rust toolchain (stable). For the browser build, also the
+Requires a Rust toolchain (stable, 1.85 or newer). For the browser build, also the
 `wasm32-unknown-unknown` target.
 
 ```bash

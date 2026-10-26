@@ -15,8 +15,8 @@
 
 use crate::fault::Fault;
 use crate::host::Host;
-use crate::machine::{st, Machine};
-use crate::vfs::{errno::*, Access, Errno, FileSystem, Stat, FIRST_FD};
+use crate::machine::{Machine, st};
+use crate::vfs::{Access, Errno, FIRST_FD, FileSystem, Stat, errno::*};
 
 type R<T = ()> = Result<T, Fault>;
 

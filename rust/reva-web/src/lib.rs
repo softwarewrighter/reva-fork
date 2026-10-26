@@ -52,7 +52,7 @@
 use std::cell::RefCell;
 
 use reva_vm::vfs::MemFs;
-use reva_vm::{embedded, BufferHost, Machine, Start, Status};
+use reva_vm::{BufferHost, Machine, Start, Status, embedded};
 
 struct Web {
     vm: Machine,
@@ -98,7 +98,7 @@ fn with<R>(f: impl FnOnce(&mut Web) -> R, default: R) -> R {
 /// Create the VM and boot `reva.f`.  Boot progress marks are discarded;
 /// the banner, the first prompt and anything else boot printed are kept as
 /// the first output.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_boot() -> i32 {
     let start = Start::reva();
     let vm = start
@@ -110,7 +110,7 @@ pub extern "C" fn reva_boot() -> i32 {
 /// Create the VM from the image in the [`reva_fs_buffer`] (`len` bytes),
 /// as `reva --image` does.  Returns a status, or -2 with the reason in the
 /// buffer if the bytes are not an image this core loads.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_boot_image(len: u32) -> i32 {
     let mut bytes = FSBUF.with(|b| std::mem::take(&mut *b.borrow_mut()));
     bytes.truncate(len as usize);
@@ -176,7 +176,7 @@ fn restart(w: &mut Web) -> Status {
 }
 
 /// A buffer of `len` bytes for the caller to fill before [`reva_feed`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_input_buffer(len: u32) -> *mut u8 {
     with(
         |w| {
@@ -188,7 +188,7 @@ pub extern "C" fn reva_input_buffer(len: u32) -> *mut u8 {
 }
 
 /// Queue the first `len` bytes of the input buffer as keyboard input.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_feed(len: u32) {
     with(
         |w| {
@@ -200,7 +200,7 @@ pub extern "C" fn reva_feed(len: u32) {
 }
 
 /// Like [`reva_feed`], and keep the bytes to feed again after `restart`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_feed_start(len: u32) {
     with(
         |w| {
@@ -213,13 +213,13 @@ pub extern "C" fn reva_feed_start(len: u32) {
 }
 
 /// Signal end of input (the interpreter exits once it drains).
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_close_input() {
     with(|w| w.vm.close_input(), ())
 }
 
 /// Run up to `budget` steps.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_run(budget: u32) -> i32 {
     with(
         |w| match w.vm.run(&mut w.host, budget as u64) {
@@ -230,17 +230,17 @@ pub extern "C" fn reva_run(budget: u32) -> i32 {
     )
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_output_ptr() -> *const u8 {
     with(|w| w.host.out.as_ptr(), std::ptr::null())
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_output_len() -> u32 {
     with(|w| w.host.out.len() as u32, 0)
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_output_clear() {
     with(|w| w.host.out.clear(), ())
 }
@@ -248,7 +248,7 @@ pub extern "C" fn reva_output_clear() {
 /// Stop the running code at the next step of [`reva_run`] (the Stop
 /// button): queued input is dropped and the interpreter loop restarts with
 /// `*** interrupted`, keeping the dictionary.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_interrupt() {
     with(|w| w.vm.interrupt(), ())
 }
@@ -256,7 +256,7 @@ pub extern "C" fn reva_interrupt() {
 /// The wall clock, for `time&date`, `ms@` and file times: the page sets
 /// it before each [`reva_run`] (the module has no imports, so it cannot
 /// read one).  Until then the clock reads as the Unix epoch.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_set_time(secs: f64, micros: u32) {
     let secs = secs.max(0.0) as u64;
     with(
@@ -269,7 +269,7 @@ pub extern "C" fn reva_set_time(secs: f64, micros: u32) {
 }
 
 /// The `bye` status once [`reva_run`] has returned 2.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_exit_code() -> i32 {
     with(|w| w.vm.halted().unwrap_or(0), 0)
 }
@@ -291,7 +291,7 @@ fn with_fs<R>(f: impl FnOnce(&mut MemFs) -> R) -> R {
 }
 
 /// A buffer of `len` bytes for [`reva_fs_put`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_fs_buffer(len: u32) -> *mut u8 {
     FSBUF.with(|b| {
         let mut b = b.borrow_mut();
@@ -301,21 +301,21 @@ pub extern "C" fn reva_fs_buffer(len: u32) -> *mut u8 {
 }
 
 /// The buffer's address (after [`reva_fs_changes`]).
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_fs_data() -> *const u8 {
     FSBUF.with(|b| b.borrow().as_ptr())
 }
 
 /// How many bytes [`reva_fs_data`] holds (after [`reva_boot_image`]
 /// failed, the reason).
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_fs_len() -> u32 {
     FSBUF.with(|b| b.borrow().len() as u32)
 }
 
 /// Add the file in the buffer: a path of `path_len` bytes, then the
 /// contents.  Returns 0, or -1 if `path_len` is too long.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_fs_put(path_len: u32) -> i32 {
     let buf = FSBUF.with(|b| std::mem::take(&mut *b.borrow_mut()));
     let n = path_len as usize;
@@ -329,7 +329,7 @@ pub extern "C" fn reva_fs_put(path_len: u32) -> i32 {
 
 /// Collect the files changed since the last call (see the module docs);
 /// returns the number of bytes at [`reva_fs_data`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_fs_changes() -> u32 {
     let changes = with_fs(MemFs::take_changes);
     FSBUF.with(|b| {
@@ -349,7 +349,7 @@ pub extern "C" fn reva_fs_changes() -> u32 {
 
 /// Take the drawing ops not yet taken into the canvas buffer; returns how
 /// many `f32`s it holds (0: nothing new).
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_canvas_take() -> u32 {
     let ops = with(|w| w.vm.canvas().take_ops(), Vec::new());
     let n = ops.len() as u32;
@@ -358,19 +358,19 @@ pub extern "C" fn reva_canvas_take() -> u32 {
 }
 
 /// The canvas buffer's address (after [`reva_canvas_take`]).
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_canvas_ptr() -> *const f32 {
     CANVAS.with(|c| c.borrow().as_ptr())
 }
 
 /// Hand out the whole drawing again from the next [`reva_canvas_take`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_canvas_resend() {
     with(|w| w.vm.canvas().resend(), ())
 }
 
 /// 1 once after `restart` replaced the machine (and its drawing), else 0.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_canvas_reset() -> i32 {
     with(|w| std::mem::take(&mut w.canvas_reset) as i32, 0)
 }

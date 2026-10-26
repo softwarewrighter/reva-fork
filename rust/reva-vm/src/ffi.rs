@@ -33,7 +33,7 @@
 use crate::fault::Fault;
 use crate::gates::Gate;
 use crate::host::Host;
-use crate::machine::{st, Machine};
+use crate::machine::{Machine, st};
 use crate::x86::{EAX, ESI};
 
 type R<T = ()> = Result<T, Fault>;

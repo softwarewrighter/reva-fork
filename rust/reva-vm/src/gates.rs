@@ -17,7 +17,7 @@
 use crate::fault::Fault;
 use crate::host::Host;
 use crate::layout::*;
-use crate::machine::{st, Machine, Next};
+use crate::machine::{Machine, Next, st};
 use crate::vfs::Access;
 use crate::x86::{EAX, EBX, EDI, EDX, ESI, ESP};
 
@@ -1298,11 +1298,7 @@ impl Machine {
                         return Err(Fault::DivideError { eip: g.addr() });
                     }
                     let c = n % base + 0x30;
-                    if c > 0x39 {
-                        c + 39
-                    } else {
-                        c
-                    }
+                    if c > 0x39 { c + 39 } else { c }
                 };
                 self.set_eax(c);
                 Ok(Ret)

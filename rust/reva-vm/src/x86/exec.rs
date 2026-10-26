@@ -509,13 +509,13 @@ impl Cpu {
                 return Err(Fault::Trap {
                     eip: at,
                     what: "hlt",
-                })
+                });
             }
             Op::Int3 => {
                 return Err(Fault::Trap {
                     eip: at,
                     what: "int3 breakpoint",
-                })
+                });
             }
             Op::Fpu(f) => self.fpu_exec(mem, f)?,
         }

@@ -52,5 +52,5 @@ pub mod x86;
 pub use fault::Fault;
 pub use host::{BufferHost, Host};
 pub use image::ImageError;
-pub use machine::{st, Machine, Status};
+pub use machine::{Machine, Status, st};
 pub use start::Start;
