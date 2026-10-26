@@ -1,0 +1,8 @@
+number = 26
+slug = "local-release"
+status = "pending"
+description = "Feature: the release process. A `just bump` that sets the version (YYYY.MMDD...."
+role = "production"
+context_files = []
+created_at = "2026-10-26T12:49:22"
+commits = []
