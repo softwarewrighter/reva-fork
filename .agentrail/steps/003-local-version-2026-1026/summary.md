@@ -1,0 +1,1 @@
+Version 2026.1025.0 -> 2026.1026.0 (rust/Cargo.toml, Cargo.lock); banner text in web smoke test, getting-started, demo.md; goldens boot-progress and web-smoke rebased after review (version digits only). CLAUDE.md: day version stays .0 all day, .1+ only for another same-day release to main, bump only on request. Inserted at the user's request; gate green (sw-checklist 49 FAILs).
