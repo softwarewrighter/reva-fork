@@ -1,6 +1,7 @@
 #!/bin/sh
-# Make the browser page's favicon from the desktop app's icon (the blue Reva
-# gear), so the web REPL, reva-serve and the desktop app look the same.
+# Make the browser page's favicon from the desktop app's icon (the reva-fork
+# logo), so the web REPL, reva-serve and the desktop app look the same.
+# desktop/make-icons.sh runs this after remaking the desktop icons.
 #
 #   rust/scripts/make-favicon.sh     (needs ImageMagick `convert`)
 #
