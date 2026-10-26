@@ -4,11 +4,11 @@ members = ["reva-vm", "reva-cli", "reva-web", "reva-serve"]
 
 [workspace.package]
 version = "2026.1025.0"
-edition = "2021"
+edition = "2024"
 publish = false
 license = "MIT"
 authors = ["Reva development team"]
-rust-version = "1.82"
+rust-version = "1.85"
 
 [profile.release]
 opt-level = 3

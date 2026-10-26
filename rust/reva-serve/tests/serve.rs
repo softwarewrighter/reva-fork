@@ -4,7 +4,7 @@ use std::io::{Read, Write};
 use std::net::{Ipv4Addr, TcpListener, TcpStream};
 
 use reva_serve::site::SITE;
-use reva_serve::{bind, probe, serve, Bound};
+use reva_serve::{Bound, bind, probe, serve};
 
 /// Serve the embedded site on a free port, in the background.
 fn start() -> u16 {

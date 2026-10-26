@@ -796,7 +796,7 @@ mod tests {
         ];
         let (_, m) = run(&code, &7u32.to_le_bytes());
         assert_eq!(m.read_u32(0x4004).unwrap(), 4); // nearest-even: 3.5 -> 4
-                                                    // the same after `fldcw` with RC = truncate (floats' `finit`)
+        // the same after `fldcw` with RC = truncate (floats' `finit`)
         let mut data = 7u32.to_le_bytes().to_vec();
         data.extend([0, 0, 0, 0]);
         data.extend(0x0f3fu16.to_le_bytes());

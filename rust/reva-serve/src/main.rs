@@ -4,8 +4,8 @@
 
 use std::process::ExitCode;
 
-use reva_serve::site::{embedded, SITE};
-use reva_serve::{bind, open, serve, Bound, FALLBACKS};
+use reva_serve::site::{SITE, embedded};
+use reva_serve::{Bound, FALLBACKS, bind, open, serve};
 
 fn usage() -> String {
     format!(
