@@ -1,8 +1,0 @@
-number = 14
-slug = "local-dock-icon"
-status = "pending"
-description = "Bug: started as a plain binary (~/.cargo/bin/reva-desktop, desktop/target/rel..."
-role = "production"
-context_files = []
-created_at = "2026-10-26T12:49:22"
-commits = []

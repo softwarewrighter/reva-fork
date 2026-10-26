@@ -71,7 +71,7 @@ echo '3 ~sys.(bye)' | reva; echo $?      # 3
 ```
 
 When standard input is a terminal, `reva` starts as Reva always did: it
-prints the banner (`reva-fork 2026.1025.0 portable`) and an `ok>` prompt before
+prints the banner (`reva-fork 2026.1026.0 portable`) and an `ok>` prompt before
 each line. Piped or redirected input gets neither, so batch output is just
 what the program prints.
 
