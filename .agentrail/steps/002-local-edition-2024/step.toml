@@ -1,8 +1,9 @@
 number = 2
 slug = "local-edition-2024"
-status = "in-progress"
+status = "completed"
 description = 'Move rust/ and desktop/ workspaces to edition = "2024" and rust-version = "1....'
 role = "production"
 context_files = []
 created_at = "2026-10-26T12:49:21"
-commits = []
+completed_at = "2026-10-26T14:18:24"
+commits = ["81d9ea234fe9dfa8aab2b1e4d3dfc0517cc4d45d"]
