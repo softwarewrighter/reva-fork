@@ -1,6 +1,6 @@
 number = 2
 slug = "local-edition-2024"
-status = "pending"
+status = "in-progress"
 description = 'Move rust/ and desktop/ workspaces to edition = "2024" and rust-version = "1....'
 role = "production"
 context_files = []

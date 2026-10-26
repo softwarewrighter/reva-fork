@@ -32,7 +32,7 @@
 use crate::fault::Fault;
 use crate::layout::{GATE_BASE, GATE_END};
 use crate::mem::Memory;
-use crate::x86::{decode, Insn};
+use crate::x86::{Insn, decode};
 
 /// Straight-line vx86 code: `insns` run in order; the last one (if
 /// `ends_with_branch`) transfers control.

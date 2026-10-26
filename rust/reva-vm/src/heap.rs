@@ -42,7 +42,7 @@ impl Heap {
         let hit = self
             .free
             .iter()
-            .find(|(_, &sz)| sz >= n)
+            .find(|&(_, &sz)| sz >= n)
             .map(|(&a, &sz)| (a, sz));
         let addr = match hit {
             Some((a, sz)) => {

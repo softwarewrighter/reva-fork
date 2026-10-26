@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use std::time::UNIX_EPOCH;
 
 use reva_vm::embedded;
-use reva_vm::vfs::{self, errno::*, Access, Errno, FileSystem, Stat, FIRST_FD};
+use reva_vm::vfs::{self, Access, Errno, FIRST_FD, FileSystem, Stat, errno::*};
 
 /// Where `/reva/...` lives on disk: `$REVA_HOME`, else the checkout this
 /// binary was built from.

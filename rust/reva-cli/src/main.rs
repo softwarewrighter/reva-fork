@@ -22,7 +22,7 @@ use std::process::ExitCode;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use reva_vm::vfs::FileSystem;
-use reva_vm::{embedded, version, Host, Machine, Start, Status};
+use reva_vm::{Host, Machine, Start, Status, embedded, version};
 
 const USAGE: &str = "\
 usage: reva [options] [file ...]
@@ -83,7 +83,9 @@ macro_rules! os_services {
             std::env::var(name).ok()
         }
         fn setenv(&mut self, name: &str, value: &str) {
-            std::env::set_var(name, value);
+            // SAFETY: reva-cli runs on one thread (it starts none), so no
+            // other thread can read the environment while it changes.
+            unsafe { std::env::set_var(name, value) };
         }
         fn now(&mut self) -> Option<(u64, u32)> {
             let d = SystemTime::now().duration_since(UNIX_EPOCH).ok()?;
