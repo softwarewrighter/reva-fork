@@ -88,10 +88,10 @@ impl History {
         if self.entries.len() > MAX {
             self.entries.remove(0);
         }
-        if let Some(path) = &self.path {
-            if let Ok(mut f) = OpenOptions::new().create(true).append(true).open(path) {
-                let _ = writeln!(f, "{line}");
-            }
+        if let Some(path) = &self.path
+            && let Ok(mut f) = OpenOptions::new().create(true).append(true).open(path)
+        {
+            let _ = writeln!(f, "{line}");
         }
     }
 

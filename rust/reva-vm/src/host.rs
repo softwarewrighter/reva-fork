@@ -52,6 +52,16 @@ pub trait Host {
         None
     }
 
+    /// Answer a virtual-library host call (see [`crate::hostcall`]): now,
+    /// later through [`crate::Machine::resume`], or not at all.  The
+    /// default has no services.
+    fn host_call(&mut self, call: &crate::hostcall::HostCall) -> crate::hostcall::HostAnswer {
+        crate::hostcall::HostAnswer::Unavailable(format!(
+            "{} is not available on this host",
+            call.service
+        ))
+    }
+
     /// `ms`: pause for `ms` milliseconds.  The default returns at once (a
     /// browser cannot block).
     fn sleep_ms(&mut self, _ms: u32) {}

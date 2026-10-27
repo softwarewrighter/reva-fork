@@ -254,10 +254,10 @@ impl Editor {
 
     /// Apply `k`.
     pub fn key(&mut self, k: Key, h: &History) -> Outcome {
-        if self.search.is_some() {
-            if let Some(o) = self.search_key(k, h) {
-                return o;
-            }
+        if self.search.is_some()
+            && let Some(o) = self.search_key(k, h)
+        {
+            return o;
         }
         let n = self.buf.len();
         match k {

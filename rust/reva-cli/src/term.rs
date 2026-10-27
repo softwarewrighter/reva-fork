@@ -56,15 +56,15 @@ impl LineReader {
     /// Read a line; `prompt` is what is already shown on the cursor's row
     /// (the program's prompt), redrawn on each change.
     pub fn read_line(&mut self, prompt: &str) -> Input {
-        if self.edit {
-            if let Some(raw) = raw::Raw::enter() {
-                let r = self.edited(prompt);
-                drop(raw);
-                if let Input::Line(l) = &r {
-                    self.history.add(l);
-                }
-                return r;
+        if self.edit
+            && let Some(raw) = raw::Raw::enter()
+        {
+            let r = self.edited(prompt);
+            drop(raw);
+            if let Input::Line(l) = &r {
+                self.history.add(l);
             }
+            return r;
         }
         let mut line = String::new();
         match io::stdin().lock().read_line(&mut line) {

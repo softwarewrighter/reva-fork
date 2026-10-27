@@ -20,7 +20,7 @@ root="$(cd "$(dirname "$0")/../.." && pwd)"
 # Goldens known to fail, per OS, until the step that fixes them
 # (.agentrail: local-portable-gates).  The list may only shrink.
 case "$(uname)" in
-    Darwin) KNOWN_FAILURES="docs-samples parity-examples" ;;
+    Darwin) KNOWN_FAILURES="docs-samples" ;;
     *)      KNOWN_FAILURES="" ;;
 esac
 
