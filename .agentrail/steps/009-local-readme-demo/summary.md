@@ -1,0 +1,1 @@
+README: live demo link and inline screenshot (images/live-demo.png) at the top under the title; screenshot of the published demo after 12 tree-demo (user asked for 'cdragon' then corrected to the fractal tree at max branches; tree-demo caps depth at 12). Captured in my own Chrome window (resized), converted to PNG with sips. PNGs are not license-check binaries.
