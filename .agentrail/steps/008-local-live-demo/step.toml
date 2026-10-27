@@ -1,8 +1,9 @@
 number = 8
 slug = "local-live-demo"
-status = "in-progress"
+status = "completed"
 description = "Feature, moved up at the user's request (2026-10-26): a hosted live demo of p..."
 role = "production"
 context_files = []
 created_at = "2026-10-26T12:49:22"
-commits = []
+completed_at = "2026-10-27T00:01:29"
+commits = ["4c6da06330f251998048e15e89e01b0d2ef7e628"]
