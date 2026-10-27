@@ -145,6 +145,22 @@ python3 -m http.server -d /tmp/site 8000
 files from `file://` pages. To run the same tree with no server at all,
 use [reva-serve](serve.md), which embeds it in one binary.
 
+## The live demo: `just publish`
+
+The plain reva-fork REPL (no package) is published at
+<https://softwarewrighter.github.io/reva-fork/> by `just publish`
+(`rust/scripts/publish-pages.sh`): it builds the static site with
+`make-web-zip.sh` (split view by default), adds `.nojekyll`, and
+force-pushes it as one orphan commit to the `gh-pages` branch, which GitHub
+Pages serves. Only `main` is published: the tree must be clean and HEAD on
+`origin/main`, so the footer's build commit is a released one.
+`just publish --dry-run` builds the commit from any HEAD and pushes nothing.
+
+Every `softwarewrighter.github.io` project page shares one origin, so the
+demo's saved files and history (`reva:` keys in `localStorage`) share the
+storage quota with the other projects' demos there, and those pages could
+read them.
+
 ## Design notes
 
 * **Static and relative, on purpose.** Every URL the page uses is relative to

@@ -1,6 +1,6 @@
 number = 8
 slug = "local-live-demo"
-status = "pending"
+status = "in-progress"
 description = "Feature, moved up at the user's request (2026-10-26): a hosted live demo of p..."
 role = "production"
 context_files = []

@@ -17,6 +17,10 @@ wasm:
 web-zip *ARGS:
     rust/scripts/make-web-zip.sh {{ARGS}}
 
+# publish the live demo (plain reva-fork, from main) to gh-pages; --dry-run builds without pushing
+publish *ARGS:
+    rust/scripts/publish-pages.sh {{ARGS}}
+
 # serve the browser REPL from the source tree at http://localhost:8000/?canvas=split
 web-dev: wasm
     python3 -m http.server -d rust/reva-web/www 8000
