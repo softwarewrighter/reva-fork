@@ -1,0 +1,1 @@
+Feature: the benchmark suite behind the translators (roadmap 5): `just bench` runs bench/ programs on the CLI release build and the browser/wasm build, prints a table, and records results with machine, commit and date in a committed file; compare with the original x86 Reva numbers where bench/ has them. Docs: rust/DESIGN.md section 6.

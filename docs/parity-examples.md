@@ -5,7 +5,7 @@ Each program in `examples/` is run on the portable core with stdin
 closed and a 5s limit. See [parity.md](parity.md) for what the
 statuses mean and which areas are planned.
 
-132 examples: error 36, fault 11, missing 9, runs 64, timeout 12
+132 examples: error 33, fault 7, missing 9, runs 71, timeout 12
 
 Most common first missing word (top 10):
 
@@ -20,7 +20,7 @@ Most common first missing word (top 10):
 | Example | Area | Status |
 |---|---|---|
 | `examples/3n1.f` | core | runs |
-| `examples/alg-test.f` | lib | fault: unsupported x87 floating point instruction at 0x0014b02c: d9 ee e8 b5 51 ff ff 0f (see docs/portability.md) |
+| `examples/alg-test.f` | lib | fault: bad memory access: 4 byte(s) at 0x00000000 |
 | `examples/argv.f` | core | runs |
 | `examples/asm.f` | core | runs |
 | `examples/automatic.f` | core | runs |
@@ -43,7 +43,7 @@ Most common first missing word (top 10):
 | `examples/data/hash.f` | lib | runs |
 | `examples/data/parray.f` | lib | runs |
 | `examples/datediff.f` | lib | runs |
-| `examples/db-report.f` | db | error: could not load sqlite3_open |
+| `examples/db-report.f` | db | fault: bad memory access: 1363376 byte(s) at 0x00000005 |
 | `examples/defer.f` | core | runs |
 | `examples/dhttpd.f` | net | missing: `tcpsock` |
 | `examples/dllexplorer.f` | core | missing: `k32` |
@@ -56,9 +56,9 @@ Most common first missing word (top 10):
 | `examples/fizzbuzz.f` | core | runs |
 | `examples/gcd.f` | core | runs |
 | `examples/gettext.f` | lib | missing: `set-po` |
-| `examples/gl/gl-scene.f` | gui | fault: unsupported x87 floating point instruction at 0x00149e4c: d9 ee e8 95 63 ff ff 0f (see docs/portability.md) |
-| `examples/gl/gl-shading.f` | gui | fault: unsupported x87 floating point instruction at 0x00147e9c: d9 ee e8 45 83 ff ff 0f (see docs/portability.md) |
-| `examples/gl/gl-twod.f` | gui | fault: unsupported x87 floating point instruction at 0x00147e9c: d9 ee e8 45 83 ff ff 0f (see docs/portability.md) |
+| `examples/gl/gl-scene.f` | gui | runs |
+| `examples/gl/gl-shading.f` | gui | runs |
+| `examples/gl/gl-twod.f` | gui | runs |
 | `examples/gpgme.f` | lib | error: could not load gpgme_check_version |
 | `examples/gtk.f` | gui | error: could not load gtk_init |
 | `examples/gui/hello1.f` | gui | error: could not load window_xy |
@@ -125,12 +125,12 @@ Most common first missing word (top 10):
 | `examples/sockets.f` | net | runs |
 | `examples/special.f` | core | runs |
 | `examples/sqlite.f` | db | fault: stack underflow |
-| `examples/sqlite2.f` | db | error: could not load sqlite3_open |
-| `examples/sqlite3.f` | db | error: could not load sqlite3_open |
+| `examples/sqlite2.f` | db | runs |
+| `examples/sqlite3.f` | db | runs |
 | `examples/stars.f` | core | runs |
 | `examples/sudoku-sp.f` | lib | runs |
 | `examples/sudoku.f` | lib | runs |
-| `examples/sunrise.f` | lib | fault: unsupported x87 floating point instruction at 0x00148edc: d9 ee e8 05 73 ff ff 0f (see docs/portability.md) |
+| `examples/sunrise.f` | lib | runs |
 | `examples/task.f` | lib | runs |
 | `examples/test.f` | lib | runs |
 | `examples/testing.f` | core | runs |
@@ -149,5 +149,5 @@ Most common first missing word (top 10):
 | `examples/xml.f` | lib | runs |
 | `examples/xmlparse.f` | lib | error: could not load XML_ParserCreate |
 | `examples/xmlrpc.f` | net | missing: `parse-result` |
-| `examples/zemanim.f` | lib | fault: unsupported x87 floating point instruction at 0x0014b084: d9 ee e8 5d 51 ff ff 0f (see docs/portability.md) |
+| `examples/zemanim.f` | lib | runs |
 | `examples/zipdb.f` | db | fault: stack underflow |

@@ -12,13 +12,17 @@
 //! `restart` starts over the way this run started (boot or `--image`),
 //! includes the files and evaluates the `-e` texts again, then goes on
 //! reading the input that is left.
+//!
+//! At a terminal, the line is edited before Forth sees it: history
+//! (`~/.reva_history`, or `$REVA_HISTORY`), Up/Down, Ctrl-R search and
+//! Emacs keys (see `lineedit.rs`, `term.rs` and docs/repl.md).
 
-use std::io::{self, BufRead, IsTerminal, Read, Write};
+use std::io::{self, IsTerminal, Read, Write};
 use std::process::ExitCode;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use reva_vm::vfs::FileSystem;
-use reva_vm::{embedded, version, Host, Machine, Start, Status};
+use reva_vm::{Host, Machine, Start, Status, embedded, version};
 
 const USAGE: &str = "\
 usage: reva [options] [file ...]
@@ -31,11 +35,19 @@ usage: reva [options] [file ...]
       --show-boot      print what booting printed (progress digits, errors)
       --trace          trace every VM step to stderr (very slow)
       --allow-shell    let `shell` (C `system`) run OS commands; off by default
+      --no-edit        at a terminal, read plain lines (no history or line editing)
+      --color WHEN     colour in `pp`/`hl-type` listings: auto (default), always, never
   -h, --help           this text
   -V, --version        version
 ";
 
 mod fs;
+mod history;
+mod lineedit;
+mod sql;
+mod term;
+
+use term::{Input, LineReader};
 
 struct StdHost {
     out: io::BufWriter<io::Stdout>,
@@ -44,6 +56,27 @@ struct StdHost {
     /// While booting: output is collected here so the progress digits
     /// stay quiet.
     capture: Option<Vec<u8>>,
+    /// Whether `pp`/`hl-type` may write colour escapes (`--color`).
+    color: bool,
+    /// Interactive: reads (and edits) lines from the terminal.
+    reader: Option<LineReader>,
+    /// What was printed since the last newline: the prompt, for redraws.
+    tail: Vec<u8>,
+    /// SQLite for `lib/db/sqlite` (host calls; see sql.rs).
+    sql: reva_sqlite::Sqlite,
+}
+
+impl StdHost {
+    /// The next line typed (interactive runs only), with its newline.
+    fn read_line(&mut self) -> Input {
+        let _ = self.out.flush();
+        let prompt = String::from_utf8_lossy(&self.tail).into_owned();
+        self.tail.clear();
+        match &mut self.reader {
+            Some(r) => r.read_line(&prompt),
+            None => Input::Eof,
+        }
+    }
 }
 
 /// Process environment, clock and file system, shared by both hosts.
@@ -53,7 +86,9 @@ macro_rules! os_services {
             std::env::var(name).ok()
         }
         fn setenv(&mut self, name: &str, value: &str) {
-            std::env::set_var(name, value);
+            // SAFETY: reva-cli runs on one thread (it starts none), so no
+            // other thread can read the environment while it changes.
+            unsafe { std::env::set_var(name, value) };
         }
         fn now(&mut self) -> Option<(u64, u32)> {
             let d = SystemTime::now().duration_since(UNIX_EPOCH).ok()?;
@@ -74,11 +109,29 @@ impl Host for StdHost {
             Some(c) => c.extend_from_slice(bytes),
             None => {
                 let _ = self.out.write_all(bytes);
+                match bytes.iter().rposition(|&b| b == b'\n') {
+                    Some(i) => {
+                        self.tail.clear();
+                        self.tail.extend_from_slice(&bytes[i + 1..]);
+                    }
+                    None => self.tail.extend_from_slice(bytes),
+                }
+                if self.tail.len() > 256 {
+                    self.tail.drain(..self.tail.len() - 256);
+                }
             }
         }
     }
 
     os_services!();
+
+    fn color(&mut self) -> bool {
+        self.color
+    }
+
+    fn host_call(&mut self, call: &reva_vm::hostcall::HostCall) -> reva_vm::hostcall::HostAnswer {
+        sql::answer(&mut self.sql, &mut self.fs, call)
+    }
 
     /// VM notes go to stderr, after what Forth printed so far.
     fn diag(&mut self, line: &str) {
@@ -105,11 +158,9 @@ impl Host for StdHost {
         if self.capture.is_some() {
             return None;
         }
-        let _ = self.out.flush();
-        let mut line = String::new();
-        match io::stdin().lock().read_line(&mut line) {
-            Ok(_) => Some(line.into_bytes()),
-            Err(_) => None,
+        match self.read_line() {
+            Input::Line(l) => Some(l.into_bytes()),
+            Input::Eof => Some(Vec::new()),
         }
     }
 }
@@ -136,6 +187,8 @@ struct Options {
     show_boot: bool,
     trace: bool,
     allow_shell: bool,
+    no_edit: bool,
+    color: Option<bool>,
 }
 
 fn parse_args() -> Result<Options, String> {
@@ -152,6 +205,15 @@ fn parse_args() -> Result<Options, String> {
             "--show-boot" => o.show_boot = true,
             "--trace" => o.trace = true,
             "--allow-shell" => o.allow_shell = true,
+            "--no-edit" => o.no_edit = true,
+            "--color" => {
+                o.color = match value(&a)?.as_str() {
+                    "auto" => None,
+                    "always" => Some(true),
+                    "never" => Some(false),
+                    w => return Err(format!("--color {w}: expected auto, always or never")),
+                }
+            }
             "-h" | "--help" => {
                 print!("{USAGE}");
                 std::process::exit(0);
@@ -165,6 +227,19 @@ fn parse_args() -> Result<Options, String> {
         }
     }
     Ok(o)
+}
+
+/// `--color auto`: stdout is a terminal that takes ANSI escapes, and
+/// `NO_COLOR` (no-color.org) is unset.  On Windows only where the console is
+/// known to take them (Windows Terminal, or a `TERM` such as mintty's).
+fn color_auto() -> bool {
+    let env = |n: &str| std::env::var(n).ok().filter(|v| !v.is_empty());
+    let ansi = if cfg!(windows) {
+        env("WT_SESSION").is_some() || env("TERM").is_some_and(|t| t != "dumb")
+    } else {
+        env("TERM").is_none_or(|t| t != "dumb")
+    };
+    io::stdout().is_terminal() && env("NO_COLOR").is_none() && ansi
 }
 
 fn exit_code(code: i32) -> ExitCode {
@@ -219,6 +294,10 @@ fn main() -> ExitCode {
         fs: fs::StdFs::default(),
         capture: None,
         allow_shell: opts.allow_shell,
+        reader: run.interactive.then(|| LineReader::new(!opts.no_edit)),
+        tail: Vec::new(),
+        color: opts.color.unwrap_or_else(color_auto),
+        sql: sql::new(),
     };
     if let Err(code) = run.begin(&mut vm, &mut host) {
         return code;
@@ -258,11 +337,9 @@ fn main() -> ExitCode {
 
     // Interactive: one line at a time; reva.f prints the prompt.
     loop {
-        let _ = host.out.flush();
-        let mut line = String::new();
-        match stdin.lock().read_line(&mut line) {
-            Ok(0) | Err(_) => vm.close_input(),
-            Ok(_) => vm.feed(line.as_bytes()),
+        match host.read_line() {
+            Input::Eof => vm.close_input(),
+            Input::Line(l) => vm.feed(l.as_bytes()),
         }
         let status = run.until_blocked(&mut vm, &mut host);
         let _ = host.out.flush();
@@ -317,7 +394,7 @@ impl Run<'_> {
         if self.interactive {
             // The banner and first `ok>` prompt, as Reva showed them.
             if normal && !opts.show_boot {
-                let _ = host.out.write_all(rest.as_bytes());
+                host.write(rest.as_bytes());
             }
         } else {
             vm.quiet_prompt();

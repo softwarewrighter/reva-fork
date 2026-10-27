@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} --color always tests/forth/highlight.f < /dev/null | cat -v"
+timeout = 60
+exit_code = 0
+desc = "pp and hl-type: Forth source in ANSI colour (escapes shown by cat -v), token table lib/highlight/forth.tbl"

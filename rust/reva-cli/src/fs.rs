@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use std::time::UNIX_EPOCH;
 
 use reva_vm::embedded;
-use reva_vm::vfs::{self, errno::*, Access, Errno, FileSystem, Stat, FIRST_FD};
+use reva_vm::vfs::{self, Access, Errno, FIRST_FD, FileSystem, Stat, errno::*};
 
 /// Where `/reva/...` lives on disk: `$REVA_HOME`, else the checkout this
 /// binary was built from.
@@ -57,11 +57,11 @@ pub struct StdFs {
 
 impl StdFs {
     /// (virtual absolute path, host path)
-    fn resolve(&mut self, path: &str) -> (String, PathBuf) {
+    pub(crate) fn resolve(&mut self, path: &str) -> (String, PathBuf) {
         let v = vfs::normalize(&self.cwd(), path);
         let host = match embedded::install_relative(&v) {
             Some(rel) => install_root().join(rel),
-            None => PathBuf::from(&v),
+            None => host_path(&v, cfg!(windows)),
         };
         (v, host)
     }
@@ -246,7 +246,62 @@ impl FileSystem for StdFs {
 
     fn cwd(&mut self) -> String {
         std::env::current_dir()
-            .map(|p| p.to_string_lossy().into_owned())
+            .map(|p| vm_path(&p.to_string_lossy(), cfg!(windows)))
             .unwrap_or_else(|_| "/".to_string())
+    }
+}
+
+/// A host path as the VM sees it: rooted at `/` and `/`-separated, which is
+/// what [`vfs::normalize`] works on.  On Windows `C:\a\b` is `/C:/a/b` (and
+/// a verbatim `\\?\` prefix is dropped); elsewhere the path is unchanged.
+fn vm_path(host: &str, windows: bool) -> String {
+    if !windows {
+        return host.to_string();
+    }
+    let p = host
+        .strip_prefix(r"\\?\")
+        .unwrap_or(host)
+        .replace('\\', "/");
+    if p.starts_with('/') {
+        p
+    } else {
+        format!("/{p}")
+    }
+}
+
+/// The host path for a VM path: the inverse of [`vm_path`].  On Windows
+/// `/C:/a/b` is `C:/a/b`, which Windows accepts; a VM path without a drive
+/// (`/a/b`) stays on the current drive.
+fn host_path(vm: &str, windows: bool) -> PathBuf {
+    let b = vm.as_bytes();
+    if windows && b.len() >= 3 && b[0] == b'/' && b[1].is_ascii_alphabetic() && b[2] == b':' {
+        PathBuf::from(&vm[1..])
+    } else {
+        PathBuf::from(vm)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn windows_paths_round_trip_through_the_vm() {
+        let v = vm_path(r"C:\Users\mike\cosy", true);
+        assert_eq!(v, "/C:/Users/mike/cosy");
+        assert_eq!(vm_path(r"\\?\D:\work", true), "/D:/work");
+        let file = vfs::normalize(&v, "../reva/t.f");
+        assert_eq!(file, "/C:/Users/mike/reva/t.f");
+        assert_eq!(
+            host_path(&file, true),
+            PathBuf::from("C:/Users/mike/reva/t.f")
+        );
+        assert_eq!(host_path("/tmp/x", true), PathBuf::from("/tmp/x"));
+    }
+
+    #[test]
+    fn unix_paths_are_unchanged() {
+        assert_eq!(vm_path("/home/mike", false), "/home/mike");
+        assert_eq!(host_path("/C:/x", false), PathBuf::from("/C:/x"));
     }
 }

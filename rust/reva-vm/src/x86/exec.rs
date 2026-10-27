@@ -86,7 +86,7 @@ impl Cpu {
     fn set_szp(&mut self, r: u32, size: Size) {
         self.zf = r & size.mask() == 0;
         self.sf = r & size.sign() != 0;
-        self.pf = (r as u8).count_ones() % 2 == 0;
+        self.pf = (r as u8).count_ones().is_multiple_of(2);
     }
 
     /// The eight ALU operations with full flag semantics.
@@ -509,14 +509,15 @@ impl Cpu {
                 return Err(Fault::Trap {
                     eip: at,
                     what: "hlt",
-                })
+                });
             }
             Op::Int3 => {
                 return Err(Fault::Trap {
                     eip: at,
                     what: "int3 breakpoint",
-                })
+                });
             }
+            Op::Fpu(f) => self.fpu_exec(mem, f)?,
         }
         Ok(())
     }

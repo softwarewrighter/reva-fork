@@ -52,6 +52,16 @@ pub trait Host {
         None
     }
 
+    /// Answer a virtual-library host call (see [`crate::hostcall`]): now,
+    /// later through [`crate::Machine::resume`], or not at all.  The
+    /// default has no services.
+    fn host_call(&mut self, call: &crate::hostcall::HostCall) -> crate::hostcall::HostAnswer {
+        crate::hostcall::HostAnswer::Unavailable(format!(
+            "{} is not available on this host",
+            call.service
+        ))
+    }
+
     /// `ms`: pause for `ms` milliseconds.  The default returns at once (a
     /// browser cannot block).
     fn sleep_ms(&mut self, _ms: u32) {}
@@ -71,6 +81,13 @@ pub trait Host {
     fn system(&mut self, _cmd: &str) -> Option<i32> {
         None
     }
+
+    /// Whether output may carry ANSI colour escapes (`pp`, `hl-type`; see
+    /// [`crate::highlight`]).  The default (`false`) keeps output plain;
+    /// the CLI says yes at a terminal, the browser page always.
+    fn color(&mut self) -> bool {
+        false
+    }
 }
 
 /// A host that captures output in memory, with an in-memory file system
@@ -83,6 +100,8 @@ pub struct BufferHost {
     /// What `now` reports: set by the embedder (the browser sets it before
     /// each run); `None` (the default) keeps tests deterministic.
     pub clock: Option<(u64, u32)>,
+    /// What [`Host::color`] reports (the browser sets it; tests choose).
+    pub color: bool,
 }
 
 impl BufferHost {
@@ -111,6 +130,10 @@ impl Host for BufferHost {
 
     fn now(&mut self) -> Option<(u64, u32)> {
         self.clock
+    }
+
+    fn color(&mut self) -> bool {
+        self.color
     }
 
     fn setenv(&mut self, name: &str, value: &str) {

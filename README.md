@@ -1,3 +1,5 @@
+<p align="center"><img src="desktop/reva-desktop/icons/src/reva-fork-logo.png" width="160" alt="reva-fork logo"></p>
+
 # reva-fork: Reva Forth on 64-bit hosts and WebAssembly
 
 Copyright (c) 2026 Michael A. Wright
@@ -10,6 +12,11 @@ This fork carries Reva forward to machines and places 32-bit x86 no longer
 reaches: x86-64 and ARM64 on Linux, macOS and Windows, and the web browser
 through WebAssembly. It does that with a **portable core** written in Rust
 that runs Reva's own Forth system, `src/reva.f` (release 2011.2), unchanged.
+
+**Live demo:** [softwarewrighter.github.io/reva-fork](https://softwarewrighter.github.io/reva-fork/),
+the REPL in your browser. Try
+[a dragon curve](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20dragon-demo)
+or [a tree](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=10%20tree-demo).
 
 ## How it works
 
@@ -38,7 +45,7 @@ requirements and the deliberate deviations from the original core are in
 
 ## Quick start
 
-Requires a Rust toolchain (stable). For the browser build, also the
+Requires a Rust toolchain (stable, 1.85 or newer). For the browser build, also the
 `wasm32-unknown-unknown` target.
 
 ```bash
@@ -94,24 +101,23 @@ still-supported topic rebuilt, then delete with the rest of `legacy/`.
   the embedded assembler; the file words (real files on the CLI; in the
   browser, in memory and kept in `localStorage`); `time&date`, `ms@`,
   `getenv`; saved images (`save`, `--image`, also in the browser) and
-  `restart`. 64 of the 132
+  `restart`. 69 of the 132
   programs in `examples/` run unchanged
   ([generated report](docs/parity-examples.md)).
 - **Hosts:** the `reva` command on any 64-bit platform Rust supports, and a
   zero-import WebAssembly module with a minimal web console that runs it in
   a Web Worker (the page never freezes; Stop interrupts a running word).
-- **Not yet:** x87 floating point, native C
-  libraries, and translation to native code.
+- **x87 floating point** with double-precision registers:
+  `lib/math/floats` passes its own tests.
+- **Not yet:** native C libraries, and translation to native code.
 
 ## Roadmap
 
-1. The x87 subset Reva's float library uses, including 80-bit memory
-   operands.
-2. Virtual libraries (Rust bindings inside the VM; no generic native FFI,
+1. Virtual libraries (Rust bindings inside the VM; no generic native FFI,
    see [docs/portability.md](docs/portability.md)): SQLite, then a UI
    service (panes, keys, SVG, later WebGL 3D) for the browser and the
    desktop app.
-3. Translators that turn hot vx86 code into x86-64, ARM64 and WebAssembly,
+2. Translators that turn hot vx86 code into x86-64, ARM64 and WebAssembly,
    to recover native speed (the interpreter is the reference semantics; the
    translations are caches over it).
 

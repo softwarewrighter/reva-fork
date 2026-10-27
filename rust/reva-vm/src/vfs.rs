@@ -582,10 +582,11 @@ mod tests {
     fn memfs_sees_the_embedded_library() {
         let mut fs = MemFs::new();
         assert!(fs.stat("/reva/lib").unwrap().dir);
-        assert!(fs
-            .list_dir("/reva/lib/util")
-            .unwrap()
-            .contains(&"locals".to_string()));
+        assert!(
+            fs.list_dir("/reva/lib/util")
+                .unwrap()
+                .contains(&"locals".to_string())
+        );
         assert!(fs.list_dir("/").unwrap().contains(&"reva".to_string()));
         let src = fs.read_whole("/reva/lib/util/locals").unwrap();
         assert!(!src.is_empty());

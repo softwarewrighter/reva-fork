@@ -17,7 +17,7 @@
 use crate::fault::Fault;
 use crate::host::Host;
 use crate::layout::*;
-use crate::machine::{st, Machine, Next};
+use crate::machine::{Machine, Next, st};
 use crate::vfs::Access;
 use crate::x86::{EAX, EBX, EDI, EDX, ESI, ESP};
 
@@ -65,6 +65,17 @@ gates! {
     HostSystem,
     // `version`: print this build's version report (see version.rs)
     Version,
+    // the virtual library `turtle` (turtle.rs, canvas.rs), through `(call)`
+    TtForward, TtStep, TtRight, TtPen, TtColor, TtWidth, TtHome, TtClear,
+    TtClean, TtSetxy, TtSetheading, TtSetstep, TtScale, TtShow, TtX, TtY,
+    TtHeading, TtPush, TtPop, TtPath, TtSvg, TtBg, TtSegments,
+    // the virtual library `highlight` (highlight.rs), through `(call)`
+    HlType, HlColor,
+    // the virtual library `reva-sqlite` (sqlite.rs), host calls through `(call)`
+    SqRc, SqVersion, SqOpen, SqClose, SqExec, SqLastid, SqErrmsg, SqQuery,
+    SqNext, SqGetcol, SqEndquery, SqPrepare, SqBindNull, SqBindInt, SqBindText,
+    SqBindBlob, SqBindZeroblob, SqReset, SqClear, SqStep, SqFinalize,
+    SqColumnInt, SqColumnText, SqColumnBlob, SqPtr,
 }
 
 impl Gate {
@@ -1292,11 +1303,7 @@ impl Machine {
                         return Err(Fault::DivideError { eip: g.addr() });
                     }
                     let c = n % base + 0x30;
-                    if c > 0x39 {
-                        c + 39
-                    } else {
-                        c
-                    }
+                    if c > 0x39 { c + 39 } else { c }
                 };
                 self.set_eax(c);
                 Ok(Ret)
@@ -1466,10 +1473,18 @@ impl Machine {
             LoadLib => self.ffi_loadlib().map(|()| Ret),
             UnloadLib => self.ffi_unloadlib().map(|()| Ret),
             OsFunc => self.ffi_func(host).map(|()| Ret),
-            CallFn => self.ffi_call(host).map(|()| Ret),
+            CallFn => self.ffi_call(host),
             Syscall => self.ffi_syscall(host).map(|()| Ret),
             HostGetenv | HostPutenv | HostLocaltime | HostOpendir | HostReaddir | HostClosedir
-            | HostSystem => Err(Fault::NotImplemented("a C function called without (call)")),
+            | HostSystem | TtForward | TtStep | TtRight | TtPen | TtColor | TtWidth | TtHome
+            | TtClear | TtClean | TtSetxy | TtSetheading | TtSetstep | TtScale | TtShow | TtX
+            | TtY | TtHeading | TtPush | TtPop | TtPath | TtSvg | TtBg | TtSegments | HlType
+            | HlColor | SqRc | SqVersion | SqOpen | SqClose | SqExec | SqLastid | SqErrmsg
+            | SqQuery | SqNext | SqGetcol | SqEndquery | SqPrepare | SqBindNull | SqBindInt
+            | SqBindText | SqBindBlob | SqBindZeroblob | SqReset | SqClear | SqStep
+            | SqFinalize | SqColumnInt | SqColumnText | SqColumnBlob | SqPtr => {
+                Err(Fault::NotImplemented("a C function called without (call)"))
+            }
 
             // --- files (fileio.rs) ---
             OpenR => self.word_open(host, Access::Read).map(|()| Ret),

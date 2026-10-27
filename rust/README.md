@@ -26,8 +26,9 @@ re-implemented in Rust. See [DESIGN.md](DESIGN.md) for the rationale.
 - Saved images: `save NAME` from Forth or `reva --save-image`; start one
   with `reva --image` or in the browser (`start(..., { image })`).
   `restart` makes the VM again the same way (DESIGN.md §3.9).
-- Not yet: native libraries, x87
-  floats, native translation. See the roadmap in DESIGN.md.
+- x87 floating point with `f64` registers and 80-bit memory operands;
+  `lib/math/floats` passes its own tests (DESIGN.md §3.10).
+- Not yet: native libraries, native translation. See the roadmap in DESIGN.md.
 
 ## Layout
 
@@ -36,6 +37,7 @@ rust/
   reva-vm/     the core library (VM, gateways, images, translator hooks)
   reva-cli/    the `reva` command
   reva-web/    wasm32 module + www/ (reva.js, index.html) + test/smoke.mjs
+  reva-serve/  one-binary local web app: embeds a site, serves 127.0.0.1 (std only; ../docs/serve.md)
   tests/forth/ Forth scripts used by the regression suite
   work/reg-rs/ reg-rs regression tests (.rgt specs + golden .out/.err)
   scripts/     build-web.sh, regress.sh, add-regress.sh,
@@ -59,9 +61,21 @@ WebAssembly:
 scripts/build-web.sh                      # → reva-web/www/reva.wasm
 python3 -m http.server -d reva-web/www    # open http://localhost:8000
 node reva-web/test/smoke.mjs              # headless check
+scripts/make-web-zip.sh                   # → target/web/reva-web-VERSION.zip (../docs/web.md)
+scripts/build-serve.sh                    # → target/serve/reva-serve-VERSION-TARGET (../docs/serve.md)
 ```
 
 ## Tests
+
+The gate before every commit, from the repository root:
+
+```bash
+just check            # fmt, clippy, tests, wasm + node tests, desktop, goldens, licenses, sw-checklist
+just check --fast     # the same without the desktop workspace
+```
+
+`scripts/check.sh` lists the goldens known to fail on each OS and the
+most sw-checklist FAILs allowed; both may only go down. The pieces:
 
 ```bash
 cargo test                                # unit + API tests
@@ -81,6 +95,13 @@ and review the captured `work/reg-rs/NAME.out` before committing: a baseline
 asserts the output is *correct*. Accept an intended change with
 `REG_RS_DATA_DIR=work/reg-rs reg-rs rebase -p NAME`.
 
+Source as color-highlighted HTML or PNG, for slides, docs and blog figures
+(Python 3 standard library; `--png` uses headless Chrome or Chromium):
+
+```bash
+scripts/forth-highlight.py ../lib/turtle/fractals --lines 22-30 --title 'Koch' --png koch.png
+```
+
 Documentation lives in [`../docs/`](../docs/README.md); its Forth samples are
 checked by `scripts/doc-check.sh ../docs/*.md`, and
 `scripts/parity-examples.sh` reports how far every program in `examples/`
@@ -96,7 +117,7 @@ literal one as a bracket (`[(]`, `[?]`).
 
 - Faults name the Forth word: `*** bad memory access ... (in bad+0xc, ...)`.
 - `reva --trace` logs every step to stderr.
-- Code the core cannot run (native libraries, `shell`, x87/MMX/SSE and
+- Code the core cannot run (native libraries, `shell`, MMX/SSE and
   privileged instructions) stops with a message pointing to
   [docs/portability.md](../docs/portability.md); `reva --allow-shell` lets
   `shell` run OS commands.

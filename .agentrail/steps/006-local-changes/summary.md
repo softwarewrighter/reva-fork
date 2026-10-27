@@ -1,0 +1,1 @@
+CHANGES.md in X_eTaL's format: every fork commit since 2026-10-24 (99 incl. this one; one line per commit per day checked against git), Pacific times, categories feat/fix/refactor/test/build/docs/design/plan/release/chore; 2020 Reva import left out. CLAUDE.md: every commit adds its line (merge lines added by the next dev commit). Inserted at the user's request.

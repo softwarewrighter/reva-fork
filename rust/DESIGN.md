@@ -69,9 +69,9 @@ Addresses below 0x1000 fault, so `0 @` is reported, not silently read.
 output and sources, plus their regular neighbours: all ALU ops in all
 forms, shifts/rotates, `mul/imul/div/idiv`, `lods/stos/movs/scas/cmps` with
 `rep`, near `jmp/call/ret/jcc/loop`, `setcc/cmovcc`, `movzx/movsx`, `66`
-prefix. Flags are exact except AF. Anything else faults with the bytes and
-the Forth word containing them. Not modelled, deliberately: segments,
-privileged/system instructions, x87/MMX/SSE (x87 is next; see §7).
+prefix, and the x87 floating-point unit (§3.10). Flags are exact except AF.
+Anything else faults with the bytes and the Forth word containing them. Not
+modelled, deliberately: segments, privileged/system instructions, MMX/SSE.
 
 ### 3.3 Gateways: the core in Rust
 
@@ -162,6 +162,9 @@ rmdir/list/chdir/cwd), that a host lends through `Host::fs`:
 
 - **CLI:** `StdFs`, the real file system; `/reva/` maps to the install
   root. Descriptors are the host's own numbers (from 3), not OS fds.
+  VM paths are always `/`-rooted and `/`-separated; on Windows the host
+  path `C:\dir` is the VM path `/C:/dir` and back (`vm_path`/`host_path`
+  in `reva-cli/src/fs.rs`), so one `vfs::normalize` serves every host.
 - **Browser and tests:** `MemFs`, an in-memory tree. It records which
   paths changed, and `reva-web` exports them so `reva.js` can keep them in
   `localStorage` and put them back before the next boot. A page bundles
@@ -261,6 +264,96 @@ it) and relaunched itself with `restart`. Both are host matters here.
 A script that calls `restart` unconditionally restarts for ever, as it did
 on the original (and as a launcher loop would); stop it with Ctrl-C.
 
+### 3.10 Floating point: the x87
+
+`lib/math/floats` is x87 code written as bytes (`f+` is `inline{ de c1 }`,
+`f@` is `fld tbyte [eax]`), and CoSy stores its floats in the x87's 80-bit
+format. So the VM decodes the x87 (`D8`–`DF`, `fwait` as a no-op;
+`x86/fpu.rs`) and keeps its state in the CPU: eight registers as a stack
+with `TOP` and tags, the control word and the status word.
+
+- **What is there:** loads and stores of every memory format (32/64/80-bit
+  floats, 16/32/64-bit integers, `fisttp`), constants, the four
+  operations in all their forms, compares (`fcom`, `fucom`, `fcomi`,
+  `ftst`, `fxam`, condition codes `C0`–`C3`), `fxch`, `ffree`, `fcmov`,
+  `fldcw`/`fstcw`/`fstsw`, `finit`/`fclex`, and the transcendentals
+  (`fsin`, `fcos`, `fsincos`, `fptan`, `fpatan`, `f2xm1`, `fyl2x`,
+  `fyl2xp1`, `fscale`, `fxtract`, `fprem`, `fprem1`, `frndint`, `fsqrt`).
+  Not there: `fldenv`/`fstenv`/`fsave`/`frstor` and the BCD forms.
+- **Registers are `f64`.** A software 80-bit float would be exact but slow
+  and large, and every host has a fast IEEE double. 80-bit memory values
+  convert exactly to the 80-bit format and round to nearest-even on the
+  way in; 64-bit integers round like doubles. Arithmetic rounds to double
+  whatever the precision field says, and the rounding field applies to
+  `fist`/`frndint` only. Results can differ from a real x87 in the last
+  bits of the extended format, which shows when a program prints more
+  digits than a double holds, or truncates (`f.` prints `0.49999` for
+  `sin 30°`).
+- **Exceptions are masked**, as Reva left them: an invalid operation gives
+  the indefinite NaN and sets `IE`, an empty register reads as a stack
+  fault, a push onto a full stack overflows to NaN, and `fwait` never
+  traps. The sticky flags are visible through `fstsw`.
+- **No new imports:** the WebAssembly module still imports nothing; the
+  `f64` functions come from Rust's standard library.
+- The FPU state is part of the CPU, not of an image: a saved program starts
+  with a fresh unit, as a new process did (`finit` state).
+
+### 3.11 Host calls and SQLite
+
+Decided with the user on 2026-10-26 (saga steps `local-sqlite-design`,
+`local-sqlite`):
+
+- **SQLite on every host.** The CLI and the desktop app use SQLite
+  compiled into the native binary; the browser uses SQLite's official
+  WebAssembly build ([sqlite.org/wasm](https://sqlite.org/wasm)) loaded by
+  the page, with databases kept in the browser's private file system
+  (OPFS). `lib/db/sqlite` programs run unchanged on all three.
+- **No C calls in our code.** Native hosts use the `reva-sqlite` crate
+  (rust/ workspace), which drives SQLite through **rusqlite's safe API**;
+  `libsqlite3-sys` (rusqlite's own dependency) compiles SQLite itself. No
+  `unsafe`, no FFI of ours. `reva-vm` and `reva-web` gain no dependency.
+  The workspace's rust-version is 1.89 (rusqlite 0.41).
+- **No pointers in the Forth binding.** The old `lib/db/sqlite` called
+  SQLite's C API directly: out-parameters (`sqlite3_open` writing the
+  handle through a pointer), returned `char*`, and an x86 `callback:`
+  thunk for `sqlite3_exec`. Nothing else used that layer: programs and
+  libraries use the `~db` words (`sql_open`, `sql_exec`, `sql_prepare`,
+  `sql_pexec`, `sql_pcol_text`, `sql_fetch` ...). So the library now sits
+  on the virtual library `reva-sqlite`, whose functions (`rsql_open`,
+  `rsql_step`, ...) take handles as small integers and strings as
+  `( a n )`; a text answer comes back as its length, with the bytes in a
+  VM buffer (`rsql_ptr`; one per statement and column, so a row's columns
+  stay valid together). `sql_fetch` walks rows with `rsql_next` instead
+  of a C callback, calling the Forth word with a stack of its own as the
+  C callback did. Every public word keeps its stack effect.
+- **Statements without lifetimes.** rusqlite's `Statement` borrows its
+  connection, which does not fit handles kept between Forth calls. A
+  `reva-sqlite` statement keeps its SQL and bindings; its first `step`
+  runs it (rusqlite, safe API) and buffers the rows, later steps hand
+  them out. A SELECT's result is held in memory until reset or finalize,
+  which suits REPL-sized data.
+- **One mechanism, the host call** (`reva_vm::hostcall`). A
+  virtual-library function the VM cannot serve becomes a `HostCall`
+  (service, operation, integers, byte strings: never VM addresses) for
+  `Host::host_call`. The host answers at once (the CLI), later (the
+  desktop's and the browser's worker, which must ask the page), or not at
+  all (a clear stop, as for a native library the core does not serve).
+  "Later" stops the VM with `Status::HostCall`; the host reads
+  `Machine::pending_host_call`, answers with `Machine::resume`, and runs
+  again. Nothing is popped from the data stack until the answer is in,
+  so the call simply retries, as a gateway waiting for input does.
+  - CLI: `reva-sqlite` at once; database names map to host paths as the
+    file words map them.
+  - Desktop: the worker posts the request to the page, the page calls a
+    Tauri command, the native side answers from `reva-sqlite` (paths
+    under the app's folder only), the worker resumes the VM.
+  - Browser: the worker posts the request to the page, which answers from
+    SQLite's wasm build (it runs in the page, or a worker of its own, for
+    OPFS).
+
+  The same path serves later native services. Gates for the new
+  functions are appended (3.9: images keep gate addresses).
+
 ## 4. Non-functional requirements
 
 | Quality | How it is addressed |
@@ -336,8 +429,9 @@ block translation should land within ~2× of the original x86 Reva.
    CLI and in the browser; `restart` (§3.9). `makeexe` (a native
    executable) is not planned: an image plus the `reva` binary or the web
    build is the portable form.
-3. x87 subset (as a 8-deep `f64` stack) for `lib/math/floats`, with 80-bit
-   memory operands (`fld`/`fstp tbyte`).
+3. ✅ x87 (§3.10): an 8-deep `f64` stack with tags, control and status
+   words, 80-bit memory operands, and the transcendentals;
+   `lib/math/floats` passes its own tests.
 4. OS layer: ✅ virtual libc and a portable `syscall` subset (§3.6); ✅
    clear stops for native libraries, `shell` (CLI `--allow-shell`) and
    unsupported instruction families ([portability.md](../docs/portability.md)).

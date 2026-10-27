@@ -17,6 +17,8 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const BANNER: &str = concat!("reva-fork ", env!("CARGO_PKG_VERSION"), " portable");
 
 pub const REPOSITORY: &str = "https://github.com/softwarewrighter/reva-fork";
+pub const COPYRIGHT: &str = "Copyright (c) 2026 Michael A Wright";
+pub const LICENSE: &str = "MIT (portable core); Reva Forth by Ron Aaron is public domain";
 
 /// Build host, short commit and time, from `build.rs` (`unknown` if git
 /// or the clock were not available).
@@ -28,8 +30,8 @@ pub const BUILD_TIMESTAMP: &str = env!("REVA_BUILD_TIMESTAMP");
 pub fn lines() -> Vec<String> {
     vec![
         format!("{NAME} {VERSION}"),
-        "Copyright (c) 2026 Michael A Wright".into(),
-        "License: MIT (portable core); Reva Forth by Ron Aaron is public domain".into(),
+        COPYRIGHT.into(),
+        format!("License: {LICENSE}"),
         format!("Repository: {REPOSITORY}"),
         String::new(),
         "Build Information:".into(),
@@ -42,6 +44,25 @@ pub fn lines() -> Vec<String> {
 /// The report as text, each line ended with `\n`.
 pub fn info() -> String {
     lines().iter().map(|l| format!("{l}\n")).collect()
+}
+
+/// The same facts as fields, one `key\tvalue` line each, for pages and
+/// other programs (the web page's footer): `name`, `version`, `copyright`,
+/// `license`, `repository`, `build_host`, `build_commit`, `build_time`.
+pub fn fields() -> String {
+    [
+        ("name", NAME),
+        ("version", VERSION),
+        ("copyright", COPYRIGHT),
+        ("license", LICENSE),
+        ("repository", REPOSITORY),
+        ("build_host", BUILD_HOST),
+        ("build_commit", BUILD_COMMIT),
+        ("build_time", BUILD_TIMESTAMP),
+    ]
+    .iter()
+    .map(|(k, v)| format!("{k}\t{v}\n"))
+    .collect()
 }
 
 /// Forth source for this fork's `.ver` (the banner).  Inserted into the

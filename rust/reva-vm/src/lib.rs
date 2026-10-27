@@ -29,19 +29,24 @@
 //! assert_eq!(host.take_output(), "49 ");
 //! ```
 
+pub mod canvas;
 pub mod embedded;
 pub mod fault;
 pub mod ffi;
 mod fileio;
 pub mod gates;
 pub mod heap;
+pub mod highlight;
 pub mod host;
+pub mod hostcall;
 pub mod image;
 pub mod layout;
 pub mod machine;
 pub mod mem;
+pub mod sqlite;
 pub mod start;
 pub mod translate;
+pub mod turtle;
 pub mod version;
 pub mod vfs;
 pub mod x86;
@@ -49,5 +54,5 @@ pub mod x86;
 pub use fault::Fault;
 pub use host::{BufferHost, Host};
 pub use image::ImageError;
-pub use machine::{st, Machine, Status};
+pub use machine::{Machine, Status, st};
 pub use start::Start;

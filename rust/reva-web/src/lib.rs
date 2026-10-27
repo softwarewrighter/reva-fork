@@ -37,11 +37,27 @@
 //!   the last call into the buffer at `reva_fs_data()`: records of
 //!   `kind:u8` (1 written, 0 removed), `path_len:u32le`, path,
 //!   `data_len:u32le`, data.  `www/reva.js` keeps them in `localStorage`.
+//!
+//! Build information (the page's footer): `reva_build_info_len()` bytes
+//! at `reva_build_info_ptr()`, `key\tvalue` lines from
+//! `reva_vm::version::fields()`: name, version, copyright, license,
+//! repository, build_host, build_commit and build_time.  Works before boot.
+//!
+//! The canvas (turtle graphics; see `reva_vm::canvas` for the op format):
+//!
+//! * `n = reva_canvas_take()` moves the drawing ops not yet taken (at most
+//!   `reva_vm::canvas::MAX_OPS_PER_TAKE` records) into a buffer of `n`
+//!   `f32`s at `reva_canvas_ptr()`; call it after each [`reva_run`] slice
+//!   until it returns 0.
+//! * `reva_canvas_resend()`: the next takes start over with the whole
+//!   drawing (a window opened).
+//! * `reva_canvas_reset()` returns 1 once after `restart` made a new
+//!   machine (its drawing is empty: windows should clear), else 0.
 
 use std::cell::RefCell;
 
 use reva_vm::vfs::MemFs;
-use reva_vm::{embedded, BufferHost, Machine, Start, Status};
+use reva_vm::{BufferHost, Machine, Start, Status, embedded};
 
 struct Web {
     vm: Machine,
@@ -51,6 +67,8 @@ struct Web {
     replay: Vec<u8>,
     /// How `vm` was made, for `restart`.
     start: Start,
+    /// `restart` made a new machine (see [`reva_canvas_reset`]).
+    canvas_reset: bool,
 }
 
 thread_local! {
@@ -59,11 +77,17 @@ thread_local! {
     static PENDING: RefCell<Option<MemFs>> = const { RefCell::new(None) };
     /// The buffer behind `reva_fs_buffer` and `reva_fs_changes`.
     static FSBUF: RefCell<Vec<u8>> = const { RefCell::new(Vec::new()) };
+    /// The buffer behind `reva_canvas_take`.
+    static CANVAS: RefCell<Vec<f32>> = const { RefCell::new(Vec::new()) };
 }
 
 const YIELDED: i32 = 0;
 const NEED_INPUT: i32 = 1;
 const HALTED: i32 = 2;
+/// The VM waits for a host call's answer (rust/DESIGN.md 3.11).  This
+/// module's host has no services yet, so it does not happen here; the
+/// desktop's bridge is saga step local-sqlite-desktop.
+const HOST_CALL: i32 = 3;
 const NOT_BOOTED: i32 = -1;
 const BAD_IMAGE: i32 = -2;
 
@@ -73,6 +97,7 @@ fn code(s: Status) -> i32 {
         Status::NeedInput => NEED_INPUT,
         Status::Halted(_) => HALTED,
         Status::Restart => YIELDED,
+        Status::HostCall => HOST_CALL,
     }
 }
 
@@ -83,7 +108,7 @@ fn with<R>(f: impl FnOnce(&mut Web) -> R, default: R) -> R {
 /// Create the VM and boot `reva.f`.  Boot progress marks are discarded;
 /// the banner, the first prompt and anything else boot printed are kept as
 /// the first output.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_boot() -> i32 {
     let start = Start::reva();
     let vm = start
@@ -95,7 +120,7 @@ pub extern "C" fn reva_boot() -> i32 {
 /// Create the VM from the image in the [`reva_fs_buffer`] (`len` bytes),
 /// as `reva --image` does.  Returns a status, or -2 with the reason in the
 /// buffer if the bytes are not an image this core loads.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_boot_image(len: u32) -> i32 {
     let mut bytes = FSBUF.with(|b| std::mem::take(&mut *b.borrow_mut()));
     bytes.truncate(len as usize);
@@ -110,6 +135,8 @@ pub extern "C" fn reva_boot_image(len: u32) -> i32 {
 
 fn begin(start: Start, mut vm: Machine) -> i32 {
     let mut host = BufferHost::new();
+    // The page renders ANSI colour escapes (www/ansi.js), so `pp` colours.
+    host.color = true;
     if let Some(fs) = PENDING.with(|p| p.borrow_mut().take()) {
         host.fs = fs;
     }
@@ -121,6 +148,7 @@ fn begin(start: Start, mut vm: Machine) -> i32 {
             input: Vec::new(),
             replay: Vec::new(),
             start,
+            canvas_reset: false,
         })
     });
     code(status)
@@ -144,6 +172,7 @@ fn restart(w: &mut Web) -> Status {
     let (input, closed) = w.vm.take_input();
     // The same start made the first machine (an image was checked then).
     w.vm = w.start.machine().expect("a start that worked once");
+    w.canvas_reset = true;
     match startup(&mut w.vm, &mut w.host) {
         Status::NeedInput => {}
         s => return s,
@@ -157,7 +186,7 @@ fn restart(w: &mut Web) -> Status {
 }
 
 /// A buffer of `len` bytes for the caller to fill before [`reva_feed`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_input_buffer(len: u32) -> *mut u8 {
     with(
         |w| {
@@ -169,7 +198,7 @@ pub extern "C" fn reva_input_buffer(len: u32) -> *mut u8 {
 }
 
 /// Queue the first `len` bytes of the input buffer as keyboard input.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_feed(len: u32) {
     with(
         |w| {
@@ -181,7 +210,7 @@ pub extern "C" fn reva_feed(len: u32) {
 }
 
 /// Like [`reva_feed`], and keep the bytes to feed again after `restart`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_feed_start(len: u32) {
     with(
         |w| {
@@ -194,13 +223,13 @@ pub extern "C" fn reva_feed_start(len: u32) {
 }
 
 /// Signal end of input (the interpreter exits once it drains).
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_close_input() {
     with(|w| w.vm.close_input(), ())
 }
 
 /// Run up to `budget` steps.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_run(budget: u32) -> i32 {
     with(
         |w| match w.vm.run(&mut w.host, budget as u64) {
@@ -211,17 +240,17 @@ pub extern "C" fn reva_run(budget: u32) -> i32 {
     )
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_output_ptr() -> *const u8 {
     with(|w| w.host.out.as_ptr(), std::ptr::null())
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_output_len() -> u32 {
     with(|w| w.host.out.len() as u32, 0)
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_output_clear() {
     with(|w| w.host.out.clear(), ())
 }
@@ -229,7 +258,7 @@ pub extern "C" fn reva_output_clear() {
 /// Stop the running code at the next step of [`reva_run`] (the Stop
 /// button): queued input is dropped and the interpreter loop restarts with
 /// `*** interrupted`, keeping the dictionary.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_interrupt() {
     with(|w| w.vm.interrupt(), ())
 }
@@ -237,7 +266,7 @@ pub extern "C" fn reva_interrupt() {
 /// The wall clock, for `time&date`, `ms@` and file times: the page sets
 /// it before each [`reva_run`] (the module has no imports, so it cannot
 /// read one).  Until then the clock reads as the Unix epoch.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_set_time(secs: f64, micros: u32) {
     let secs = secs.max(0.0) as u64;
     with(
@@ -250,9 +279,27 @@ pub extern "C" fn reva_set_time(secs: f64, micros: u32) {
 }
 
 /// The `bye` status once [`reva_run`] has returned 2.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_exit_code() -> i32 {
     with(|w| w.vm.halted().unwrap_or(0), 0)
+}
+
+/// This build's facts as `key\tvalue` lines (see the module docs).
+fn build_info() -> &'static str {
+    static INFO: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    INFO.get_or_init(reva_vm::version::fields)
+}
+
+/// Where [`build_info`]'s text starts.
+#[unsafe(no_mangle)]
+pub extern "C" fn reva_build_info_ptr() -> *const u8 {
+    build_info().as_ptr()
+}
+
+/// The length of [`build_info`]'s text in bytes.
+#[unsafe(no_mangle)]
+pub extern "C" fn reva_build_info_len() -> u32 {
+    build_info().len() as u32
 }
 
 /// The file system: the booted host's, or the one waiting for boot.
@@ -272,7 +319,7 @@ fn with_fs<R>(f: impl FnOnce(&mut MemFs) -> R) -> R {
 }
 
 /// A buffer of `len` bytes for [`reva_fs_put`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_fs_buffer(len: u32) -> *mut u8 {
     FSBUF.with(|b| {
         let mut b = b.borrow_mut();
@@ -282,21 +329,21 @@ pub extern "C" fn reva_fs_buffer(len: u32) -> *mut u8 {
 }
 
 /// The buffer's address (after [`reva_fs_changes`]).
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_fs_data() -> *const u8 {
     FSBUF.with(|b| b.borrow().as_ptr())
 }
 
 /// How many bytes [`reva_fs_data`] holds (after [`reva_boot_image`]
 /// failed, the reason).
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_fs_len() -> u32 {
     FSBUF.with(|b| b.borrow().len() as u32)
 }
 
 /// Add the file in the buffer: a path of `path_len` bytes, then the
 /// contents.  Returns 0, or -1 if `path_len` is too long.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_fs_put(path_len: u32) -> i32 {
     let buf = FSBUF.with(|b| std::mem::take(&mut *b.borrow_mut()));
     let n = path_len as usize;
@@ -310,7 +357,7 @@ pub extern "C" fn reva_fs_put(path_len: u32) -> i32 {
 
 /// Collect the files changed since the last call (see the module docs);
 /// returns the number of bytes at [`reva_fs_data`].
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn reva_fs_changes() -> u32 {
     let changes = with_fs(MemFs::take_changes);
     FSBUF.with(|b| {
@@ -326,6 +373,34 @@ pub extern "C" fn reva_fs_changes() -> u32 {
         }
         b.len() as u32
     })
+}
+
+/// Take the drawing ops not yet taken into the canvas buffer; returns how
+/// many `f32`s it holds (0: nothing new).
+#[unsafe(no_mangle)]
+pub extern "C" fn reva_canvas_take() -> u32 {
+    let ops = with(|w| w.vm.canvas().take_ops(), Vec::new());
+    let n = ops.len() as u32;
+    CANVAS.with(|c| *c.borrow_mut() = ops);
+    n
+}
+
+/// The canvas buffer's address (after [`reva_canvas_take`]).
+#[unsafe(no_mangle)]
+pub extern "C" fn reva_canvas_ptr() -> *const f32 {
+    CANVAS.with(|c| c.borrow().as_ptr())
+}
+
+/// Hand out the whole drawing again from the next [`reva_canvas_take`].
+#[unsafe(no_mangle)]
+pub extern "C" fn reva_canvas_resend() {
+    with(|w| w.vm.canvas().resend(), ())
+}
+
+/// 1 once after `restart` replaced the machine (and its drawing), else 0.
+#[unsafe(no_mangle)]
+pub extern "C" fn reva_canvas_reset() -> i32 {
+    with(|w| std::mem::take(&mut w.canvas_reset) as i32, 0)
 }
 
 #[cfg(test)]
@@ -438,6 +513,32 @@ mod tests {
         let out = run_out();
         assert!(out.contains("ok> hello"), "{out:?}");
         assert!(out.contains("unknown word:  gone"), "{out:?}");
+    }
+
+    fn canvas() -> Vec<f32> {
+        let n = reva_canvas_take() as usize;
+        unsafe { std::slice::from_raw_parts(reva_canvas_ptr(), n) }.to_vec()
+    }
+
+    #[test]
+    fn turtle_ops_reach_the_page() {
+        assert_eq!(reva_boot(), NEED_INPUT);
+        output();
+        assert!(canvas().is_empty());
+        feed("needs turtle/core : sq 4 0do 100 forward 90 right loop ; clear sq\n");
+        run_out();
+        let ops = canvas();
+        let lines = ops.chunks(8).filter(|r| r[0] == 2.0).count();
+        assert_eq!((ops[0], lines), (1.0, 4));
+        assert!(canvas().is_empty());
+        reva_canvas_resend();
+        assert_eq!(canvas().len(), ops.len());
+        assert_eq!(reva_canvas_reset(), 0);
+        feed("restart\n");
+        run_out();
+        assert_eq!(reva_canvas_reset(), 1);
+        assert_eq!(reva_canvas_reset(), 0);
+        assert!(canvas().is_empty());
     }
 
     fn put(path: &str, data: &[u8]) {

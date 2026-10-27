@@ -1,0 +1,50 @@
+| highlight/core: colour-highlighted source listing
+| vim: ft=reva :
+|
+|   pp FILE             list FILE in colour (FILE, else lib/FILE: `pp turtle/core`)
+|   hl-type ( a n -- )  like `type`, in colour
+|   hl-table ( a n -- ) add a token table file (later tables win)
+|   hl-color? ( -- f )  does this output show colour?
+|
+| The tokenizer lives on the host side (rust/reva-vm/src/highlight.rs),
+| reached like libc through `(call)`.  Which words get which colour comes
+| from token tables, plain text shared with the blog's
+| rust/scripts/forth-highlight.py; this file loads highlight/forth.tbl.
+| Where the output cannot show colour (the CLI writing to a pipe or file,
+| or `--color never`), `pp` and `hl-type` print exactly what `type` does.
+| `slurp type` stays plain.  See docs/highlight.md.
+
+push~
+context: ~highlight
+~priv
+
+" highlight" lib libhighlight
+4 func: hl_type
+0 func: hl_color
+
+16 constant #tables
+create tables #tables 2* cells allot
+variable ntables  0 ntables !
+
+| a n, else lib/ a n: the file's contents, or 0 0
+: lib-file ( a n -- a' n' ) libdir 2drop scratch +place scratch count ;
+: (slurp) ( a n -- a' n' )
+    2dup slurp dup if 2swap 2drop ;then 2drop lib-file slurp ;
+: table, ( a n -- )
+    ntables @ #tables < 0if 2drop ;then
+    ntables @ 2* cells tables + >r  r@ cell+ !  r> !  ntables ++ ;
+
+~highlight
+: hl-color? ( -- flag ) hl_color ;
+: hl-table ( a n -- )
+    2dup (slurp) dup 0if 2drop ." hl-table: cannot read " type cr ;then
+    2swap 2drop table, ;
+: hl-type ( a n -- ) tables ntables @ hl_type drop ;
+: pp ( <file> -- )
+    parsews 2dup (slurp) dup 0if 2drop ." pp: cannot read " type cr ;then
+    2swap 2drop over >r hl-type r> free ;
+
+" highlight/forth.tbl" hl-table
+
+pop~
+with~ ~highlight
