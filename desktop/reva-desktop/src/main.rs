@@ -11,12 +11,19 @@
 //!   The root is `~/Reva`, or the package folder.
 //! * **Packages.**  `--package DIR` opens a folder with a `reva-package.json`
 //!   manifest (`name`, `start`: files to `include` at start, and again
-//!   after Forth's `restart`).  CoSy is one,
+//!   after Forth's `restart`).  The manifest may also brand the window:
+//!   `title`, `icon` (a PNG in the package) and `id` (the Linux app id
+//!   that matches a `.desktop` entry; see [`Branding`]).  CoSy is one,
 //!   kept in its own repository; this app knows nothing about CoSy.
 //! * **Batch use.**  `--eval TEXT` feeds lines after start and
 //!   `--print-output` copies the VM's output to stdout, so the app can be
 //!   smoke-tested without a person (`xvfb-run reva-desktop --eval ...`).
 //!   `bye` closes the window with Forth's exit code.
+//!
+//! * **More windows.**  `open_window` opens a page of the app (`canvas`:
+//!   turtle graphics) in a second native window; the pages talk through
+//!   the events `reva-ui-down` (main → window) and `reva-ui-up` (window →
+//!   main, including `closed` when it is closed).  See www/ui.js.
 //!
 //! Why the VM stays in the page and not in this process: one VM build for
 //! the browser and the desktop, so both behave the same.  The commands
@@ -36,6 +43,8 @@ usage: reva-desktop [options]
   --package DIR    open DIR (a folder with reva-package.json); its files are
                    the VM's files, and its start files are included
   --root DIR       keep files in DIR instead of ~/Reva (ignored with --package)
+  --canvas WHERE   where turtle graphics go: window (default), pane, or split
+                   (REPL and graphics side by side); overrides the manifest
   -e, --eval TEXT  feed TEXT as a line after start (repeatable)
   --print-output   copy everything Reva prints to stdout (for scripts and tests)
   -h, --help       this text
@@ -53,8 +62,155 @@ const BUILTIN: &str = "/reva/";
 #[derive(Deserialize, Default)]
 struct Manifest {
     name: Option<String>,
+    /// Window title; default `<name> on Reva`.
+    title: Option<String>,
+    /// PNG in the package, for the window and the taskbar.
+    icon: Option<String>,
+    /// Linux app id (Wayland app_id, X11 WM_CLASS).
+    id: Option<String>,
     #[serde(default)]
     start: Vec<String>,
+    /// Where graphics go: "window", "pane" or "split" (see www/split.js).
+    canvas: Option<String>,
+    /// The About dialog's entry for the package (see www/about.js); passed
+    /// to the page as is, which checks it.
+    about: Option<serde_json::Value>,
+    /// The page header's hint (`code` in backticks).
+    hint: Option<String>,
+}
+
+/// The `canvas` values the page knows.
+const CANVAS: &[&str] = &["window", "pane", "split"];
+
+/// How a package brands the app, applied at run time so one installed
+/// `reva-desktop` can look like each package it opens:
+///
+/// * **title** of the window (and of the page header);
+/// * **icon** of the window, which is also the taskbar icon on Windows and
+///   on X11 desktops;
+/// * **id**, set as the program name before GTK starts: on Linux it becomes
+///   the Wayland `app_id` and the X11 `WM_CLASS`, which is how GNOME, KDE
+///   and others find the package's `.desktop` file, and with it the dock
+///   icon and name.  Elsewhere it is ignored.
+///
+/// On macOS the icon also replaces the Dock icon (see `set_dock_icon`).
+///
+/// What run time cannot change, and needs a separate bundle or entry: the
+/// macOS Finder and Launchpad icon (from the `.app` bundle's `.icns`), the
+/// Windows Explorer and pinned-taskbar icon (from the `.exe` resource or a
+/// shortcut's icon), and the Linux launcher entry (a `.desktop` file with
+/// `StartupWMClass=<id>`).  See docs/desktop.md, "Branding".
+#[derive(Default)]
+struct Branding {
+    title: String,
+    /// RGBA pixels, width, height.
+    icon: Option<(Vec<u8>, u32, u32)>,
+    /// The icon file as read, for the macOS Dock (NSImage decodes it).
+    icon_png: Option<Vec<u8>>,
+    #[cfg_attr(not(target_os = "linux"), allow(dead_code))]
+    id: Option<String>,
+}
+
+/// A Linux app id: what GTK accepts as a program name and a `.desktop`
+/// file can match, kept to letters, digits, `.`, `-` and `_`.
+fn valid_id(id: &str) -> bool {
+    (1..=64).contains(&id.len())
+        && id
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '-' | '_'))
+}
+
+/// The real file for `rel`, a relative path inside the package (no `..`).
+fn package_file(dir: &Path, rel: &str) -> Option<PathBuf> {
+    let rel = Path::new(rel);
+    let plain = rel.components().all(|c| matches!(c, Component::Normal(_)));
+    (plain && !rel.as_os_str().is_empty()).then(|| dir.join(rel))
+}
+
+/// Decode a PNG to RGBA, with the `png` crate Tauri already builds on
+/// (its own `image-png` feature would add four more crates).
+fn decode_png(bytes: &[u8]) -> Result<(Vec<u8>, u32, u32), String> {
+    use png::{ColorType, Transformations};
+    let mut d = png::Decoder::new(std::io::Cursor::new(bytes));
+    d.set_transformations(Transformations::normalize_to_color8() | Transformations::ALPHA);
+    let mut r = d.read_info().map_err(|e| e.to_string())?;
+    let mut buf = vec![0; r.output_buffer_size().ok_or("image too large")?];
+    let info = r.next_frame(&mut buf).map_err(|e| e.to_string())?;
+    buf.truncate(info.buffer_size());
+    let rgba = match info.color_type {
+        ColorType::Rgba => buf,
+        ColorType::GrayscaleAlpha => buf
+            .chunks_exact(2)
+            .flat_map(|ga| [ga[0], ga[0], ga[0], ga[1]])
+            .collect(),
+        c => return Err(format!("unexpected color type {c:?}")),
+    };
+    Ok((rgba, info.width, info.height))
+}
+
+fn branding(dir: Option<&Path>, m: &Manifest, notes: &mut Vec<String>) -> Branding {
+    let title = match (&m.title, &m.name) {
+        (Some(t), _) => t.clone(),
+        (None, Some(n)) => format!("{n} on Reva"),
+        (None, None) => "Reva Forth".to_string(),
+    };
+    let mut icon_png = None;
+    let icon = match (dir, &m.icon) {
+        (Some(dir), Some(rel)) => match package_file(dir, rel).map(fs::read) {
+            Some(Ok(b)) => match decode_png(&b) {
+                Ok(img) => {
+                    icon_png = Some(b);
+                    Some(img)
+                }
+                Err(e) => {
+                    notes.push(format!("icon {rel}: not a usable PNG ({e}); using Reva's"));
+                    None
+                }
+            },
+            Some(Err(e)) => {
+                notes.push(format!("icon {rel}: {e}; using Reva's"));
+                None
+            }
+            None => {
+                notes.push(format!("icon {rel} is not a path inside the package"));
+                None
+            }
+        },
+        _ => None,
+    };
+    let id = match &m.id {
+        Some(id) if valid_id(id) => Some(id.clone()),
+        Some(id) => {
+            notes.push(format!("id {id:?} ignored: use letters, digits, . - _"));
+            None
+        }
+        None => None,
+    };
+    Branding {
+        title,
+        icon,
+        icon_png,
+        id,
+    }
+}
+
+/// Show `png` as the app's Dock and app-switcher icon.  macOS takes these
+/// from the running bundle, not from windows, so `set_icon` alone leaves
+/// Reva's; NSApplication's `applicationIconImage` replaces it until the app
+/// quits.  Finder and Launchpad still show the bundle's own icon.
+#[cfg(target_os = "macos")]
+fn set_dock_icon(png: &[u8]) {
+    use objc2::{AllocAnyThread, MainThreadMarker};
+    use objc2_app_kit::{NSApplication, NSImage};
+    use objc2_foundation::NSData;
+    let Some(mtm) = MainThreadMarker::new() else {
+        return;
+    };
+    let data = NSData::with_bytes(png);
+    if let Some(img) = NSImage::initWithData(NSImage::alloc(), &data) {
+        // SAFETY: on the main thread (mtm), with a non-nil image.
+        unsafe { NSApplication::sharedApplication(mtm).setApplicationIconImage(Some(&img)) };
+    }
 }
 
 /// What the page needs to start, sent by `session`.
@@ -67,6 +223,11 @@ struct Session {
     /// The `--eval` lines, fed once after the start lines.
     input: Vec<String>,
     print_output: bool,
+    /// Where graphics go (`--canvas`, else the manifest's `canvas`).
+    canvas: Option<String>,
+    /// With `--package`: `{ name, title, about, hint }` from the manifest,
+    /// for the About dialog and the header.
+    package: Option<serde_json::Value>,
     /// Notes for the user (skipped files, a missing manifest, ...).
     notes: Vec<String>,
 }
@@ -74,6 +235,7 @@ struct Session {
 struct State {
     session: Session,
     root: PathBuf,
+    brand: Branding,
 }
 
 #[derive(Default)]
@@ -82,6 +244,7 @@ struct Options {
     root: Option<PathBuf>,
     evals: Vec<String>,
     print_output: bool,
+    canvas: Option<String>,
 }
 
 fn parse_args() -> Result<Options, String> {
@@ -92,6 +255,13 @@ fn parse_args() -> Result<Options, String> {
         match a.as_str() {
             "--package" => o.package = Some(value(&a)?.into()),
             "--root" => o.root = Some(value(&a)?.into()),
+            "--canvas" => {
+                let v = value(&a)?;
+                if !CANVAS.contains(&v.as_str()) {
+                    return Err(format!("--canvas {v}: use one of {}", CANVAS.join(", ")));
+                }
+                o.canvas = Some(v);
+            }
             "-e" | "--eval" => o.evals.push(value(&a)?),
             "--print-output" => o.print_output = true,
             "-h" | "--help" => {
@@ -148,20 +318,41 @@ fn build_state(o: Options) -> Result<State, String> {
         .iter()
         .map(|f| format!("include {f}"))
         .collect();
-    let title = match &manifest.name {
-        Some(n) => format!("{n} on Reva"),
-        None => "Reva Forth".to_string(),
+    let package = o.package.is_some().then_some(root.as_path());
+    let brand = branding(package, &manifest, &mut notes);
+    let canvas = match (o.canvas, manifest.canvas) {
+        (Some(c), _) => Some(c),
+        (None, Some(c)) if CANVAS.contains(&c.as_str()) => Some(c),
+        (None, Some(c)) => {
+            notes.push(format!(
+                "canvas {c:?} ignored: use one of {}",
+                CANVAS.join(", ")
+            ));
+            None
+        }
+        (None, None) => None,
     };
     Ok(State {
         session: Session {
-            title,
+            title: brand.title.clone(),
             root: root.display().to_string(),
             start,
             input: o.evals,
             print_output: o.print_output,
+            canvas,
+            package: package.map(|_| {
+                serde_json::json!({
+                    "name": manifest.name,
+                    "id": manifest.id,
+                    "title": manifest.title,
+                    "about": manifest.about,
+                    "hint": manifest.hint,
+                })
+            }),
             notes,
         },
         root,
+        brand,
     })
 }
 
@@ -279,20 +470,82 @@ fn print(text: String) {
     let _ = out.flush();
 }
 
+/// Windows `open_window` may open: each is `<name>.html` from the page.
+const WINDOWS: &[(&str, f64, f64)] = &[("canvas", 820.0, 880.0)];
+
+/// Open window `name` (or show it if it is open).
+#[tauri::command]
+fn open_window(app: tauri::AppHandle, name: String, title: String) -> Result<(), String> {
+    use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
+    let &(name, w, h) = WINDOWS
+        .iter()
+        .find(|(n, _, _)| *n == name)
+        .ok_or(format!("no window named {name}"))?;
+    if let Some(win) = app.get_webview_window(name) {
+        let _ = win.show();
+        let _ = win.set_focus();
+        return Ok(());
+    }
+    // Placement is left to the window manager.
+    WebviewWindowBuilder::new(&app, name, WebviewUrl::App(format!("{name}.html").into()))
+        .title(title)
+        .inner_size(w, h)
+        .build()
+        .map(drop)
+        .map_err(|e| format!("{name}: {e}"))
+}
+
+/// Open an http(s) link (the About dialog's) in the system browser.  Any
+/// other scheme is refused, so the page cannot launch local programs.
+#[tauri::command]
+fn open_url(url: String) -> Result<(), String> {
+    if !web_url(&url) {
+        return Err(format!("not an http(s) link: {url}"));
+    }
+    let mut c = if cfg!(target_os = "macos") {
+        std::process::Command::new("open")
+    } else if cfg!(windows) {
+        std::process::Command::new("explorer")
+    } else {
+        std::process::Command::new("xdg-open")
+    };
+    c.arg(&url)
+        .spawn()
+        .map(|mut child| drop(std::thread::spawn(move || child.wait())))
+        .map_err(|e| format!("{url}: {e}"))
+}
+
+/// An `http://` or `https://` URL with no whitespace or control characters.
+fn web_url(url: &str) -> bool {
+    let lower = url.to_ascii_lowercase();
+    (lower.starts_with("https://") || lower.starts_with("http://"))
+        && url.len() < 2048
+        && !url.chars().any(|c| c.is_whitespace() || c.is_control())
+}
+
 #[tauri::command]
 fn halt(app: tauri::AppHandle, code: i32) {
     app.exit(code);
 }
 
 fn main() -> ExitCode {
-    let state = match parse_args().and_then(build_state) {
+    let mut state = match parse_args().and_then(build_state) {
         Ok(s) => s,
         Err(e) => {
             eprintln!("reva-desktop: {e}\n{USAGE}");
             return ExitCode::from(2);
         }
     };
-    let title = state.session.title.clone();
+    // Before GTK starts (Builder::build), or it keeps "reva-desktop".
+    #[cfg(target_os = "linux")]
+    if let Some(id) = &state.brand.id {
+        glib::set_prgname(Some(id.as_str()));
+        glib::set_application_name(&state.brand.title);
+    }
+    let title = state.brand.title.clone();
+    let icon = state.brand.icon.take();
+    #[cfg_attr(not(target_os = "macos"), allow(unused_variables))]
+    let dock_png = state.brand.icon_png.take();
     let app = tauri::Builder::default()
         .manage(Mutex::new(state))
         .invoke_handler(tauri::generate_handler![
@@ -300,19 +553,44 @@ fn main() -> ExitCode {
             write_file,
             remove_file,
             print,
+            open_window,
+            open_url,
             halt
         ])
-        .setup(move |app| {
-            use tauri::Manager;
-            if let Some(w) = app.get_webview_window("main") {
-                let _ = w.set_title(&title);
+        .on_window_event(|win, ev| {
+            use tauri::{Emitter, Manager};
+            if let tauri::WindowEvent::Destroyed = ev {
+                let name = win.label().to_string();
+                if name != "main" {
+                    let msg = serde_json::json!({ "type": "closed", "window": name });
+                    let _ = win.app_handle().emit_to("main", "reva-ui-up", msg);
+                }
             }
+        })
+        // The window is made here, not in tauri.conf.json, so it opens with
+        // the package's title and icon instead of showing Reva's first.
+        .setup(move |app| {
+            let mut w = tauri::WebviewWindowBuilder::new(app, "main", Default::default())
+                .title(&title)
+                .inner_size(960.0, 680.0);
+            if let Some((rgba, width, height)) = icon {
+                w = w.icon(tauri::image::Image::new_owned(rgba, width, height))?;
+            }
+            w.build()?;
             Ok(())
         })
         .build(tauri::generate_context!());
     match app {
         Ok(app) => {
-            let code = app.run_return(|_, _| {});
+            // On Ready, after macOS has finished launching and applied the
+            // bundle's icon, which would otherwise replace ours.
+            let code = app.run_return(move |_, ev| {
+                #[cfg(target_os = "macos")]
+                if let (tauri::RunEvent::Ready, Some(png)) = (&ev, &dock_png) {
+                    set_dock_icon(png);
+                }
+                let _ = &ev;
+            });
             ExitCode::from(code.clamp(0, 255) as u8)
         }
         Err(e) => {
@@ -334,6 +612,70 @@ mod tests {
         assert_eq!(real_path(root, "/a/../../x"), None);
         assert_eq!(real_path(root, "/reva/lib/x"), None);
         assert_eq!(real_path(root, "relative"), None);
+    }
+
+    #[test]
+    fn package_files_stay_in_the_package() {
+        let dir = Path::new("/p");
+        assert_eq!(
+            package_file(dir, "icons/a.png"),
+            Some(dir.join("icons/a.png"))
+        );
+        assert_eq!(package_file(dir, "../a.png"), None);
+        assert_eq!(package_file(dir, "/etc/a.png"), None);
+        assert_eq!(package_file(dir, ""), None);
+    }
+
+    #[test]
+    fn branding_defaults_and_checks() {
+        let mut notes = Vec::new();
+        let m: Manifest = serde_json::from_str(r#"{"name": "CoSy"}"#).unwrap();
+        let b = branding(None, &m, &mut notes);
+        assert_eq!(b.title, "CoSy on Reva");
+        let m: Manifest =
+            serde_json::from_str(r#"{"name": "CoSy", "title": "CoSy", "id": "co sy"}"#).unwrap();
+        let b = branding(None, &m, &mut notes);
+        assert_eq!((b.title.as_str(), b.id), ("CoSy", None));
+        assert_eq!(notes.len(), 1);
+        assert!(valid_id("cosy") && valid_id("org.example.Co_Sy-2"));
+        assert!(!valid_id("") && !valid_id("a/b") && !valid_id(&"x".repeat(65)));
+    }
+
+    #[test]
+    fn icons_must_be_png_files_in_the_package() {
+        let dir = std::env::temp_dir().join(format!("reva-desktop-test-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        // a 1x1 gray PNG with alpha, the smallest a real file can be
+        let mut ok = Vec::new();
+        let mut e = png::Encoder::new(&mut ok, 1, 1);
+        e.set_color(png::ColorType::GrayscaleAlpha);
+        e.write_header().unwrap().write_image_data(&[7, 9]).unwrap();
+        assert_eq!(decode_png(&ok), Ok((vec![7, 7, 7, 9], 1, 1)));
+        fs::write(dir.join("ok.png"), ok).unwrap();
+        fs::write(dir.join("bad.png"), b"GIF89a").unwrap();
+        let icon = |rel: &str, notes: &mut Vec<String>| {
+            let m = Manifest {
+                icon: Some(rel.into()),
+                ..Default::default()
+            };
+            branding(Some(&dir), &m, notes).icon.is_some()
+        };
+        let mut notes = Vec::new();
+        assert!(icon("ok.png", &mut notes) && notes.is_empty());
+        assert!(!icon("bad.png", &mut notes) && !icon("gone.png", &mut notes));
+        assert!(!icon("../ok.png", &mut notes));
+        assert_eq!(notes.len(), 3);
+        fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn only_web_links_open() {
+        assert!(web_url("https://cosy.com/CoSy/"));
+        assert!(web_url("HTTP://example.org/x"));
+        assert!(!web_url("file:///etc/passwd"));
+        assert!(!web_url("javascript:alert(1)"));
+        assert!(!web_url("https://a b"));
+        assert!(!web_url("-a https://x"));
     }
 
     #[test]

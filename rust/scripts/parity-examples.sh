@@ -71,7 +71,7 @@ table=$(
     done
 )
 rows=$(echo "$table" | tail -n +3 | awk -F'|' '{ s = $4; gsub(/^ +| +$/, "", s); print s }')
-total=$(wc -l <<<"$rows")
+total=$(wc -l <<<"$rows" | tr -d ' ')  # BSD wc pads the count
 counts=$("$SED_RS" -e 's/:.*//' <<<"$rows" | LC_ALL=C sort | uniq -c | awk '{ printf "%s%s %d", (NR > 1 ? ", " : ""), $2, $1 }')
 ranks=$(grep '^missing: ' <<<"$rows" | "$SED_RS" -e 's/^missing: //' | LC_ALL=C sort | uniq -c |
         LC_ALL=C sort -k1,1nr -k2 | head -10 | awk '{ c = $1; $1 = ""; sub(/^ /, ""); printf "- %s (%d)\n", $0, c }')

@@ -3,6 +3,7 @@ name = "reva-desktop"
 description = "Reva Forth desktop app: the browser REPL in a native window, with files on disk"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 publish.workspace = true
 license.workspace = true
 authors.workspace = true
@@ -12,5 +13,21 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
+# Decodes a package's icon; already in the tree through Tauri.
+png = "0.18"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+
+# Sets the program name before GTK starts, so a package's `id` becomes the
+# Wayland app_id / X11 WM_CLASS (see Branding in main.rs).  Already in the
+# tree through Tauri's GTK stack, so it adds no crate.
+[target.'cfg(target_os = "linux")'.dependencies]
+glib = "0.18"
+
+# Sets the Dock icon from a package's icon (set_dock_icon in main.rs).  The
+# same objc2 crates Tauri's macOS backend (tao, wry) already builds, with
+# features it already enables, so it adds no crate.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "NSApplication", "NSImage", "NSResponder"] }
+objc2-foundation = { version = "0.3", default-features = false, features = ["std", "NSData"] }

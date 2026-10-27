@@ -8,10 +8,10 @@
 //!
 //! Rather than rewrite all of that, the portable core executes the *subset*
 //! of 32-bit x86 those bytes use: integer ALU, moves, shifts, mul/div, the
-//! string instructions, and near control flow, over eight 32-bit registers
-//! and the arithmetic flags.  It is **not** an x86 emulator: there are no
-//! segments, no protection, no FPU (yet), no system instructions, and memory
-//! is the VM's own flat array.  Anything outside the subset faults with
+//! string instructions, near control flow and the x87 floating-point unit
+//! ([`fpu`]), over eight 32-bit registers and the arithmetic flags.  It is
+//! **not** an x86 emulator: there are no segments, no protection, no SIMD,
+//! no system instructions, and memory is the VM's own flat array.  Anything outside the subset faults with
 //! [`crate::Fault::BadOpcode`] naming the bytes.
 //!
 //! Instructions are decoded once into [`Insn`] values and cached by address
@@ -30,6 +30,7 @@
 
 pub mod decode;
 pub mod exec;
+pub mod fpu;
 
 pub use decode::decode;
 
@@ -265,6 +266,8 @@ pub enum Op {
     Nop,
     Hlt,
     Int3,
+    /// An x87 instruction (`D8`–`DF`); `fwait` decodes as [`Op::Nop`].
+    Fpu(fpu::FpuOp),
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -305,6 +308,7 @@ pub struct Cpu {
     pub df: bool,
     /// Lowest legal ESP; pushes below it fault.
     pub esp_floor: u32,
+    pub fpu: fpu::Fpu,
 }
 
 impl Cpu {

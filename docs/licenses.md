@@ -31,8 +31,7 @@ file came from.
    missing from this page;
 3. `cargo deny check licenses` fails ([`rust/deny.toml`](../rust/deny.toml)
    allows MIT, Apache-2.0, BSD-2/3-Clause, ISC, Zlib, Unicode-3.0, CC0-1.0
-   and Unlicense). This step runs when `cargo-deny` is installed; the
-   workspace has no crate dependencies today.
+   and Unlicense). This step runs when `cargo-deny` is installed.
 
 The repository has no CI, so run it with the other local release checks
 (`cargo test --release`, `scripts/doc-check.sh`, the regression suite).
@@ -97,8 +96,15 @@ All under `legacy/` or `contrib/`; none is used by the portable core.
 
 ## Crate dependencies
 
-**Portable core (`rust/`):** none. When one is added, `cargo deny check
-licenses` must pass, and the crate gets a line here saying why it is needed.
+**Portable core (`rust/`):** `reva-vm`, `reva-web` and `reva-serve` have
+none. `reva-sqlite`, used by the CLI (and the desktop app), has
+`rusqlite` (MIT) for SQLite through a safe API, with `libsqlite3-sys`
+(MIT) compiling SQLite itself (public domain) into the binary; their own
+dependencies are MIT/Apache-2.0 (`bitflags`, `cc`, `fallible-iterator`,
+`fallible-streaming-iterator`, `find-msvc-tools`, `hashbrown`, `hashlink`,
+`pkg-config`, `shlex`, `smallvec`, `vcpkg`) and Zlib (`foldhash`). Any
+other crate must pass `cargo deny check licenses` and get a line here
+saying why it is needed.
 
 **Desktop app (`desktop/`, its own workspace):** `tauri` (MIT/Apache-2.0)
 for the window and webview, `serde`/`serde_json` (MIT/Apache-2.0) for the
@@ -114,5 +120,9 @@ WebKitGTK (LGPL) dynamically and never bundles it: ship `.deb`/`.rpm`
 packages that depend on the distribution's `libwebkit2gtk-4.1-0`, not an
 AppImage that would carry it.
 
-The app's icon (`desktop/reva-desktop/icons/icon.png`) is a copy of
-`contrib/reva128.png` (Reva, public domain).
+The app's icons (`desktop/reva-desktop/icons/icon.png`, `icon.ico`,
+`icon.icns`) and the browser page's `favicon.png` and `favicon.ico`
+(`rust/reva-web/www/`) are the reva-fork logo, Reva's public-domain gear
+(`contrib/reva*.png`) with a fork, provided by Michael A. Wright in 2026.
+The source is `desktop/reva-desktop/icons/src/reva-fork-logo.jpg`;
+`desktop/make-icons.sh` makes every size from it.

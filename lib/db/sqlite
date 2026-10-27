@@ -1,64 +1,65 @@
 | vim: ft=reva :
 | SQLite interface (http://sqlite.org/)
+|
+| On the portable core this reaches SQLite through the virtual library
+| reva-sqlite (rust/DESIGN.md 3.11): handles are small integers and
+| strings are ( a n ), so there are no C pointers or callbacks here.  The
+| words below, and the ~db words they plug into, are the same as before.
+| SQLite is served on the CLI and in the desktop app.
 
-| load the appropriate sqlite library:
 push~
 needs db/common
-needs callbacks
 
-| ~priv ~strings ~db
 ~strings ~util ~db
 
 context: ~sqlite
 ~sqlite
 
-LIN [IF] " libsqlite3.so.0" [THEN]
-MAC [IF] " libsqlite3.dylib" [THEN]
-WIN [IF] " sqlite3.dll" [THEN]
-lib sqlite
+" reva-sqlite" lib rsql
 
-| get the functions we will use
-2 func: sqlite3_open
-1 func: sqlite3_close
-5 func: sqlite3_exec
-0 func: sqlite3_libversion
-1 func: sqlite3_last_insert_rowid
-5 func: sqlite3_prepare_v2
-2 func: sqlite3_bind_null
-3 func: sqlite3_bind_int
-5 func: sqlite3_bind_text
-5 func: sqlite3_bind_blob
-3 func: sqlite3_bind_zeroblob
-1 func: sqlite3_reset
-1 func: sqlite3_step
-2 func: sqlite3_column_int
-2 func: sqlite3_column_text
-2 func: sqlite3_column_blob
-2 func: sqlite3_column_bytes
-1 func: sqlite3_finalize
-1 func: sqlite3_clear_bindings
-1 func: sqlite3_errmsg
+| the functions: a string is two cells ( a n ); a function that answers
+| with bytes returns their length, and rsql_ptr gives their address
+0 func: rsql_rc
+0 func: rsql_ptr
+0 func: rsql_version
+2 func: rsql_open
+1 func: rsql_close
+3 func: rsql_exec
+1 func: rsql_lastid
+1 func: rsql_errmsg
+3 func: rsql_query
+1 func: rsql_next
+2 func: rsql_getcol
+1 func: rsql_endquery
+3 func: rsql_prepare
+2 func: rsql_bind_null
+3 func: rsql_bind_int
+4 func: rsql_bind_text
+4 func: rsql_bind_blob
+3 func: rsql_bind_zeroblob
+1 func: rsql_reset
+1 func: rsql_clear
+1 func: rsql_step
+1 func: rsql_finalize
+2 func: rsql_column_int
+2 func: rsql_column_text
+2 func: rsql_column_blob
+
+| a bytes answer: its length is on the stack, the bytes at rsql_ptr
+: (bytes) ( n -- a n ) rsql_ptr swap ;
 
 0 constant SQLITE_CONSTANT
 -1 constant SQLITE_TRANSIENT
 
-: sqlite_finalize sqlite3_finalize sql_result ! ;
-: sqlite_unbind dup sqlite3_reset drop sqlite3_clear_bindings sql_result ! ;
-: sqlite_errmsg ( db -- a n ) sqlite3_errmsg zcount ;
-| open a database and return the handle
-: sqlite_open ( addr len -- handle )
-	zt here dup off
-	sqlite3_open sql_result ! 
-	here @
-	;
-: sqlite_close ( handle -- ) sqlite3_close sql_result ! ;
-
-: sqlite_exec ( handle addr len -- ) 0 
-: sqlite_exec_cb ( handle a n cb -- )
-	>r zt r> 12345 0
-	sqlite3_exec sql_result !  ;
-: sqlite_version ( -- a n ) sqlite3_libversion zcount ;
-: sqlite_lastid sqlite3_last_insert_rowid ;
+: sqlite_finalize ( stmt -- ) rsql_finalize sql_result ! ;
+: sqlite_unbind ( stmt -- ) dup rsql_reset drop rsql_clear sql_result ! ;
+: sqlite_errmsg ( db -- a n ) rsql_errmsg (bytes) ;
+| open a database and return the handle (0 if it could not be opened)
+: sqlite_open ( addr len -- handle ) rsql_open rsql_rc sql_result ! ;
+: sqlite_close ( handle -- ) rsql_close sql_result ! ;
+: sqlite_exec ( handle addr len -- ) rsql_exec sql_result ! ;
+: sqlite_version ( -- a n ) rsql_version (bytes) ;
+: sqlite_lastid ( handle -- n ) rsql_lastid ;
 
 | convenience functions:
 | sql_fetch$ ( handle a n -- a1 n1 )
@@ -71,65 +72,53 @@ lib sqlite
 | and has the stack-diagram ( n -- flag ).  That is, the number of columns in
 | this row, and it passes back the flag 'false' to continue or 'true' to stop
 
-variable sql_mru_query | ptr -> xt, ncols, coldata
+variable sql_mru_query | the query whose row sql_getcol$ reads
 
-: sqlite_getcol$ ( n -- a n )
-	sql_mru_query @ dup >r cell+ @ clamp | clamp row request
-	cells r> 2cell+ @ + @ zcount | swap
-	;
-
+: sqlite_getcol$ ( n -- a n ) sql_mru_query @ swap rsql_getcol (bytes) ;
 : sqlite_getcol# ( n - n2 ) sqlite_getcol$ >>single ;
 
-| This is the real callback called by the SQLite library.  It packages up the
-| data required for the 'xt' callback and passes it on:
-| :: ( ptr ncols **cols **colnames )
-| :: | cb
-callback: (sql_fetch)
-	sql_mru_query @ 3cell+ ++
-	0 cb-param 
-	2 cb-param over 2cell+ !
-	1 cb-param over cell+ !
-	1 cb-param swap
-	@execute
-	;
+| call xt ( ncols -- flag ) for one row and keep only its flag: SQLite
+| called the callback on a stack of its own, so callbacks may leave more
+| (sql_oneshot leaves ncols)
+: (row) ( xt ncols -- flag )
+	depth 2 - >r swap execute r> swap >r
+	repeat depth 1- over > if nip true else false then while
+	drop r> ;
+
+| call xt for each row of query q until it says true; the number of rows
+| it was called for
+: (fetch-rows) ( xt q -- count )
+	0 >r
+	repeat
+		dup rsql_next dup 0 < if
+			drop false
+		else
+			r> 1+ >r
+			>r over r> (row) not
+		then
+	while
+	2drop r> ;
 
 : sqlite_fetch ( handle a n xt -- n )
-	sql_mru_query @ >r	| save prior query data (for nested queries)
-	| allocate a memory chunk to hold the data we care about
-	here 4 cells allot dup sql_mru_query !
-	! | put xt in first position 
-	sql_mru_query @ 3cell+ off
-	zt | handle z
-	['] (sql_fetch) | handle z cb
-	sql_mru_query @ 0 sqlite3_exec sql_result !
+	>r rsql_query rsql_rc sql_result !
+	dup 0if drop r> drop 0 ;then
+	sql_mru_query @ swap dup sql_mru_query !  | prior q   R: xt
+	r> swap dup >r (fetch-rows)               | prior count   R: q
+	r> rsql_endquery drop
+	swap sql_mru_query ! ;
 
-	sql_mru_query @ dup 3cell+ @ swap
-	-4 cells allot
-	r> sql_mru_query !  | restore prior data
-	drop
-	;
-
-: sqlite_prepare ( db a n -- stmt )
-	here off
-	here 0 sqlite3_prepare_v2 dup 0if
-		drop
-		here @
-	else
-		sql_result !
-		0
-	then
-	;
+: sqlite_prepare ( db a n -- stmt ) rsql_prepare rsql_rc sql_result ! ;
 
 : sqlite_bind_null ( sql position -- )
-	sqlite3_bind_null sql_result !  ;
+	rsql_bind_null sql_result ! ;
 : sqlite_bind_int ( sql position int -- )
-	sqlite3_bind_int sql_result !  ;
+	rsql_bind_int sql_result ! ;
 : sqlite_bind_string ( sql position a n -- )
-	SQLITE_TRANSIENT sqlite3_bind_text sql_result !  ;
+	rsql_bind_text sql_result ! ;
 : sqlite_bind_blob ( sql position a n -- )
-	SQLITE_TRANSIENT sqlite3_bind_blob sql_result !  ;
+	rsql_bind_blob sql_result ! ;
 : sqlite_bind_blobz ( sql position n -- )
-	sqlite3_bind_zeroblob sql_result !  ;
+	rsql_bind_zeroblob sql_result ! ;
 
 1 constant SQLITE_ERROR
 5 constant SQLITE_BUSY
@@ -139,41 +128,22 @@ callback: (sql_fetch)
 
 : sqlite_next ( stmt xt -- f )
 	sql_result off
-	over sqlite3_step
-	| xt result
-	dup SQLITE_ROW =if
-		| a row was found, so execute the xt
-		drop
-		execute
-	else
-		dup SQLITE_DONE =if
-			drop 
-		else
-			sql_result !
-		then
-		2drop
-		false
-	then
-	;
+	over rsql_step
+	dup SQLITE_ROW = if drop execute ;then
+	dup SQLITE_DONE = if drop else sql_result ! then
+	2drop false ;
 
-: sqlite_first ( stmt -- ) sqlite3_reset drop ;
+: sqlite_first ( stmt -- ) rsql_reset drop ;
 
 : sqlite_pexec ( stmt xt -- )
 	over sqlite_first
-	repeat 2dup sqlite_next while 
+	repeat 2dup sqlite_next while
 	over sql_unbind 2drop
 	;
 
-:  sqlite_pcol_text ( stmt n -- a n )
-	2dup  sqlite3_column_text -rot
-	sqlite3_column_bytes
-	;
-:  sqlite_pcol_blob ( stmt n -- a n )
-	2dup  sqlite3_column_blob -rot
-	sqlite3_column_bytes
-	;
-:  sqlite_pcol_int ( stmt n -- n )
-	sqlite3_column_int ;
+: sqlite_pcol_text ( stmt n -- a n ) rsql_column_text (bytes) ;
+: sqlite_pcol_blob ( stmt n -- a n ) rsql_column_blob (bytes) ;
+: sqlite_pcol_int ( stmt n -- n ) rsql_column_int ;
 
 ~db
 : sqlite ( -- )

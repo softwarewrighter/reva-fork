@@ -7,7 +7,7 @@ per-OS `bin/` directory.
 
 ## Build
 
-You need a Rust toolchain (`rustup`, Rust 1.82 or newer).
+You need a Rust toolchain (`rustup`, Rust 1.85 or newer: the code is edition 2024).
 
 ```bash
 git clone https://github.com/softwarewrighter/reva-fork
@@ -71,7 +71,7 @@ echo '3 ~sys.(bye)' | reva; echo $?      # 3
 ```
 
 When standard input is a terminal, `reva` starts as Reva always did: it
-prints the banner (`reva-fork 2026.1025.0 portable`) and an `ok>` prompt before
+prints the banner (`reva-fork 2026.1026.0 portable`) and an `ok>` prompt before
 each line. Piped or redirected input gets neither, so batch output is just
 what the program prints.
 
@@ -177,14 +177,32 @@ ERROR: unknown word:  greet
 ...5
 ```
 
+## Floating point
+
+`lib/math/floats` gives the float words (`f+`, `f.`, `fsqrt`, `fsin`, …),
+which use a separate floating-point stack:
+
+```forth
+needs math/floats ~floats
+2 s>f fsqrt f.
+" 1.5" >float drop  2 s>f f*  f.
+```
+```output
+1.41421 3.00000
+```
+
+`>float` leaves a flag (true if the text was a number); `f.` prints
+`sigdig` (5) digits after the point, cut rather than rounded.
+[gotchas.md](gotchas.md) says how the precision differs from the original.
+
 ## What works today
 
 The portable core boots all of `src/reva.f`: the core words, control
 structures and loops, `create`/`does>`, `catch`/`throw`, strings and `."`,
 the embedded assembler, contexts, `include`, `needs` with the libraries
-in `lib/`, the file words (`open/r`, `read`, …), and saved images with
-`save` and `restart`. x87 floats and native C libraries are not available
-yet.
+in `lib/`, the file words (`open/r`, `read`, …), saved images with `save`
+and `restart`, and floating point (`needs math/floats`). Native C
+libraries are not available yet.
 [parity.md](parity.md) tracks this in detail, and
 [parity-examples.md](parity-examples.md) lists every example program's
 status.

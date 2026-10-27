@@ -8,21 +8,21 @@
   },
   "app": {
     "withGlobalTauri": true,
-    "windows": [
-      {
-        "title": "Reva Forth",
-        "width": 960,
-        "height": 680
-      }
-    ],
+    "windows": [],
     "security": {
       "csp": null
     }
   },
   "bundle": {
     "active": true,
-    "targets": ["deb", "rpm", "app", "dmg"],
-    "icon": ["icons/icon.png"],
+    "targets": ["deb", "rpm", "app", "dmg", "nsis", "msi"],
+    "icon": ["icons/icon.png", "icons/icon.ico", "icons/icon.icns"],
+    "resources": {
+      "../../LICENSE": "LICENSE",
+      "../../LICENSE-MIT": "LICENSE-MIT",
+      "../../LICENSING.md": "LICENSING.md",
+      "../../docs/licenses.md": "licenses.md"
+    },
     "category": "DeveloperTool",
     "copyright": "Reva: public domain (Ron Aaron). Portable core and desktop app: MIT, Michael A. Wright",
     "linux": {

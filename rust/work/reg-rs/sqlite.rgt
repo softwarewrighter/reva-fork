@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} tests/forth/sqlite.f < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "lib/db/sqlite on the CLI through reva-sqlite: a file, bound parameters, prepared statements, sql_fetch with a nested query, errors"

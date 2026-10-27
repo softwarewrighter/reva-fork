@@ -31,7 +31,7 @@ use crate::host::Host;
 use crate::layout::*;
 use crate::mem::{Memory, PAGE_SIZE};
 use crate::translate::Translator;
-use crate::x86::{decode, Cpu, Insn, EAX, ESI, ESP};
+use crate::x86::{Cpu, EAX, ESI, ESP, Insn, decode};
 
 /// Addresses of the static variables and DEFER vectors.
 ///
@@ -79,6 +79,10 @@ pub enum Status {
     /// (see [`crate::Start`]) and carries over the unread input
     /// ([`Machine::take_input`]).  This machine stays stopped.
     Restart,
+    /// A virtual-library function waits for the host's answer: read
+    /// [`Machine::pending_host_call`], then [`Machine::resume`] and run
+    /// again (see [`crate::hostcall`]).
+    HostCall,
 }
 
 /// What a gateway routine asks the dispatcher to do next.
@@ -90,11 +94,13 @@ pub(crate) enum Next {
     Halt(i32),
     Restart,
     NestedReturn,
+    HostCall,
 }
 
 pub(crate) enum Flow {
     Continue,
     NeedInput,
+    HostCall,
     Halt(i32),
     Restart,
     NestedReturn,
@@ -149,6 +155,17 @@ pub struct Machine {
     /// and those already reported (see `ffi.rs`).  Transient.
     pub(crate) missing_lib: Option<String>,
     pub(crate) reported_libs: Vec<String>,
+    /// The turtle and its drawing (canvas.rs, turtle.rs).  Host state, like
+    /// open files: not part of an image, and new after `restart`.
+    pub(crate) canvas: crate::canvas::Canvas,
+    /// A host call waiting for its answer, and the answer once
+    /// [`Machine::resume`] gave it (see [`crate::hostcall`]).  Transient.
+    pub(crate) pending_call: Option<crate::hostcall::HostCall>,
+    pub(crate) host_reply: Option<crate::hostcall::HostReply>,
+    /// reva-sqlite's reply buffers by (statement, column), and the last
+    /// one written (`rsql_ptr`).  Host state: not part of an image.
+    pub(crate) sql_bufs: HashMap<(i64, i64), (u32, u32)>,
+    pub(crate) sql_ptr: u32,
 }
 
 impl Machine {
@@ -187,6 +204,11 @@ impl Machine {
             interrupt: false,
             missing_lib: None,
             reported_libs: Vec::new(),
+            canvas: crate::canvas::Canvas::new(),
+            pending_call: None,
+            host_reply: None,
+            sql_bufs: HashMap::new(),
+            sql_ptr: 0,
         }
     }
 
@@ -276,8 +298,8 @@ impl Machine {
     /// Create the core dictionary, in the same order as `newcore.asm`'s
     /// `DICT` list (so the most recent core word is `getextra`).
     fn build_dictionary(&mut self) {
-        use st::*;
         use Gate::*;
+        use st::*;
         let (fc, mc, vc, cc, valc, dc) = (
             FClass.addr(),
             MClass.addr(),
@@ -479,6 +501,9 @@ impl Machine {
             if self.restart {
                 return Status::Restart;
             }
+            if self.pending_call.is_some() {
+                return Status::HostCall;
+            }
             if std::mem::take(&mut self.interrupt) {
                 self.input.clear();
                 self.recover(host, Fault::Interrupted);
@@ -487,6 +512,7 @@ impl Machine {
             match self.step(host) {
                 Ok(Flow::Continue) => {}
                 Ok(Flow::NeedInput) => return Status::NeedInput,
+                Ok(Flow::HostCall) => return Status::HostCall,
                 Ok(Flow::Halt(code)) => {
                     self.halted = Some(code);
                     return Status::Halted(code);
@@ -519,6 +545,17 @@ impl Machine {
                 s => return s,
             }
         }
+    }
+
+    /// The host call [`Status::HostCall`] waits on.
+    pub fn pending_host_call(&self) -> Option<&crate::hostcall::HostCall> {
+        self.pending_call.as_ref()
+    }
+
+    /// Answer the pending host call; the next [`Machine::run`] continues.
+    pub fn resume(&mut self, reply: crate::hostcall::HostReply) {
+        self.pending_call = None;
+        self.host_reply = Some(reply);
     }
 
     pub fn halted(&self) -> Option<i32> {
@@ -664,6 +701,7 @@ impl Machine {
             Next::Halt(c) => Ok(Flow::Halt(c)),
             Next::Restart => Ok(Flow::Restart),
             Next::NestedReturn => Ok(Flow::NestedReturn),
+            Next::HostCall => Ok(Flow::HostCall),
         }
     }
 
@@ -702,6 +740,12 @@ impl Machine {
                 Ok(Flow::Restart) => {
                     self.restart = true;
                     break Ok(());
+                }
+                Ok(Flow::HostCall) => {
+                    self.pending_call = None;
+                    break Err(Fault::Unavailable(
+                        "a host call cannot wait inside a nested call".into(),
+                    ));
                 }
                 Err(f) => break Err(f),
             }
@@ -767,12 +811,11 @@ impl Machine {
         let mut e = self.mem.read_u32(self.var(st::LAST)).ok()?;
         while e != 0 {
             let n = self.mem.read_u8(e + 8).ok()?;
-            if n as usize == name.len() & 0xff {
-                if let Ok(s) = self.mem.slice(e + 9, name.len() as u32) {
-                    if s == name {
-                        return Some(e);
-                    }
-                }
+            if n as usize == name.len() & 0xff
+                && let Ok(s) = self.mem.slice(e + 9, name.len() as u32)
+                && s == name
+            {
+                return Some(e);
             }
             e = self.mem.read_u32(e).ok()?;
         }

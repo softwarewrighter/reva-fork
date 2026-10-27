@@ -1,0 +1,14 @@
+[package]
+name = "reva-serve"
+description = "One-binary local web app: serves an embedded static site on 127.0.0.1 and opens the browser"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# No dependencies, on purpose: std's TcpListener is all a loopback server
+# for one person's browser needs.  So the binary is small, builds for any
+# target with just `rustup target add`, and adds nothing to the license
+# review (see docs/serve.md, "Design").

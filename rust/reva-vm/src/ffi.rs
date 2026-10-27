@@ -33,7 +33,7 @@
 use crate::fault::Fault;
 use crate::gates::Gate;
 use crate::host::Host;
-use crate::machine::{st, Machine};
+use crate::machine::{Machine, Next, st};
 use crate::x86::{EAX, ESI};
 
 type R<T = ()> = Result<T, Fault>;
@@ -111,9 +111,20 @@ impl Machine {
         let n = self.ffi_pop()?;
         let a = self.reg(EAX);
         let name = self.ffi_string(a, n)?;
-        let known = LIBC_NAMES.iter().any(|l| l.eq_ignore_ascii_case(&name));
-        self.missing_lib = (!known).then_some(name);
-        self.set_reg(EAX, if known { LIBC_HANDLE } else { 0 });
+        let is = |names: &[&str]| names.iter().any(|l| l.eq_ignore_ascii_case(&name));
+        let handle = if is(LIBC_NAMES) {
+            LIBC_HANDLE
+        } else if is(crate::turtle::TURTLE_NAMES) {
+            crate::turtle::TURTLE_HANDLE
+        } else if is(crate::highlight::HL_NAMES) {
+            crate::highlight::HL_HANDLE
+        } else if is(crate::sqlite::SQL_NAMES) {
+            crate::sqlite::SQL_HANDLE
+        } else {
+            0
+        };
+        self.missing_lib = (handle == 0).then_some(name);
+        self.set_reg(EAX, handle);
         Ok(())
     }
 
@@ -140,17 +151,25 @@ impl Machine {
                 addr = cell;
             }
         }
-        if handle == 0 {
-            if let Some(lib) = self.missing_lib.take() {
-                if !self.reported_libs.contains(&lib) {
-                    host.diag(&format!(
-                        "note: native library {lib} is not available in the portable core \
+        if handle == crate::turtle::TURTLE_HANDLE {
+            addr = crate::turtle::lookup(name).map_or(0, Gate::addr);
+        }
+        if handle == crate::highlight::HL_HANDLE {
+            addr = crate::highlight::lookup(name).map_or(0, Gate::addr);
+        }
+        if handle == crate::sqlite::SQL_HANDLE {
+            addr = crate::sqlite::lookup(name).map_or(0, Gate::addr);
+        }
+        if handle == 0
+            && let Some(lib) = self.missing_lib.take()
+            && !self.reported_libs.contains(&lib)
+        {
+            host.diag(&format!(
+                "note: native library {lib} is not available in the portable core \
                          (see {})\n",
-                        crate::fault::PORTABILITY_DOC
-                    ));
-                    self.reported_libs.push(lib);
-                }
-            }
+                crate::fault::PORTABILITY_DOC
+            ));
+            self.reported_libs.push(lib);
         }
         self.set_reg(EAX, addr);
         Ok(())
@@ -159,7 +178,14 @@ impl Machine {
     /// `PROC _call` ( x1 .. xn fn n -- result ): a cdecl call.  Only host
     /// functions can be called; the first C argument is the deepest of the
     /// `n` cells, as when the original pushed them onto the C stack.
-    pub(crate) fn ffi_call(&mut self, host: &mut dyn Host) -> R {
+    pub(crate) fn ffi_call(&mut self, host: &mut dyn Host) -> R<Next> {
+        // Host calls read their arguments in place and pop them only once
+        // the answer is in, so a call that waits can be retried.
+        let n = self.reg(EAX);
+        let f = self.mem.read_u32(self.reg(ESI))?;
+        if let Some(next) = Gate::from_addr(f).and_then(|g| self.sqlite_call(host, g, n)) {
+            return next;
+        }
         let n = self.ffi_pop()?;
         let f = self.ffi_pop()?;
         if n > 16 {
@@ -178,13 +204,34 @@ impl Machine {
             Some(Gate::HostReaddir) => self.c_readdir(host, arg0)?,
             Some(Gate::HostClosedir) => self.c_closedir(arg0)?,
             Some(Gate::HostSystem) => self.c_system(host, arg0)?,
-            _ => return Err(Fault::NativeCall { addr: f }),
+            Some(g) => match self.highlight_call(host, g, &args)? {
+                Some(r) => r,
+                None => match self.turtle_call(host, g, &args)? {
+                    Some(r) => r,
+                    None => return Err(Fault::NativeCall { addr: f }),
+                },
+            },
+            None => return Err(Fault::NativeCall { addr: f }),
         };
-        // upsh: the result becomes TOS.
+        self.ffi_push(result)?;
+        Ok(Next::Ret)
+    }
+
+    /// End a `(call)` of `n` cells read in place: drop them, the function
+    /// address and the count, and push `result`.
+    pub(crate) fn ffi_finish(&mut self, n: u32, result: u32) -> R {
+        for _ in 0..n + 2 {
+            self.ffi_pop()?;
+        }
+        self.ffi_push(result)
+    }
+
+    /// upsh: `v` becomes TOS.
+    fn ffi_push(&mut self, v: u32) -> R {
         let sp = self.reg(ESI).wrapping_sub(4);
         self.mem.write_u32(sp, self.reg(EAX))?;
         self.set_reg(ESI, sp);
-        self.set_reg(EAX, result);
+        self.set_reg(EAX, v);
         Ok(())
     }
 

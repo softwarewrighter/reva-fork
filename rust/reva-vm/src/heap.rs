@@ -42,7 +42,7 @@ impl Heap {
         let hit = self
             .free
             .iter()
-            .find(|(_, &sz)| sz >= n)
+            .find(|&(_, &sz)| sz >= n)
             .map(|(&a, &sz)| (a, sz));
         let addr = match hit {
             Some((a, sz)) => {
@@ -73,12 +73,12 @@ impl Heap {
             return false;
         };
         let mut a = addr;
-        if let Some((&pa, &pn)) = self.free.range(..a).next_back() {
-            if pa + pn == a {
-                self.free.remove(&pa);
-                a = pa;
-                n += pn;
-            }
+        if let Some((&pa, &pn)) = self.free.range(..a).next_back()
+            && pa + pn == a
+        {
+            self.free.remove(&pa);
+            a = pa;
+            n += pn;
         }
         if let Some(&nn) = self.free.get(&(a + n)) {
             self.free.remove(&(a + n));
