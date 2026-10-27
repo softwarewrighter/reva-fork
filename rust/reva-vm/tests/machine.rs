@@ -396,3 +396,75 @@ fn the_float_library_loads_and_passes_its_own_tests() {
     );
     assert_eq!(out, "0.33333 1.41421 -3 00004000 ");
 }
+
+/// A host that answers every host call later (as the desktop's worker
+/// does), recording the calls.
+struct LaterHost {
+    inner: BufferHost,
+    calls: Vec<reva_vm::hostcall::HostCall>,
+}
+
+impl reva_vm::Host for LaterHost {
+    fn write(&mut self, bytes: &[u8]) {
+        self.inner.write(bytes);
+    }
+    fn host_call(&mut self, call: &reva_vm::hostcall::HostCall) -> reva_vm::hostcall::HostAnswer {
+        self.calls.push(call.clone());
+        reva_vm::hostcall::HostAnswer::Later
+    }
+}
+
+const RSQL: &str =
+    "\" reva-sqlite\" lib rsql 2 func: rsql_open 1 func: rsql_errmsg 0 func: rsql_ptr";
+
+#[test]
+fn host_calls_pause_and_resume() {
+    use reva_vm::hostcall::{HostCall, HostReply};
+    let (mut vm, inner) = booted();
+    let mut host = LaterHost {
+        inner,
+        calls: Vec::new(),
+    };
+    vm.feed(format!("{RSQL} \" x.db\" rsql_open .\n").as_bytes());
+    assert_eq!(vm.run_until_blocked(&mut host), Status::HostCall);
+    let want = HostCall {
+        service: "sqlite",
+        op: "open",
+        ints: vec![],
+        bytes: vec![b"x.db".to_vec()],
+    };
+    assert_eq!(vm.pending_host_call(), Some(&want));
+    // Waiting does not ask the host again.
+    assert_eq!(vm.run_until_blocked(&mut host), Status::HostCall);
+    assert_eq!(host.calls.len(), 1);
+    vm.resume(HostReply::Int(7));
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    assert_eq!(host.inner.take_output(), "7 ");
+    // Bytes come back as a length, with the bytes at rsql_ptr.
+    vm.feed(b"5 rsql_errmsg rsql_ptr swap type\n");
+    assert_eq!(vm.run_until_blocked(&mut host), Status::HostCall);
+    assert_eq!(
+        vm.pending_host_call().map(|c| (c.op, c.ints.clone())),
+        Some(("errmsg", vec![5]))
+    );
+    vm.resume(HostReply::Bytes(b"oops".to_vec()));
+    assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
+    assert_eq!(host.inner.take_output(), "oops");
+    assert_eq!(vm.data_stack(), Vec::<u32>::new());
+}
+
+#[test]
+fn a_host_without_the_service_stops_the_line() {
+    let (mut vm, mut host) = booted();
+    let out = eval(
+        &mut vm,
+        &mut host,
+        &format!("{RSQL} \" x.db\" rsql_open . 1 ."),
+    );
+    assert!(
+        out.contains("sqlite is not available on this host"),
+        "{out:?}"
+    );
+    assert!(!out.ends_with("1 "), "the rest of the line ran: {out:?}");
+    assert_eq!(eval(&mut vm, &mut host, "2 3 + ."), "5 ");
+}

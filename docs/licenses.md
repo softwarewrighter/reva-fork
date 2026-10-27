@@ -31,8 +31,7 @@ file came from.
    missing from this page;
 3. `cargo deny check licenses` fails ([`rust/deny.toml`](../rust/deny.toml)
    allows MIT, Apache-2.0, BSD-2/3-Clause, ISC, Zlib, Unicode-3.0, CC0-1.0
-   and Unlicense). This step runs when `cargo-deny` is installed; the
-   workspace has no crate dependencies today.
+   and Unlicense). This step runs when `cargo-deny` is installed.
 
 The repository has no CI, so run it with the other local release checks
 (`cargo test --release`, `scripts/doc-check.sh`, the regression suite).
@@ -97,8 +96,15 @@ All under `legacy/` or `contrib/`; none is used by the portable core.
 
 ## Crate dependencies
 
-**Portable core (`rust/`):** none. When one is added, `cargo deny check
-licenses` must pass, and the crate gets a line here saying why it is needed.
+**Portable core (`rust/`):** `reva-vm`, `reva-web` and `reva-serve` have
+none. `reva-sqlite`, used by the CLI (and the desktop app), has
+`rusqlite` (MIT) for SQLite through a safe API, with `libsqlite3-sys`
+(MIT) compiling SQLite itself (public domain) into the binary; their own
+dependencies are MIT/Apache-2.0 (`bitflags`, `cc`, `fallible-iterator`,
+`fallible-streaming-iterator`, `find-msvc-tools`, `hashbrown`, `hashlink`,
+`pkg-config`, `shlex`, `smallvec`, `vcpkg`) and Zlib (`foldhash`). Any
+other crate must pass `cargo deny check licenses` and get a line here
+saying why it is needed.
 
 **Desktop app (`desktop/`, its own workspace):** `tauri` (MIT/Apache-2.0)
 for the window and webview, `serde`/`serde_json` (MIT/Apache-2.0) for the

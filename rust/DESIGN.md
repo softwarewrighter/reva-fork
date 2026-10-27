@@ -300,50 +300,59 @@ with `TOP` and tags, the control word and the status word.
 
 ### 3.11 Host calls and SQLite
 
-Decided with the user on 2026-10-26 (saga step `local-sqlite-design`):
+Decided with the user on 2026-10-26 (saga steps `local-sqlite-design`,
+`local-sqlite`):
 
-- **SQLite on the CLI and in the desktop app; a key-value store in the
-  browser.** `lib/db/sqlite` runs unchanged where a native SQLite exists.
-  Web pages get a small key-value vocabulary over browser storage instead
-  of SQL; `needs db/sqlite` in the browser notes that SQL is not served
-  there, as for any library a host does not have.
-- **The core stays dependency-free.** SQLite is C. It lives in a new crate,
-  `reva-sqlite` (rust/ workspace), over `libsqlite3-sys` with its bundled
-  amalgamation (MIT bindings, public-domain SQLite, built by `cc` with the
-  platform's C compiler; no wasm toolchain). The CLI and the desktop shell
-  depend on it; `reva-vm` and `reva-web` do not. The workspace's
-  rust-version goes to 1.88, which `libsqlite3-sys` 0.39 needs.
-- **One mechanism, the host call.** The desktop's VM is the WebAssembly
-  build in a Web Worker, so it cannot call native code, and a worker cannot
-  block on an async answer. A virtual-library function the VM cannot serve
-  itself therefore *pauses* the VM: `run_until_blocked` returns
-  `Status::HostCall(request)`, a typed request (`reva_vm::hostcall`: open,
-  prepare, bind, step, column, finalize, errmsg, close; the key-value
-  operations), with every pointer argument already read out of VM memory.
-  The host answers with `Machine::resume(response)`, which writes results
-  (column text, error messages) into a VM buffer and continues, as a
-  continuation gateway (3.4) does for input. Hosts:
-  - CLI: answers at once, from `reva-sqlite`.
-  - Desktop: the worker posts the request to the page, the page calls the
-    Tauri command `host_call`, the native side answers from `reva-sqlite`,
-    and the worker resumes the VM.
-  - Browser: key-value requests go to the page (Web Workers have no
-    `localStorage`), which answers from the page's storage; SQL requests
-    answer "not available".
+- **SQLite on every host.** The CLI and the desktop app use SQLite
+  compiled into the native binary; the browser uses SQLite's official
+  WebAssembly build ([sqlite.org/wasm](https://sqlite.org/wasm)) loaded by
+  the page, with databases kept in the browser's private file system
+  (OPFS). `lib/db/sqlite` programs run unchanged on all three.
+- **No C calls in our code.** Native hosts use the `reva-sqlite` crate
+  (rust/ workspace), which drives SQLite through **rusqlite's safe API**;
+  `libsqlite3-sys` (rusqlite's own dependency) compiles SQLite itself. No
+  `unsafe`, no FFI of ours. `reva-vm` and `reva-web` gain no dependency.
+  The workspace's rust-version is 1.89 (rusqlite 0.41).
+- **No pointers in the Forth binding.** The old `lib/db/sqlite` called
+  SQLite's C API directly: out-parameters (`sqlite3_open` writing the
+  handle through a pointer), returned `char*`, and an x86 `callback:`
+  thunk for `sqlite3_exec`. Nothing else used that layer: programs and
+  libraries use the `~db` words (`sql_open`, `sql_exec`, `sql_prepare`,
+  `sql_pexec`, `sql_pcol_text`, `sql_fetch` ...). So the library now sits
+  on the virtual library `reva-sqlite`, whose functions (`rsql_open`,
+  `rsql_step`, ...) take handles as small integers and strings as
+  `( a n )`; a text answer comes back as its length, with the bytes in a
+  VM buffer (`rsql_ptr`; one per statement and column, so a row's columns
+  stay valid together). `sql_fetch` walks rows with `rsql_next` instead
+  of a C callback, calling the Forth word with a stack of its own as the
+  C callback did. Every public word keeps its stack effect.
+- **Statements without lifetimes.** rusqlite's `Statement` borrows its
+  connection, which does not fit handles kept between Forth calls. A
+  `reva-sqlite` statement keeps its SQL and bindings; its first `step`
+  runs it (rusqlite, safe API) and buffers the rows, later steps hand
+  them out. A SELECT's result is held in memory until reset or finalize,
+  which suits REPL-sized data.
+- **One mechanism, the host call** (`reva_vm::hostcall`). A
+  virtual-library function the VM cannot serve becomes a `HostCall`
+  (service, operation, integers, byte strings: never VM addresses) for
+  `Host::host_call`. The host answers at once (the CLI), later (the
+  desktop's and the browser's worker, which must ask the page), or not at
+  all (a clear stop, as for a native library the core does not serve).
+  "Later" stops the VM with `Status::HostCall`; the host reads
+  `Machine::pending_host_call`, answers with `Machine::resume`, and runs
+  again. Nothing is popped from the data stack until the answer is in,
+  so the call simply retries, as a gateway waiting for input does.
+  - CLI: `reva-sqlite` at once; database names map to host paths as the
+    file words map them.
+  - Desktop: the worker posts the request to the page, the page calls a
+    Tauri command, the native side answers from `reva-sqlite` (paths
+    under the app's folder only), the worker resumes the VM.
+  - Browser: the worker posts the request to the page, which answers from
+    SQLite's wasm build (it runs in the page, or a worker of its own, for
+    OPFS).
 
-  The same path serves later native services (HTTP, regex) without new
-  plumbing. Gates for the new virtual functions are appended (3.9: images
-  keep gate addresses).
-- **`sqlite3_exec` with a Forth callback** needs no C callback: the VM runs
-  it as prepare, then step and column host calls, calling the Forth word
-  once per row (a continuation gateway), then finalize.
-- **Files.** A database is a file in the VM's file system: VM paths map to
-  host paths as for the file words (CLI: the real file; desktop: the
-  app's folder). The browser has no SQL, so no database files there.
-- **Key-value store everywhere.** The browser's store is
-  `localStorage` under a per-package prefix. The CLI and the desktop
-  serve the same operations from a SQLite table in a file of the VM's
-  folder, so a program written for the web runs on every host.
+  The same path serves later native services. Gates for the new
+  functions are appended (3.9: images keep gate addresses).
 
 ## 4. Non-functional requirements
 

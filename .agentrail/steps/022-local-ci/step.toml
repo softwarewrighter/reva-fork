@@ -1,8 +1,0 @@
-number = 22
-slug = "local-ci"
-status = "pending"
-description = "Feature: GitHub Actions running `just check` on macos-latest and ubuntu-lates..."
-role = "production"
-context_files = []
-created_at = "2026-10-26T12:49:22"
-commits = []

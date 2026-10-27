@@ -44,6 +44,7 @@ usage: reva [options] [file ...]
 mod fs;
 mod history;
 mod lineedit;
+mod sql;
 mod term;
 
 use term::{Input, LineReader};
@@ -61,6 +62,8 @@ struct StdHost {
     reader: Option<LineReader>,
     /// What was printed since the last newline: the prompt, for redraws.
     tail: Vec<u8>,
+    /// SQLite for `lib/db/sqlite` (host calls; see sql.rs).
+    sql: reva_sqlite::Sqlite,
 }
 
 impl StdHost {
@@ -124,6 +127,10 @@ impl Host for StdHost {
 
     fn color(&mut self) -> bool {
         self.color
+    }
+
+    fn host_call(&mut self, call: &reva_vm::hostcall::HostCall) -> reva_vm::hostcall::HostAnswer {
+        sql::answer(&mut self.sql, &mut self.fs, call)
     }
 
     /// VM notes go to stderr, after what Forth printed so far.
@@ -290,6 +297,7 @@ fn main() -> ExitCode {
         reader: run.interactive.then(|| LineReader::new(!opts.no_edit)),
         tail: Vec::new(),
         color: opts.color.unwrap_or_else(color_auto),
+        sql: sql::new(),
     };
     if let Err(code) = run.begin(&mut vm, &mut host) {
         return code;
