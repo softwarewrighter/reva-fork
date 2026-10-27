@@ -37,6 +37,9 @@ export async function hostSetup() {
     package: s.package ?? undefined,
     // links (About) open in the system browser, not in this window
     openUrl: (url) => invoke("open_url", { url }).catch(report),
+    // SQLite for lib/db/sqlite: the VM's host calls, answered natively
+    // (reva-desktop/src/sql.rs) as { int }, { bytes } or { error }
+    hostCall: (call) => invoke("host_call", { call }).catch((e) => ({ error: String(e) })),
     // files are the folder's: the page must not pick its own storage prefix
     keepsFiles: true,
     notes: [`files are kept in ${s.root}`, ...s.notes],

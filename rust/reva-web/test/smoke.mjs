@@ -4,7 +4,7 @@
 // reg-rs baseline) and exits non-zero on any mismatch.
 import { readFile } from "node:fs/promises";
 import { Worker } from "node:worker_threads";
-import { Reva, start, YIELDED, NEED_INPUT, HALTED } from "../www/reva.js";
+import { Reva, start, YIELDED, NEED_INPUT, HALTED, HOST_CALL } from "../www/reva.js";
 
 const wasm = await readFile(new URL("../www/reva.wasm", import.meta.url));
 const reva = await Reva.load(wasm);
@@ -161,5 +161,50 @@ let hout = "";
 await hl.run((s) => (hout += s));
 check("hl-type colours", hout.slice(BANNER.length),
   "\x1b[1;33m:\x1b[0m \x1b[1;33msq\x1b[0m \x1b[34mdup\x1b[0m \x1b[34m*\x1b[0m \x1b[1;33m;\x1b[0m\nok> ");
+
+// Host calls (rust/DESIGN.md 3.11): the VM stops with HOST_CALL, the page
+// answers, the VM runs on; an { error } answer stops the line.
+const RSQL = '" reva-sqlite" lib rsql 2 func: rsql_open 1 func: rsql_errmsg 0 func: rsql_ptr\n';
+const hc = await Reva.load(wasm);
+hc.takeOutput();
+hc.feed(RSQL + '" a.db" rsql_open .\n');
+check("host call stops the VM", await hc.run(), HOST_CALL);
+check("host call", hc.hostCall(), { service: "sqlite", op: "open", ints: [], bytes: [[97, 46, 100, 98]] });
+hc.resume({ int: 5 });
+let hcout = "";
+check("host call answered", [await hc.run((t) => (hcout += t)), hcout], [NEED_INPUT, "5 \nok> "]);
+hc.feed("2 rsql_errmsg rsql_ptr swap type\n");
+await hc.run();
+hc.resume({ bytes: [111, 107] });
+hcout = "";
+await hc.run((t) => (hcout += t));
+check("bytes answer", hcout, "ok\nok> ");
+hc.feed("2 rsql_errmsg 99 .\n");
+await hc.run();
+hc.resume({ error: "SQLite is not available in the browser yet" });
+hcout = "";
+await hc.run((t) => (hcout += t));
+check("refused", [hcout.includes("SQLite is not available in the browser yet"), hcout.includes("99")], [true, false]);
+
+// Through a worker session: onHostCall answers (as the desktop's host
+// does); without one, the call is refused.
+let wsout = "";
+const calls = [];
+const ws = start("reva.wasm", {
+  createWorker: nodeWorker, wasmBytes: wasm, onOutput: (t) => (wsout += t),
+  onHostCall: async (call) => (calls.push(call.op), { int: 42 }),
+});
+await ws.ready;
+ws.feed(RSQL + '" b.db" rsql_open .\n');
+await ws.idle();
+check("worker host call", [calls, wsout.endsWith("42 \nok> ")], [["open"], true]);
+ws.terminate();
+let nsout = "";
+const ns = start("reva.wasm", { createWorker: nodeWorker, wasmBytes: wasm, onOutput: (t) => (nsout += t) });
+await ns.ready;
+ns.feed(RSQL + '" b.db" rsql_open .\n');
+await ns.idle();
+check("no onHostCall: refused", nsout.includes("sqlite is not available on this page"), true);
+ns.terminate();
 
 process.exit(failed ? 1 : 0);
