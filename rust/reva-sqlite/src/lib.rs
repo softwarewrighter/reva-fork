@@ -35,7 +35,7 @@ pub enum Reply {
 
 /// Maps a database name as the program wrote it to a host path (the CLI:
 /// its VM-to-host path mapping), or refuses it.
-pub type PathMap = Box<dyn Fn(&str) -> Option<PathBuf>>;
+pub type PathMap = Box<dyn Fn(&str) -> Option<PathBuf> + Send>;
 
 /// The open connections, statements and row queries of one VM.
 pub struct Sqlite {

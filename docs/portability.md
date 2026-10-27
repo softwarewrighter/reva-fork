@@ -33,8 +33,8 @@ The Forth sources, with their `lib` and `func:` lines, stay unchanged.
 
 Served today: libc's `getenv`, `putenv`, `localtime`, `gmtime`, `opendir`,
 `readdir`, `closedir` and `system`, plus `errno`; and SQLite for
-`lib/db/sqlite` through *host calls*, which the host answers (the CLI
-today; the desktop app and the browser next; see
+`lib/db/sqlite` through *host calls*, which the host answers (the CLI and
+the desktop app; the browser next; see
 [sqlite.md](sqlite.md) and rust/DESIGN.md 3.11). Planned: a UI service in
 place of IUP and GTK, then regex, zlib, iconv and HTTP as programs need
 them. Every planned library is permissively

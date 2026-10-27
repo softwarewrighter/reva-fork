@@ -77,4 +77,15 @@ fi
 out=$(run --root "$work/home" --print-output -e 'needs turtle/fractals 4 koch-demo' -e bye)
 check "turtle graphics draw in their own window" "[canvas: 768 lines]" "$out"
 
+# SQLite (host calls answered natively, reva-desktop/src/sql.rs): a
+# database written in one run is read in the next, as a file of the folder
+sq="needs db/sqlite with~ ~db \" pets.db\" sql_open value db"
+run --root "$work/home" --print-output -e "$sq" \
+    -e "db \" create table p(n text); insert into p values('cat');\" sql_exec db sql_close" -e bye >/dev/null
+out=$(run --root "$work/home" --print-output -e "$sq" -e 'db " select n from p" sql_fetch$ type cr' -e bye)
+check "SQLite keeps a database in the folder" "cat" "$out"
+check "the database is a file of the folder" "SQLite format 3" "$(head -c 15 "$work/home/pets.db" 2>/dev/null)"
+out=$(run --root "$work/home" --print-output -e 'needs db/sqlite with~ ~db " ../out.db" sql_open .' -e bye)
+check "a database outside the folder does not open" "0 " "$out"
+
 exit $fail

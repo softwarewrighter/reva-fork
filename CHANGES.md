@@ -13,6 +13,10 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-27
 
+- 10:24 `chore` Step local-sqlite-desktop complete (saga record).
+- 08:35 `feat` SQLite in the desktop app (step local-sqlite-desktop): the wasm module hands every host call to the page (`reva_run` returns HOST_CALL; `reva_host_call_ptr`/`_len` give it as JSON; `reva_resume_int`, `reva_resume_bytes`, `reva_refuse` answer; reva-vm `Machine::refuse` and `BufferHost::host_calls`). reva.js: `Reva.hostCall`/`resume`, sessions take `onHostCall`; the worker posts `hostcall` and resumes on `hostreply`. The desktop's host.js answers through the new Tauri command `host_call` (reva-desktop/src/sql.rs) from reva-sqlite, databases confined to the app's folder like the file words; the plain browser refuses with "SQLite is not available in the browser yet". Checked in the desktop app: a table written in one run is read in the next, and macOS's sqlite3 reads the file. Tests: a C-ABI round trip in reva-web, seven web smoke checks (golden web-smoke), three desktop smoke checks (persisting, a real SQLite file, a name outside the folder refused). Docs: sqlite.md, desktop.md, portability.
+- 00:08 `docs` Merge #44 (local-readme-demo): the live demo and its screenshot at the top of the README.
+- 00:08 `chore` Merge #43 (step local-live-demo complete; the live demo published).
 - 00:07 `chore` Step local-readme-demo complete (saga record).
 - 00:07 `docs` README: the live demo at the top, under the title (a prominent link, the dragon and tree examples) with an inline screenshot, images/live-demo.png, of the live demo after `needs turtle/fractals 12 tree-demo` (the tree at its maximum depth, split view; it links to that example). Step inserted at the user's request.
 - 00:01 `chore` Step local-live-demo complete (saga record): the live demo checked in Chrome (boots, dragon curve in the split view, footer names main 7030283, no console errors).

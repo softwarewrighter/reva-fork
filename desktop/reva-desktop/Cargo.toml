@@ -17,6 +17,8 @@ tauri = { version = "2", features = [] }
 png = "0.18"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+# SQLite for lib/db/sqlite (host calls), through rusqlite's safe API.
+reva-sqlite = { path = "../../rust/reva-sqlite" }
 
 # Sets the program name before GTK starts, so a package's `id` becomes the
 # Wayland app_id / X11 WM_CLASS (see Branding in main.rs).  Already in the

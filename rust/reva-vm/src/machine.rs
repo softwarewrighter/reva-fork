@@ -161,7 +161,7 @@ pub struct Machine {
     /// A host call waiting for its answer, and the answer once
     /// [`Machine::resume`] gave it (see [`crate::hostcall`]).  Transient.
     pub(crate) pending_call: Option<crate::hostcall::HostCall>,
-    pub(crate) host_reply: Option<crate::hostcall::HostReply>,
+    pub(crate) host_reply: Option<crate::hostcall::HostAnswer>,
     /// reva-sqlite's reply buffers by (statement, column), and the last
     /// one written (`rsql_ptr`).  Host state: not part of an image.
     pub(crate) sql_bufs: HashMap<(i64, i64), (u32, u32)>,
@@ -555,7 +555,14 @@ impl Machine {
     /// Answer the pending host call; the next [`Machine::run`] continues.
     pub fn resume(&mut self, reply: crate::hostcall::HostReply) {
         self.pending_call = None;
-        self.host_reply = Some(reply);
+        self.host_reply = Some(crate::hostcall::HostAnswer::Reply(reply));
+    }
+
+    /// Refuse the pending host call: the line stops with `why`, as for a
+    /// service the host does not have.
+    pub fn refuse(&mut self, why: String) {
+        self.pending_call = None;
+        self.host_reply = Some(crate::hostcall::HostAnswer::Unavailable(why));
     }
 
     pub fn halted(&self) -> Option<i32> {

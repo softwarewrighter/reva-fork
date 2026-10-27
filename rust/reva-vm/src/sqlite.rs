@@ -134,7 +134,7 @@ impl Machine {
     ) -> Result<Next, Fault> {
         let call = self.sqlite_args(op, shape, n)?;
         let answer = match self.host_reply.take() {
-            Some(reply) => HostAnswer::Reply(reply),
+            Some(answer) => answer,
             None => host.host_call(&call),
         };
         match answer {

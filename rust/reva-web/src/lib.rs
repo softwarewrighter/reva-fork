@@ -56,6 +56,8 @@
 
 use std::cell::RefCell;
 
+mod hostcall;
+
 use reva_vm::vfs::MemFs;
 use reva_vm::{BufferHost, Machine, Start, Status, embedded};
 
@@ -84,9 +86,8 @@ thread_local! {
 const YIELDED: i32 = 0;
 const NEED_INPUT: i32 = 1;
 const HALTED: i32 = 2;
-/// The VM waits for a host call's answer (rust/DESIGN.md 3.11).  This
-/// module's host has no services yet, so it does not happen here; the
-/// desktop's bridge is saga step local-sqlite-desktop.
+/// The VM waits for a host call's answer, which the page gives (see
+/// hostcall.rs; rust/DESIGN.md 3.11).
 const HOST_CALL: i32 = 3;
 const NOT_BOOTED: i32 = -1;
 const BAD_IMAGE: i32 = -2;
@@ -137,6 +138,8 @@ fn begin(start: Start, mut vm: Machine) -> i32 {
     let mut host = BufferHost::new();
     // The page renders ANSI colour escapes (www/ansi.js), so `pp` colours.
     host.color = true;
+    // The page answers host calls (hostcall.rs).
+    host.host_calls = true;
     if let Some(fs) = PENDING.with(|p| p.borrow_mut().take()) {
         host.fs = fs;
     }
@@ -419,6 +422,47 @@ mod tests {
         let s = unsafe { std::slice::from_raw_parts(p, n as usize) };
         let s = String::from_utf8_lossy(s).into_owned();
         reva_output_clear();
+        s
+    }
+
+    #[test]
+    fn host_calls_go_to_the_page_and_back() {
+        use super::hostcall::*;
+        assert_eq!(reva_boot(), NEED_INPUT);
+        output();
+        feed("\" reva-sqlite\" lib rsql 2 func: rsql_open 1 func: rsql_errmsg 0 func: rsql_ptr\n");
+        feed("\" a.db\" rsql_open .\n");
+        let mut s = YIELDED;
+        while s == YIELDED {
+            s = reva_run(100_000);
+        }
+        assert_eq!(s, HOST_CALL);
+        let json = unsafe {
+            let p = reva_host_call_ptr();
+            String::from_utf8_lossy(std::slice::from_raw_parts(p, reva_host_call_len() as usize))
+                .into_owned()
+        };
+        assert_eq!(
+            json,
+            r#"{"service":"sqlite","op":"open","ints":[],"bytes":[[97,46,100,98]]}"#
+        );
+        reva_resume_int(3.0);
+        assert_eq!(run_out(), "\nok> 3 \nok> ");
+        // refused: the line stops with the page's reason
+        feed("9 rsql_errmsg .\n");
+        assert_eq!(run_until_host_call(), HOST_CALL);
+        let why = b"SQLite is not available in the browser yet";
+        let p = reva_fs_buffer(why.len() as u32);
+        unsafe { std::ptr::copy_nonoverlapping(why.as_ptr(), p, why.len()) };
+        reva_refuse(why.len() as u32);
+        assert!(run_out().contains("SQLite is not available in the browser yet"));
+    }
+
+    fn run_until_host_call() -> i32 {
+        let mut s = YIELDED;
+        while s == YIELDED {
+            s = reva_run(100_000);
+        }
         s
     }
 
