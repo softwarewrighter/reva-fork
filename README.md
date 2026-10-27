@@ -4,6 +4,13 @@
 
 Copyright (c) 2026 Michael A. Wright
 
+**[Live demo: softwarewrighter.github.io/reva-fork](https://softwarewrighter.github.io/reva-fork/)**,
+the Reva REPL in your browser. Try
+[a dragon curve](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20dragon-demo)
+or [the tree below](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20tree-demo).
+
+[![The live demo after `needs turtle/fractals 12 tree-demo`: the REPL on the left, the fractal tree in the graphics pane on the right](images/live-demo.png)](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20tree-demo)
+
 Reva is a compact, native-code Forth for 32-bit x86 by Ron Aaron and the Reva
 development team. Its original README is kept, unchanged, as
 [orig-README](orig-README).
@@ -12,11 +19,6 @@ This fork carries Reva forward to machines and places 32-bit x86 no longer
 reaches: x86-64 and ARM64 on Linux, macOS and Windows, and the web browser
 through WebAssembly. It does that with a **portable core** written in Rust
 that runs Reva's own Forth system, `src/reva.f` (release 2011.2), unchanged.
-
-**Live demo:** [softwarewrighter.github.io/reva-fork](https://softwarewrighter.github.io/reva-fork/),
-the REPL in your browser. Try
-[a dragon curve](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20dragon-demo)
-or [a tree](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=10%20tree-demo).
 
 ## How it works
 
