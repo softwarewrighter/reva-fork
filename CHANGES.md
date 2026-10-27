@@ -13,7 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-26
 
-- 17:16 `docs` CHANGES.md: every commit of the fork from 2026-10-24 on, newest first, grouped by day, in X_eTaL's format (the 2020 import of the original Reva history left out); CLAUDE.md: every commit adds its line here. Step inserted into the saga at the user's request.
+- 21:23 `chore` Step local-changes complete (saga record).
+- 17:18 `docs` CHANGES.md: every commit of the fork from 2026-10-24 on, newest first, grouped by day, in X_eTaL's format (the 2020 import of the original Reva history left out); CLAUDE.md: every commit adds its line here. Step inserted into the saga at the user's request.
 - 15:55 `design` Merge #39 (local-sqlite-design): host calls; SQLite on the CLI and in the desktop app, a key-value store in the browser.
 - 15:51 `chore` Step local-sqlite-design complete (saga record).
 - 15:51 `design` SQLite, decided with the user (rust/DESIGN.md 3.11, docs/portability.md): SQLite on the CLI and in the desktop app through a new crate, reva-sqlite, over libsqlite3-sys with its bundled amalgamation (reva-vm stays dependency-free; rust-version to 1.88); a key-value store on every host, over localStorage in web pages; one mechanism, the host call, which pauses the VM with a typed request (Status::HostCall) and resumes it with the answer (the CLI at once, the desktop's wasm VM through the worker, the page and a Tauri command); `sqlite3_exec`'s Forth callback as a prepare/step loop. Saga: steps local-sqlite (CLI and the mechanism), local-sqlite-desktop and local-kv-store.
