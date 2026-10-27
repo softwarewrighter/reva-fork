@@ -102,6 +102,9 @@ pub struct BufferHost {
     pub clock: Option<(u64, u32)>,
     /// What [`Host::color`] reports (the browser sets it; tests choose).
     pub color: bool,
+    /// Answer host calls later ([`crate::hostcall::HostAnswer::Later`]):
+    /// the embedder (the web module's page) answers them.  Off: none.
+    pub host_calls: bool,
 }
 
 impl BufferHost {
@@ -122,6 +125,16 @@ impl Host for BufferHost {
 
     fn fs(&mut self) -> Option<&mut dyn FileSystem> {
         Some(&mut self.fs)
+    }
+
+    fn host_call(&mut self, call: &crate::hostcall::HostCall) -> crate::hostcall::HostAnswer {
+        if self.host_calls {
+            return crate::hostcall::HostAnswer::Later;
+        }
+        crate::hostcall::HostAnswer::Unavailable(format!(
+            "{} is not available on this host",
+            call.service
+        ))
     }
 
     fn getenv(&mut self, name: &str) -> Option<String> {

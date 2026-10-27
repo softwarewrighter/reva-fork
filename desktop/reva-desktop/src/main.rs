@@ -37,6 +37,8 @@ use std::sync::Mutex;
 
 use serde::{Deserialize, Serialize};
 
+mod sql;
+
 const USAGE: &str = "\
 usage: reva-desktop [options]
 
@@ -236,6 +238,8 @@ struct State {
     session: Session,
     root: PathBuf,
     brand: Branding,
+    /// SQLite for `lib/db/sqlite` (host calls; see sql.rs).
+    sql: reva_sqlite::Sqlite,
 }
 
 #[derive(Default)]
@@ -351,6 +355,7 @@ fn build_state(o: Options) -> Result<State, String> {
             }),
             notes,
         },
+        sql: sql::new(root.clone()),
         root,
         brand,
     })
@@ -555,7 +560,8 @@ fn main() -> ExitCode {
             print,
             open_window,
             open_url,
-            halt
+            halt,
+            sql::host_call
         ])
         .on_window_event(|win, ev| {
             use tauri::{Emitter, Manager};
