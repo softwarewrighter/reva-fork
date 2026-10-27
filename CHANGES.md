@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-27
 
+- 00:07 `chore` Step local-readme-demo complete (saga record).
+- 00:07 `docs` README: the live demo at the top, under the title (a prominent link, the dragon and tree examples) with an inline screenshot, images/live-demo.png, of the live demo after `needs turtle/fractals 12 tree-demo` (the tree at its maximum depth, split view; it links to that example). Step inserted at the user's request.
 - 00:01 `chore` Step local-live-demo complete (saga record): the live demo checked in Chrome (boots, dragon curve in the split view, footer names main 7030283, no console errors).
 
 ## 2026-10-26
