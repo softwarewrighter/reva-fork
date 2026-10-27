@@ -1,0 +1,1 @@
+Unplanned, at the user's request (2026-10-27): the README shows the live demo at the top, under the title: a prominent link to https://softwarewrighter.github.io/reva-fork/ and an inline screenshot, images/live-demo.png, of the live demo after needs turtle/fractals 12 tree-demo (the tree at its maximum depth) in the split view. The example links stay. Gate: just check --fast.

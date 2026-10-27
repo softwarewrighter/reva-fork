@@ -1,0 +1,8 @@
+number = 16
+slug = "local-split-machine-fs"
+status = "pending"
+description = "machine.rs (788 lines; build_dictionary 153 lines: make the core word list a ..."
+role = "production"
+context_files = []
+created_at = "2026-10-26T12:49:22"
+commits = []
