@@ -1,0 +1,8 @@
+number = 8
+slug = "local-sqlite-desktop"
+status = "pending"
+description = "SQLite in the desktop app through host calls (rust/DESIGN.md 3.11). The VM ru..."
+role = "production"
+context_files = []
+created_at = "2026-10-26T15:23:50"
+commits = []
