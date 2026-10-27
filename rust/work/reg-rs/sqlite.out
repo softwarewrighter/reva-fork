@@ -1,0 +1,11 @@
+open 0 
+last id 3 
+bird: 2 
+cat: 4 
+rows cols 1 cat has 1 four-legged
+cols 1 bird has 1 four-legged
+cols 1 fish has 1 four-legged
+3 
+sum 6 
+0 rc 1 no such column: nope in select nope from pets at offset 7
+(0) 

@@ -68,10 +68,8 @@ fn parse_args() -> Result<Options, String> {
 }
 
 fn launch(url: &str, open_it: bool) {
-    if open_it {
-        if let Err(e) = open::browser(url) {
-            eprintln!("{}-serve: {e}", SITE.name);
-        }
+    if open_it && let Err(e) = open::browser(url) {
+        eprintln!("{}-serve: {e}", SITE.name);
     }
 }
 

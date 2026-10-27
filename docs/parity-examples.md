@@ -5,7 +5,7 @@ Each program in `examples/` is run on the portable core with stdin
 closed and a 5s limit. See [parity.md](parity.md) for what the
 statuses mean and which areas are planned.
 
-132 examples: error 36, fault 6, missing 9, runs 69, timeout 12
+132 examples: error 33, fault 7, missing 9, runs 71, timeout 12
 
 Most common first missing word (top 10):
 
@@ -43,7 +43,7 @@ Most common first missing word (top 10):
 | `examples/data/hash.f` | lib | runs |
 | `examples/data/parray.f` | lib | runs |
 | `examples/datediff.f` | lib | runs |
-| `examples/db-report.f` | db | error: could not load sqlite3_open |
+| `examples/db-report.f` | db | fault: bad memory access: 1363376 byte(s) at 0x00000005 |
 | `examples/defer.f` | core | runs |
 | `examples/dhttpd.f` | net | missing: `tcpsock` |
 | `examples/dllexplorer.f` | core | missing: `k32` |
@@ -125,8 +125,8 @@ Most common first missing word (top 10):
 | `examples/sockets.f` | net | runs |
 | `examples/special.f` | core | runs |
 | `examples/sqlite.f` | db | fault: stack underflow |
-| `examples/sqlite2.f` | db | error: could not load sqlite3_open |
-| `examples/sqlite3.f` | db | error: could not load sqlite3_open |
+| `examples/sqlite2.f` | db | runs |
+| `examples/sqlite3.f` | db | runs |
 | `examples/stars.f` | core | runs |
 | `examples/sudoku-sp.f` | lib | runs |
 | `examples/sudoku.f` | lib | runs |

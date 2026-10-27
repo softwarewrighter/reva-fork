@@ -20,10 +20,10 @@ fn build_info() {
             println!("cargo:rerun-if-changed={p}");
         }
     }
-    if let Some(r) = run("git", &["symbolic-ref", "-q", "HEAD"]) {
-        if let Some(p) = run("git", &["rev-parse", "--git-path", &r]) {
-            println!("cargo:rerun-if-changed={p}");
-        }
+    if let Some(r) = run("git", &["symbolic-ref", "-q", "HEAD"])
+        && let Some(p) = run("git", &["rev-parse", "--git-path", &r])
+    {
+        println!("cargo:rerun-if-changed={p}");
     }
     let host = run("hostname", &["-s"])
         .or_else(|| run("hostname", &[]))

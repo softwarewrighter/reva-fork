@@ -84,6 +84,10 @@ thread_local! {
 const YIELDED: i32 = 0;
 const NEED_INPUT: i32 = 1;
 const HALTED: i32 = 2;
+/// The VM waits for a host call's answer (rust/DESIGN.md 3.11).  This
+/// module's host has no services yet, so it does not happen here; the
+/// desktop's bridge is saga step local-sqlite-desktop.
+const HOST_CALL: i32 = 3;
 const NOT_BOOTED: i32 = -1;
 const BAD_IMAGE: i32 = -2;
 
@@ -93,6 +97,7 @@ fn code(s: Status) -> i32 {
         Status::NeedInput => NEED_INPUT,
         Status::Halted(_) => HALTED,
         Status::Restart => YIELDED,
+        Status::HostCall => HOST_CALL,
     }
 }
 

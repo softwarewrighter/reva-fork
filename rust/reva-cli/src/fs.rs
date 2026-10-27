@@ -57,7 +57,7 @@ pub struct StdFs {
 
 impl StdFs {
     /// (virtual absolute path, host path)
-    fn resolve(&mut self, path: &str) -> (String, PathBuf) {
+    pub(crate) fn resolve(&mut self, path: &str) -> (String, PathBuf) {
         let v = vfs::normalize(&self.cwd(), path);
         let host = match embedded::install_relative(&v) {
             Some(rel) => install_root().join(rel),

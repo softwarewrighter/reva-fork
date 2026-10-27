@@ -32,12 +32,12 @@ answers to the old library and function names and converts the arguments.
 The Forth sources, with their `lib` and `func:` lines, stay unchanged.
 
 Served today: libc's `getenv`, `putenv`, `localtime`, `gmtime`, `opendir`,
-`readdir`, `closedir` and `system`, plus `errno`. Next: SQLite for
-`lib/db/sqlite` on the CLI and in the desktop app, and a key-value store
-on every host (browser storage in web pages), through *host calls* that
-pause the VM while the host answers (rust/DESIGN.md 3.11). Then a UI
-service in place of IUP and GTK, regex, zlib, iconv and HTTP as programs
-need them. Every planned library is permissively
+`readdir`, `closedir` and `system`, plus `errno`; and SQLite for
+`lib/db/sqlite` through *host calls*, which the host answers (the CLI
+today; the desktop app and the browser next; see
+[sqlite.md](sqlite.md) and rust/DESIGN.md 3.11). Planned: a UI service in
+place of IUP and GTK, then regex, zlib, iconv and HTTP as programs need
+them. Every planned library is permissively
 licensed ([licenses.md](licenses.md)).
 
 A library that is not served resolves to 0, as a failed `dlopen` did, so

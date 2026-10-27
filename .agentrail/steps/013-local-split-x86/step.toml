@@ -1,8 +1,0 @@
-number = 13
-slug = "local-split-x86"
-status = "pending"
-description = "The vx86 decoder and executor to sw-checklist limits: decode.rs (922 lines; d..."
-role = "production"
-context_files = []
-created_at = "2026-10-26T12:49:22"
-commits = []

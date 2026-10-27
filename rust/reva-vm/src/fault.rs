@@ -42,6 +42,8 @@ pub enum Fault {
         what: &'static str,
         hint: &'static str,
     },
+    /// A host call this host cannot answer (a service it does not have).
+    Unavailable(String),
 }
 
 /// Where unsupported code is explained.
@@ -119,6 +121,7 @@ impl fmt::Display for Fault {
                 "call to native code at {addr:#010x}: the portable core runs no native \
                  libraries (see {PORTABILITY_DOC})"
             ),
+            Fault::Unavailable(why) => write!(f, "{why} (see {PORTABILITY_DOC})"),
             Fault::NotPermitted { what, hint } => {
                 write!(
                     f,

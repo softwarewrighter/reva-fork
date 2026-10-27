@@ -1,0 +1,12 @@
+[package]
+name = "reva-sqlite"
+description = "SQLite for the Reva hosts (CLI, desktop), through rusqlite's safe API"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+rusqlite = { version = "0.41", features = ["bundled"] }
