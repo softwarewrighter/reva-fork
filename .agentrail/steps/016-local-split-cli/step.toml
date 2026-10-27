@@ -1,8 +1,0 @@
-number = 16
-slug = "local-split-cli"
-status = "pending"
-description = "reva-cli to sw-checklist limits: main.rs (19 functions; main 103 lines), line..."
-role = "production"
-context_files = []
-created_at = "2026-10-26T12:49:22"
-commits = []

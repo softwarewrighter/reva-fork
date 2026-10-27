@@ -86,7 +86,7 @@ impl Cpu {
     fn set_szp(&mut self, r: u32, size: Size) {
         self.zf = r & size.mask() == 0;
         self.sf = r & size.sign() != 0;
-        self.pf = (r as u8).count_ones() % 2 == 0;
+        self.pf = (r as u8).count_ones().is_multiple_of(2);
     }
 
     /// The eight ALU operations with full flag semantics.

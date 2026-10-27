@@ -71,6 +71,11 @@ gates! {
     TtHeading, TtPush, TtPop, TtPath, TtSvg, TtBg, TtSegments,
     // the virtual library `highlight` (highlight.rs), through `(call)`
     HlType, HlColor,
+    // the virtual library `reva-sqlite` (sqlite.rs), host calls through `(call)`
+    SqRc, SqVersion, SqOpen, SqClose, SqExec, SqLastid, SqErrmsg, SqQuery,
+    SqNext, SqGetcol, SqEndquery, SqPrepare, SqBindNull, SqBindInt, SqBindText,
+    SqBindBlob, SqBindZeroblob, SqReset, SqClear, SqStep, SqFinalize,
+    SqColumnInt, SqColumnText, SqColumnBlob, SqPtr,
 }
 
 impl Gate {
@@ -1468,13 +1473,18 @@ impl Machine {
             LoadLib => self.ffi_loadlib().map(|()| Ret),
             UnloadLib => self.ffi_unloadlib().map(|()| Ret),
             OsFunc => self.ffi_func(host).map(|()| Ret),
-            CallFn => self.ffi_call(host).map(|()| Ret),
+            CallFn => self.ffi_call(host),
             Syscall => self.ffi_syscall(host).map(|()| Ret),
             HostGetenv | HostPutenv | HostLocaltime | HostOpendir | HostReaddir | HostClosedir
             | HostSystem | TtForward | TtStep | TtRight | TtPen | TtColor | TtWidth | TtHome
             | TtClear | TtClean | TtSetxy | TtSetheading | TtSetstep | TtScale | TtShow | TtX
             | TtY | TtHeading | TtPush | TtPop | TtPath | TtSvg | TtBg | TtSegments | HlType
-            | HlColor => Err(Fault::NotImplemented("a C function called without (call)")),
+            | HlColor | SqRc | SqVersion | SqOpen | SqClose | SqExec | SqLastid | SqErrmsg
+            | SqQuery | SqNext | SqGetcol | SqEndquery | SqPrepare | SqBindNull | SqBindInt
+            | SqBindText | SqBindBlob | SqBindZeroblob | SqReset | SqClear | SqStep
+            | SqFinalize | SqColumnInt | SqColumnText | SqColumnBlob | SqPtr => {
+                Err(Fault::NotImplemented("a C function called without (call)"))
+            }
 
             // --- files (fileio.rs) ---
             OpenR => self.word_open(host, Access::Read).map(|()| Ret),

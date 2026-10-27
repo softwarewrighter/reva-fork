@@ -1,8 +1,0 @@
-number = 23
-slug = "local-repl-polish"
-status = "pending"
-description = "Feature: (a) `pp` and `hl-type` usable without `needs highlight/core` first, ..."
-role = "production"
-context_files = []
-created_at = "2026-10-26T12:49:22"
-commits = []

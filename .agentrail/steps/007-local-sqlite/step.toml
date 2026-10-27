@@ -1,6 +1,6 @@
 number = 7
 slug = "local-sqlite"
-status = "pending"
+status = "in-progress"
 description = "SQLite on the CLI, and the host-call mechanism (rust/DESIGN.md 3.11; read it ..."
 role = "production"
 context_files = []

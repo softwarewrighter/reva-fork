@@ -1,0 +1,8 @@
+number = 16
+slug = "local-split-gfx"
+status = "pending"
+description = "canvas.rs (31 functions), turtle.rs (turtle_call 102 lines: a table from call..."
+role = "production"
+context_files = []
+created_at = "2026-10-26T12:49:22"
+commits = []
