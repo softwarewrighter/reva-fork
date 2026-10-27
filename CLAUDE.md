@@ -372,4 +372,8 @@ Tools it needs on PATH: `reg-rs`, `sed-rs`, `sw-checklist`, `node`,
   `pr/<slug>` at handoff. `main` is updated from `dev` by the user.
 - Commit messages: a subject line, a blank line, then what changed and
   why; end with the Co-Authored-By line.
+- Every commit adds its line to `CHANGES.md` (newest first, under the
+  day, Pacific time, a category from its header), in the same commit;
+  saga records and merges too. A PR's merge line is added by the next
+  commit on `dev`.
 - Scripts run on macOS's bash 3.2 and BSD tools as well as Linux.
