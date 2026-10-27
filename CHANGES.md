@@ -11,8 +11,15 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-10-27
+
+- 00:01 `chore` Step local-live-demo complete (saga record): the live demo checked in Chrome (boots, dragon curve in the split view, footer names main 7030283, no console errors).
+
 ## 2026-10-26
 
+- 23:58 `release` The live demo published: `just publish` from main pushed gh-pages (4aa1b13, the plain reva-fork site as one orphan commit); GitHub turned Pages on from that branch by itself, at https://softwarewrighter.github.io/reva-fork/.
+- 23:57 `release` Merge dev into main (7030283, pushed directly at the user's request): everything since #17, gated with `just check` first.
+- 23:52 `build` Merge #42 (local-live-demo): the live demo's publisher.
 - 23:52 `build` The live demo's publisher (step local-live-demo): `just publish` (rust/scripts/publish-pages.sh) builds the plain reva-fork site with make-web-zip.sh (no package, split view), adds .nojekyll and force-pushes it as one orphan commit to gh-pages for GitHub Pages ("Deploy from a branch", no Actions); only from a clean HEAD on origin/main, or `--dry-run` from anywhere. README links https://softwarewrighter.github.io/reva-fork/ with fractal examples; docs/web.md says how it works and that all softwarewrighter.github.io pages share one localStorage origin.
 - 23:44 `feat` Merge #41 (local-sqlite): SQLite on the CLI through host calls.
 - 23:42 `chore` Step local-sqlite complete (saga record).
