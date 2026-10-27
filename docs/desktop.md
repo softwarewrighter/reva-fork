@@ -56,6 +56,12 @@ written back at once. Hidden files and folders (`.git`) are not loaded. The
 built-in library stays at `/reva/lib/` and is never written to disk. Paths
 cannot leave the folder.
 
+
+SQLite databases (`needs db/sqlite`, see [sqlite.md](sqlite.md)) are
+files of the same folder, opened by the app's native side: the VM's
+calls pause it while the page asks the `host_call` command, which answers
+from the `reva-sqlite` crate.
+
 ## Packages
 
 A package is a folder with a `reva-package.json`:

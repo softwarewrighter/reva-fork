@@ -28,7 +28,7 @@
 // `reset: true` after a `restart`), never one message per line.  See ui.js
 // for the page's side.
 
-export const YIELDED = 0, NEED_INPUT = 1, HALTED = 2;
+export const YIELDED = 0, NEED_INPUT = 1, HALTED = 2, HOST_CALL = 3;
 const BAD_IMAGE = -2;
 export const RUNNING = "running";
 
@@ -225,6 +225,32 @@ export class Reva {
   get exitCode() { return this.x.reva_exit_code(); }
 
   /**
+   * The host call the VM waits on after `run` returned HOST_CALL
+   * (rust/DESIGN.md 3.11): `{ service, op, ints, bytes }`, byte strings as
+   * arrays of numbers.  Answer it with `resume`.
+   */
+  hostCall() {
+    const p = this.x.reva_host_call_ptr(), n = this.x.reva_host_call_len();
+    return JSON.parse(this.dec.decode(new Uint8Array(this.x.memory.buffer, p, n)));
+  }
+
+  /**
+   * Answer the pending host call, then `run` again: `{ int }`, `{ bytes }`
+   * (an array or Uint8Array), or `{ error }`, which stops the Forth line
+   * with that message.
+   */
+  resume(reply) {
+    const put = (bytes) => {
+      const p = this.x.reva_fs_buffer(bytes.length);
+      new Uint8Array(this.x.memory.buffer, p, bytes.length).set(bytes);
+      return bytes.length;
+    };
+    if (reply?.error !== undefined) this.x.reva_refuse(put(new TextEncoder().encode(String(reply.error))));
+    else if (reply?.bytes !== undefined) this.x.reva_resume_bytes(put(Uint8Array.from(reply.bytes)));
+    else this.x.reva_resume_int(Number(reply?.int ?? 0));
+  }
+
+  /**
    * This build's facts (the page's footer): `{ name, version, copyright,
    * license, repository, build_host, build_commit, build_time }`, from
    * reva_vm::version through the module, so they match `reva -V`.
@@ -291,7 +317,8 @@ export class Reva {
  * Options: `image` (start from a saved image: URL or bytes), `files`
  * (bundled, `{ path: string | bytes }`), `storage` and
  * `prefix` (persistence), `onOutput(text)`, `onUi(message)` (UI channels:
- * the canvas), `onStatus(status)` (RUNNING,
+ * the canvas), `onHostCall(call)` (answers the VM's host calls, see
+ * `Reva.hostCall`; may return a promise), `onStatus(status)` (RUNNING,
  * NEED_INPUT or HALTED), `worker` (false: run on this thread), `workerUrl`,
  * `createWorker(url)` (for tests), `stopTimeoutMs` (default 2000).
  *
@@ -319,10 +346,11 @@ export function start(wasmUrl, options = {}) {
 }
 
 class Session {
-  constructor({ onOutput = () => {}, onStatus = () => {}, onUi = () => {} }) {
+  constructor({ onOutput = () => {}, onStatus = () => {}, onUi = () => {}, onHostCall = null }) {
     this.onOutput = onOutput;
     this.onUi = onUi;
     this.onStatus = onStatus;
+    this.onHostCall = onHostCall;
     this.status = RUNNING;
     this.exitCode = 0;
     this.waiters = [];
@@ -333,6 +361,16 @@ class Session {
     this.onStatus(s);
     if (s !== RUNNING) for (const w of this.waiters.splice(0)) w(s);
   }
+  /** The answer to a host call, from `onHostCall`, or a refusal. */
+  async answer(call) {
+    if (!this.onHostCall) return { error: `${call.service} is not available on this page` };
+    try {
+      return await this.onHostCall(call);
+    } catch (e) {
+      return { error: String(e?.message ?? e) };
+    }
+  }
+
   /** Resolves once the VM is waiting for input or has halted. */
   idle() {
     return this.status === RUNNING ? new Promise((r) => this.waiters.push(r)) : Promise.resolve(this.status);
@@ -359,7 +397,11 @@ class LocalSession extends Session {
     if (this.pumping || !this.reva) return;
     this.pumping = true;
     this.setStatus(RUNNING);
-    const s = await this.reva.run(this.onOutput, { onUi: this.onUi });
+    let s = await this.reva.run(this.onOutput, { onUi: this.onUi });
+    while (s === HOST_CALL) {
+      this.reva.resume(await this.answer(this.reva.hostCall()));
+      s = await this.reva.run(this.onOutput, { onUi: this.onUi });
+    }
     this.pumping = false;
     if (this.storage) saveChanges(this.storage, this.reva.changes(), this.prefix);
     this.setStatus(s, s === HALTED ? this.reva.exitCode : 0);
@@ -402,6 +444,9 @@ class WorkerSession extends Session {
           if (m.boot) booted();
           break;
         case "ui": this.onUi(m); break;
+        case "hostcall":
+          this.answer(m.call).then((reply) => this.w.postMessage({ type: "hostreply", reply }));
+          break;
         case "error": this.onOutput(`\n*** ${m.message}\n`); break;
       }
     };

@@ -13,6 +13,8 @@
 //                   ui     { channel, resend? }
 //                                        a UI channel: "canvas" + resend
 //                                        asks for the whole drawing again
+//                   hostreply { reply }  the answer to a hostcall: { int },
+//                                        { bytes } or { error }
 //   worker → page   output { text }      text printed since the last one
 //                   ui     { channel: "canvas", ops | reset }
 //                                        drawing ops since the last slice
@@ -22,13 +24,17 @@
 //                                        "running", NEED_INPUT or HALTED;
 //                                        after boot, the build facts
 //                   files  { list }      [{ path, data: bytes | null }]
+//                   hostcall { call }    the VM waits for this call's answer
+//                                        ({ service, op, ints, bytes }; see
+//                                        Reva.hostCall), sent back as
+//                                        hostreply
 //                   error  { message }
 //
 // The worker runs the VM in slices of about 8 ms and yields between them,
 // so `input` and `stop` messages are seen within one slice.  While Forth
 // waits for input the worker is idle: no polling, no CPU.
 
-import { Reva, RUNNING, HALTED } from "./reva.js";
+import { Reva, RUNNING, HALTED, HOST_CALL } from "./reva.js";
 
 let reva = null;
 let pumping = false;
@@ -48,6 +54,8 @@ async function pump() {
   }
   pumping = false;
   sendFiles();
+  // A host call: the page answers (hostreply), and the VM runs on.
+  if (s === HOST_CALL) return post({ type: "hostcall", call: reva.hostCall() });
   post({ type: "status", status: s, exitCode: s === HALTED ? reva.exitCode : 0 });
 }
 
@@ -86,6 +94,10 @@ async function handle(m) {
       break;
     case "close":
       reva.closeInput();
+      pump();
+      break;
+    case "hostreply":
+      reva.resume(m.reply);
       pump();
       break;
     case "stop":

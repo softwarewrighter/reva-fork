@@ -1,6 +1,6 @@
 number = 10
 slug = "local-sqlite-desktop"
-status = "pending"
+status = "in-progress"
 description = "SQLite in the desktop app through host calls (rust/DESIGN.md 3.11). The VM ru..."
 role = "production"
 context_files = []
