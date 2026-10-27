@@ -13,6 +13,11 @@ reaches: x86-64 and ARM64 on Linux, macOS and Windows, and the web browser
 through WebAssembly. It does that with a **portable core** written in Rust
 that runs Reva's own Forth system, `src/reva.f` (release 2011.2), unchanged.
 
+**Live demo:** [softwarewrighter.github.io/reva-fork](https://softwarewrighter.github.io/reva-fork/),
+the REPL in your browser. Try
+[a dragon curve](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20dragon-demo)
+or [a tree](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=10%20tree-demo).
+
 ## How it works
 
 Reva compiles Forth straight to x86 machine code, and about 60 words in
