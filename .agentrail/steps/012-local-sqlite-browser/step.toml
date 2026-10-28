@@ -1,8 +1,9 @@
 number = 12
 slug = "local-sqlite-browser"
-status = "pending"
-description = "SQLite in the browser (rust/DESIGN.md 3.11; the user chose SQLite's official ..."
+status = "completed"
+description = "SQLite in the browser (rust/DESIGN.md 3.11). Decided with the user (2026-10-2..."
 role = "production"
 context_files = []
 created_at = "2026-10-26T15:23:50"
-commits = []
+completed_at = "2026-10-27T20:58:05"
+commits = ["4bbfd4d54c1c152e648243382fa41952d7e18371"]

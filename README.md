@@ -159,6 +159,21 @@ mechanism described in [rust/DESIGN.md §4](rust/DESIGN.md#4-non-functional-requ
   pass: `cargo test --release --workspace`, `scripts/doc-check.sh` and the
   reg-rs suite. The original x86 import is the first commit, `edc8cbe`.
 
+## Third-party software
+
+- **SQLite** ([public domain](https://sqlite.org/copyright.html)), for
+  `needs db/sqlite`. The CLI and the desktop app build it in through the
+  [rusqlite](https://github.com/rusqlite/rusqlite) crate (MIT). The browser
+  build does not include it: the page loads SQLite's official WebAssembly
+  build, the [@sqlite.org/sqlite-wasm](https://github.com/sqlite/sqlite-wasm)
+  package (Apache-2.0), from jsDelivr at run time, the first time a program
+  uses SQLite.
+- The desktop app is built on [Tauri](https://tauri.app) (MIT/Apache-2.0).
+
+Every crate and its license, and what is loaded at run time, are listed in
+[docs/licenses.md](docs/licenses.md); the About dialog in the web REPL and
+the desktop app credits them too.
+
 ## License
 
 Copyright (c) 2026 Michael A. Wright
