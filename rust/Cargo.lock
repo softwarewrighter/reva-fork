@@ -104,7 +104,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "reva-core"
+version = "2026.1026.0"
+dependencies = [
+ "reva-host",
+ "reva-x86",
+]
+
+[[package]]
 name = "reva-host"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-macros"
 version = "2026.1026.0"
 
 [[package]]
@@ -119,10 +131,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "reva-vlib"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-host",
+ "reva-macros",
+ "reva-x86",
+]
+
+[[package]]
 name = "reva-vm"
 version = "2026.1026.0"
 dependencies = [
+ "reva-core",
  "reva-host",
+ "reva-vlib",
+ "reva-words",
  "reva-x86",
 ]
 
@@ -131,6 +156,17 @@ name = "reva-web"
 version = "2026.1026.0"
 dependencies = [
  "reva-vm",
+]
+
+[[package]]
+name = "reva-words"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-host",
+ "reva-macros",
+ "reva-vlib",
+ "reva-x86",
 ]
 
 [[package]]
