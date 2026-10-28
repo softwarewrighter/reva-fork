@@ -435,6 +435,14 @@ impl Cpu {
                 }
             }
             Op::Cwde => self.r[0] = self.r[0] as u16 as i16 as i32 as u32,
+            Op::Cbw => {
+                self.r[0] =
+                    (self.r[0] & 0xffff_0000) | u32::from(self.r[0] as u8 as i8 as i16 as u16)
+            }
+            Op::Cwd => {
+                let high = if self.r[0] & 0x8000 != 0 { 0xffff } else { 0 };
+                self.r[2] = (self.r[2] & 0xffff_0000) | high;
+            }
             Op::Str { op, size, rep } => match rep {
                 Rep::None => self.string_once(mem, op, size)?,
                 _ => {
@@ -567,6 +575,20 @@ mod tests {
         }
         out.push(c.r[EAX as usize]);
         (c, out)
+    }
+
+    #[test]
+    fn cbw_and_cwd_sign_extend_the_low_half() {
+        // cbw: AL into AX, the top half of EAX untouched
+        let (c, _) = run(&[0x66, 0x98], &[0x1234_00f0]);
+        assert_eq!(c.r[EAX as usize], 0x1234_fff0);
+        let (c, _) = run(&[0x66, 0x98], &[0x1234_ff70]);
+        assert_eq!(c.r[EAX as usize], 0x1234_0070);
+        // cwd: AX's sign into DX, the top half of EDX untouched
+        let (c, _) = run(&[0xba, 0x22, 0x22, 0x11, 0x11, 0x66, 0x99], &[0x8000]);
+        assert_eq!(c.r[2], 0x1111_ffff);
+        let (c, _) = run(&[0xba, 0x22, 0x22, 0x11, 0x11, 0x66, 0x99], &[0x7fff]);
+        assert_eq!(c.r[2], 0x1111_0000);
     }
 
     // The byte sequences below are copied verbatim from src/reva.f.

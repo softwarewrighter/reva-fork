@@ -233,6 +233,10 @@ pub enum Op {
     },
     Cdq,
     Cwde,
+    /// `66 98` cbw: AL sign-extended into AX (the disassembler uses it)
+    Cbw,
+    /// `66 99` cwd: AX sign-extended into DX:AX
+    Cwd,
     /// `bswap r32` (byte order reversal, e.g. for SHA-1's big-endian words)
     Bswap(u8),
     Str {
