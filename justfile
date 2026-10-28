@@ -45,6 +45,10 @@ desktop:
 check *ARGS:
     rust/scripts/check.sh {{ARGS}}
 
+# timing guard for refactors of hot code: medians vs this host's baseline (--record to set it)
+bench-guard *ARGS:
+    rust/scripts/bench-guard.sh {{ARGS}}
+
 # tests of the portable core and the browser build
 test: wasm
     cd rust && cargo test --release --workspace

@@ -75,7 +75,21 @@ just check --fast     # the same without the desktop workspace
 ```
 
 `scripts/check.sh` lists the goldens known to fail on each OS and the
-most sw-checklist FAILs allowed; both may only go down. The pieces:
+most sw-checklist FAILs allowed; both may only go down.
+
+Refactors of hot code (gate dispatch, decode, exec) also run the timing
+guard before and after:
+
+```bash
+just bench-guard            # boot, fib, a loop, dragons: medians vs this host's baseline
+just bench-guard --record   # (re)record this host's baseline in work/bench-guard.txt
+```
+
+It fails when a median is more than 15% (`TOLERANCE`) slower than the
+host's recorded baseline; timings only compare on the same machine, so
+each host has its own lines. It is not part of `just check` (it takes
+about 17 s and timing is noisy on a busy machine). The pieces of the
+gate:
 
 ```bash
 cargo test                                # unit + API tests
