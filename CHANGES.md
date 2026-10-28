@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-27
 
+- 20:29 `chore` Step local-see complete (saga record).
 - 20:29 `feat` `see` shows a word's x86 again (step local-see; CoSy's ask 3a): vx86 decodes `cbw` and `cwd` (`66 98`, `66 99`), which Reva's disassembler (lib/util/disasm, after `needs debugger`) uses, so it no longer faults on its first instruction and no longer leaves `base` in hex. lib/debugger: a core routine written in Rust (its code is a gateway, all `hlt` bytes) is reported as one instead of being disassembled forever. `see` over every word of the booted dictionary (356): no fault, no runaway, base decimal after. Tests: an executor test for cbw/cwd, golden see (a colon word, a call and a tail call, a constant, a variable, a core routine; addresses masked). docs/x86-plan.md (the user's questions): how vx86 runs Reva's x86 and the x87, what works, `see`, what breaks in legacy programs by cause with counts from the parity report, how each gets ported, and the plan.
 - 10:25 `feat` Merge #45 (local-sqlite-desktop): SQLite in the desktop app.
 - 10:24 `chore` Step local-sqlite-desktop complete (saga record).
