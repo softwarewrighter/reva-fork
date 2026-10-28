@@ -34,7 +34,7 @@ impl Start {
         Ok((start, m))
     }
 
-    /// A new machine, ready to [`Machine::run`].
+    /// A new machine, ready to [`run`](reva_core::Machine::run).
     pub fn machine(&self) -> Result<Machine, ImageError> {
         fn argv(a: &[String]) -> Vec<&str> {
             a.iter().map(String::as_str).collect()

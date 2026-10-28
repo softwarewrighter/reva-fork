@@ -1,0 +1,8 @@
+number = 24
+slug = "local-web-ms"
+status = "pending"
+description = "Bug: `ms` does nothing in the browser and the desktop app (reva-vm Host::slee..."
+role = "production"
+context_files = []
+created_at = "2026-10-26T12:49:22"
+commits = []
