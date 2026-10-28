@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-27
 
+- 21:43 `chore` Step local-iconv complete (saga record).
 - 21:43 `feat` iconv (step local-iconv, at the user's request): the virtual library `libiconv` for lib/string/iconv, unchanged: `libiconv_open`, `libiconv`, `libiconv_close` and `_libiconv_version`, done inside the VM on every host with the standard library only (reva-vm charset.rs: UTF-8, UTF-16, UCS-2, UTF-32 in both byte orders, Latin-1, ASCII; iconv.rs: descriptors, the in/out pointer cells advanced in VM memory as C's iconv does, -1 with errno E2BIG, EILSEQ, EINVAL, EBADF). Gates IcOpen, Iconv, IcClose appended; static cell ICONV_VERSION. examples/utf8.f and notready/normalize.f now run (73 of 132); the 21 GUI programs that stopped at iconv now stop at IUP (`IupOpen`, and one at its CD library). Tests: charset tests (tests/charset.rs), golden iconv; goldens parity-examples rebased. Docs: portability, parity, x86-plan.
 - 21:03 `feat` Merge #47 (local-sqlite-browser): SQLite in the browser.
 - 21:03 `feat` Merge #46 (local-see): `see` shows a word's x86 again; docs/x86-plan.md.
