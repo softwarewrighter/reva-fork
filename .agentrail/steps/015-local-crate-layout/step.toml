@@ -1,8 +1,9 @@
 number = 15
 slug = "local-crate-layout"
-status = "pending"
+status = "completed"
 description = "Decide with the user first: reva-vm has 23 modules (sw-checklist max 7 per cr..."
 role = "production"
 context_files = []
 created_at = "2026-10-26T12:49:21"
-commits = []
+completed_at = "2026-10-27T22:23:39"
+commits = ["03ac01f8a926f2a91cb31710470bbabcd9614acc"]
