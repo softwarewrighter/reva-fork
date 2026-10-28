@@ -94,6 +94,25 @@ All under `legacy/` or `contrib/`; none is used by the portable core.
 | `lib/os/process` and others by Danny Reinhold | Reinhold Software Services | Reva's terms (stated in the files) |
 | `legacy/src/brieflz.asm` | BriefLZ, Joergen Ibsen | zlib |
 
+## Loaded at run time (not redistributed)
+
+| What | Version | License | From |
+|---|---|---|---|
+| SQLite's WebAssembly build, package [`@sqlite.org/sqlite-wasm`](https://github.com/sqlite/sqlite-wasm) (`dist/index.mjs`, `dist/sqlite3.wasm`) | 3.54.1-build1 | SQLite: [public domain](https://sqlite.org/copyright.html); the package: Apache-2.0 | `https://cdn.jsdelivr.net/npm/@sqlite.org/sqlite-wasm@3.54.1-build1/` |
+
+The browser build's worker imports it the first time a program uses
+SQLite (`rust/reva-web/www/sqlite.js`, `SQLITE_WASM`); nothing of it is in
+this repository, the web zip, the live demo's site or the desktop app,
+which has SQLite built in (`reva-sqlite`, below). The version is pinned, and
+jsDelivr serves a published npm version unchanged. The About dialog and
+the README credit it.
+
+If it is ever vendored instead (copied into the repository or a build),
+the copy needs, beside the files: the Apache-2.0 license text (the package
+declares Apache-2.0 in its `package.json` and ships no LICENSE file), a
+NOTICE naming the package, its version and source, and SQLite's
+public-domain dedication; and a row in this page's reviewed lists.
+
 ## Crate dependencies
 
 **Portable core (`rust/`):** `reva-vm`, `reva-web` and `reva-serve` have
