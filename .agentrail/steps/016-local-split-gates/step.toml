@@ -1,8 +1,9 @@
 number = 16
 slug = "local-split-gates"
-status = "in-progress"
+status = "completed"
 description = "Move Machine out of reva-vm (rust/DESIGN.md 3.12): Rust allows impl Machine o..."
 role = "production"
 context_files = []
 created_at = "2026-10-26T12:49:22"
-commits = []
+completed_at = "2026-10-28T12:42:51"
+commits = ["6bed688489b86f661fd24e5937bfe9b84ad44294"]
