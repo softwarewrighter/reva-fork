@@ -1,0 +1,4 @@
+max boot 505
+max dragon 405
+max fib 1066
+max loop 1252
