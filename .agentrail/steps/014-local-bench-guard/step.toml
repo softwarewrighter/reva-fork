@@ -1,6 +1,6 @@
 number = 14
 slug = "local-bench-guard"
-status = "pending"
+status = "in-progress"
 description = "Before any structural split: a quick, repeatable timing guard so refactors of..."
 role = "production"
 context_files = []
