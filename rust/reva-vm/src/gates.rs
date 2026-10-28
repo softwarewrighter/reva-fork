@@ -76,6 +76,8 @@ gates! {
     SqNext, SqGetcol, SqEndquery, SqPrepare, SqBindNull, SqBindInt, SqBindText,
     SqBindBlob, SqBindZeroblob, SqReset, SqClear, SqStep, SqFinalize,
     SqColumnInt, SqColumnText, SqColumnBlob, SqPtr,
+    // the virtual library `libiconv` (iconv.rs), through `(call)`
+    IcOpen, Iconv, IcClose,
 }
 
 impl Gate {
@@ -1482,9 +1484,8 @@ impl Machine {
             | HlColor | SqRc | SqVersion | SqOpen | SqClose | SqExec | SqLastid | SqErrmsg
             | SqQuery | SqNext | SqGetcol | SqEndquery | SqPrepare | SqBindNull | SqBindInt
             | SqBindText | SqBindBlob | SqBindZeroblob | SqReset | SqClear | SqStep
-            | SqFinalize | SqColumnInt | SqColumnText | SqColumnBlob | SqPtr => {
-                Err(Fault::NotImplemented("a C function called without (call)"))
-            }
+            | SqFinalize | SqColumnInt | SqColumnText | SqColumnBlob | SqPtr | IcOpen | Iconv
+            | IcClose => Err(Fault::NotImplemented("a C function called without (call)")),
 
             // --- files (fileio.rs) ---
             OpenR => self.word_open(host, Access::Read).map(|()| Ret),
