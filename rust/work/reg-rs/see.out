@@ -1,0 +1,26 @@
+ADDR        lea      esi, [esi-4]                        | 8D 76 FC 
+ADDR        mov      [esi], eax                          | 89 06 
+ADDR        mul      [esi]                               | F7 26 
+ADDR        add      esi, 4                              | 83 C6 04 
+ADDR        ret                                          | C3 
+
+ADDR        lea      esi, [esi-4]                        | 8D 76 FC 
+ADDR        mov      [esi], eax                          | 89 06 
+ADDR        mov      eax, 10                             | B8 10 00 00 00 
+ADDR        call     allocate                            | E8 rel32
+ADDR        lea      esi, [esi-4]                        | 8D 76 FC 
+ADDR        mov      [esi], eax                          | 89 06 
+ADDR        lea      esi, [esi-4]                        | 8D 76 FC 
+ADDR        mov      [esi], eax                          | 89 06 
+ADDR        mov      eax, 10                             | B8 10 00 00 00 
+ADDR        lea      esi, [esi-4]                        | 8D 76 FC 
+ADDR        mov      [esi], eax                          | 89 06 
+ADDR        mov      eax, 0                              | B8 00 00 00 00 
+ADDR        jmp      fill                                | E9 rel32
+
+constant: 42 
+variable: ADDR  -> 00000000 
+
+core routine, written in Rust (vx86 gateway at 00001124 )
+
+10 

@@ -511,6 +511,8 @@ pub fn decode(mem: &Memory, eip: u32) -> Result<Insn, Fault> {
         },
         0x98 if osz == Size::D => Op::Cwde,
         0x99 if osz == Size::D => Op::Cdq,
+        0x98 => Op::Cbw,
+        0x99 => Op::Cwd,
         // mov AL/EAX <-> [moffs32] (lib/util/locals emits a3)
         0xa0..=0xa3 => {
             let size = if b & 1 == 0 { Size::B } else { osz };
