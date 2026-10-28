@@ -104,6 +104,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "reva-host"
+version = "2026.1026.0"
+
+[[package]]
 name = "reva-serve"
 version = "2026.1026.0"
 
@@ -117,6 +121,10 @@ dependencies = [
 [[package]]
 name = "reva-vm"
 version = "2026.1026.0"
+dependencies = [
+ "reva-host",
+ "reva-x86",
+]
 
 [[package]]
 name = "reva-web"
@@ -124,6 +132,10 @@ version = "2026.1026.0"
 dependencies = [
  "reva-vm",
 ]
+
+[[package]]
+name = "reva-x86"
+version = "2026.1026.0"
 
 [[package]]
 name = "rsqlite-vfs"

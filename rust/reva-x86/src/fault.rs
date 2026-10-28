@@ -32,7 +32,7 @@ pub enum Fault {
     UnwoundThroughHost,
     /// A region (code, dictionary, heap) is full.
     OutOfSpace(&'static str),
-    /// The host asked to stop the running code ([`crate::Machine::interrupt`]).
+    /// The host asked to stop the running code (`reva_vm::Machine::interrupt`).
     Interrupted,
     /// `(call)` of an address that is not a virtual-library function: the
     /// portable core never runs native code (see docs/portability.md).

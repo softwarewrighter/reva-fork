@@ -759,7 +759,7 @@ mod tests {
         c.r[EBX as usize] = 0x4000;
         c.eip = 0x2000;
         while c.eip < 0x2000 + code.len() as u32 {
-            let i = crate::x86::decode(&m, c.eip).unwrap();
+            let i = crate::decode(&m, c.eip).unwrap();
             c.exec(&mut m, &i).unwrap();
         }
         (c, m)

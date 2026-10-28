@@ -361,6 +361,30 @@ Decided with the user on 2026-10-26 (saga steps `local-sqlite-design`,
   The same path serves later native services. Gates for the new
   functions are appended (3.9: images keep gate addresses).
 
+### 3.12 Crates
+
+Decided with the user on 2026-10-27 (saga step `local-crate-layout`): the
+core meets sw-checklist's structure limits in full (at most 7 modules per
+crate, 7 functions per module, 50 lines per function, 500 per file), with
+the bench guard (`just bench-guard`) and every golden unchanged at each
+move.
+
+Rust allows `impl Machine` only in the crate that defines `Machine`, and
+today eight modules add methods to it. So the split puts `Machine` low and
+lets higher crates extend it:
+
+| Crate | Holds | State |
+|---|---|---|
+| `reva-x86` | the CPU types, decoder, executor, x87, memory, faults, the memory layout | done (pure moves) |
+| `reva-host` | the `Host` trait and `BufferHost`, host calls, the virtual file system, embedded sources (`reva.f`, `lib/`), version, encodings; owns the build script | done (pure moves) |
+| `reva-core` | `Machine` (state, statics, stacks, heap, images) and the run loop, which dispatches each gate through a table of handler functions instead of one large `match` | next |
+| `reva-words` | the gate handlers by family (interpreter, compiler and dictionary, memory and strings, numbers, files, OS, images, version), as functions over `&mut Machine` | next |
+| `reva-vlib` | the virtual libraries (libc, iconv, SQLite, turtle and canvas, highlight), the same way | later |
+| `reva-vm` | builds the handler table, `Start`, translation hooks, and the public API: every old path is re-exported, so hosts do not change | throughout |
+
+Dispatch through a table of function pointers replaces the `match` on
+the hot path; the bench guard decides whether that stays.
+
 ## 4. Non-functional requirements
 
 | Quality | How it is addressed |

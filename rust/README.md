@@ -34,7 +34,13 @@ re-implemented in Rust. See [DESIGN.md](DESIGN.md) for the rationale.
 
 ```
 rust/
-  reva-vm/     the core library (VM, gateways, images, translator hooks)
+  reva-x86/    vx86: CPU types, decoder, executor, x87, memory, faults, layout
+  reva-host/   the host side: Host trait, host calls, virtual file system,
+               embedded reva.f and lib/, version, encodings (build script)
+  reva-vm/     the core library (machine, gateways, virtual libraries, images,
+               translator hooks); re-exports reva-x86 and reva-host under
+               their old paths (DESIGN.md 3.12)
+  reva-sqlite/ SQLite for the CLI and the desktop app (rusqlite, safe API)
   reva-cli/    the `reva` command
   reva-web/    wasm32 module + www/ (reva.js, index.html) + test/smoke.mjs
   reva-serve/  one-binary local web app: embeds a site, serves 127.0.0.1 (std only; ../docs/serve.md)
