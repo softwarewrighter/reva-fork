@@ -1,0 +1,4 @@
+command = '''${REVA:-target/debug/reva} tests/forth/see.f < /dev/null | sed-rs -e 's/^[0-9A-F]{8} /ADDR     /' -e 's/[|] (E[89]) [0-9A-F ]+$/| \1 rel32/' -e 's/^variable: [0-9A-F]+  -> /variable: ADDR  -> /''''
+timeout = 60
+exit_code = 0
+desc = "see with the debugger: x86 disassembly on vx86 (cbw), a constant, a variable, a core routine in Rust; base decimal after (addresses masked)"
