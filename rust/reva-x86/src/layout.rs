@@ -37,7 +37,7 @@ pub const GATE_BASE: u32 = 0x0000_1000;
 pub const GATE_END: u32 = 0x0000_2000;
 pub const GATE_STRIDE: u32 = 4;
 
-/// Static variables and DEFER vectors (see [`crate::machine::Statics`]).
+/// Static variables and DEFER vectors (see reva-vm's `machine::st`).
 pub const STATIC_BASE: u32 = 0x0000_2000;
 pub const STATIC_END: u32 = 0x0000_3000;
 

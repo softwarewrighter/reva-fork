@@ -1,7 +1,7 @@
 number = 19
 slug = "local-split-gfx"
 status = "pending"
-description = "canvas.rs (31 functions), turtle.rs (turtle_call 102 lines: a table from call..."
+description = "reva-vlib (rust/DESIGN.md 3.12): the virtual libraries (canvas + turtle, high..."
 role = "production"
 context_files = []
 created_at = "2026-10-26T12:49:22"

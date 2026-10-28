@@ -534,7 +534,7 @@ impl Cpu {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::x86::decode;
+    use crate::decode;
 
     /// Run `code` placed at 0x2000 with the given data stack, Reva-style:
     /// `stack` is bottom..top, TOS goes in EAX, the rest below ESI.
