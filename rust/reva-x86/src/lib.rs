@@ -12,12 +12,12 @@
 //! ([`fpu`]), over eight 32-bit registers and the arithmetic flags.  It is
 //! **not** an x86 emulator: there are no segments, no protection, no SIMD,
 //! no system instructions, and memory is the VM's own flat array.  Anything outside the subset faults with
-//! [`crate::Fault::BadOpcode`] naming the bytes.
+//! `reva_vm::Fault::BadOpcode` naming the bytes.
 //!
 //! Instructions are decoded once into [`Insn`] values and cached by address
-//! (see [`crate::machine`]).  The decoded form is also the IR that future
+//! (see reva-vm's `machine`).  The decoded form is also the IR that future
 //! translators (x86-64, ARM64, WebAssembly) consume; see
-//! [`crate::translate`].
+//! reva-vm's `translate`.
 //!
 //! Register roles are Reva's, unchanged:
 //!
@@ -30,7 +30,10 @@
 
 pub mod decode;
 pub mod exec;
+pub mod fault;
 pub mod fpu;
+pub mod layout;
+pub mod mem;
 
 pub use decode::decode;
 

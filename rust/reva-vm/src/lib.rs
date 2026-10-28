@@ -30,28 +30,24 @@
 //! ```
 
 pub mod canvas;
-pub mod charset;
-pub mod embedded;
-pub mod fault;
 pub mod ffi;
 mod fileio;
 pub mod gates;
 pub mod heap;
 pub mod highlight;
-pub mod host;
-pub mod hostcall;
 pub mod iconv;
 pub mod image;
-pub mod layout;
 pub mod machine;
-pub mod mem;
 pub mod sqlite;
 pub mod start;
 pub mod translate;
 pub mod turtle;
-pub mod version;
-pub mod vfs;
-pub mod x86;
+
+// The CPU and memory (crate reva-x86) and the host side (crate reva-host),
+// under the paths they had in this crate (rust/DESIGN.md 3.12).
+pub use reva_host::{charset, embedded, host, hostcall, version, vfs};
+pub use reva_x86 as x86;
+pub use reva_x86::{fault, layout, mem};
 
 pub use fault::Fault;
 pub use host::{BufferHost, Host};

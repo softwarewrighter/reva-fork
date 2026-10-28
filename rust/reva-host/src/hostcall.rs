@@ -7,9 +7,9 @@
 //! [`crate::Host::host_call`].  A host that can answer at once (the CLI)
 //! returns the reply; one that must ask elsewhere first (the desktop's
 //! worker, which posts to the page) returns [`HostAnswer::Later`], and
-//! [`crate::Machine::run`] stops with [`crate::Status::HostCall`].  The host
-//! then reads [`crate::Machine::pending_host_call`], gets the answer, hands
-//! it to [`crate::Machine::resume`] and runs again: the call is retried and
+//! `reva_vm::Machine::run` stops with `reva_vm::Status::HostCall`.  The host
+//! then reads `reva_vm::Machine::pending_host_call`, gets the answer, hands
+//! it to `reva_vm::Machine::resume` and runs again: the call is retried and
 //! takes the reply, as a gateway waiting for input retries when input
 //! arrives.  Nothing is popped from the data stack until the reply is in.
 
@@ -37,7 +37,7 @@ pub enum HostReply {
 pub enum HostAnswer {
     /// The answer, now.
     Reply(HostReply),
-    /// The answer comes later, through [`crate::Machine::resume`].
+    /// The answer comes later, through `reva_vm::Machine::resume`.
     Later,
     /// This host does not have the service; the line stops with this
     /// explanation, as for a native library the core does not serve.
