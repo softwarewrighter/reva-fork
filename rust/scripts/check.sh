@@ -28,7 +28,7 @@ esac
 # the web checks.  Lower this as steps fix them
 # (.agentrail: local-edition-2024 ... local-split-front-ends); at 0 the
 # checklist is required outright.
-SW_CHECKLIST_MAX_FAILS=47
+SW_CHECKLIST_MAX_FAILS=46
 
 fast=0
 [[ "${1:-}" == --fast ]] && fast=1

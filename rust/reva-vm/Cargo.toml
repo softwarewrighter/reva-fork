@@ -11,6 +11,9 @@ rust-version.workspace = true
 [dependencies]
 reva-x86 = { path = "../reva-x86" }
 reva-host = { path = "../reva-host", default-features = false }
+reva-core = { path = "../reva-core" }
+reva-vlib = { path = "../reva-vlib" }
+reva-words = { path = "../reva-words" }
 
 [features]
 default = ["embed-lib"]
