@@ -1,0 +1,8 @@
+number = 23
+slug = "local-comp-front-ends"
+status = "pending"
+description = "reva-web, reva-serve, reva-sqlite, reva-desktop (components/web, serve, sqlit..."
+role = "production"
+context_files = []
+created_at = "2026-10-26T12:49:22"
+commits = []
