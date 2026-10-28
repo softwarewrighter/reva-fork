@@ -1,7 +1,7 @@
 number = 16
 slug = "local-split-gates"
-status = "pending"
-description = "reva-core and the dispatch table (rust/DESIGN.md 3.12, full conformance chose..."
+status = "in-progress"
+description = "Move Machine out of reva-vm (rust/DESIGN.md 3.12): Rust allows impl Machine o..."
 role = "production"
 context_files = []
 created_at = "2026-10-26T12:49:22"

@@ -1,0 +1,8 @@
+number = 29
+slug = "local-reva-app"
+status = "pending"
+description = "Feature: `just reva-app` builds and installs ~/Applications/Reva.app (icon, n..."
+role = "production"
+context_files = []
+created_at = "2026-10-26T12:49:22"
+commits = []

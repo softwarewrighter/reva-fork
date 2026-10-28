@@ -1,8 +1,0 @@
-number = 17
-slug = "local-split-x86"
-status = "pending"
-description = "reva-x86 within sw-checklist's function and file limits: decode.rs (decode 38..."
-role = "production"
-context_files = []
-created_at = "2026-10-26T12:49:22"
-commits = []

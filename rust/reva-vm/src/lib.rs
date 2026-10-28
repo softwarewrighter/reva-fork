@@ -29,23 +29,16 @@
 //! assert_eq!(host.take_output(), "49 ");
 //! ```
 
-pub mod canvas;
-pub mod ffi;
-mod fileio;
-pub mod gates;
-pub mod heap;
-pub mod highlight;
-pub mod iconv;
-pub mod image;
 pub mod machine;
-pub mod sqlite;
 pub mod start;
-pub mod translate;
-pub mod turtle;
 
-// The CPU and memory (crate reva-x86) and the host side (crate reva-host),
-// under the paths they had in this crate (rust/DESIGN.md 3.12).
+// Every module of the one-crate core, from the crate it lives in now, under
+// its old path (rust/DESIGN.md 3.12).
+pub use reva_core::gate as gates;
+pub use reva_core::{canvas, heap, image, translate};
 pub use reva_host::{charset, embedded, host, hostcall, version, vfs};
+pub use reva_vlib::{highlight, iconv, sqlite, turtle};
+pub use reva_words::ffi;
 pub use reva_x86 as x86;
 pub use reva_x86::{fault, layout, mem};
 
