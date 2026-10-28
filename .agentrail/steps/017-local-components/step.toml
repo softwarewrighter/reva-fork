@@ -1,0 +1,8 @@
+number = 17
+slug = "local-components"
+status = "pending"
+description = "Move rust/'s crates into components/, one Cargo workspace each, by pure moves..."
+role = "production"
+context_files = []
+created_at = "2026-10-28T12:45:13"
+commits = []
