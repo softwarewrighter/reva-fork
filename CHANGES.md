@@ -13,6 +13,9 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-27
 
+- 21:58 `chore` Step local-bench-guard complete (saga record).
+- 21:58 `build` The timing guard for refactors of hot code (step local-bench-guard): `just bench-guard` (rust/scripts/bench-guard.sh) times four workloads on the release CLI, the median of five runs each (boot: ten launches of all of reva.f; fib 30: calls and returns; a fetch in a tight do-loop, bench/bench.f's `dl`; twelve dragon curves: turtle gateways), and compares them with this host's line in work/bench-guard.txt, failing over 15% slower (the run-to-run spread here is up to about 10%). `--record` records a host's baseline. Baseline on this Mac (max): boot 505 ms, fib 1066 ms, loop 1252 ms, dragon 405 ms; three later runs within +9%. Not in `just check` (about 17 s, noisy on a busy machine): the split steps run it before and after.
+- 21:44 `feat` Merge #48 (local-iconv): a virtual libiconv inside the VM.
 - 21:43 `chore` Step local-iconv complete (saga record).
 - 21:43 `feat` iconv (step local-iconv, at the user's request): the virtual library `libiconv` for lib/string/iconv, unchanged: `libiconv_open`, `libiconv`, `libiconv_close` and `_libiconv_version`, done inside the VM on every host with the standard library only (reva-vm charset.rs: UTF-8, UTF-16, UCS-2, UTF-32 in both byte orders, Latin-1, ASCII; iconv.rs: descriptors, the in/out pointer cells advanced in VM memory as C's iconv does, -1 with errno E2BIG, EILSEQ, EINVAL, EBADF). Gates IcOpen, Iconv, IcClose appended; static cell ICONV_VERSION. examples/utf8.f and notready/normalize.f now run (73 of 132); the 21 GUI programs that stopped at iconv now stop at IUP (`IupOpen`, and one at its CD library). Tests: charset tests (tests/charset.rs), golden iconv; goldens parity-examples rebased. Docs: portability, parity, x86-plan.
 - 21:03 `feat` Merge #47 (local-sqlite-browser): SQLite in the browser.
