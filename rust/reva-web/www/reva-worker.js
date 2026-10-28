@@ -4,7 +4,10 @@
 // Messages (all plain objects with a `type`):
 //
 //   page → worker   init   { wasm: URL or bytes, files: { path: bytes },
-//                            image?: URL or bytes }
+//                            image?: URL or bytes, local?: [service] }
+//                                        local: host-call services this
+//                                        worker answers itself ("sqlite":
+//                                        sqlite.js) instead of the page
 //                   input  { text }      a line (or any text) to read
 //                   start  { text }      start input: read now and again
 //                                        after each `restart`
@@ -38,6 +41,14 @@ import { Reva, RUNNING, HALTED, HOST_CALL } from "./reva.js";
 
 let reva = null;
 let pumping = false;
+// Services this worker answers itself (init's `local`): "sqlite" in the
+// browser (sqlite.js); the desktop's page answers instead.
+let local = new Set();
+let sqlite = null;
+async function answerLocally(call) {
+  sqlite ??= new (await import("./sqlite.js")).SqliteHost();
+  return sqlite.answer(call);
+}
 const post = (m, transfer) => globalThis.postMessage(m, transfer);
 const postUi = (m) => post(m, m.ops ? [m.ops.buffer] : []);
 
@@ -55,7 +66,12 @@ async function pump() {
   pumping = false;
   sendFiles();
   // A host call: the page answers (hostreply), and the VM runs on.
-  if (s === HOST_CALL) return post({ type: "hostcall", call: reva.hostCall() });
+  if (s === HOST_CALL) {
+    const call = reva.hostCall();
+    if (!local.has(call.service)) return post({ type: "hostcall", call });
+    reva.resume(await answerLocally(call));
+    return pump();
+  }
   post({ type: "status", status: s, exitCode: s === HALTED ? reva.exitCode : 0 });
 }
 
@@ -74,6 +90,7 @@ globalThis.onmessage = ({ data: m }) => {
 async function handle(m) {
   switch (m.type) {
     case "init":
+      local = new Set(m.local ?? []);
       try {
         reva = await Reva.load(m.wasm, { files: m.files ?? {}, image: m.image });
       } catch (e) {

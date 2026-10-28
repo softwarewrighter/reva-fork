@@ -347,9 +347,16 @@ Decided with the user on 2026-10-26 (saga steps `local-sqlite-design`,
   - Desktop: the worker posts the request to the page, the page calls a
     Tauri command, the native side answers from `reva-sqlite` (paths
     under the app's folder only), the worker resumes the VM.
-  - Browser: the worker posts the request to the page, which answers from
-    SQLite's wasm build (it runs in the page, or a worker of its own, for
-    OPFS).
+  - Browser: the VM's worker answers itself (`sqlite.js`) with SQLite's
+    official wasm build, loaded from jsDelivr at run time (pinned, not
+    redistributed). Each database runs in memory; opening loads its OPFS
+    file (`sqlite3_deserialize`) and every committed change writes it back
+    (`sqlite3_js_db_export`, a writable stream). SQLite's own OPFS VFSes
+    were tried and rejected: `opfs` needs cross-origin-isolation headers
+    GitHub Pages cannot send, and `opfs-sahpool` holds its files
+    exclusively, so a page kept in the back/forward cache, or a second tab,
+    blocks the next one (seen in Chrome: the reloaded page silently fell
+    back to memory).
 
   The same path serves later native services. Gates for the new
   functions are appended (3.9: images keep gate addresses).

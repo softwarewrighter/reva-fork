@@ -207,4 +207,18 @@ await ns.idle();
 check("no onHostCall: refused", nsout.includes("sqlite is not available on this page"), true);
 ns.terminate();
 
+// In a browser the worker answers SQLite itself (localServices, sqlite.js),
+// loading SQLite's wasm build from the CDN; node cannot import https URLs,
+// which exercises the "could not be loaded" stop deterministically.
+let lsout = "";
+const ls = start("reva.wasm", {
+  createWorker: nodeWorker, wasmBytes: wasm, localServices: ["sqlite"], onOutput: (t) => (lsout += t),
+  onHostCall: () => ({ int: 99 }), // must not be asked: the worker answers sqlite itself
+});
+await ls.ready;
+ls.feed(RSQL + '" c.db" rsql_open .\n');
+await ls.idle();
+check("worker answers sqlite itself", [lsout.includes("SQLite could not be loaded"), lsout.includes("99")], [true, false]);
+ls.terminate();
+
 process.exit(failed ? 1 : 0);

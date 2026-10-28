@@ -230,10 +230,12 @@
     prefix: pkg && !host.keepsFiles ? pkg.prefix : undefined,
     onOutput: (s) => { write(s); host.output?.(s); },
     onUi: (m) => { if (m.channel === "canvas") canvas.handle(m); },
-    // Host calls (SQLite, rust/DESIGN.md 3.11): the host serves them (the
-    // desktop app, natively); a plain browser does not have SQLite yet.
+    // Host calls (SQLite, rust/DESIGN.md 3.11): a host that serves them
+    // answers (the desktop app, natively); in a browser the VM's worker
+    // answers SQLite itself with SQLite's wasm build (sqlite.js).
+    localServices: host.hostCall ? [] : ["sqlite"],
     onHostCall: (call) => host.hostCall?.(call)
-      ?? { error: `${call.service === "sqlite" ? "SQLite" : call.service} is not available in the browser yet` },
+      ?? { error: `${call.service} is not available in the browser` },
     onStatus: (s) => {
       stop.disabled = s !== RUNNING;
       if (s === HALTED) {

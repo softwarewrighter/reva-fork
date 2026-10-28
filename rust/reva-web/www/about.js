@@ -35,10 +35,13 @@ export const REVA = {
   credits: [
     "Reva Forth: Ron Aaron and contributors (public domain)",
     "Portable core, WebAssembly, desktop app: Michael A. Wright (MIT)",
+    "Third-party: SQLite (public domain), loaded at run time in the browser from the @sqlite.org/sqlite-wasm package (Apache-2.0) via jsDelivr; built into the CLI and the desktop app through rusqlite (MIT)",
   ],
   links: [
     { label: "Source (GitHub)", url: REPO },
     { label: "Documentation", url: `${REPO}/tree/main/docs` },
+    { label: "SQLite", url: "https://sqlite.org/copyright.html" },
+    { label: "@sqlite.org/sqlite-wasm", url: "https://github.com/sqlite/sqlite-wasm" },
   ],
   licenses: [
     { label: "LICENSE (Reva, public domain)", url: `${REPO}/blob/main/LICENSE` },

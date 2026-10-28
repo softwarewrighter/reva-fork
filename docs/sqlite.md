@@ -11,10 +11,15 @@ Reva's SQLite binding run unchanged.
 |---|---|---|
 | CLI (`reva`) | built in (the `reva-sqlite` crate) | real files, paths as for the file words |
 | desktop app | built in (the `reva-sqlite` crate, in the app's native side) | the app's folder (`~/Reva`, `--root`, or the package) |
-| browser | coming (SQLite's WebAssembly build) | the browser's private file system |
+| browser | SQLite's own WebAssembly build, loaded from jsDelivr the first time a program uses SQLite (not redistributed) | the browser's private file system (OPFS) |
 
-In the browser, the first `sql_...` call stops the line with "SQLite is
-not available in the browser yet".
+In the browser each database runs in memory and is written back to OPFS
+(directory `reva-sqlite/`) after every committed change, so it survives a
+reload; nothing keeps the file open, so a second tab or a page in the
+back/forward cache does not block another. Each change rewrites the whole
+file, which suits REPL-sized databases. Without OPFS, databases last for
+the session; offline, the first `sql_...` call stops with "SQLite could
+not be loaded (offline?)".
 
 In the desktop app a database name is a path in the app's folder, as for
 the file words (`notes.db` and `/notes.db` are both `~/Reva/notes.db`); a
@@ -55,7 +60,8 @@ The library does not call SQLite's C API. It uses the virtual library
 as `( a n )`; the VM turns each call into a *host call* that the host
 answers with rusqlite, SQLite through a safe Rust API: the CLI at once,
 the desktop app through its page (the VM runs in a worker there, which
-pauses until the native side answers). See [portability.md](portability.md)
+pauses until the native side answers). In the browser the VM's worker
+answers with SQLite's WebAssembly build (`rust/reva-web/www/sqlite.js`). See [portability.md](portability.md)
 and rust/DESIGN.md 3.11.
 
 A statement's first step runs it and keeps its rows, so a SELECT's whole

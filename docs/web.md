@@ -65,6 +65,16 @@ Esc, the Close button or a click outside closes it. It is the same in the
 zips, in reva-serve binaries and in the desktop app, where links open in the
 system browser.
 
+## SQLite in the browser
+
+`needs db/sqlite` works on the page: the VM's worker loads SQLite's
+official WebAssembly build from jsDelivr the first time a program uses
+SQLite (`sqlite.js`; pinned, about 1.5 MB, cached by the browser after the
+first time, and not part of this site) and keeps databases in the
+browser's private file system. See [sqlite.md](sqlite.md). The About
+dialog credits it. Offline (the downloaded zip, `reva-serve` without a
+network) SQLite stops with a note; the desktop app has its own SQLite.
+
 ## The footer
 
 A line under the REPL shows the copyright, the license, a link to the
