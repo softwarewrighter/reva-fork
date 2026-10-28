@@ -1,0 +1,1 @@
+just bench-guard: boot x10, fib 30, dl loop, 12 dragons; median of 5; per-host baseline in work/bench-guard.txt; 15% tolerance (noise up to ~10%). Baseline (max): boot 505, fib 1066, loop 1252, dragon 405 ms. Verified failure path and stability (3 runs within +9%). Boot is the noisiest (process start-up on a shared Mac).
