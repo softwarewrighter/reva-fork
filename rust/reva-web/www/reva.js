@@ -318,7 +318,9 @@ export class Reva {
  * (bundled, `{ path: string | bytes }`), `storage` and
  * `prefix` (persistence), `onOutput(text)`, `onUi(message)` (UI channels:
  * the canvas), `onHostCall(call)` (answers the VM's host calls, see
- * `Reva.hostCall`; may return a promise), `onStatus(status)` (RUNNING,
+ * `Reva.hostCall`; may return a promise), `localServices` (host-call
+ * services the VM's own worker answers: ["sqlite"] loads SQLite's wasm
+ * build in the worker, sqlite.js), `onStatus(status)` (RUNNING,
  * NEED_INPUT or HALTED), `worker` (false: run on this thread), `workerUrl`,
  * `createWorker(url)` (for tests), `stopTimeoutMs` (default 2000).
  *
@@ -346,7 +348,8 @@ export function start(wasmUrl, options = {}) {
 }
 
 class Session {
-  constructor({ onOutput = () => {}, onStatus = () => {}, onUi = () => {}, onHostCall = null }) {
+  constructor({ onOutput = () => {}, onStatus = () => {}, onUi = () => {}, onHostCall = null, localServices = [] }) {
+    this.local = localServices;
     this.onOutput = onOutput;
     this.onUi = onUi;
     this.onStatus = onStatus;
@@ -363,6 +366,10 @@ class Session {
   }
   /** The answer to a host call, from `onHostCall`, or a refusal. */
   async answer(call) {
+    if (this.local?.includes(call.service)) {
+      this.sqlite ??= new (await import("./sqlite.js")).SqliteHost();
+      return this.sqlite.answer(call);
+    }
     if (!this.onHostCall) return { error: `${call.service} is not available on this page` };
     try {
       return await this.onHostCall(call);
@@ -457,7 +464,7 @@ class WorkerSession extends Session {
     // Files restored from storage go in again on a restart.
     const files = o.storage ? { ...o.files, ...storedFiles(o.storage, o.prefix) } : o.files;
     const abs = (u) => (typeof u === "string" || u instanceof URL ? new URL(u, globalThis.location?.href).href : u);
-    this.w.postMessage({ type: "init", wasm: o.wasmBytes ?? abs(o.wasmUrl), image: abs(o.image), files });
+    this.w.postMessage({ type: "init", wasm: o.wasmBytes ?? abs(o.wasmUrl), image: abs(o.image), files, local: o.localServices ?? [] });
     // A replacement worker (see stop) runs the start input again too.
     if (this.startText) this.w.postMessage({ type: "start", text: this.startText });
   }

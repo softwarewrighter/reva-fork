@@ -37,3 +37,4 @@ ok   bytes answer: "ok\nok> "
 ok   refused: [true,false]
 ok   worker host call: [["open"],true]
 ok   no onHostCall: refused: true
+ok   worker answers sqlite itself: [true,false]
