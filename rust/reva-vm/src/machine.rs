@@ -63,6 +63,8 @@ pub mod st {
         REPL_ENTRY,
         // the virtual libc's `readdir` result (a heap buffer, 0 until used)
         DIRENT_BUF,
+        // what the virtual libiconv's `_libiconv_version` reads (iconv.rs)
+        ICONV_VERSION,
     }
 }
 
@@ -166,6 +168,9 @@ pub struct Machine {
     /// one written (`rsql_ptr`).  Host state: not part of an image.
     pub(crate) sql_bufs: HashMap<(i64, i64), (u32, u32)>,
     pub(crate) sql_ptr: u32,
+    /// The virtual libiconv's open descriptors: (from, to), `None` once
+    /// closed; descriptor n is index n-1.  Host state: not part of an image.
+    pub(crate) iconv_descs: Vec<Option<(crate::charset::Enc, crate::charset::Enc)>>,
 }
 
 impl Machine {
@@ -209,6 +214,7 @@ impl Machine {
             host_reply: None,
             sql_bufs: HashMap::new(),
             sql_ptr: 0,
+            iconv_descs: Vec::new(),
         }
     }
 
@@ -231,6 +237,7 @@ impl Machine {
             (D, D0),
             (DEFAULT_CLASS, g(Gate::FClass)),
             (PADCHAR, 32),
+            (ICONV_VERSION, crate::iconv::VERSION),
             (BASE, 10),
             (OS, OS_ID),
             (APPNAME, APP_FILE_NAME),

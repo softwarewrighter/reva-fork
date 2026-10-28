@@ -30,6 +30,7 @@
 //! ```
 
 pub mod canvas;
+pub mod charset;
 pub mod embedded;
 pub mod fault;
 pub mod ffi;
@@ -39,6 +40,7 @@ pub mod heap;
 pub mod highlight;
 pub mod host;
 pub mod hostcall;
+pub mod iconv;
 pub mod image;
 pub mod layout;
 pub mod machine;
