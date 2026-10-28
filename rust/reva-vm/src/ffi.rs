@@ -120,6 +120,8 @@ impl Machine {
             crate::highlight::HL_HANDLE
         } else if is(crate::sqlite::SQL_NAMES) {
             crate::sqlite::SQL_HANDLE
+        } else if is(crate::iconv::ICONV_NAMES) {
+            crate::iconv::ICONV_HANDLE
         } else {
             0
         };
@@ -159,6 +161,9 @@ impl Machine {
         }
         if handle == crate::sqlite::SQL_HANDLE {
             addr = crate::sqlite::lookup(name).map_or(0, Gate::addr);
+        }
+        if handle == crate::iconv::ICONV_HANDLE {
+            addr = crate::iconv::lookup(name).unwrap_or(0);
         }
         if handle == 0
             && let Some(lib) = self.missing_lib.take()
@@ -204,11 +209,14 @@ impl Machine {
             Some(Gate::HostReaddir) => self.c_readdir(host, arg0)?,
             Some(Gate::HostClosedir) => self.c_closedir(arg0)?,
             Some(Gate::HostSystem) => self.c_system(host, arg0)?,
-            Some(g) => match self.highlight_call(host, g, &args)? {
+            Some(g) => match self.iconv_call(g, &args)? {
                 Some(r) => r,
-                None => match self.turtle_call(host, g, &args)? {
+                None => match self.highlight_call(host, g, &args)? {
                     Some(r) => r,
-                    None => return Err(Fault::NativeCall { addr: f }),
+                    None => match self.turtle_call(host, g, &args)? {
+                        Some(r) => r,
+                        None => return Err(Fault::NativeCall { addr: f }),
+                    },
                 },
             },
             None => return Err(Fault::NativeCall { addr: f }),
