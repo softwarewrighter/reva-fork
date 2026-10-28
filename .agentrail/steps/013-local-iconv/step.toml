@@ -1,6 +1,6 @@
 number = 13
 slug = "local-iconv"
-status = "pending"
+status = "in-progress"
 description = "At the user's request (2026-10-27, 'fix iconv soon'): an iconv virtual librar..."
 role = "production"
 context_files = []

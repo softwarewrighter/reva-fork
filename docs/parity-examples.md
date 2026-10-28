@@ -5,7 +5,7 @@ Each program in `examples/` is run on the portable core with stdin
 closed and a 5s limit. See [parity.md](parity.md) for what the
 statuses mean and which areas are planned.
 
-132 examples: error 33, fault 7, missing 9, runs 71, timeout 12
+132 examples: error 31, fault 7, missing 9, runs 73, timeout 12
 
 Most common first missing word (top 10):
 
@@ -67,7 +67,7 @@ Most common first missing word (top 10):
 | `examples/gui/hello4.f` | gui | error: could not load window_xy |
 | `examples/hanoi.f` | core | runs |
 | `examples/hello/hello-app.f` | lib | runs |
-| `examples/hello/hello-guiapp.f` | gui | error: could not load libiconv_open |
+| `examples/hello/hello-guiapp.f` | gui | error: could not load IupOpen |
 | `examples/hello/hello.f` | core | runs |
 | `examples/hello/hello2.f` | core | runs |
 | `examples/hello/hello3.f` | core | runs |
@@ -78,26 +78,26 @@ Most common first missing word (top 10):
 | `examples/http.f` | net | runs |
 | `examples/ignorecase.f` | core | missing: `Foo` |
 | `examples/iskey.f` | core | timeout |
-| `examples/iup/binary-clock.f` | gui | error: could not load libiconv_open |
-| `examples/iup/brownian.f` | gui | error: could not load libiconv_open |
-| `examples/iup/callback-test.f` | gui | error: could not load libiconv_open |
-| `examples/iup/cd-test.f` | gui | error: could not load libiconv_open |
-| `examples/iup/console.f` | gui | error: could not load libiconv_open |
-| `examples/iup/db-test.f` | gui | error: could not load libiconv_open |
-| `examples/iup/file-dlg.f` | gui | error: could not load libiconv_open |
-| `examples/iup/frame-test.f` | gui | error: could not load libiconv_open |
-| `examples/iup/gl-test.f` | gui | error: could not load libiconv_open |
-| `examples/iup/gui-test.f` | gui | error: could not load libiconv_open |
-| `examples/iup/gui-test2.f` | gui | error: could not load libiconv_open |
-| `examples/iup/hello-world.f` | gui | error: could not load libiconv_open |
-| `examples/iup/hello-world2.f` | gui | error: could not load libiconv_open |
-| `examples/iup/hello-world3.f` | gui | error: could not load libiconv_open |
-| `examples/iup/image-convert.f` | gui | error: could not load libiconv_open |
-| `examples/iup/iup.f` | gui | error: could not load libiconv_open |
-| `examples/iup/menu-test.f` | gui | error: could not load libiconv_open |
-| `examples/iup/new-test.f` | gui | error: could not load libiconv_open |
-| `examples/iup/pdf-test.f` | gui | error: could not load libiconv_open |
-| `examples/iup/simple-button.f` | gui | error: could not load libiconv_open |
+| `examples/iup/binary-clock.f` | gui | error: could not load IupOpen |
+| `examples/iup/brownian.f` | gui | error: could not load IupOpen |
+| `examples/iup/callback-test.f` | gui | error: could not load IupOpen |
+| `examples/iup/cd-test.f` | gui | error: could not load IupOpen |
+| `examples/iup/console.f` | gui | error: could not load IupOpen |
+| `examples/iup/db-test.f` | gui | error: could not load IupOpen |
+| `examples/iup/file-dlg.f` | gui | error: could not load IupOpen |
+| `examples/iup/frame-test.f` | gui | error: could not load IupOpen |
+| `examples/iup/gl-test.f` | gui | error: could not load IupOpen |
+| `examples/iup/gui-test.f` | gui | error: could not load IupOpen |
+| `examples/iup/gui-test2.f` | gui | error: could not load IupOpen |
+| `examples/iup/hello-world.f` | gui | error: could not load IupOpen |
+| `examples/iup/hello-world2.f` | gui | error: could not load IupOpen |
+| `examples/iup/hello-world3.f` | gui | error: could not load IupOpen |
+| `examples/iup/image-convert.f` | gui | error: could not load IupOpen |
+| `examples/iup/iup.f` | gui | error: could not load IupOpen |
+| `examples/iup/menu-test.f` | gui | error: could not load IupOpen |
+| `examples/iup/new-test.f` | gui | error: could not load IupOpen |
+| `examples/iup/pdf-test.f` | gui | error: could not load cdContextPDF |
+| `examples/iup/simple-button.f` | gui | error: could not load IupOpen |
 | `examples/json.f` | net | runs |
 | `examples/keys.f` | core | fault: stack underflow |
 | `examples/makeexe.f` | core | runs |
@@ -108,7 +108,7 @@ Most common first missing word (top 10):
 | `examples/notready/galife.f` | lib | error: could not load library: asm |
 | `examples/notready/meteor.f` | core | fault: bad memory access: 1 byte(s) at 0x00000000 |
 | `examples/notready/meteor2.f` | core | fault: bad memory access: 1 byte(s) at 0x00000000 |
-| `examples/notready/normalize.f` | lib | error: could not load libiconv_open |
+| `examples/notready/normalize.f` | lib | runs |
 | `examples/notready/upsies-downsies.f` | os | timeout |
 | `examples/onstart.f` | core | runs |
 | `examples/pi/pi.f` | core | runs |
@@ -138,7 +138,7 @@ Most common first missing word (top 10):
 | `examples/threads.f` | os | error: could not load pthread_mutex_init |
 | `examples/tictactoe.f` | os | timeout |
 | `examples/tinyelf.f` | lib | runs |
-| `examples/utf8.f` | lib | error: could not load libiconv_open |
+| `examples/utf8.f` | lib | runs |
 | `examples/widgets.f` | core | runs |
 | `examples/widgets2.f` | core | runs |
 | `examples/widgets3.f` | core | runs |

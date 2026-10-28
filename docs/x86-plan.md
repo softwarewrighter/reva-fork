@@ -79,7 +79,7 @@ with a 32-bit absolute address (`lib/util/locals`, which CoSy uses), and
   executable did: the interpreter and compiler, contexts, `needs` and the
   libraries in `lib/`, the embedded assembler, `catch`/`throw`, files,
   saved images, floats.
-- **Plain Reva programs** run unchanged: **71 of the 132 programs in
+- **Plain Reva programs** run unchanged: **73 of the 132 programs in
   `examples/`**, on every host (CLI, browser, desktop app).
 - **Hand-written machine code** (`inline{ ... }`, words built from bytes,
   the embedded assembler's output) runs as long as it stays within the
@@ -134,13 +134,13 @@ A program's Forth source is compiled by `reva.f` into x86, which vx86
 runs. Anything that stays inside Reva works. What breaks is where the
 original reached **outside** its own x86: to the operating system, to C
 libraries, or to instructions vx86 leaves out. From the parity report
-(132 examples: 71 run, 33 stop on a C library, 12 are interactive or never
+(132 examples: 73 run, 31 stop on a C library, 12 are interactive or never
 end with stdin closed, 9 miss a word, 7 fault):
 
 | What breaks | Why | Examples today | How to port it, and to what |
 |---|---|---|---|
-| **C libraries** through `lib`/`func:` | vx86 cannot call native code: a Forth pointer is a 32-bit VM address that native 64-bit or WebAssembly code cannot use | 33: iconv (23, the first library IUP-based GUI programs load), terminal window size (`window_xy`, 4), expat XML, pthreads, IMath bignums, GTK, gpgme | A **virtual library**: Rust inside the VM answering the same function names with integers and `( a n )` strings, never pointers, as `reva-sqlite` does. Rust crates cover most: `encoding_rs` (iconv), `quick-xml` (expat), `num-bigint` (IMath), `flate2` (zlib), `regex` (pcre). Threads become host tasks, if needed at all |
-| **GUI toolkits**: IUP, GTK, OpenGL, Win32 windows | Native, platform-bound, and pointer-heavy | 29 GUI programs (most stop at iconv first) | The planned **UI service** (panes, keys, the turtle canvas, SVG, later WebGL) served by the browser page and the desktop app; selected demos ported to it. IUP/GTK code itself is not ported |
+| **C libraries** through `lib`/`func:` | vx86 cannot call native code: a Forth pointer is a 32-bit VM address that native 64-bit or WebAssembly code cannot use | 31: IUP (20, and 1 for its CD drawing library; they stopped at iconv until step `local-iconv`), terminal window size (`window_xy`, 4), expat XML, pthreads, IMath bignums, GTK, gpgme | A **virtual library**: Rust inside the VM answering the same function names with integers and `( a n )` strings, never pointers, as `reva-sqlite` does. iconv is served (inside the VM, standard library only). Rust crates cover most others: `quick-xml` (expat), `num-bigint` (IMath), `flate2` (zlib), `regex` (pcre). Threads become host tasks, if needed at all |
+| **GUI toolkits**: IUP, GTK, OpenGL, Win32 windows | Native, platform-bound, and pointer-heavy | 29 GUI programs (21 now stop at `IupOpen` or IUP's CD library) | The planned **UI service** (panes, keys, the turtle canvas, SVG, later WebGL) served by the browser page and the desktop app; selected demos ported to it. IUP/GTK code itself is not ported |
 | **OS calls beyond the mapped set**: processes, signals, sockets, terminal control | Only the system calls `reva.f` itself needs are mapped | `dhttpd.f` (`tcpsock`) | **Host services**, as files and SQLite are: sockets and HTTP on the CLI first; in the browser through `fetch` where it makes sense |
 | **Instructions outside the subset**: SSE/MMX in hand-written code; `asm{` blocks that ran the external FASM assembler | Not modelled, or a tool that is not there | `notready/galife.f` (`lib/asm`); no example uses SSE today | Rewrite in plain Forth or in integer/x87 code, or add the instructions to vx86 if several programs need them |
 | **Code written for an older Reva** (7.0.8): `value` without an initial value, `0L println` | Language changes between Reva versions, not emulation | `sqlite.f`, `zipdb.f`, `db-report.f` | Small source edits; CoSy carries a compatibility file (`compat708.f`) |
@@ -166,7 +166,8 @@ what is not scheduled yet at the end.
    and in WebAssembly, against the original's numbers where `bench/` has
    them; the reference for the translators.
 5. **Virtual libraries, by how many programs they unblock** (to schedule):
-   iconv first (23 programs move past it), then terminal size, XML, big
+   iconv done (step `local-iconv`: 2 more programs run, 21 GUI programs
+   move on to IUP), then terminal size, XML, big
    integers; each pointer-free and host-neutral, like `reva-sqlite`.
 6. **The UI service** (to schedule): panes, keys, text, an SVG surface in
    the page and the desktop app; selected GUI demos ported to it.
