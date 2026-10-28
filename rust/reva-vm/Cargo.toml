@@ -9,8 +9,10 @@ authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+reva-x86 = { path = "../reva-x86" }
+reva-host = { path = "../reva-host", default-features = false }
 
 [features]
 default = ["embed-lib"]
 # Compile lib/ into the core so `needs` works without the files (browser).
-embed-lib = []
+embed-lib = ["reva-host/embed-lib"]

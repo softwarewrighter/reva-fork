@@ -1,7 +1,7 @@
 //! The host interface: everything the VM needs from the outside world.
 //!
-//! The VM never blocks.  Input is *pushed* into it ([`crate::Machine::feed`])
-//! and [`crate::Machine::run`] returns [`crate::Status::NeedInput`] when Forth
+//! The VM never blocks.  Input is *pushed* into it (`reva_vm::Machine::feed`)
+//! and `reva_vm::Machine::run` returns `reva_vm::Status::NeedInput` when Forth
 //! code wants a key that has not arrived.  That keeps one core usable from a
 //! blocking CLI loop and from a browser event loop alike.
 
@@ -31,7 +31,7 @@ pub trait Host {
     /// routine (a "nested call", e.g. a `do_cr` hook) asked for a key and the
     /// queue is empty.  A blocking host (CLI) returns more bytes; a
     /// non-blocking host (browser) returns `None` and the VM faults with
-    /// [`crate::Fault::InputInNestedCall`].
+    /// `reva_vm::Fault::InputInNestedCall`.
     fn read_input_blocking(&mut self) -> Option<Vec<u8>> {
         None
     }
@@ -53,7 +53,7 @@ pub trait Host {
     }
 
     /// Answer a virtual-library host call (see [`crate::hostcall`]): now,
-    /// later through [`crate::Machine::resume`], or not at all.  The
+    /// later through `reva_vm::Machine::resume`, or not at all.  The
     /// default has no services.
     fn host_call(&mut self, call: &crate::hostcall::HostCall) -> crate::hostcall::HostAnswer {
         crate::hostcall::HostAnswer::Unavailable(format!(
@@ -83,7 +83,7 @@ pub trait Host {
     }
 
     /// Whether output may carry ANSI colour escapes (`pp`, `hl-type`; see
-    /// [`crate::highlight`]).  The default (`false`) keeps output plain;
+    /// `reva_vm::highlight`).  The default (`false`) keeps output plain;
     /// the CLI says yes at a terminal, the browser page always.
     fn color(&mut self) -> bool {
         false
