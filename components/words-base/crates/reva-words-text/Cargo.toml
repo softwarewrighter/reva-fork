@@ -1,0 +1,12 @@
+[package]
+name = "reva-words-text"
+description = "Pure text functions: digits, numbers, formatting, comparison, hashing"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+

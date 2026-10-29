@@ -86,9 +86,10 @@ is_binary() {
     return 1
 }
 
-# This script names the pattern without being under it, so it is exempt.
+# This script names the pattern without being under it, so it is exempt;
+# so are agentrail's session transcripts, which quote files (this one too).
 copyleft='GNU (Lesser |Library |Affero )?General Public License|SPDX-License-Identifier:.*(GPL|AGPL)'
-hits=$(git ls-files -z -- . ':!scripts/license-check.sh' \
+hits=$(git ls-files -z -- . ':!scripts/license-check.sh' ':!.agentrail/sessions' \
        | xargs -0 grep -l -a -E "$copyleft" 2>/dev/null || true)
 for f in $hits; do fail "$f: GPL-family license text"; done
 
