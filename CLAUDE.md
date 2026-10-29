@@ -308,7 +308,7 @@ reva-fork runs Ron Aaron's Reva Forth (`src/reva.f`, release 2011.2) on
 a portable core: vx86, an IA-32-subset virtual machine in Rust, with
 the original core's routines as Rust "gates". Hosts: the `reva` CLI,
 a WebAssembly build for the browser, `reva-serve`, and a Tauri desktop
-app. Version scheme `YYYY.MMDD.N` (see `rust/reva-vm/src/version.rs`):
+app. Version scheme `YYYY.MMDD.N` (see `components/host/crates/reva-host/src/version.rs`):
 the day's version is set once (`.0`) and all of that day's work stays on
 it; `.1`, `.2` ... only for another release shipped to `main` the same
 day. Bump only when the user asks.
@@ -316,14 +316,23 @@ day. Bump only when the user asks.
 Read before working:
 
 - `README.md`, `docs/README.md` -- what exists and the doc index
-- `rust/DESIGN.md` -- architecture, deviations, roadmap
+- `docs/design.md` -- architecture, deviations, roadmap
 - `docs/parity.md` -- what runs, what does not, decisions
 - `.agentrail/plan.md` -- the current saga
 
-Layout: `rust/` (workspace: reva-vm, reva-cli, reva-web, reva-serve),
-`desktop/` (its own workspace: reva-desktop), `src/reva.f`, `lib/`
-(Forth libraries, embedded into the VM), `examples/`, `docs/`,
-`rust/work/reg-rs/` (goldens), `rust/scripts/`, `justfile`.
+Layout: `components/<name>/` (one Cargo workspace each, crates in
+`crates/`: x86, host, core, vlib, words, vm, sqlite, cli, web, serve,
+desktop; docs/design.md 3.13), `src/reva.f`, `lib/` (Forth libraries,
+embedded into the VM), `examples/`, `docs/`, `tests/forth/` and
+`work/reg-rs/` (goldens), `scripts/`, `justfile`. Everything builds into
+`target/` at the root (`.cargo/config.toml`).
+
+Code structure (the user's rules; docs/code-metrics.md): move out, up
+and out, never combine; at most 4 modules per crate and 4 crates per
+component, new components as needed; `lib.rs`/`mod.rs` hold only `mod`,
+`use` and docs; pure functions; impls apart from structs; tests in
+`tests/*_tests.rs`; boilerplate in macros, tables or build.rs; target
+<=5 functions per module, <=25 lines per function.
 
 ## Lanes
 
@@ -336,28 +345,28 @@ Two agents work this repository:
   `ba-cosy-zip-fork`. It does not use this saga.
 
 The local lane does not edit `ba-cosy-zip-fork`. Tell the user before
-moving or renaming files the cloud lane edits (most of `rust/reva-vm`),
+moving or renaming files the cloud lane edits (most of the core components: core, words, vlib, vm),
 so the cloud lane can rebase.
 
 ## Invariants
 
 - `src/reva.f` stays verbatim. What the port needs is inserted at boot
-  by `rust/reva-vm/src/embedded.rs`.
-- Gate numbers (`rust/reva-vm/src/gates.rs`) are append-only: saved
+  by `components/host/crates/reva-host/src/embedded.rs`.
+- Gate numbers (`components/core/crates/reva-core/src/gate.rs`) are append-only: saved
   images hold gate addresses.
 - Refactors change no behaviour: tests, goldens and the web smoke test
   pass unchanged.
 - A golden is a claim that the output is correct: review every diff
   before `reg-rs rebase`.
-- No GPL-family code or crates (`rust/scripts/license-check.sh`,
+- No GPL-family code or crates (`scripts/license-check.sh`,
   `docs/licenses.md`).
 
 ## The gate
 
-`just check` (`rust/scripts/check.sh`) before every commit: fmt and
-clippy `-D warnings` and tests in `rust/` and `desktop/`, the wasm build
+`just check` (`scripts/check.sh`) before every commit: fmt and
+clippy `-D warnings` and tests in every component, the wasm build
 and its node tests, the goldens on the release CLI, the license check,
-and sw-checklist. `just check --fast` skips the desktop workspace.
+and sw-checklist. `just check --fast` skips the desktop component.
 
 The script lists goldens known to fail per OS and the most sw-checklist
 FAILs allowed. Both may only shrink: lower them in the commit that

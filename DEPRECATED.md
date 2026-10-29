@@ -1,6 +1,6 @@
 # Deprecated: the 32-bit x86 implementation
 
-The portable core in [`rust/`](rust/) replaces the 32-bit x86 implementation.
+The portable core in [`components/`](components/README.md) replaces the 32-bit x86 implementation.
 The following are **deprecated** and are being retired in stages.
 
 **Current stage: 2 — moved.** Everything below now lives under

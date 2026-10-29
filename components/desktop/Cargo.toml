@@ -1,0 +1,21 @@
+# The desktop app is its own component (workspace) so the core components
+# keep (nearly) zero dependencies: Tauri brings a few hundred crates, and
+# building or testing the core should never need them.  See README.md.
+[workspace]
+resolver = "2"
+members = ["crates/reva-desktop"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+publish = false
+license = "MIT"
+authors = ["Reva development team"]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

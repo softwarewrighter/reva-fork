@@ -1,6 +1,6 @@
 number = 17
 slug = "local-components"
-status = "pending"
+status = "in-progress"
 description = "Move rust/'s crates into components/, one Cargo workspace each, by pure moves..."
 role = "production"
 context_files = []

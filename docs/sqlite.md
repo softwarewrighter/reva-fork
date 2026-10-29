@@ -61,8 +61,8 @@ as `( a n )`; the VM turns each call into a *host call* that the host
 answers with rusqlite, SQLite through a safe Rust API: the CLI at once,
 the desktop app through its page (the VM runs in a worker there, which
 pauses until the native side answers). In the browser the VM's worker
-answers with SQLite's WebAssembly build (`rust/reva-web/www/sqlite.js`). See [portability.md](portability.md)
-and rust/DESIGN.md 3.11.
+answers with SQLite's WebAssembly build (`components/web/crates/reva-web/www/sqlite.js`). See [portability.md](portability.md)
+and docs/design.md 3.11.
 
 A statement's first step runs it and keeps its rows, so a SELECT's whole
 result is held in memory until the statement is reset or finalized. A

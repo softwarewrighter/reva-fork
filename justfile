@@ -1,57 +1,57 @@
 # justfile: common builds, as `just RECIPE` (https://just.systems).
-# Every recipe is a thin wrapper over a script in rust/scripts/ or desktop/,
+# Every recipe is a thin wrapper over a script in scripts/ or components/desktop/,
 # so nothing here needs just: the script lines below work as they are.
 #
 #   just              list the recipes
-#   just web-zip      the static site zip (rust/target/web/reva-web-VERSION.zip)
+#   just web-zip      the static site zip (target/web/reva-web-VERSION.zip)
 
 # list the recipes
 default:
     @just --list
 
-# the WebAssembly VM (rust/reva-web/www/reva.wasm)
+# the WebAssembly VM (components/web/crates/reva-web/www/reva.wasm)
 wasm:
-    rust/scripts/build-web.sh
+    scripts/build-web.sh
 
 # the browser REPL as an uploadable static zip; extra args go to make-web-zip.sh (--package DIR, --canvas MODE, ...)
 web-zip *ARGS:
-    rust/scripts/make-web-zip.sh {{ARGS}}
+    scripts/make-web-zip.sh {{ARGS}}
 
 # publish the live demo (plain reva-fork, from main) to gh-pages; --dry-run builds without pushing
 publish *ARGS:
-    rust/scripts/publish-pages.sh {{ARGS}}
+    scripts/publish-pages.sh {{ARGS}}
 
 # serve the browser REPL from the source tree at http://localhost:8000/?canvas=split
 web-dev: wasm
-    python3 -m http.server -d rust/reva-web/www 8000
+    python3 -m http.server -d components/web/crates/reva-web/www 8000
 
 # reva-serve, the one-binary local web app, for this machine (or TARGETs: mac, linux, windows); args go to build-serve.sh
 serve-build *ARGS:
-    rust/scripts/build-serve.sh {{ARGS}}
+    scripts/build-serve.sh {{ARGS}}
 
 # build reva-serve for this machine from the source tree and run it (opens the browser; Ctrl-C stops)
 serve:
-    cd rust && cargo run --release -p reva-serve
+    cargo run --release --manifest-path components/serve/Cargo.toml
 
-# the CLI (rust/target/release/reva)
+# the CLI (target/release/reva)
 cli:
-    cd rust && cargo build --release -p reva-cli
+    cargo build --release --manifest-path components/cli/Cargo.toml
 
-# the desktop app (desktop/target/release/reva-desktop)
+# the desktop app (target/release/reva-desktop)
 desktop:
-    desktop/build.sh
+    components/desktop/build.sh
 
 # the gate before every commit: fmt, clippy, tests, goldens, licenses, sw-checklist (--fast skips the desktop)
 check *ARGS:
-    rust/scripts/check.sh {{ARGS}}
+    scripts/check.sh {{ARGS}}
 
 # timing guard for refactors of hot code: medians vs this host's baseline (--record to set it)
 bench-guard *ARGS:
-    rust/scripts/bench-guard.sh {{ARGS}}
+    scripts/bench-guard.sh {{ARGS}}
 
 # tests of the portable core and the browser build
 test: wasm
-    cd rust && cargo test --release --workspace
-    node rust/reva-web/test/smoke.mjs
-    node rust/reva-web/test/lineedit.mjs
-    node rust/reva-web/test/ansi.mjs
+    for c in x86 host core words vlib vm sqlite cli web serve; do (cd components/$c && cargo test --release --workspace) || exit 1; done
+    node components/web/crates/reva-web/test/smoke.mjs
+    node components/web/crates/reva-web/test/lineedit.mjs
+    node components/web/crates/reva-web/test/ansi.mjs

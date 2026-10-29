@@ -2,7 +2,7 @@
 | SQLite interface (http://sqlite.org/)
 |
 | On the portable core this reaches SQLite through the virtual library
-| reva-sqlite (rust/DESIGN.md 3.11): handles are small integers and
+| reva-sqlite (docs/design.md 3.11): handles are small integers and
 | strings are ( a n ), so there are no C pointers or callbacks here.  The
 | words below, and the ~db words they plug into, are the same as before.
 | SQLite is served on the CLI and in the desktop app.
