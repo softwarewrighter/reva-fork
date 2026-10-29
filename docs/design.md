@@ -84,7 +84,7 @@ any of these keeps working.
 
 Where an assembly routine fell through into the next (`cclass` into
 `vclass`, `cold` into `bye`, `literal` into `comma`), the Rust keeps the
-combined behaviour; comments in `gates.rs` name each case.
+combined behaviour; comments in the word families (components/words-*) name each case.
 
 ### 3.4 Never blocking: continuation gateways
 
@@ -378,7 +378,7 @@ lets higher crates extend it:
 | `reva-x86` | the CPU types, decoder, executor, x87, memory, faults, the memory layout | done (pure moves) |
 | `reva-host` | the `Host` trait and `BufferHost`, host calls, the virtual file system, embedded sources (`reva.f`, `lib/`), version, encodings; owns the build script | done (pure moves) |
 | `reva-core` | `Machine` (state, statics, stacks, heap, images) and the run loop, which dispatches each gate through a table of handler functions instead of one large `match` | next |
-| `reva-words` | the gate handlers by family (interpreter, compiler and dictionary, memory and strings, numbers, files, OS, images, version), as functions over `&mut Machine` | next |
+| `reva-words` | the gate handlers by family (interpreter, compiler and dictionary, memory and strings, numbers, files, OS, images, version), as functions over `&mut Machine` | done: the word components (3.13) |
 | `reva-vlib` | the virtual libraries (libc, iconv, SQLite, turtle and canvas, highlight), the same way | later |
 | `reva-vm` | builds the handler table, `Start`, translation hooks, and the public API: every old path is re-exported, so hosts do not change | throughout |
 
@@ -400,13 +400,24 @@ new module, crate or component, never a merge).
 | `host` | reva-host | — |
 | `core` | reva-core, reva-macros | x86, host |
 | `vlib` | reva-vlib | x86, host, core |
-| `words` | reva-words | x86, host, core, vlib |
+| `words-base` | reva-words-code, -text, -calls, -scan: the words' helpers (code space, pure number and string functions, calls into Forth, parsing) | core |
+| `words-interp` | reva-words-classes, -interp, -eval: classes, default vectors, the outer interpreter, eval/include, catch, defining words | core, words-base |
+| `words-dict` | reva-words-compile, -memory, -system: compiling and number words, memory and strings, bye/restart/version | core, words-base |
+| `words-os` | reva-words-sys, -files, -libc, -ffi: system calls, file words, the virtual libc, `(lib)`/`(func)`/`(call)` | core, vlib |
+| `words` | reva-words: the dispatch table (every gate to its handler) | the four above |
 | `vm` | reva-vm | x86, host, core, vlib, words |
 | `sqlite` | reva-sqlite | (rusqlite) |
 | `cli` | reva-cli | vm, sqlite |
 | `web` | reva-web | vm |
 | `serve` | reva-serve | (web's www/, embedded at build time) |
 | `desktop` | reva-desktop | sqlite (and web's www/, copied by build.sh) |
+
+The words are gate handlers, `fn(&mut Machine, Gate, &mut dyn Host)`,
+in families; each family module lists the gates it serves
+(`reva_macros::words!`), and reva-words assembles the lists into one
+table indexed by gate, built at compile time (a gate listed twice or not
+at all fails the build). The old 700-line `match` is gone; the bench
+guard showed no change.
 
 Components reach each other through path dependencies. They share the
 repository's `target/` (`.cargo/config.toml`), one version (checked by

@@ -44,7 +44,11 @@ components/
   core/     reva-core    the Machine, its run loop, gates, heap, images, canvas
             reva-macros  machine_trait!: methods on Machine from other crates
   vlib/     reva-vlib    virtual libraries: libc, turtle, highlight, sqlite, iconv
-  words/    reva-words   the core's words: gate dispatch and the gate families
+  words-base/   reva-words-code, -text, -calls, -scan   the words' helpers
+  words-interp/ reva-words-classes, -interp, -eval      classes, interpreter, eval, catch, defining
+  words-dict/   reva-words-compile, -memory, -system    compiling, numbers, memory, bye/version
+  words-os/     reva-words-sys, -files, -libc, -ffi     system calls, file words, libc, (call)
+  words/    reva-words   the dispatch table: every gate to its handler
   vm/       reva-vm      the facade the front ends use (re-exports, Machine with
                          dispatch installed; ../docs/design.md 3.12)
   sqlite/   reva-sqlite  SQLite for the CLI and the desktop app (rusqlite, safe API)

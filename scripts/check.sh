@@ -27,10 +27,11 @@ case "$(uname)" in
 esac
 
 # sw-checklist FAILs: 51 on 2026-10-26, 49 after edition 2024, 47 after
-# the web checks.  Lower this as steps fix them
+# the web checks, 46 after the split of reva-vm, 40 after the word
+# families (local-comp-words).  Lower this as steps fix them
 # (.agentrail: local-edition-2024 ... local-split-front-ends); at 0 the
 # checklist is required outright.
-SW_CHECKLIST_MAX_FAILS=46
+SW_CHECKLIST_MAX_FAILS=40
 
 fast=0
 [[ "${1:-}" == --fast ]] && fast=1
@@ -40,7 +41,7 @@ fail() { printf '\ncheck: FAILED: %s\n' "$*" >&2; exit 1; }
 
 # The components the core builds from, dependencies first; the desktop
 # (Tauri, a few hundred crates) is step 3.
-COMPONENTS="x86 host core words vlib vm sqlite cli web serve"
+COMPONENTS="x86 host core vlib words-base words-interp words-dict words-os words vm sqlite cli web serve"
 
 version() { awk -F'"' '/^version *=/ { print $2; exit }' "$root/components/$1/Cargo.toml"; }
 for c in $COMPONENTS; do
