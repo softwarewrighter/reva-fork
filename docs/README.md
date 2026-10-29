@@ -1,7 +1,7 @@
 # Reva documentation
 
 Documentation for the portable Reva core, rebuilt from the implementation in
-[`rust/`](../rust/). It replaces the old wiki in [`www/`](../www/), which
+[`components/`](../components/README.md). It replaces the old wiki in [`www/`](../www/), which
 describes the deprecated x86 distribution (see [parity.md](parity.md) for
 what has been carried over and what has not, yet).
 
@@ -19,11 +19,13 @@ what has been carried over and what has not, yet).
 | [Desktop app](desktop.md) | `reva-desktop`: build, run, files on disk, packages |
 | [Colour listings](highlight.md) | `pp FILE`, `hl-type`: syntax-highlighted Forth source in every REPL; the token table shared with the blog script |
 | [Running Reva's x86](x86-plan.md) | how vx86 runs Reva's machine code and floats, `see`, what legacy programs can expect, what breaks and how it gets ported |
+| [Plan: IUP programs](iup-plan.md) | high-level plan for running Reva's IUP GUI programs and CoSy's TUI, reimplemented in Rust with a Yew renderer |
 | [SQLite](sqlite.md) | `needs db/sqlite`: databases through the `~db` words; built into the CLI, desktop and browser next |
 | [Turtle graphics](turtle.md) | `~turtle`: Logo-style drawing in a graphics window; fractal demos; SVG |
 | [Portability](portability.md) | what stops on the portable core (native libraries, `shell`, x87/SIMD) and why |
 | [Licenses](licenses.md) | third-party files, their licenses, and the no-copyleft check |
-| [Design](../rust/DESIGN.md) | how the portable core works and why |
+| [Design](design.md) | how the portable core works and why |
+| [Code metrics](code-metrics.md) | how the Rust code is shaped: components, limits, rules, and what to do when a part is full |
 
 ## Conventions: every sample is executed
 
@@ -37,7 +39,7 @@ A Forth sample is a `forth` block followed by an `output` block:
 49
 ```
 
-`rust/scripts/doc-check.sh` feeds each `forth` block to a fresh `reva` and
+`scripts/doc-check.sh` feeds each `forth` block to a fresh `reva` and
 compares the result with the `output` block (ignoring trailing spaces); the
 regression suite runs it over these pages. A page cannot drift from the
 implementation without a test failing. When adding a sample, run it first and

@@ -1,0 +1,8 @@
+number = 19
+slug = "local-comp-x86"
+status = "pending"
+description = "reva-x86 (components/x86): decode (decode 381 lines, fpu_op 206), exec (exec ..."
+role = "production"
+context_files = []
+created_at = "2026-10-26T12:49:22"
+commits = []

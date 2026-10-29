@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reva Forth</title>
+<!-- The package this page opens when the URL has no ?package= (set by
+     scripts/make-web-zip.sh; empty: plain Reva).  A relative URL. -->
+<meta name="reva-package" content="">
+<!-- Where graphics go when nothing else says (window, pane or split). -->
+<meta name="reva-canvas" content="">
+<!-- "VERSION COMMIT DATE" of this build, for the About dialog (set by
+     make-web-zip.sh and components/desktop/build.sh; empty: the source tree). -->
+<meta name="reva-build" content="">
+<link rel="icon" href="favicon.png">
+<style>
+  :root { --bg:#fbfaf7; --fg:#1d1d1b; --muted:#6b6a65; --accent:#1f6f5c; --line:#dcd9d0; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#151513; --fg:#e8e6df; --muted:#9a988f; --accent:#6fc2a9; --line:#34332f; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:15px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  main { max-width: 900px; margin: 0 auto; padding: 16px; display:flex; flex-direction:column; height:100vh; }
+  header { color: var(--muted); padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  header b { color: var(--accent); }
+  footer { color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:6px; margin-top:8px; }
+  footer a { color:inherit; }
+  #out { flex:1; overflow:auto; white-space:pre-wrap; word-break:break-word; margin:8px 0; }
+  form { display:flex; gap:8px; border-top:1px solid var(--line); padding-top:8px; }
+  #line { flex:1; font:inherit; color:inherit; background:transparent; border:0; outline:none; }
+  .echo { color: var(--muted); }
+  /* ANSI colours in output (ansi.js; `pp` listings): theme slots, as in a terminal */
+  #out .b { font-weight:bold; } #out .d { opacity:.7; } #out .i { font-style:italic; } #out .u { text-decoration:underline; }
+  #out .fg0 { color:#1d1d1b; } #out .fg1 { color:#b3261e; } #out .fg2 { color:#1f7a3a; } #out .fg3 { color:#8a6100; }
+  #out .fg4 { color:#2a5db0; } #out .fg5 { color:#8e3fa8; } #out .fg6 { color:#137a85; } #out .fg7 { color:#6b6a65; }
+  #out .fg8 { color:#7b7a73; } #out .fg9 { color:#d03b30; } #out .fg10 { color:#2e8b4a; } #out .fg11 { color:#9a7000; }
+  #out .fg12 { color:#3b6fd0; } #out .fg13 { color:#a04cc0; } #out .fg14 { color:#1a8c99; } #out .fg15 { color:#1d1d1b; }
+  @media (prefers-color-scheme: dark) {
+    #out .fg0 { color:#5c6370; } #out .fg1 { color:#e06c75; } #out .fg2 { color:#98c379; } #out .fg3 { color:#e5c07b; }
+    #out .fg4 { color:#61afef; } #out .fg5 { color:#c678dd; } #out .fg6 { color:#56b6c2; } #out .fg7 { color:#d7dae0; }
+    #out .fg8 { color:#7f8796; } #out .fg9 { color:#ef8a91; } #out .fg10 { color:#b5e08f; } #out .fg11 { color:#f5c518; }
+    #out .fg12 { color:#8cc4f5; } #out .fg13 { color:#dc9cf0; } #out .fg14 { color:#7fd3dd; } #out .fg15 { color:#ffffff; }
+  }
+  button { font:inherit; color:inherit; background:transparent; border:1px solid var(--line);
+           border-radius:4px; padding:0 10px; cursor:pointer; }
+  button:disabled { opacity:.4; cursor:default; }
+  #gfx, #about-btn { float:right; margin-left:8px; }
+  dialog#about { max-width:min(560px, calc(100vw - 32px)); color:var(--fg); background:var(--bg);
+                 border:1px solid var(--line); border-radius:8px; padding:20px 24px; font-size:14px; }
+  dialog#about::backdrop { background:rgba(0,0,0,.35); }
+  dialog#about h2 { font-size:16px; margin:0 0 6px; color:var(--accent); }
+  dialog#about section + section { border-top:1px solid var(--line); margin-top:14px; padding-top:14px; }
+  dialog#about ul { margin:6px 0; padding-left:18px; }
+  dialog#about p { margin:6px 0; }
+  dialog#about .muted { color:var(--muted); }
+  dialog#about a { color:var(--accent); }
+  dialog#about .close { float:right; margin-top:8px; }
+  #gfx[hidden] { display:none; }
+  /* the graphics pane, where a popup window is not allowed */
+  #panes iframe { width:100%; height:min(60vh, 640px); border:1px solid var(--line); border-radius:4px; margin-top:8px; }
+  /* The split view (split.js): REPL | divider | graphics, full height. */
+  body.split { display:flex; height:100vh; overflow:hidden; }
+  body.split main { flex:none; width:var(--split, 50%); max-width:none; margin:0; min-width:0; }
+  #divider { flex:none; width:7px; cursor:col-resize; touch-action:none; background:var(--line);
+             border-left:3px solid var(--bg); border-right:3px solid var(--bg); }
+  #divider:hover, #divider:focus-visible, body.dragging #divider { background:var(--accent); }
+  #divider:focus-visible { outline:none; border-color:var(--accent); }
+  body.dragging { cursor:col-resize; user-select:none; }
+  body.dragging iframe { pointer-events:none; }
+  #side { flex:1; min-width:0; display:flex; flex-direction:column; height:100vh; }
+  #side .bar { display:flex; justify-content:space-between; align-items:center; color:var(--muted);
+               padding:16px 16px 8px 8px; border-bottom:1px solid var(--line); }
+  body.split #panes { flex:1; min-height:0; display:flex; padding:8px 16px 16px 8px; }
+  body.split #panes iframe { flex:1; height:auto; margin:0; }
+  #side .strip { display:none; }
+  body.split.collapsed main { flex:1; width:auto; }
+  body.split.collapsed #divider, body.split.collapsed #side .bar, body.split.collapsed #panes { display:none; }
+  body.split.collapsed #side { flex:none; width:34px; }
+  body.split.collapsed #side .strip { display:block; height:100%; width:100%; border:0; border-left:1px solid var(--line);
+                                      border-radius:0; writing-mode:vertical-rl; padding:16px 0; color:var(--muted); }
+  /* Narrow screens: stack the panes instead (the divider is not needed). */
+  @media (max-width: 640px) {
+    body.split { flex-direction:column; overflow:auto; height:auto; }
+    body.split main { width:auto; height:60vh; }
+    body.split #divider { display:none; }
+    body.split #side { height:70vh; }
+    body.split.collapsed #side { width:auto; height:40px; }
+    body.split.collapsed #side .strip { writing-mode:horizontal-tb; padding:0; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header><button type="button" id="about-btn" title="About this program, its licenses and source">About</button>
+    <button type="button" id="gfx" title="Show the turtle graphics window" hidden>Graphics</button>
+    <b>Reva Forth</b> <span id="hint">— portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code>
+    or <code>needs turtle/fractals 5 koch-demo</code></span></header>
+  <div id="out" aria-live="polite"></div>
+  <form id="f"><span id="prompt">ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
+    <button type="button" id="stop" title="Stop the running word (Ctrl-C)" disabled>Stop</button></form>
+  <div id="panes"></div>
+  <footer id="footer"></footer>
+</main>
+<script type="module">
+  // The VM runs in a Web Worker (see reva.js `start`), so this page only
+  // draws: output is appended at most once per animation frame, and the
+  // console keeps its last MAX_CHUNKS pieces so a chatty program cannot
+  // grow the page without bound.
+  import { start, RUNNING, HALTED } from "./reva.js";
+  import { hostSetup } from "./host.js";
+  import { CanvasChannel } from "./ui.js";
+  import { loadPackage } from "./package.js";
+  import { splitView } from "./split.js";
+  import { aboutDialog, packageAbout, showHint } from "./about.js";
+  import { lineEditor } from "./lineedit.js";
+  import { packageId } from "./package.js";
+  import { Ansi } from "./ansi.js";
+  const MAX_CHUNKS = 4000;
+  const out = document.getElementById("out");
+  const line = document.getElementById("line");
+  const stop = document.getElementById("stop");
+  let pending = "", frame = 0;
+  const append = (s, cls) => {
+    const span = document.createElement("span");
+    if (cls) span.className = cls;
+    span.textContent = s;
+    out.append(span);
+    while (out.childElementCount > MAX_CHUNKS) out.firstElementChild.remove();
+    return span;
+  };
+  // Forth output may carry ANSI colour (ansi.js): one span per flush, with
+  // a child span per coloured run, so MAX_CHUNKS still counts flushes.
+  const ansi = new Ansi();
+  const appendOut = (s) => {
+    const runs = ansi.feed(s);
+    if (runs.length === 1 && !runs[0][1]) return append(runs[0][0]);
+    const span = append("");
+    for (const [t, c] of runs) {
+      if (!c) { span.append(t); continue; }
+      const r = document.createElement("span");
+      r.className = c;
+      r.textContent = t;
+      span.append(r);
+    }
+    return span;
+  };
+  // Follow the output only if the view was at the bottom before the write,
+  // so a reader who scrolled up is not pulled down; scroll after the
+  // coloured runs are in, so a long `pp` listing ends in view.
+  const atBottom = () => out.scrollHeight - out.scrollTop - out.clientHeight < 24;
+  const toBottom = () => { out.scrollTop = out.scrollHeight; };
+  const flush = () => {
+    frame = 0;
+    if (!pending) return;
+    const follow = atBottom();
+    appendOut(pending);
+    pending = "";
+    if (follow) toBottom();
+  };
+  const write = (s) => { pending += s; frame ||= requestAnimationFrame(flush); };
+  // Echoed input (a submitted line, notes) always brings the view down.
+  const echo = (s) => { flush(); append(s, "echo"); toBottom(); };
+  // The form is live from the start (a package can take a moment to
+  // fetch): lines typed before the VM is up wait in `early`.
+  const early = [];
+  let feedLine = (text) => early.push(text);
+  // History and Emacs keys (lineedit.js) are set up once the package is
+  // known, since each package keeps its own history; until then the line
+  // is a plain input.
+  let editor = null;
+  document.getElementById("f").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = line.value;
+    line.value = "";
+    editor?.accept(text);
+    echo(text + "\n");
+    feedLine(text);
+  });
+
+  // The host (host.js) says where files are kept (the browser: in
+  // localStorage; the desktop app: in a folder) and what to feed at start.
+  // reva.status starts as RUNNING (booting); onStatus reports each change.
+  // ?image=app.img starts from a saved image instead of booting reva.f.
+  const host = await hostSetup();
+  const query = new URLSearchParams(location.search);
+  // ?package=DIR/ (or the reva-package meta) loads a package from a static
+  // directory (package.js): its files, start files, title, icon, canvas.
+  const pkgDir = query.get("package") ?? document.querySelector('meta[name="reva-package"]')?.content;
+  const notes = [...(host.notes ?? [])];
+  let pkg = null;
+  if (pkgDir) {
+    try {
+      pkg = await loadPackage(pkgDir);
+      notes.push(...pkg.notes);
+    } catch (e) {
+      notes.push(`package ${pkgDir} not loaded: ${e.message ?? e}`);
+    }
+  }
+  // History: one list per package (browser: ?package=; desktop: --package).
+  const historyKey = pkg?.historyKey
+    ?? (host.package ? `reva:${packageId(host.package)}:history` : "reva:history");
+  editor = lineEditor(line, { prompt: document.getElementById("prompt"), key: historyKey });
+  const title = pkg?.title ?? host.title;
+  if (title) {
+    document.title = title;
+    document.querySelector("header b").textContent = title;
+  }
+  if (pkg?.icon) document.querySelector('link[rel="icon"]').href = pkg.icon;
+  // A package's "hint" replaces Reva's in the header (`code` in backticks).
+  const hint = pkg?.hint ?? host.package?.hint;
+  if (typeof hint === "string") showHint(document.getElementById("hint"), `— ${hint}`);
+  // About: the package's entry (from the page's ?package= or the desktop
+  // host), then reva-fork's.
+  const about = aboutDialog({ pkg: pkg?.about ?? packageAbout(host.package), openUrl: host.openUrl });
+  document.getElementById("about-btn").addEventListener("click", () => about.open());
+  // Where graphics go: ?canvas=window|pane|split, else the package's or
+  // the host's choice, else the page's default (the reva-canvas meta),
+  // else a window.
+  const meta = document.querySelector('meta[name="reva-canvas"]')?.content || undefined;
+  const mode = query.get("canvas") ?? pkg?.canvas ?? host.canvas ?? meta ?? "window";
+  const split = mode === "split" ? splitView(document.querySelector("main"), document.getElementById("panes")) : null;
+  const image = query.get("image") ?? undefined;
+  const gfx = document.getElementById("gfx");
+  let canvas = null;
+  const reva = start("reva.wasm", {
+    image,
+    files: pkg?.files,
+    storage: host.storage,
+    prefix: pkg && !host.keepsFiles ? pkg.prefix : undefined,
+    onOutput: (s) => { write(s); host.output?.(s); },
+    onUi: (m) => { if (m.channel === "canvas") canvas.handle(m); },
+    // Host calls (SQLite, docs/design.md 3.11): a host that serves them
+    // answers (the desktop app, natively); in a browser the VM's worker
+    // answers SQLite itself with SQLite's wasm build (sqlite.js).
+    localServices: host.hostCall ? [] : ["sqlite"],
+    onHostCall: (call) => host.hostCall?.(call)
+      ?? { error: `${call.service} is not available in the browser` },
+    onStatus: (s) => {
+      stop.disabled = s !== RUNNING;
+      if (s === HALTED) {
+        echo(`\n[exited with status ${reva.exitCode}]\n`);
+        line.disabled = true;
+        halted(reva.exitCode);
+      }
+    },
+  });
+  // Turtle graphics go to their own window (ui.js), or a pane; once used,
+  // the Graphics button brings a closed one back.  The split view shows
+  // its pane from the start.
+  canvas = new CanvasChannel(host, reva, {
+    where: mode === "window" ? "window" : "pane",
+    onState: (s) => {
+      if (split) return;
+      gfx.hidden = false;
+      gfx.textContent = s === "closed" ? "Graphics (closed)" : "Graphics";
+    },
+  });
+  if (split) canvas.open();
+  gfx.addEventListener("click", () => {
+    if (canvas.win && !canvas.win.closed()) canvas.win.focus();
+    else canvas.open();
+  });
+  // The footer: copyright, license, source, and which build this is
+  // (build host, commit and time, from the wasm module: what `reva -V`
+  // prints).  Text goes in with textContent.
+  function footer(el, b, openUrl) {
+    if (!b) return;
+    const link = document.createElement("a");
+    link.href = b.repository;
+    link.textContent = "source";
+    if (openUrl) link.addEventListener("click", (e) => { e.preventDefault(); openUrl(b.repository); });
+    else link.target = "_blank";
+    el.append(`${b.copyright.replace("(c)", "©")} · MIT License · `, link,
+      ` · ${b.name} ${b.version} · build ${b.build_commit} on ${b.build_host}, ${b.build_time.replace("T", " ").slice(0, 16)}`);
+    el.title = `License: ${b.license}\nBuilt ${b.build_time}`;
+  }
+  // Batch runs (the desktop's --print-output) report what the graphics
+  // window drew, after giving it a moment to finish.
+  async function halted(code) {
+    if (canvas.used && host.output) {
+      for (let i = 0; i < 40 && canvas.lines === 0; i++) await new Promise((r) => setTimeout(r, 50));
+      host.output(`[canvas: ${canvas.lines} lines]\n`);
+    }
+    host.halted?.(code);
+  }
+  const starting = append("starting...\n", "echo");
+  for (const n of notes) append(`note: ${n}\n`, "echo");
+  await reva.ready;
+  starting.remove();
+  footer(document.getElementById("footer"), reva.build, host.openUrl);
+  // Start lines (a package's start files) are read again after `restart`;
+  // input lines only once.
+  for (const text of [...(pkg?.start ?? []), ...(host.start ?? [])]) {
+    echo(text + "\n");
+    reva.feedStart(text + "\n");
+  }
+  for (const text of host.input ?? []) {
+    echo(text + "\n");
+    reva.feed(text + "\n");
+  }
+
+  // Lines typed while the page was still starting go in after the start lines.
+  feedLine = (text) => reva.feed(text + "\n");
+  for (const text of early.splice(0)) feedLine(text);
+  stop.addEventListener("click", () => reva.stop());
+  document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key === "c" && !window.getSelection()?.toString()) {
+      e.preventDefault();
+      reva.stop();
+    }
+  });
+</script>
+</body>
+</html>

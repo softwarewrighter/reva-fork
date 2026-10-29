@@ -1,13 +1,13 @@
 # The browser REPL as a static site
 
 Reva runs in the browser as a WebAssembly VM in a Web Worker
-(`rust/reva-web/www`). This page covers what a page can be told through its
+(`components/web/crates/reva-web/www`). This page covers what a page can be told through its
 URL, the split view, loading a package from a static directory, and
 building the zip you upload to a web host.
 
 ```text
-just web-zip                      # or: rust/scripts/make-web-zip.sh
-#   → rust/target/web/reva-web-VERSION.zip   (and the same tree, unzipped, beside it)
+just web-zip                      # or: scripts/make-web-zip.sh
+#   → target/web/reva-web-VERSION.zip   (and the same tree, unzipped, beside it)
 # upload, unzip anywhere on the host, open https://your.host/any/path/reva-web-VERSION/
 ```
 
@@ -57,8 +57,8 @@ The **About** button in the header opens a dialog with:
 - then reva-fork's: version, credits, links to the source and docs, and
   the licenses (`LICENSE`, `LICENSE-MIT`, `docs/licenses.md` on GitHub);
 - the build: `VERSION COMMIT DATE` from the page's `reva-build` meta tag,
-  which `make-web-zip.sh` and `desktop/build.sh` stamp
-  (`rust/scripts/build-stamp.sh`; `-dirty` marks uncommitted changes). From
+  which `make-web-zip.sh` and `components/desktop/build.sh` stamp
+  (`scripts/build-stamp.sh`; `-dirty` marks uncommitted changes). From
   the source tree it says "development build".
 
 Esc, the Close button or a click outside closes it. It is the same in the
@@ -82,7 +82,7 @@ source, and which build of the VM is running: version, commit, build host
 and build time (hover for the license in full and the exact time). These
 come from the WebAssembly module (`reva_build_info_ptr`/`_len`, from
 `reva_vm::version`), so they are what `reva -V` and `version` print for
-the same build. `rust/reva-web/index.html` and `favicon.ico` are symlinks
+the same build. `components/web/crates/reva-web/index.html` and `favicon.ico` are symlinks
 into `www/` for sw-checklist, which looks for them in the crate folder.
 
 ## Packages from a static directory: `?package=DIR/`
@@ -121,8 +121,8 @@ desktop app ignores `files` (it reads the folder itself).
 
 ## The uploadable zip: `just web-zip`
 
-`rust/scripts/make-web-zip.sh` (POSIX sh; `just web-zip` runs it) builds
-`reva.wasm` and writes `rust/target/web/NAME-web-VERSION.zip`, holding one
+`scripts/make-web-zip.sh` (POSIX sh; `just web-zip` runs it) builds
+`reva.wasm` and writes `target/web/NAME-web-VERSION.zip`, holding one
 folder `NAME-web-VERSION/`:
 
 ```text
@@ -135,7 +135,7 @@ split.js  package.js  README.txt  LICENSE.txt  LICENSE-MIT.txt  [pkg/ ...]
 | `--package DIR` | copy DIR into `pkg/` and open it by default; NAME defaults to its `id` |
 | `--canvas MODE` | the default graphics placement (default `split`) |
 | `--name NAME`, `--version V` | the zip's name (default `reva`, the workspace version) |
-| `--out DIR` | where the zip goes (default `rust/target/web`) |
+| `--out DIR` | where the zip goes (default `target/web`) |
 | `--no-build` | use the `reva.wasm` already built |
 
 With `just`: `just web-zip --package path/to/pkg`. CoSy's zip is built in
@@ -159,7 +159,7 @@ use [reva-serve](serve.md), which embeds it in one binary.
 
 The plain reva-fork REPL (no package) is published at
 <https://softwarewrighter.github.io/reva-fork/> by `just publish`
-(`rust/scripts/publish-pages.sh`): it builds the static site with
+(`scripts/publish-pages.sh`): it builds the static site with
 `make-web-zip.sh` (split view by default), adds `.nojekyll`, and
 force-pushes it as one orphan commit to the `gh-pages` branch, which GitHub
 Pages serves. Only `main` is published: the tree must be clean and HEAD on
