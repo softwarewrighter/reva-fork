@@ -32,7 +32,7 @@ the desktop app.
 | Memory | one flat 32-bit address space: Reva's code, dictionary, stacks, heap | `reva-vm/src/mem.rs`, `layout.rs` |
 | CPU | registers (Reva's roles: EAX top of stack, ESI data stack, ESP return stack), flags, EIP | `reva-vm/src/x86/` |
 | Decoder | bytes to instructions, cached per address; a write into code (Reva patches `then`, tail calls, `does>`) drops the cached instructions of that 256-byte page | `x86/decode.rs`, DESIGN 3.5 |
-| Gateways | the original core's assembly routines in Rust, at the addresses Reva expects; reaching one runs Rust instead of decoding | `gates.rs`, DESIGN 3.3 |
+| Gateways | the original core's assembly routines in Rust, at the addresses Reva expects; reaching one runs Rust instead of decoding | the word families (components/words-*), design 3.3 |
 | Continuations | a Rust routine that calls back into Forth does so without the Rust stack, so the VM can stop anywhere (waiting for input, for a host call) and resume later | DESIGN 3.4 |
 | x87 FPU | the floating-point unit, emulated | `x86/fpu.rs`, DESIGN 3.10 |
 | OS layer | the Linux i386 system calls `reva.f` makes, mapped to the host; a virtual libc (`getenv`, `localtime`, `opendir` ...) | `ffi.rs`, `fileio.rs` |
