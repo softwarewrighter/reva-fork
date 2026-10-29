@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-29
 
+- 13:56 `chore` Step local-comp-x86 complete (saga record).
 - 13:56 `refactor` vx86 in components (step local-comp-x86; docs/design.md 3.13): reva-x86's decode.rs (924 lines), exec.rs (686), fpu.rs (859) and mem.rs split into 13 crates in components x86-types (base: faults, insn classes, messages, layout; mem; fpustate; types: Op, Insn, Cpu), x86-decode (cursor; opcodes, one decoder per opcode group; fpudec; decode: prefixes and a 256-entry opcode table), x86-alu (ops, shift, float: pure 80-bit format, scaling, comparison) and x86-exec (fpuexec, exec by instruction group); reva-x86 is a facade re-exporting every old path. `Cpu`'s methods come from extension traits (new `reva_macros::ext_trait!`); reva-macros moved to its own component `macros`; reva-core imports `Exec`/`Arith`. Checked against the old executor in a scratch harness: 9,000,000 random decodes and 1,310,760 random executed instructions identical (CPU state and memory). Hot groups `#[inline(always)]`: bench guard boot -15%, fib -6%, loop -4%, dragon -8% (faster than before the step). Tests in tests/ (112 now); goldens unchanged; sw-checklist 40 -> 27.
 - 13:56 `refactor` Merge #53 (local-comp-words): the word families and a dispatch table.
 - 08:35 `chore` Step local-comp-words complete (saga record).
