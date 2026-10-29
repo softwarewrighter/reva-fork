@@ -1,8 +1,0 @@
-number = 17
-slug = "local-split-dispatch"
-status = "pending"
-description = "Split reva-words' dispatch (the old 700-line gate() match) and helpers into f..."
-role = "production"
-context_files = []
-created_at = "2026-10-27T22:27:43"
-commits = []

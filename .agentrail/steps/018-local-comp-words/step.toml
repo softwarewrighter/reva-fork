@@ -1,0 +1,8 @@
+number = 18
+slug = "local-comp-words"
+status = "pending"
+description = "reva-words (components/words): the old 700-line gate() dispatch and gates.rs'..."
+role = "production"
+context_files = []
+created_at = "2026-10-27T22:27:43"
+commits = []

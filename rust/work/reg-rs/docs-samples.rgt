@@ -1,4 +1,0 @@
-command = "scripts/doc-check.sh ../docs/*.md"
-timeout = 60
-exit_code = 0
-desc = "every forth/output sample in docs/ matches what reva prints"

@@ -37,7 +37,7 @@ dark terminal (or the page's light or dark theme) picks readable shades.
 ## The token table, shared with the blog script
 
 What gets which colour comes from **token tables**: plain text files that
-both the REPL words and `rust/scripts/forth-highlight.py` (HTML or PNG
+both the REPL words and `scripts/forth-highlight.py` (HTML or PNG
 figures for the blog and slides) read, so a listing in the REPL and a figure
 agree token for token. `lib/highlight/forth.tbl` is the Forth table:
 
@@ -64,9 +64,8 @@ does, with its own `cosy.tbl`):
 The figure script takes the same tables:
 
 ```bash
-cd rust
-scripts/forth-highlight.py ../lib/turtle/fractals --lines 22-30 --png koch.png
-scripts/forth-highlight.py FILE --table ../lib/highlight/forth.tbl --table mypkg.tbl -o out.html
+scripts/forth-highlight.py lib/turtle/fractals --lines 22-30 --png koch.png
+scripts/forth-highlight.py FILE --table lib/highlight/forth.tbl --table mypkg.tbl -o out.html
 ```
 
 With no `--table`, the script reads reva-fork's `forth.tbl` and then every
@@ -77,7 +76,7 @@ reva-fork beside the checkout (`../reva-fork`) or at `$REVA_FORK`.
 ## Design
 
 - **One tokenizer per surface, one table.** The REPL tokenizer is Rust
-  (`rust/reva-vm/src/highlight.rs`, reached as the virtual library
+  (`components/vlib/crates/reva-vlib/src/highlight.rs`, reached as the virtual library
   `highlight` through `(call)`, like `turtle`); the figure script has a
   Python twin of the same rules. The tables, not the code, say which word is
   which, so adding words never touches either. Unit tests pin the rules
@@ -88,7 +87,7 @@ reva-fork beside the checkout (`../reva-fork`) or at `$REVA_FORK`.
 - **Escapes, not a new output channel.** Colour travels as ANSI SGR escapes
   in the ordinary output stream, so the CLI needs nothing more and the page
   needs one small renderer (`ansi.js`, no dependencies, tested by
-  `node rust/reva-web/test/ansi.mjs`). Other programs that print SGR
+  `node components/web/crates/reva-web/test/ansi.mjs`). Other programs that print SGR
   escapes now show colour in the page as well.
 - **Saved images keep working.** The table list lives in Forth memory, so a
   saved image lists in colour after it restarts.

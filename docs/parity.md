@@ -9,7 +9,7 @@ written from the implementation and their samples are checked by tests.
 Status legend: **done** — rebuilt and checked · **partial** — some of it ·
 **ready** — what it covers works on the portable core; the page is not
 rebuilt yet · **blocked** — needs a roadmap item first (see
-[DESIGN.md §7](../rust/DESIGN.md#7-roadmap)) · **superseded** — no longer
+[design.md §7](design.md#7-roadmap)) · **superseded** — no longer
 applies · **decide** — needs a decision on whether it is still supported.
 
 ## Wiki pages
@@ -37,10 +37,10 @@ covers the same ground.
 | Distribution (the old `bin/` per OS, `tools/build.f`) | superseded | [packaging.md](packaging.md): one self-contained binary per target, a static web zip with an optional package ([web.md](web.md), `just web-zip`), the same as one local binary ([serve.md](serve.md)), desktop installers; Windows status and test plan |
 | Glossary, Built-in help system | blocked | `src/help.txt` (6,000 lines, in the repository) is the source: generate a glossary page from it, with a note per word on whether it works yet; `help` will read a text index built from it instead of the SQLite `help.db` (see Decisions) |
 | Turnkey (standalone applications) | ready | `save NAME` (and `(save)`) write a vx86 image instead of an executable; start it with `reva --image NAME` or in the browser (`start(..., { image })`). `restart` starts over from the same image or boot |
-| Cells and Stacks, Words and the dictionary, Numbers, Strings | partial | material exists across [gotchas.md](gotchas.md) and [DESIGN.md](../rust/DESIGN.md); `reva.f` now boots fully, so topic pages can be written |
+| Cells and Stacks, Words and the dictionary, Numbers, Strings | partial | material exists across [gotchas.md](gotchas.md) and [design.md](design.md); `reva.f` now boots fully, so topic pages can be written |
 | Deferred words, Contexts, Libraries | ready | `defer`/`is`, `context:`/`with~`/`~ctx.word`, `needs` all work |
 | Design goals, Tips and Tricks, Comparisons (RetroForth/HelFORTH, ANS), Benchmarks | decide | historical; benchmarks to be redone with `bench/` on the new core |
-| Development | superseded | [../rust/README.md](../rust/README.md) (tests, reg-rs, doc-check) |
+| Development | superseded | [../components/README.md](../components/README.md) (tests, reg-rs, doc-check) |
 
 ### Basic tutorial, by section
 
@@ -113,7 +113,7 @@ in [licenses.md](licenses.md); item 3 is still open.
 2. **Database and network.** Help (`help`) will read a text index built
    from `src/help.txt` instead of `help.db`. SQLite is served through host
    calls (rusqlite on the CLI and the desktop, SQLite's wasm build in the
-   browser; rust/DESIGN.md 3.11), so `lib/db/sqlite` programs run unchanged
+   browser; docs/design.md 3.11), so `lib/db/sqlite` programs run unchanged
    on all three ([sqlite.md](sqlite.md)). `lib/db/mysql` is dropped (its
    client library is GPL). Sockets and HTTP become host services when needed.
 3. **Tutorial internals chapters.** The intermediate tutorial explains the
@@ -123,11 +123,11 @@ in [licenses.md](licenses.md); item 3 is still open.
 
 ## Keeping this page honest
 
-- `rust/scripts/license-check.sh` must pass (no copyleft code, every binary
+- `scripts/license-check.sh` must pass (no copyleft code, every binary
   reviewed in [licenses.md](licenses.md)).
-- `rust/scripts/doc-check.sh ../docs/*.md` must pass (run by the regression
+- `scripts/doc-check.sh docs/*.md` must pass (run by the regression
   suite as `docs-samples`).
-- `rust/scripts/parity-examples.sh` output is a regression baseline
+- `scripts/parity-examples.sh` output is a regression baseline
   (`parity-examples`): when an example's status changes, the suite fails
   until the change is accepted (`reg-rs rebase -p parity-examples`) and
   `--write` regenerates [parity-examples.md](parity-examples.md).

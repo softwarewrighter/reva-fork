@@ -1,0 +1,8 @@
+number = 26
+slug = "local-ui-yew"
+status = "pending"
+description = "A Rust/Yew renderer for components/ui's model, in the web page and the deskto..."
+role = "production"
+context_files = []
+created_at = "2026-10-28T12:45:44"
+commits = []

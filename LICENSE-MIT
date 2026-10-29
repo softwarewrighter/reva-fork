@@ -3,7 +3,7 @@ MIT License
 Copyright (c) 2026 Michael A. Wright
 
 This license applies only to the portions of this repository identified as
-such in LICENSING.md (the portable core under rust/ and other new work).
+such in LICENSING.md (the portable core under components/ and other new work).
 The original Reva Forth is in the public domain; see LICENSE.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
