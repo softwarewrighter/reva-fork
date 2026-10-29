@@ -1,0 +1,1 @@
+reva-x86 split into 13 crates in components x86-types, x86-decode, x86-alu, x86-exec, with reva-x86 as a facade; ext_trait! for Cpu methods; reva-macros in component macros; old/new equivalence over 9M decodes and 1.3M executed steps; bench faster; sw-checklist 40->27. Pushed as pr/local-comp-x86.
