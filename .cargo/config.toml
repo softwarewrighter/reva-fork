@@ -1,0 +1,4 @@
+# Every component (components/*, one Cargo workspace each) builds into the
+# repository's target/, so binaries have one place: target/release/reva ...
+[build]
+target-dir = "target"

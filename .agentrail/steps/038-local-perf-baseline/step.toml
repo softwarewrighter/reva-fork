@@ -1,0 +1,8 @@
+number = 38
+slug = "local-perf-baseline"
+status = "pending"
+description = "Feature: the benchmark suite behind the translators (roadmap 5): `just bench`..."
+role = "production"
+context_files = []
+created_at = "2026-10-26T12:49:22"
+commits = []

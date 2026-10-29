@@ -2,7 +2,7 @@
 
 Reva was a 32-bit x86 program that called Windows, Linux and macOS
 libraries directly. The portable core runs Reva's own x86 code in a VM
-(see [DESIGN.md](../rust/DESIGN.md)), so most of that still works unchanged.
+(see [design.md](design.md)), so most of that still works unchanged.
 This page lists what does not, and what you see when a program reaches it.
 Every message below ends with `(see docs/portability.md)`, which points here.
 
@@ -11,8 +11,8 @@ Every message below ends with `(see docs/portability.md)`, which points here.
 | Code that depends on | What happens | Why |
 |---|---|---|
 | 4-byte cells, little-endian memory, Reva's register roles (`inline{ }` bytes, `cells/` as `sar eax,2`) | **runs** | The VM keeps cells 32-bit on 64-bit hosts and in WebAssembly: a fixed design rule, so saved data and machine-code words stay valid |
-| Integer x86 instructions that Reva and its libraries emit | **runs** | The VM decodes that subset (DESIGN.md §3.2) |
-| x87 floating point | **runs**, with `f64` registers: 80-bit values round to double on load, so the last extended-precision bits can differ | DESIGN.md §3.10 |
+| Integer x86 instructions that Reva and its libraries emit | **runs** | The VM decodes that subset (design.md §3.2) |
+| x87 floating point | **runs**, with `f64` registers: 80-bit values round to double on load, so the last extended-precision bits can differ | design.md §3.10 |
 | MMX, SSE, segment registers, I/O ports, privileged or system instructions | **stops** | no portable meaning, or not used by Reva's own code |
 | A C library other than the virtual libc | **stops** at its first function, with a note naming the library | see "Native libraries" below |
 | `shell` (C `system`) | **stops**, unless the CLI was started with `--allow-shell` | running OS commands is the user's choice, not the program's |
@@ -37,7 +37,7 @@ Served today: libc's `getenv`, `putenv`, `localtime`, `gmtime`, `opendir`,
 converted inside the VM with iconv's own results and errno codes); and
 SQLite for `lib/db/sqlite` through *host calls*, which the host answers
 (the CLI, the desktop app and the browser; see [sqlite.md](sqlite.md) and
-rust/DESIGN.md 3.11). Planned: a UI service in place of IUP and GTK, then
+docs/design.md 3.11). Planned: a UI service in place of IUP and GTK, then
 regex, zlib and HTTP as programs need them. Every planned library is permissively
 licensed ([licenses.md](licenses.md)).
 

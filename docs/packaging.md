@@ -12,7 +12,7 @@ What was checked, and where (2026-10-25, Linux x86-64 cloud machine):
 |---|---|
 | CLI, glibc and static musl builds | built and run |
 | static web zip | built, unzipped elsewhere, served, run in Chromium |
-| `.deb` and `.rpm` | built; the `.deb` installed and passed `desktop/smoke.sh` |
+| `.deb` and `.rpm` | built; the `.deb` installed and passed `components/desktop/smoke.sh` |
 | `reva.exe` (cross-built, `x86_64-pc-windows-gnu`) | run under Wine 9: REPL, files, CoSy's `demo paste-tidy.txt`, exit status |
 | `reva-desktop.exe` (cross-built) | builds and links; does not start under Wine (no WebView2) |
 | macOS `.app`/`.dmg`, Windows installers | not built: they need macOS and Windows |
@@ -21,9 +21,9 @@ What was checked, and where (2026-10-25, Linux x86-64 cloud machine):
 
 | Artifact | Build | Ship with it |
 |---|---|---|
-| `reva` CLI | `cargo build --release` in `rust/` (per target, below) | `LICENSE`, `LICENSE-MIT`, `LICENSING.md` |
-| web page | `rust/scripts/build-web.sh` | the same three files |
-| desktop installers | `desktop/build.sh --bundle` | added to the bundle automatically (see 4) |
+| `reva` CLI | `cargo build --release` in `components/cli/` (per target, below) | `LICENSE`, `LICENSE-MIT`, `LICENSING.md` |
+| web page | `scripts/build-web.sh` | the same three files |
+| desktop installers | `components/desktop/build.sh --bundle` | added to the bundle automatically (see 4) |
 | a package (for example CoSy) | the package's own build | the package's own terms |
 
 ### License notices
@@ -45,7 +45,7 @@ What was checked, and where (2026-10-25, Linux x86-64 cloud machine):
   and add it to `bundle.resources`. This step is not set up yet.
 - **Nothing copyleft ships.** On Linux the app uses the system's WebKitGTK
   (LGPL) and never carries it. On Windows it uses the system's WebView2.
-  `rust/scripts/license-check.sh` (with `cargo-deny` installed) must pass
+  `scripts/license-check.sh` (with `cargo-deny` installed) must pass
   before a release.
 
 ## 2. The `reva` binary
@@ -55,7 +55,7 @@ install. `needs` reads `lib/` from `$REVA_HOME` (or from the checkout the
 binary was built in, if it is still there), and otherwise uses the built-in
 copy. On another machine, the built-in copy is what it uses.
 
-| Target | Command (in `rust/`) | Notes |
+| Target | Command (in `components/cli/`) | Notes |
 |---|---|---|
 | Linux x86-64, any distribution | `rustup target add x86_64-unknown-linux-musl` then `cargo build --release --target x86_64-unknown-linux-musl -p reva-cli` | fully static. **Prefer this for redistribution**: a plain build links the build machine's glibc (2.39 on Ubuntu 24.04) and will not start on older systems |
 | Linux ARM64 | `aarch64-unknown-linux-musl` | build on an ARM64 machine, or install a cross linker |
@@ -77,7 +77,7 @@ certificate.
 ## 3. The static web page
 
 ```bash
-just web-zip            # or: rust/scripts/make-web-zip.sh  → rust/target/web/reva-web-VERSION.zip (~350 KB)
+just web-zip            # or: scripts/make-web-zip.sh  → target/web/reva-web-VERSION.zip (~350 KB)
 ```
 
 Unzip it anywhere and serve it with any static server (`python3 -m
@@ -89,13 +89,13 @@ other files can sit next to `index.html`. `--package DIR` bundles a
 package (CoSy's zip: `just cosy-zip` in ba-cosy-zip-fork). Options, the
 split-view default and how to test under a subpath: [web.md](web.md).
 The same tree as one local binary per OS: [serve.md](serve.md)
-(`rust/scripts/build-serve.sh mac|linux|windows`).
+(`scripts/build-serve.sh mac|linux|windows`).
 
 ## 4. Desktop installers (Tauri 2)
 
 ```bash
 cargo install tauri-cli --version "^2" --locked     # once, ~8 min
-desktop/build.sh --bundle                           # installers in desktop/target/release/bundle/
+components/desktop/build.sh --bundle                           # installers in target/release/bundle/
 ```
 
 `tauri.conf.json` lists `deb`, `rpm`, `app`, `dmg`, `nsis` and `msi`, and
@@ -166,8 +166,8 @@ Known Windows gaps, to fix after a first run on real Windows:
 
 | Way | Good for | How |
 |---|---|---|
-| **Cross-build on Linux** (checked) | quick checks; the CLI for release | `rustup target add x86_64-pc-windows-gnu`, `sudo apt install mingw-w64`, then `cargo build --release --target x86_64-pc-windows-gnu -p reva-cli` in `rust/`. Run it with `wine` (`sudo apt install wine64`): pipe input works, and there is no interactive console. The desktop app also builds with this target (`cargo build --release --target x86_64-pc-windows-gnu` in `desktop/`), but a GNU build loads `WebView2Loader.dll`, which must ship next to it. An NSIS installer can be cross-built with `cargo tauri build --runner cargo-xwin --target x86_64-pc-windows-msvc` (needs `cargo-xwin`, `nsis` and `lld`); this was not tried |
-| **Native on Windows** | release installers, and the real test | Install [rustup](https://rustup.rs) with the MSVC toolchain and the Visual Studio Build Tools ("Desktop development with C++"), plus [Git for Windows](https://gitforwindows.org) for Git Bash. Then, in Git Bash: `rustup target add wasm32-unknown-unknown`, `cargo install tauri-cli --version "^2" --locked`, `cd rust && cargo build --release && cargo test --release`, and `desktop/build.sh --bundle`. The MSVC build links the WebView2 loader statically, so there is no extra DLL |
+| **Cross-build on Linux** (checked) | quick checks; the CLI for release | `rustup target add x86_64-pc-windows-gnu`, `sudo apt install mingw-w64`, then `cargo build --release --target x86_64-pc-windows-gnu ` in `components/cli/`. Run it with `wine` (`sudo apt install wine64`): pipe input works, and there is no interactive console. The desktop app also builds with this target (`cargo build --release --target x86_64-pc-windows-gnu` in `components/desktop/`), but a GNU build loads `WebView2Loader.dll`, which must ship next to it. An NSIS installer can be cross-built with `cargo tauri build --runner cargo-xwin --target x86_64-pc-windows-msvc` (needs `cargo-xwin`, `nsis` and `lld`); this was not tried |
+| **Native on Windows** | release installers, and the real test | Install [rustup](https://rustup.rs) with the MSVC toolchain and the Visual Studio Build Tools ("Desktop development with C++"), plus [Git for Windows](https://gitforwindows.org) for Git Bash. Then, in Git Bash: `rustup target add wasm32-unknown-unknown`, `cargo install tauri-cli --version "^2" --locked`, `just test`, and `components/desktop/build.sh --bundle`. The MSVC build links the WebView2 loader statically, so there is no extra DLL |
 | **CI** (proposed, not added) | repeatable release builds | a `windows-latest` GitHub Actions job running the same commands; see 6 |
 
 A Mac can run Windows 11 ARM in a VM (UTM or Parallels). There, build
@@ -217,7 +217,7 @@ Desktop (`-setup.exe` and `.msi` on the clean VMs):
    a file Forth writes into a subfolder lands in the package folder; a
    path with spaces.
 4. In Git Bash: `REVA_DESKTOP=/c/Program\ Files/Reva/reva-desktop.exe
-   desktop/smoke.sh` (five "ok").
+   components/desktop/smoke.sh` (five "ok").
 5. CoSy: `reva-fork-subset/make-subset.sh` in Git Bash, then
    `reva-desktop.exe --package <...>\build`, and `demo paste-tidy.txt`
    (see ba-cosy-zip-fork's `reva-fork-subset/DEMO.md`).
@@ -231,14 +231,14 @@ One GitHub Actions workflow, `release.yml`, on pull requests to `dev` and
 `main` and on tags `v*`:
 
 - **test** (ubuntu, macos, windows): `cargo test --release --workspace`,
-  `scripts/doc-check.sh ../docs/*.md`, the reg-rs goldens and
+  `scripts/doc-check.sh docs/*.md`, the reg-rs goldens and
   `license-check.sh` (with `reg-rs`, `sed-rs` and `cargo-deny` from
   `cargo install`).
 - **cli** (matrix of the targets in section 2): build, then tar or zip
   with the license files.
 - **web**: `build-web.sh`, then the zip from section 3.
 - **desktop** (ubuntu with `libwebkit2gtk-4.1-dev`, macos, windows):
-  `desktop/build.sh --bundle`, then `desktop/smoke.sh` (under `xvfb-run` on
+  `components/desktop/build.sh --bundle`, then `components/desktop/smoke.sh` (under `xvfb-run` on
   Linux). Upload the installers.
 - **on a tag**: attach everything to a GitHub release. Signing secrets
   (Apple and Authenticode) are added when certificates exist.

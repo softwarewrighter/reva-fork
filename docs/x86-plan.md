@@ -5,10 +5,10 @@ Reva compiles Forth straight into **32-bit x86 machine code**, and much of
 operating systems and browsers will not run that code (macOS dropped
 32-bit programs entirely; browsers run no x86 at all). reva-fork therefore
 runs Reva's x86 on a CPU written in software: **vx86**, in
-`rust/reva-vm`. This page explains how that works, what Reva programs can
+`components/vm/crates/reva-vm`. This page explains how that works, what Reva programs can
 expect, what breaks, and what is planned.
 
-Background and details: [rust/DESIGN.md](../rust/DESIGN.md) (sections 3
+Background and details: [docs/design.md](design.md) (sections 3
 and 6), [portability.md](portability.md), [parity.md](parity.md),
 [parity-examples.md](parity-examples.md).
 
@@ -186,7 +186,7 @@ what is not scheduled yet at the end.
 - Decoder and executor unit tests for every instruction group
   (`x86/decode.rs`, `x86/exec.rs`, `x86/fpu.rs`).
 - Machine tests through the public API (`reva-vm/tests/machine.rs`).
-- Goldens (`rust/work/reg-rs`): boot, core words, errors, files, floats,
+- Goldens (`work/reg-rs`): boot, core words, errors, files, floats,
   images, SQLite, `see`, the parity report of all 132 examples, and every
   code sample in `docs/`.
 - `just check` runs all of them before every commit.

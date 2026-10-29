@@ -48,7 +48,7 @@ the key table both front ends follow.
 
 ## Web page, desktop app, zips, `reva-serve`
 
-All of these run the same page (`rust/reva-web/www/index.html`), whose
+All of these run the same page (`components/web/crates/reva-web/www/index.html`), whose
 input line gets the keys from `www/lineedit.js`.
 
 * **History** is in `localStorage`, one list per package: `reva:history`
@@ -86,7 +86,7 @@ input line gets the keys from `www/lineedit.js`.
 * **Small and dependency-free.**  `lineedit.js` is one module: pure editing
   operations (`edit`), a key map (`keyCommand`), the `History` list, and
   `lineEditor(input, …)` which joins them to the element.  The pure parts
-  are tested in Node: `node rust/reva-web/test/lineedit.mjs` (in `just
+  are tested in Node: `node components/web/crates/reva-web/test/lineedit.mjs` (in `just
   test`).  The CLI's decoder, editor, search and history have unit tests
   (`cargo test -p reva-cli`).
 * **Never in the way.**  Storage errors (full, blocked, private mode) leave
