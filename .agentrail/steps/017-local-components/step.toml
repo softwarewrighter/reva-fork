@@ -1,8 +1,9 @@
 number = 17
 slug = "local-components"
-status = "in-progress"
+status = "completed"
 description = "Move rust/'s crates into components/, one Cargo workspace each, by pure moves..."
 role = "production"
 context_files = []
 created_at = "2026-10-28T12:45:13"
-commits = []
+completed_at = "2026-10-28T20:47:13"
+commits = ["7d0e67bc57fb0c55ab036910df9142dd9b050310"]

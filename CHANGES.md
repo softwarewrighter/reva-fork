@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-28
 
+- 20:47 `chore` Step local-components complete (saga record).
 - 20:46 `refactor` Components (step local-components; docs/design.md 3.13, docs/code-metrics.md): rust/'s crates and desktop/ moved by git mv into components/<name>/crates/<crate>, one Cargo workspace per component (x86, host, core, vlib, words, vm, sqlite, cli, web, serve, desktop), path dependencies across them, every lock carried over with the same versions; all build into the root target/ (.cargo/config.toml). rust/scripts, rust/work and rust/tests/forth moved to scripts/, work/, tests/forth/; rust/DESIGN.md to docs/design.md, rust/README.md and LICENSE to components/, one deny.toml at the root. The gate loops over the components (fmt, clippy, tests) and checks they share one version; scripts, justfile, goldens (two commands, docs-samples' paths), docs, CLAUDE.md and comments follow the new paths. New docs/code-metrics.md: the user's structure rules and a symptom -> technique table, after sw-mlpl. Same 99 tests and goldens, desktop smoke ok, sw-checklist 46, bench guard unchanged (boot -13%, fib 0%, loop 0%, dragon -1%).
 - 20:46 `plan` Step local-underflow-message added (the user: `dir` with too few arguments should say stack underflow, not "a C function called without (call)").
 - 20:46 `refactor` Merge #51 (local-split-gates): Machine to reva-core; reva-words, reva-vlib, reva-macros.
