@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-29
 
+- 08:35 `chore` Step local-comp-words complete (saga record).
 - 08:33 `refactor` The word families (step local-comp-words; docs/design.md 3.13): reva-words' 700-line `gate()` match and its helpers split into 14 crates in four new components, every gate a handler `fn(&mut Machine, Gate, &mut dyn Host)` in a family module that lists the gates it serves (`reva_macros::words!`, new), assembled by reva-words into a table indexed by gate and checked at compile time (a gate listed twice or not at all fails the build). words-base: reva-words-code (code space), -text (pure: digits, `single`/`double` parsing, `(.r)` formatting, compare, FNV), -calls (vectors, lists, heap), -scan (parsing, strings in memory); words-interp: -classes, -interp, -eval; words-dict: -compile, -memory, -system; words-os: -sys, -files, -libc, -ffi. Long functions split (sys_file, ffi_call, ffi_syscall, ffi_func, parsews, the number parsers, print_r, query_char, after_ok, c_opendir, tm_from_unix); tests in tests/*_tests.rs (103 now). Every golden unchanged; bench guard boot -14%, fib 0%, loop -1%, dragon -4%; sw-checklist 46 -> 40 (none left in the words). license-check exempts agentrail's session transcripts, which quote it.
 - 08:33 `refactor` Merge #52 (local-components): one Cargo workspace per component.
 
