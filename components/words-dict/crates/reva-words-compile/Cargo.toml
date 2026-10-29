@@ -1,0 +1,16 @@
+[package]
+name = "reva-words-compile"
+description = "Gates: compiling words, parsing and number words"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-core = { path = "../../../core/crates/reva-core" }
+reva-macros = { path = "../../../core/crates/reva-macros" }
+reva-words-code = { path = "../../../words-base/crates/reva-words-code" }
+reva-words-scan = { path = "../../../words-base/crates/reva-words-scan" }
+reva-words-text = { path = "../../../words-base/crates/reva-words-text" }

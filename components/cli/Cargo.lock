@@ -152,11 +152,148 @@ name = "reva-words"
 version = "2026.1026.0"
 dependencies = [
  "reva-core",
- "reva-host",
+ "reva-words-classes",
+ "reva-words-compile",
+ "reva-words-eval",
+ "reva-words-ffi",
+ "reva-words-interp",
+ "reva-words-memory",
+ "reva-words-system",
+]
+
+[[package]]
+name = "reva-words-calls"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-code",
+]
+
+[[package]]
+name = "reva-words-classes"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-calls",
+ "reva-words-code",
+ "reva-words-scan",
+]
+
+[[package]]
+name = "reva-words-code"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+]
+
+[[package]]
+name = "reva-words-compile"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-code",
+ "reva-words-scan",
+ "reva-words-text",
+]
+
+[[package]]
+name = "reva-words-eval"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-calls",
+ "reva-words-code",
+ "reva-words-scan",
+]
+
+[[package]]
+name = "reva-words-ffi"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
  "reva-macros",
  "reva-vlib",
- "reva-x86",
+ "reva-words-files",
+ "reva-words-libc",
+ "reva-words-sys",
 ]
+
+[[package]]
+name = "reva-words-files"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-sys",
+]
+
+[[package]]
+name = "reva-words-interp"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-calls",
+ "reva-words-code",
+ "reva-words-scan",
+]
+
+[[package]]
+name = "reva-words-libc"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-files",
+ "reva-words-sys",
+]
+
+[[package]]
+name = "reva-words-memory"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-calls",
+ "reva-words-scan",
+ "reva-words-text",
+]
+
+[[package]]
+name = "reva-words-scan"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-calls",
+ "reva-words-text",
+]
+
+[[package]]
+name = "reva-words-sys"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+]
+
+[[package]]
+name = "reva-words-system"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-calls",
+]
+
+[[package]]
+name = "reva-words-text"
+version = "2026.1026.0"
 
 [[package]]
 name = "reva-x86"
