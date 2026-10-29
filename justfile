@@ -51,7 +51,7 @@ bench-guard *ARGS:
 
 # tests of the portable core and the browser build
 test: wasm
-    for c in x86 host core vlib words-base words-interp words-dict words-os words vm sqlite cli web serve; do (cd components/$c && cargo test --release --workspace) || exit 1; done
+    for c in macros x86-types x86-decode x86-alu x86-exec x86 host core vlib words-base words-interp words-dict words-os words vm sqlite cli web serve; do (cd components/$c && cargo test --release --workspace) || exit 1; done
     node components/web/crates/reva-web/test/smoke.mjs
     node components/web/crates/reva-web/test/lineedit.mjs
     node components/web/crates/reva-web/test/ansi.mjs

@@ -321,7 +321,8 @@ Read before working:
 - `.agentrail/plan.md` -- the current saga
 
 Layout: `components/<name>/` (one Cargo workspace each, crates in
-`crates/`: x86, host, core, vlib, words-base, words-interp, words-dict,
+`crates/`: macros, x86-types, x86-decode, x86-alu, x86-exec, x86, host,
+core, vlib, words-base, words-interp, words-dict,
 words-os, words, vm, sqlite, cli, web, serve, desktop; docs/design.md 3.13), `src/reva.f`, `lib/` (Forth libraries,
 embedded into the VM), `examples/`, `docs/`, `tests/forth/` and
 `work/reg-rs/` (goldens), `scripts/`, `justfile`. Everything builds into

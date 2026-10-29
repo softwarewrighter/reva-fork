@@ -1,0 +1,13 @@
+[package]
+name = "reva-x86-float"
+description = "Pure x87 arithmetic: the 80-bit format, scaling, comparison"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+
+reva-x86-types = { path = "../../../x86-types/crates/reva-x86-types" }
