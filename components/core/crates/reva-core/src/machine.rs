@@ -31,7 +31,7 @@ use crate::host::Host;
 use crate::layout::*;
 use crate::mem::{Memory, PAGE_SIZE};
 use crate::translate::Translator;
-use crate::x86::{Cpu, EAX, ESI, ESP, Insn, decode};
+use crate::x86::{Arith, Cpu, EAX, ESI, ESP, Exec, Insn, decode};
 
 /// Addresses of the static variables and DEFER vectors.
 ///

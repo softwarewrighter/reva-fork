@@ -1,0 +1,12 @@
+[package]
+name = "reva-x86-mem"
+description = "VM memory: bounds-checked access, code-page tracking"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-x86-base = { path = "../reva-x86-base" }

@@ -1,0 +1,12 @@
+[package]
+name = "reva-x86-fpustate"
+description = "The x87 register stack, tags, control and status words"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+

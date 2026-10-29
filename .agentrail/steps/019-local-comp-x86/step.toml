@@ -1,6 +1,6 @@
 number = 19
 slug = "local-comp-x86"
-status = "pending"
+status = "in-progress"
 description = "reva-x86 (components/x86): decode (decode 381 lines, fpu_op 206), exec (exec ..."
 role = "production"
 context_files = []
