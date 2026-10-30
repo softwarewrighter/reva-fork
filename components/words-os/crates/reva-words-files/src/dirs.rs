@@ -5,6 +5,7 @@ use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::vfs::errno::EBADF;
 use reva_core::{DirStream, st};
+use reva_core_ffi::regs::MachineRegs;
 use reva_words_sys::fs::with_fs;
 use reva_words_sys::paths::Paths;
 

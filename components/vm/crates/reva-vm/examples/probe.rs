@@ -1,3 +1,4 @@
+use reva_vm::prelude::*;
 use reva_vm::{BufferHost, Machine};
 fn main() {
     let mut vm = Machine::new(&["reva", reva_vm::embedded::BOOT_PATH]);

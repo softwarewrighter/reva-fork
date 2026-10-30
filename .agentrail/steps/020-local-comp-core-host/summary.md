@@ -1,0 +1,1 @@
+reva-core reduced to the Machine state and 14 helpers; methods as extension traits in reva-core-ffi/-inspect/-run/-boot; gate/heap/translate in core-parts; canvas component; reva_vm::prelude; tables for statics and dictionary; sw-checklist 27->22; host split into local-comp-host. Pushed as pr/local-comp-core-host (stacked on #54).

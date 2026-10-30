@@ -14,6 +14,11 @@ reva-host = { path = "../../../host/crates/reva-host", default-features = false 
 reva-core = { path = "../../../core/crates/reva-core" }
 reva-vlib = { path = "../../../vlib/crates/reva-vlib" }
 reva-words = { path = "../../../words/crates/reva-words" }
+reva-core-ffi = { path = "../../../core/crates/reva-core-ffi" }
+reva-core-inspect = { path = "../../../core/crates/reva-core-inspect" }
+reva-core-run = { path = "../../../core-run/crates/reva-core-run" }
+reva-core-boot = { path = "../../../core-run/crates/reva-core-boot" }
+reva-canvas-out = { path = "../../../canvas/crates/reva-canvas-out" }
 
 [features]
 default = ["embed-lib"]

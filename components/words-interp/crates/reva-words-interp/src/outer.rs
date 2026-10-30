@@ -4,6 +4,7 @@ use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::x86::{EDI, EDX};
 use reva_core::{Dispatch, Gate, Machine, Next};
+use reva_core_inspect::words::Dictionary;
 use reva_words_code::emit::Emit;
 
 type R<T = ()> = Result<T, Fault>;

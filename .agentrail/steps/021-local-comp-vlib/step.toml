@@ -1,8 +1,0 @@
-number = 21
-slug = "local-comp-vlib"
-status = "pending"
-description = "reva-vlib (components/vlib): one crate per virtual library or family (turtle+..."
-role = "production"
-context_files = []
-created_at = "2026-10-26T12:49:22"
-commits = []

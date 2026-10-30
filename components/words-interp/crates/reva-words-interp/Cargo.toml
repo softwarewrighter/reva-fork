@@ -14,3 +14,4 @@ reva-macros = { path = "../../../macros/crates/reva-macros" }
 reva-words-code = { path = "../../../words-base/crates/reva-words-code" }
 reva-words-calls = { path = "../../../words-base/crates/reva-words-calls" }
 reva-words-scan = { path = "../../../words-base/crates/reva-words-scan" }
+reva-core-inspect = { path = "../../../core/crates/reva-core-inspect" }

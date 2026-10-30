@@ -17,6 +17,8 @@
 //! (`~/.reva_history`, or `$REVA_HISTORY`), Up/Down, Ctrl-R search and
 //! Emacs keys (see `lineedit.rs`, `term.rs` and docs/repl.md).
 
+use reva_vm::prelude::Input as _;
+use reva_vm::prelude::*;
 use std::io::{self, IsTerminal, Read, Write};
 use std::process::ExitCode;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};

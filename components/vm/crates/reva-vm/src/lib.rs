@@ -18,6 +18,7 @@
 //! See `docs/design.md` for the rationale, the trade-offs, and the roadmap.
 //!
 //! ```
+//! use reva_vm::prelude::*;
 //! use reva_vm::{BufferHost, Machine, Status};
 //! let mut vm = Machine::new(&["reva", reva_vm::embedded::BOOT_PATH]);
 //! let mut host = BufferHost::new();
@@ -30,12 +31,14 @@
 //! ```
 
 pub mod machine;
+pub mod prelude;
 pub mod start;
 
 // Every module of the one-crate core, from the crate it lives in now, under
 // its old path (docs/design.md 3.12).
 pub use reva_core::gate as gates;
-pub use reva_core::{canvas, heap, image, translate};
+pub use reva_core::{canvas, heap, translate};
+pub use reva_core_boot::image;
 pub use reva_host::{charset, embedded, host, hostcall, version, vfs};
 pub use reva_vlib::{highlight, iconv, sqlite, turtle};
 pub use reva_words::ffi;
