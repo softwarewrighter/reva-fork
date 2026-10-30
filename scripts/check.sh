@@ -29,10 +29,10 @@ esac
 # sw-checklist FAILs: 51 on 2026-10-26, 49 after edition 2024, 47 after
 # the web checks, 46 after the split of reva-vm, 40 after the word
 # families (local-comp-words), 27 after vx86 (local-comp-x86), 22 after the
-# machine (local-comp-core), 18 after the host (local-comp-host).  Lower this as steps fix them
+# machine (local-comp-core), 18 after the host (local-comp-host), 15 after vlib (local-comp-vlib).  Lower this as steps fix them
 # (.agentrail: local-edition-2024 ... local-split-front-ends); at 0 the
 # checklist is required outright.
-SW_CHECKLIST_MAX_FAILS=18
+SW_CHECKLIST_MAX_FAILS=15
 
 fast=0
 [[ "${1:-}" == --fast ]] && fast=1

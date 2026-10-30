@@ -9,9 +9,7 @@ authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-reva-x86 = { path = "../../../x86/crates/reva-x86" }
-reva-host = { path = "../../../host/crates/reva-host", default-features = false }
-reva-core = { path = "../../../core/crates/reva-core" }
-reva-macros = { path = "../../../macros/crates/reva-macros" }
-reva-core-ffi = { path = "../../../core/crates/reva-core-ffi" }
-reva-canvas-out = { path = "../../../canvas/crates/reva-canvas-out" }
+reva-vlib-turtle = { path = "../reva-vlib-turtle" }
+reva-vlib-highlight = { path = "../reva-vlib-highlight" }
+reva-vlib-iconv = { path = "../reva-vlib-iconv" }
+reva-vlib-sqlite = { path = "../../../sqlite/crates/reva-vlib-sqlite" }

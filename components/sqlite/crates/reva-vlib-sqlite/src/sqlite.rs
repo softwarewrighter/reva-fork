@@ -8,12 +8,12 @@
 //! host answers (docs/design.md 3.11; the CLI and the desktop app with the
 //! reva-sqlite crate).
 
-use crate::fault::Fault;
-use crate::gates::Gate;
-use crate::host::Host;
-use crate::hostcall::{HostAnswer, HostCall, HostReply};
-use crate::machine::Next;
-use crate::x86::ESI;
+use reva_core::fault::Fault;
+use reva_core::gates::Gate;
+use reva_core::host::Host;
+use reva_core::hostcall::{HostAnswer, HostCall, HostReply};
+use reva_core::machine::Next;
+use reva_core::x86::ESI;
 use reva_core_ffi::args::CallArgs;
 
 /// Handle `(lib)` returns for this library ("RSQL").

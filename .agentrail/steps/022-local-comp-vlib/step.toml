@@ -1,6 +1,6 @@
 number = 22
 slug = "local-comp-vlib"
-status = "pending"
+status = "in-progress"
 description = "reva-vlib (components/vlib): one crate per virtual library or family (turtle+..."
 role = "production"
 context_files = []
