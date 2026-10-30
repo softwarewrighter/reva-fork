@@ -9,3 +9,16 @@ authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+reva-x86-base = { path = "../../../x86-types/crates/reva-x86-base" }
+reva-x86-mem = { path = "../../../x86-types/crates/reva-x86-mem" }
+reva-x86-fpustate = { path = "../../../x86-types/crates/reva-x86-fpustate" }
+reva-x86-types = { path = "../../../x86-types/crates/reva-x86-types" }
+reva-x86-cursor = { path = "../../../x86-decode/crates/reva-x86-cursor" }
+reva-x86-opcodes = { path = "../../../x86-decode/crates/reva-x86-opcodes" }
+reva-x86-fpudec = { path = "../../../x86-decode/crates/reva-x86-fpudec" }
+reva-x86-decode = { path = "../../../x86-decode/crates/reva-x86-decode" }
+reva-x86-ops = { path = "../../../x86-alu/crates/reva-x86-ops" }
+reva-x86-shift = { path = "../../../x86-alu/crates/reva-x86-shift" }
+reva-x86-float = { path = "../../../x86-alu/crates/reva-x86-float" }
+reva-x86-fpuexec = { path = "../../../x86-exec/crates/reva-x86-fpuexec" }
+reva-x86-exec = { path = "../../../x86-exec/crates/reva-x86-exec" }

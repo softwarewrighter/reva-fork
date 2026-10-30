@@ -38,11 +38,15 @@ each `components/<name>/` with its `Cargo.toml`, `Cargo.lock` and
 
 ```
 components/
-  x86/      reva-x86     vx86: CPU types, decoder, executor, x87, memory, faults, layout
+  macros/   reva-macros  machine_trait!, words!, ext_trait!
+  x86-types/  reva-x86-base, -mem, -fpustate, -types   faults, layout, memory, x87 registers, Op/Insn/Cpu
+  x86-decode/ reva-x86-cursor, -opcodes, -fpudec, -decode   the decoder (an opcode table)
+  x86-alu/    reva-x86-ops, -shift, -float              operands, ALU, shifts, strings, x87 math
+  x86-exec/   reva-x86-fpuexec, -exec                   executing instructions
+  x86/      reva-x86     facade: the x86 components under their old paths
   host/     reva-host    the host side: Host trait, host calls, virtual file system,
                          embedded reva.f and lib/, version, encodings (build script)
   core/     reva-core    the Machine, its run loop, gates, heap, images, canvas
-            reva-macros  machine_trait!: methods on Machine from other crates
   vlib/     reva-vlib    virtual libraries: libc, turtle, highlight, sqlite, iconv
   words-base/   reva-words-code, -text, -calls, -scan   the words' helpers
   words-interp/ reva-words-classes, -interp, -eval      classes, interpreter, eval, catch, defining
