@@ -23,8 +23,9 @@ use std::io::{self, IsTerminal, Read, Write};
 use std::process::ExitCode;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use reva_vm::host::{Console, Platform, Resources};
 use reva_vm::vfs::FileSystem;
-use reva_vm::{Host, Machine, Start, Status, embedded, version};
+use reva_vm::{Machine, Start, Status, embedded, version};
 
 const USAGE: &str = "\
 usage: reva [options] [file ...]
@@ -81,31 +82,8 @@ impl StdHost {
     }
 }
 
-/// Process environment, clock and file system, shared by both hosts.
-macro_rules! os_services {
-    () => {
-        fn getenv(&mut self, name: &str) -> Option<String> {
-            std::env::var(name).ok()
-        }
-        fn setenv(&mut self, name: &str, value: &str) {
-            // SAFETY: reva-cli runs on one thread (it starts none), so no
-            // other thread can read the environment while it changes.
-            unsafe { std::env::set_var(name, value) };
-        }
-        fn now(&mut self) -> Option<(u64, u32)> {
-            let d = SystemTime::now().duration_since(UNIX_EPOCH).ok()?;
-            Some((d.as_secs(), d.subsec_micros()))
-        }
-        fn sleep_ms(&mut self, ms: u32) {
-            std::thread::sleep(Duration::from_millis(ms.into()));
-        }
-        fn fs(&mut self) -> Option<&mut dyn FileSystem> {
-            Some(&mut self.fs)
-        }
-    };
-}
-
-impl Host for StdHost {
+/// Output and the terminal.
+impl Console for StdHost {
     fn write(&mut self, bytes: &[u8]) {
         match &mut self.capture {
             Some(c) => c.extend_from_slice(bytes),
@@ -125,20 +103,46 @@ impl Host for StdHost {
         }
     }
 
-    os_services!();
-
     fn color(&mut self) -> bool {
         self.color
-    }
-
-    fn host_call(&mut self, call: &reva_vm::hostcall::HostCall) -> reva_vm::hostcall::HostAnswer {
-        sql::answer(&mut self.sql, &mut self.fs, call)
     }
 
     /// VM notes go to stderr, after what Forth printed so far.
     fn diag(&mut self, line: &str) {
         let _ = self.out.flush();
         eprint!("{line}");
+    }
+
+    fn read_input_blocking(&mut self) -> Option<Vec<u8>> {
+        if self.capture.is_some() {
+            return None;
+        }
+        match self.read_line() {
+            Input::Line(l) => Some(l.into_bytes()),
+            Input::Eof => Some(Vec::new()),
+        }
+    }
+}
+
+/// Process environment, clock and the shell.
+impl Platform for StdHost {
+    fn getenv(&mut self, name: &str) -> Option<String> {
+        std::env::var(name).ok()
+    }
+
+    fn setenv(&mut self, name: &str, value: &str) {
+        // SAFETY: reva-cli runs on one thread (it starts none), so no
+        // other thread can read the environment while it changes.
+        unsafe { std::env::set_var(name, value) };
+    }
+
+    fn now(&mut self) -> Option<(u64, u32)> {
+        let d = SystemTime::now().duration_since(UNIX_EPOCH).ok()?;
+        Some((d.as_secs(), d.subsec_micros()))
+    }
+
+    fn sleep_ms(&mut self, ms: u32) {
+        std::thread::sleep(Duration::from_millis(ms.into()));
     }
 
     /// `system(3)`: `sh -c cmd`, returning the wait status as C does.
@@ -155,15 +159,16 @@ impl Host for StdHost {
             Err(_) => 127 << 8,
         })
     }
+}
 
-    fn read_input_blocking(&mut self) -> Option<Vec<u8>> {
-        if self.capture.is_some() {
-            return None;
-        }
-        match self.read_line() {
-            Input::Line(l) => Some(l.into_bytes()),
-            Input::Eof => Some(Vec::new()),
-        }
+/// The real file system, and SQLite through host calls.
+impl Resources for StdHost {
+    fn fs(&mut self) -> Option<&mut dyn FileSystem> {
+        Some(&mut self.fs)
+    }
+
+    fn host_call(&mut self, call: &reva_vm::hostcall::HostCall) -> reva_vm::hostcall::HostAnswer {
+        sql::answer(&mut self.sql, &mut self.fs, call)
     }
 }
 

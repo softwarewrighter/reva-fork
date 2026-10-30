@@ -1,0 +1,17 @@
+[package]
+name = "reva-embedded"
+description = "Sources compiled into the core: reva.f and the lib/ tree"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-version = { path = "../../../host-base/crates/reva-version" }
+
+[features]
+default = ["embed-lib"]
+# Compile lib/ into the core so `needs` works without the files (browser).
+embed-lib = []

@@ -402,7 +402,9 @@ new module, crate or component, never a merge).
 | `x86-alu` | reva-x86-ops (operands, ALU, stack, mul/div), -shift (shifts, rotates, strings), -float (pure: the 80-bit format, scaling, comparison) | x86-types, macros |
 | `x86-exec` | reva-x86-fpuexec, -exec (`Exec::exec`, by instruction group) | x86-types, x86-alu |
 | `x86` | reva-x86: a facade, every old path re-exported, with the traits that give `Cpu` its methods | the x86 components |
-| `host` | reva-host | — |
+| `host-base` | reva-version, reva-embedded (reva.f, `lib/`; each with its build script), reva-hostcall, reva-charset | — |
+| `vfs` | reva-vfs (types; `FileSystem` as `FsFiles` + `FsMeta` + `FsDirs`), reva-memtree, reva-memfs | host-base |
+| `host` | reva-host-traits (`Host` as `Console` + `Platform` + `Resources`), reva-host-buffer (`BufferHost`), reva-host (facade: every old path) | host-base, vfs |
 | `core-parts` | reva-gate (the gateway table), reva-heap, reva-translate (translator hooks, the decode cache) | x86 |
 | `canvas` | reva-canvas (the turtle and its display list), reva-canvas-out (op stream, SVG) | macros |
 | `core` | reva-core (the `Machine` state and the stack and statics helpers every gateway uses), reva-core-ffi (`(call)` arguments, registers), reva-core-inspect (dictionary, state, settings) | x86, host, core-parts, canvas |
