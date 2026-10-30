@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-30
 
+- 16:00 `chore` Step local-comp-vlib complete (saga record).
 - 16:00 `refactor` Virtual libraries in crates (step local-comp-vlib): reva-vlib-turtle (names; the canvas functions as pure `draw`/`set`/`query`; the call with `tt_path`/`tt_svg`; `turtle_call` 97 lines -> 15), reva-vlib-highlight (table, lexer with `tokens` split into `word_token`, render, call), reva-vlib-iconv, and reva-vlib-sqlite in the sqlite component; reva-vlib is a facade at the old paths. Highlight tests in tests/. Goldens and bench unchanged; sw-checklist 18 -> 15 (none left in vlib).
 - 16:00 `plan` The TUI renders one way everywhere (the user, 2026-10-31, option 2): the UI model lays out into a cell grid with a Yew grid backend (browser, desktop; step local-ui-grid, was local-ui-yew) and a crossterm backend (CLI; local-ui-terminal); docs/iup-plan.md updated. local-portable-gates also makes parity-examples independent of speed (it flipped once at the 5 s limit).
 - 16:00 `refactor` Merge #54, #55, #56 (local-comp-x86, local-comp-core-host, local-comp-host).
