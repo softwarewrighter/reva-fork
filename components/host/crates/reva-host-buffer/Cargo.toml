@@ -1,0 +1,15 @@
+[package]
+name = "reva-host-buffer"
+description = "BufferHost: output in memory, an in-memory file system"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-host-traits = { path = "../../../host/crates/reva-host-traits" }
+reva-vfs = { path = "../../../vfs/crates/reva-vfs" }
+reva-memfs = { path = "../../../vfs/crates/reva-memfs" }
+reva-hostcall = { path = "../../../host-base/crates/reva-hostcall" }

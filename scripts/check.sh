@@ -29,10 +29,10 @@ esac
 # sw-checklist FAILs: 51 on 2026-10-26, 49 after edition 2024, 47 after
 # the web checks, 46 after the split of reva-vm, 40 after the word
 # families (local-comp-words), 27 after vx86 (local-comp-x86), 22 after the
-# machine (local-comp-core).  Lower this as steps fix them
+# machine (local-comp-core), 18 after the host (local-comp-host).  Lower this as steps fix them
 # (.agentrail: local-edition-2024 ... local-split-front-ends); at 0 the
 # checklist is required outright.
-SW_CHECKLIST_MAX_FAILS=22
+SW_CHECKLIST_MAX_FAILS=18
 
 fast=0
 [[ "${1:-}" == --fast ]] && fast=1
@@ -42,7 +42,7 @@ fail() { printf '\ncheck: FAILED: %s\n' "$*" >&2; exit 1; }
 
 # The components the core builds from, dependencies first; the desktop
 # (Tauri, a few hundred crates) is step 3.
-COMPONENTS="macros x86-types x86-decode x86-alu x86-exec x86 host core-parts canvas core core-run vlib words-base words-interp words-dict words-os words vm sqlite cli web serve"
+COMPONENTS="macros x86-types x86-decode x86-alu x86-exec x86 host-base vfs host core-parts canvas core core-run vlib words-base words-interp words-dict words-os words vm sqlite cli web serve"
 
 version() { awk -F'"' '/^version *=/ { print $2; exit }' "$root/components/$1/Cargo.toml"; }
 for c in $COMPONENTS; do

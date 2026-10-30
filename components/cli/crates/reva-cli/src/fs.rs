@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use std::time::UNIX_EPOCH;
 
 use reva_vm::embedded;
-use reva_vm::vfs::{self, Access, Errno, FIRST_FD, FileSystem, Stat, errno::*};
+use reva_vm::vfs::{self, Access, Errno, FIRST_FD, FsDirs, FsFiles, FsMeta, Stat, errno::*};
 
 /// Where `/reva/...` lives on disk: `$REVA_HOME`, else the checkout this
 /// binary was built from.
@@ -92,7 +92,7 @@ fn stat_of(m: &fs::Metadata) -> Stat {
     }
 }
 
-impl FileSystem for StdFs {
+impl FsFiles for StdFs {
     fn open(&mut self, path: &str, access: Access) -> Result<u32, Errno> {
         let (v, p) = self.resolve(path);
         if p.is_dir() {
@@ -166,7 +166,9 @@ impl FileSystem for StdFs {
             }
         }
     }
+}
 
+impl FsMeta for StdFs {
     fn fstat(&mut self, fd: u32) -> Result<Stat, Errno> {
         match self.handle(fd)? {
             Handle::Disk { file, .. } => file.metadata().map(|m| stat_of(&m)).map_err(errno),
@@ -213,7 +215,9 @@ impl FileSystem for StdFs {
         let (_, p) = self.resolve(path);
         fs::create_dir(p).map_err(errno)
     }
+}
 
+impl FsDirs for StdFs {
     fn rmdir(&mut self, path: &str) -> Result<(), Errno> {
         let (_, p) = self.resolve(path);
         fs::remove_dir(p).map_err(errno)

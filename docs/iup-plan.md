@@ -5,13 +5,33 @@ CoSy's "Textual User Interface" (`Tui.f`) first among them. What needs to
 be done, in what order, and how we will know it works. The low-level
 design (components, crates, modules, files) comes later, after the
 sw-checklist work, within the rules in CLAUDE.md. Saga steps:
-`local-ui-model`, `local-iup`, `local-ui-yew`, `local-tui-cosy`.
+`local-ui-model`, `local-iup`, `local-ui-yew`, `local-tui-cosy`,
+`local-ui-terminal`, `local-ui-canvas` (stage 1); `local-ui-panes`
+(stage 2).
 
 ## Goal
 
 Existing Reva GUI programs run **unchanged** on reva-fork: in the browser,
-in the desktop app and on the live demo. The Forth side
-(`lib/ui/iup`, `lib/ui/gui`, the programs) is not edited.
+in the desktop app and on the live demo, and the Notebook (below) in the
+CLI's terminal too. The Forth side (`lib/ui/iup`, `lib/ui/gui`, the
+programs) is not edited.
+
+## Two stages (the user, 2026-10-30)
+
+1. **The Notebook: parity first.** What Reva and CoSy did with IUP.
+   CoSy's `Tui.f` is a notebook: one dialog with three edit panes (the
+   text you type, the result of evaluating it, a state pane), a stack
+   status line, a row of buttons, and F-keys (F6 evaluates the current
+   line, shift-F6 the selection, F8/F9 send a line elsewhere, others
+   insert dates or save the text into CoSy's dictionary). Reva's own
+   `examples/iup` are single dialogs of widgets. Stage 1 runs both in the
+   browser, the desktop app, and (without graphics) the CLI's terminal.
+2. **Panes: a longer-term goal** that builds on stage 1, not the other
+   way round. A tmux/Emacs-inspired layout: split horizontally and
+   vertically, zoom one pane to the full window and back; an editor pane
+   (load, save, evaluate a line into a REPL), a tail pane (follow a file
+   or another pane's output), several REPLs, IUP dialogs in panes; the
+   same layout in the browser, the desktop app and the terminal.
 
 ## Decisions (with the user, 2026-10-28)
 
@@ -80,7 +100,16 @@ one direct `IupStoreAttribute`.
 4. **CoSy's TUI end to end** (`local-tui-cosy`). `Tui.f` running
    unchanged in the desktop app and the browser; whatever it still needs
    fixed here; the CoSy lane told what to drop.
-5. **The rest of the examples**, in order of how many programs a feature
+5. **A terminal renderer** (`local-ui-terminal`) of the same model for
+   the CLI: `Tui.f` and the simple examples in a terminal.
+6. **Graphics** (`local-ui-canvas`; browser and desktop only). Reva drew
+   through IUP's `canvas[` and Tecgraf's CD library (`lib/ui/cd`: lines,
+   boxes, arcs, polygons, text, colours, clipping, images), repainting
+   from the canvas's redraw callback. CD becomes a virtual library that
+   draws into the turtle's display list (components/canvas), shown by a
+   canvas pane; parity: `binary-clock`, `brownian`, `cd-test`. Not CD's
+   PDF/printer contexts, and not OpenGL.
+7. **The rest of the examples**, in order of how many programs a feature
    unblocks: menus and toolbars, toggles, radios, lists and tabs, timers,
    file and message dialogs, the matrix; then drawing (the CD library on
    the turtle canvas's drawing surface), images; OpenGL last, if at all.
@@ -98,16 +127,16 @@ one direct `IupStoreAttribute`.
 
 ## Open questions
 
-- **The CLI.** It has no window. Options: no GUI on the CLI (a clear
-  stop, as now); or a terminal renderer of the same model (a real
-  text-mode TUI), later. To decide when the model exists.
+- **The CLI.** Decided: a terminal renderer of the same model (step 5),
+  without graphics. Open: the `crossterm` crate (MIT) or our own raw
+  mode and ANSI (reva-cli's `term.rs` already has raw mode).
 - **Look.** Match IUP's native look, or the REPL page's theme (light and
   dark)? The plan assumes the page's theme.
 - **Windows.** One dialog at a time inside the page, several as in-page
   windows, or separate native windows in the desktop app (as the turtle
   graphics window)?
-- **Drawing (CD) and images.** Map onto the turtle canvas's drawing
-  surface, or a separate canvas element?
+- **Drawing (CD) and images.** Decided: the turtle's display list, in a
+  canvas pane (step 6).
 - **Licensing of names.** IUP's API names and behaviour are reimplemented
   from its documentation (MIT); nothing of its code. To record in
   docs/licenses.md when the work starts.
