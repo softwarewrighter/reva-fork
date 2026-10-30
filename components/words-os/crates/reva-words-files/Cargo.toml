@@ -10,5 +10,5 @@ rust-version.workspace = true
 
 [dependencies]
 reva-core = { path = "../../../core/crates/reva-core" }
-reva-macros = { path = "../../../core/crates/reva-macros" }
+reva-macros = { path = "../../../macros/crates/reva-macros" }
 reva-words-sys = { path = "../reva-words-sys" }

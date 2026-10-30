@@ -65,7 +65,7 @@ Addresses below 0x1000 fault, so `0 @` is reported, not silently read.
 
 ### 3.2 The instruction subset
 
-`x86/decode.rs` covers the one-byte and `0F` opcodes that occur in Reva's
+The decoder (components/x86-decode) covers the one-byte and `0F` opcodes that occur in Reva's
 output and sources, plus their regular neighbours: all ALU ops in all
 forms, shifts/rotates, `mul/imul/div/idiv`, `lods/stos/movs/scas/cmps` with
 `rep`, near `jmp/call/ret/jcc/loop`, `setcc/cmovcc`, `movzx/movsx`, `66`
@@ -269,7 +269,7 @@ on the original (and as a launcher loop would); stop it with Ctrl-C.
 `lib/math/floats` is x87 code written as bytes (`f+` is `inline{ de c1 }`,
 `f@` is `fld tbyte [eax]`), and CoSy stores its floats in the x87's 80-bit
 format. So the VM decodes the x87 (`D8`–`DF`, `fwait` as a no-op;
-`x86/fpu.rs`) and keeps its state in the CPU: eight registers as a stack
+components/x86-exec's reva-x86-fpuexec) and keeps its state in the CPU: eight registers as a stack
 with `TOP` and tags, the control word and the status word.
 
 - **What is there:** loads and stores of every memory format (32/64/80-bit
@@ -396,7 +396,12 @@ new module, crate or component, never a merge).
 
 | Component | Crates | Depends on |
 |---|---|---|
-| `x86` | reva-x86 | — |
+| `macros` | reva-macros: `machine_trait!`, `words!`, `ext_trait!` | — |
+| `x86-types` | reva-x86-base (faults, the address map), -mem, -fpustate (the x87 registers), -types (`Op`, `Insn`, `Cpu`) | — |
+| `x86-decode` | reva-x86-cursor, -opcodes (one decoder per opcode group), -fpudec (the x87's), -decode (prefixes, a 256-entry opcode table, `0F`) | x86-types |
+| `x86-alu` | reva-x86-ops (operands, ALU, stack, mul/div), -shift (shifts, rotates, strings), -float (pure: the 80-bit format, scaling, comparison) | x86-types, macros |
+| `x86-exec` | reva-x86-fpuexec, -exec (`Exec::exec`, by instruction group) | x86-types, x86-alu |
+| `x86` | reva-x86: a facade, every old path re-exported, with the traits that give `Cpu` its methods | the x86 components |
 | `host` | reva-host | — |
 | `core` | reva-core, reva-macros | x86, host |
 | `vlib` | reva-vlib | x86, host, core |
@@ -411,6 +416,13 @@ new module, crate or component, never a merge).
 | `web` | reva-web | vm |
 | `serve` | reva-serve | (web's www/, embedded at build time) |
 | `desktop` | reva-desktop | sqlite (and web's www/, copied by build.sh) |
+
+`Cpu` is defined in reva-x86-types, and Rust allows `impl Cpu` only
+there, so the executor's crates add its methods through extension traits
+(`reva_macros::ext_trait!`, the pattern of `machine_trait!`); a caller
+imports the trait (`reva_x86::Exec`). The split was checked against the
+old one-crate executor: 9 million random decodes and 1.3 million random
+executed instructions gave the same results, CPU state and memory.
 
 The words are gate handlers, `fn(&mut Machine, Gate, &mut dyn Host)`,
 in families; each family module lists the gates it serves
