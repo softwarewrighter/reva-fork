@@ -322,7 +322,7 @@ Read before working:
 
 Layout: `components/<name>/` (one Cargo workspace each, crates in
 `crates/`: macros, x86-types, x86-decode, x86-alu, x86-exec, x86, host,
-core, vlib, words-base, words-interp, words-dict,
+core-parts, canvas, core, core-run, vlib, words-base, words-interp, words-dict,
 words-os, words, vm, sqlite, cli, web, serve, desktop; docs/design.md 3.13), `src/reva.f`, `lib/` (Forth libraries,
 embedded into the VM), `examples/`, `docs/`, `tests/forth/` and
 `work/reg-rs/` (goldens), `scripts/`, `justfile`. Everything builds into
@@ -353,7 +353,7 @@ so the cloud lane can rebase.
 
 - `src/reva.f` stays verbatim. What the port needs is inserted at boot
   by `components/host/crates/reva-host/src/embedded.rs`.
-- Gate numbers (`components/core/crates/reva-core/src/gate.rs`) are append-only: saved
+- Gate numbers (`components/core-parts/crates/reva-gate/src/gate.rs`) are append-only: saved
   images hold gate addresses.
 - Refactors change no behaviour: tests, goldens and the web smoke test
   pass unchanged.

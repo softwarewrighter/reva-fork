@@ -3,6 +3,7 @@
 use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::vfs::Access;
+use reva_core_boot::image::Images;
 use reva_words_sys::fs::{ret, with_fs};
 use reva_words_sys::paths::Paths;
 

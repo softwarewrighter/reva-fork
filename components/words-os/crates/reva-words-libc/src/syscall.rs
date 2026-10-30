@@ -4,6 +4,7 @@ use crate::clock::Clock;
 use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::x86::{EAX, ESI};
+use reva_core_ffi::regs::MachineRegs;
 use reva_words_files::sysfile::SysFile;
 
 type R<T = ()> = Result<T, Fault>;

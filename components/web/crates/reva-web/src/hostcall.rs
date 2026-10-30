@@ -5,6 +5,7 @@
 //! `reva_resume_*` / `reva_refuse` exports, then runs again.
 
 use reva_vm::hostcall::{HostCall, HostReply};
+use reva_vm::prelude::*;
 
 use super::{FSBUF, with};
 

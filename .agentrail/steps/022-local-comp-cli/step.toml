@@ -1,8 +1,0 @@
-number = 22
-slug = "local-comp-cli"
-status = "pending"
-description = "reva-cli (components/cli): main (103 lines), lineedit (key 74 lines, a key-bi..."
-role = "production"
-context_files = []
-created_at = "2026-10-26T12:49:22"
-commits = []

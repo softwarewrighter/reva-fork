@@ -4,6 +4,8 @@ use crate::time::tm_from_unix;
 use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::st;
+use reva_core_ffi::args::CallArgs;
+use reva_core_ffi::regs::MachineRegs;
 
 type R<T = ()> = Result<T, Fault>;
 

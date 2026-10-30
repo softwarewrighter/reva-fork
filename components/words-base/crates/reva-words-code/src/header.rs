@@ -6,6 +6,7 @@ use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::layout::DTOP;
 use reva_core::st;
+use reva_core_run::nested::Nested;
 
 type R<T = ()> = Result<T, Fault>;
 

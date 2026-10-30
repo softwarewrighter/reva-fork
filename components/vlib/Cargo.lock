@@ -3,12 +3,47 @@
 version = 4
 
 [[package]]
+name = "reva-canvas"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-canvas-out"
+version = "2026.1026.0"
+dependencies = [
+ "reva-canvas",
+ "reva-macros",
+]
+
+[[package]]
 name = "reva-core"
 version = "2026.1026.0"
 dependencies = [
+ "reva-canvas",
+ "reva-gate",
+ "reva-heap",
  "reva-host",
+ "reva-translate",
  "reva-x86",
 ]
+
+[[package]]
+name = "reva-core-ffi"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+]
+
+[[package]]
+name = "reva-gate"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86-base",
+]
+
+[[package]]
+name = "reva-heap"
+version = "2026.1026.0"
 
 [[package]]
 name = "reva-host"
@@ -19,10 +54,19 @@ name = "reva-macros"
 version = "2026.1026.0"
 
 [[package]]
+name = "reva-translate"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86",
+]
+
+[[package]]
 name = "reva-vlib"
 version = "2026.1026.0"
 dependencies = [
+ "reva-canvas-out",
  "reva-core",
+ "reva-core-ffi",
  "reva-host",
  "reva-macros",
  "reva-x86",

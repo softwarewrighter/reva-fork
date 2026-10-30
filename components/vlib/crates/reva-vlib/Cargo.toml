@@ -13,3 +13,5 @@ reva-x86 = { path = "../../../x86/crates/reva-x86" }
 reva-host = { path = "../../../host/crates/reva-host", default-features = false }
 reva-core = { path = "../../../core/crates/reva-core" }
 reva-macros = { path = "../../../macros/crates/reva-macros" }
+reva-core-ffi = { path = "../../../core/crates/reva-core-ffi" }
+reva-canvas-out = { path = "../../../canvas/crates/reva-canvas-out" }

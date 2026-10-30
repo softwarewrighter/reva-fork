@@ -12,6 +12,8 @@ use crate::fault::Fault;
 use crate::gates::Gate;
 use crate::host::Host;
 use crate::vfs::Access;
+use reva_canvas_out::ops::CanvasOps;
+use reva_canvas_out::svg::CanvasSvg;
 
 type R<T = ()> = Result<T, Fault>;
 

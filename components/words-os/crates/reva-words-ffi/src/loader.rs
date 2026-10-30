@@ -4,6 +4,8 @@ use crate::libs::{func_addr, lib_handle};
 use reva_core::fault::{Fault, PORTABILITY_DOC};
 use reva_core::host::Host;
 use reva_core::x86::EAX;
+use reva_core_ffi::args::CallArgs;
+use reva_core_ffi::regs::MachineRegs;
 
 type R<T = ()> = Result<T, Fault>;
 

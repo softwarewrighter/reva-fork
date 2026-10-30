@@ -54,6 +54,7 @@
 //! * `reva_canvas_reset()` returns 1 once after `restart` made a new
 //!   machine (its drawing is empty: windows should clear), else 0.
 
+use reva_vm::prelude::*;
 use std::cell::RefCell;
 
 mod hostcall;
