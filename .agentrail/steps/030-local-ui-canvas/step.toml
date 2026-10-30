@@ -1,0 +1,8 @@
+number = 30
+slug = "local-ui-canvas"
+status = "pending"
+description = "Graphics for IUP programs, in the browser and the desktop app (not the CLI te..."
+role = "production"
+context_files = []
+created_at = "2026-10-30T14:11:30"
+commits = []

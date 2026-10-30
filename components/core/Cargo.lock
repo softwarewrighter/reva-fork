@@ -7,6 +7,10 @@ name = "reva-canvas"
 version = "2026.1026.0"
 
 [[package]]
+name = "reva-charset"
+version = "2026.1026.0"
+
+[[package]]
 name = "reva-core"
 version = "2026.1026.0"
 dependencies = [
@@ -35,6 +39,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "reva-embedded"
+version = "2026.1026.0"
+dependencies = [
+ "reva-version",
+]
+
+[[package]]
 name = "reva-gate"
 version = "2026.1026.0"
 dependencies = [
@@ -48,10 +59,61 @@ version = "2026.1026.0"
 [[package]]
 name = "reva-host"
 version = "2026.1026.0"
+dependencies = [
+ "reva-charset",
+ "reva-embedded",
+ "reva-host-buffer",
+ "reva-host-traits",
+ "reva-hostcall",
+ "reva-memfs",
+ "reva-memtree",
+ "reva-version",
+ "reva-vfs",
+]
+
+[[package]]
+name = "reva-host-buffer"
+version = "2026.1026.0"
+dependencies = [
+ "reva-host-traits",
+ "reva-hostcall",
+ "reva-memfs",
+ "reva-vfs",
+]
+
+[[package]]
+name = "reva-host-traits"
+version = "2026.1026.0"
+dependencies = [
+ "reva-embedded",
+ "reva-hostcall",
+ "reva-vfs",
+]
+
+[[package]]
+name = "reva-hostcall"
+version = "2026.1026.0"
 
 [[package]]
 name = "reva-macros"
 version = "2026.1026.0"
+
+[[package]]
+name = "reva-memfs"
+version = "2026.1026.0"
+dependencies = [
+ "reva-embedded",
+ "reva-memtree",
+ "reva-vfs",
+]
+
+[[package]]
+name = "reva-memtree"
+version = "2026.1026.0"
+dependencies = [
+ "reva-embedded",
+ "reva-vfs",
+]
 
 [[package]]
 name = "reva-translate"
@@ -59,6 +121,14 @@ version = "2026.1026.0"
 dependencies = [
  "reva-x86",
 ]
+
+[[package]]
+name = "reva-version"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-vfs"
+version = "2026.1026.0"
 
 [[package]]
 name = "reva-x86"

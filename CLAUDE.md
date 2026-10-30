@@ -308,7 +308,7 @@ reva-fork runs Ron Aaron's Reva Forth (`src/reva.f`, release 2011.2) on
 a portable core: vx86, an IA-32-subset virtual machine in Rust, with
 the original core's routines as Rust "gates". Hosts: the `reva` CLI,
 a WebAssembly build for the browser, `reva-serve`, and a Tauri desktop
-app. Version scheme `YYYY.MMDD.N` (see `components/host/crates/reva-host/src/version.rs`):
+app. Version scheme `YYYY.MMDD.N` (see `components/host-base/crates/reva-version/src/version.rs`):
 the day's version is set once (`.0`) and all of that day's work stays on
 it; `.1`, `.2` ... only for another release shipped to `main` the same
 day. Bump only when the user asks.
@@ -321,7 +321,7 @@ Read before working:
 - `.agentrail/plan.md` -- the current saga
 
 Layout: `components/<name>/` (one Cargo workspace each, crates in
-`crates/`: macros, x86-types, x86-decode, x86-alu, x86-exec, x86, host,
+`crates/`: macros, x86-types, x86-decode, x86-alu, x86-exec, x86, host-base, vfs, host,
 core-parts, canvas, core, core-run, vlib, words-base, words-interp, words-dict,
 words-os, words, vm, sqlite, cli, web, serve, desktop; docs/design.md 3.13), `src/reva.f`, `lib/` (Forth libraries,
 embedded into the VM), `examples/`, `docs/`, `tests/forth/` and
@@ -352,7 +352,7 @@ so the cloud lane can rebase.
 ## Invariants
 
 - `src/reva.f` stays verbatim. What the port needs is inserted at boot
-  by `components/host/crates/reva-host/src/embedded.rs`.
+  by `components/host-base/crates/reva-embedded/src/embedded.rs`.
 - Gate numbers (`components/core-parts/crates/reva-gate/src/gate.rs`) are append-only: saved
   images hold gate addresses.
 - Refactors change no behaviour: tests, goldens and the web smoke test

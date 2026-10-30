@@ -405,10 +405,15 @@ struct LaterHost {
     calls: Vec<reva_vm::hostcall::HostCall>,
 }
 
-impl reva_vm::Host for LaterHost {
+impl reva_vm::host::Console for LaterHost {
     fn write(&mut self, bytes: &[u8]) {
         self.inner.write(bytes);
     }
+}
+
+impl reva_vm::host::Platform for LaterHost {}
+
+impl reva_vm::host::Resources for LaterHost {
     fn host_call(&mut self, call: &reva_vm::hostcall::HostCall) -> reva_vm::hostcall::HostAnswer {
         self.calls.push(call.clone());
         reva_vm::hostcall::HostAnswer::Later

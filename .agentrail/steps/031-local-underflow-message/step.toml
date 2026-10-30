@@ -1,0 +1,8 @@
+number = 31
+slug = "local-underflow-message"
+status = "pending"
+description = "Bug (the user, 2026-10-28): when a word like `dir` runs with too few argument..."
+role = "production"
+context_files = []
+created_at = "2026-10-28T20:12:27"
+commits = []

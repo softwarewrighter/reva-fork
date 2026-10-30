@@ -1,6 +1,6 @@
 number = 21
 slug = "local-comp-host"
-status = "pending"
+status = "in-progress"
 description = "Split from local-comp-core-host (2026-10-29: that step was two PRs' worth): r..."
 role = "production"
 context_files = []
