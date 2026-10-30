@@ -1,0 +1,12 @@
+[package]
+name = "reva-heap"
+description = "A first-fit allocator for the VM heap, kept outside VM memory"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+

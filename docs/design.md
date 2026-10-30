@@ -403,7 +403,10 @@ new module, crate or component, never a merge).
 | `x86-exec` | reva-x86-fpuexec, -exec (`Exec::exec`, by instruction group) | x86-types, x86-alu |
 | `x86` | reva-x86: a facade, every old path re-exported, with the traits that give `Cpu` its methods | the x86 components |
 | `host` | reva-host | — |
-| `core` | reva-core, reva-macros | x86, host |
+| `core-parts` | reva-gate (the gateway table), reva-heap, reva-translate (translator hooks, the decode cache) | x86 |
+| `canvas` | reva-canvas (the turtle and its display list), reva-canvas-out (op stream, SVG) | macros |
+| `core` | reva-core (the `Machine` state and the stack and statics helpers every gateway uses), reva-core-ffi (`(call)` arguments, registers), reva-core-inspect (dictionary, state, settings) | x86, host, core-parts, canvas |
+| `core-run` | reva-core-run (the run loop, nested calls, faults, input, host calls), reva-core-boot (new machines: statics and the core dictionary as tables; images) | core |
 | `vlib` | reva-vlib | x86, host, core |
 | `words-base` | reva-words-code, -text, -calls, -scan: the words' helpers (code space, pure number and string functions, calls into Forth, parsing) | core |
 | `words-interp` | reva-words-classes, -interp, -eval: classes, default vectors, the outer interpreter, eval/include, catch, defining words | core, words-base |
@@ -416,6 +419,12 @@ new module, crate or component, never a merge).
 | `web` | reva-web | vm |
 | `serve` | reva-serve | (web's www/, embedded at build time) |
 | `desktop` | reva-desktop | sqlite (and web's www/, copied by build.sh) |
+
+`Machine` is defined in reva-core and keeps only the helpers every
+gateway uses; the rest of its methods are extension traits in the crates
+above it (`machine_trait!`), which hosts bring in with
+`use reva_vm::prelude::*`. The core dictionary and the statics' first
+values are `const` tables.
 
 `Cpu` is defined in reva-x86-types, and Rust allows `impl Cpu` only
 there, so the executor's crates add its methods through extension traits

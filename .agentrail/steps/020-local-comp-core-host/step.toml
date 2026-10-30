@@ -1,8 +1,9 @@
 number = 20
 slug = "local-comp-core-host"
-status = "pending"
+status = "completed"
 description = "reva-core and reva-host (components/core, host): machine.rs (1000+ lines: sta..."
 role = "production"
 context_files = []
 created_at = "2026-10-26T12:49:22"
-commits = []
+completed_at = "2026-10-30T11:41:47"
+commits = ["4b1ea715e176817fda2af7697bb0e97e18bcd245"]

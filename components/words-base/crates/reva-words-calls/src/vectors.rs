@@ -3,6 +3,7 @@
 use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::{Gate, st};
+use reva_core_run::nested::Nested;
 
 type R<T = ()> = Result<T, Fault>;
 

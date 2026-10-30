@@ -1,0 +1,8 @@
+number = 28
+slug = "local-tui-cosy"
+status = "pending"
+description = "CoSy's Tui.f runs unchanged on reva-fork (ba-cosy-zip-fork's sample/CoSy/Tui...."
+role = "production"
+context_files = []
+created_at = "2026-10-28T12:45:44"
+commits = []

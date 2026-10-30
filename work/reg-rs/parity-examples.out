@@ -1,4 +1,4 @@
-132 examples: error 31, fault 7, missing 9, runs 73, timeout 12
+132 examples: error 31, fault 8, missing 9, runs 73, timeout 11
 
 Most common first missing word (top 10):
 
@@ -112,7 +112,7 @@ Most common first missing word (top 10):
 | `examples/revafind.f` | os | runs |
 | `examples/robotron.f` | core | runs |
 | `examples/see2.f` | lib | runs |
-| `examples/sha1.f` | lib | timeout |
+| `examples/sha1.f` | lib | fault: bad memory access: 3527000 byte(s) at 0x00000003 |
 | `examples/sieve.f` | core | timeout |
 | `examples/smtp.f` | net | timeout |
 | `examples/sockets.f` | net | runs |

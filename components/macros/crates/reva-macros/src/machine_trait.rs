@@ -5,6 +5,7 @@
 /// extension trait.  The methods are written once, with their bodies; the
 /// macro declares the trait and implements it for `Machine`, so `self` is
 /// the machine itself (fields, its own methods, two-phase borrows).
+/// Attributes on a method (docs, `#[inline]`) go to its implementation.
 ///
 /// ```ignore
 /// reva_macros::machine_trait! {
@@ -25,7 +26,7 @@ macro_rules! machine_trait {
     ) => {
         $(#[$tm])*
         pub trait $name $(: $sup $(+ $more)*)? {
-            $( $(#[$m])* fn $f ( $($a)* ) $(-> $r)?; )*
+            $( fn $f ( $($a)* ) $(-> $r)?; )*
         }
         impl $name for ::reva_core::Machine {
             $( $(#[$m])* fn $f ( $($a)* ) $(-> $r)? $b )*

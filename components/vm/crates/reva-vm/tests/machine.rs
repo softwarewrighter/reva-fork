@@ -1,6 +1,7 @@
 //! API-level behaviour that the CLI regression suite cannot observe:
 //! resumability, budgets, images in memory, and the translator hooks.
 
+use reva_vm::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 

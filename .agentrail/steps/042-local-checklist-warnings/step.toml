@@ -1,0 +1,8 @@
+number = 42
+slug = "local-checklist-warnings"
+status = "pending"
+description = "Last, after the FAILs and the pending features (the user, 2026-10-30): sw-che..."
+role = "production"
+context_files = []
+created_at = "2026-10-30T11:41:19"
+commits = []
