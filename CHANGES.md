@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-30
 
+- 14:27 `chore` Step local-comp-host complete (saga record).
 - 14:27 `refactor` The host side in components (step local-comp-host; docs/design.md 3.13): reva-host is a facade over host-base (reva-version and reva-embedded, each with its own build script; reva-hostcall; reva-charset), vfs (reva-vfs: types and `FileSystem` as `FsFiles` + `FsMeta` + `FsDirs` with a blanket impl; reva-memtree: the in-memory tree; reva-memfs: open files and the trait impls, `MemFs` derefs to its tree) and host (reva-host-traits: `Host` as `Console` + `Platform` + `Resources` with a blanket impl; reva-host-buffer). Every old path still resolves; calls through `&mut dyn Host` and `&mut dyn FileSystem` need no imports; the CLI's `StdHost`/`StdFs` and the vm tests' `LaterHost` implement the parts. vfs.rs's `rename` split into the tree's `rename_file`/`rename_dir`. Goldens and bench unchanged; sw-checklist 22 -> 18 (none left in the host).
 - 14:27 `plan` UI in two stages (the user, 2026-10-30): the Notebook (Tui.f/examples parity: local-ui-model .. local-tui-cosy, then local-ui-terminal for the CLI and local-ui-canvas for CD graphics in browser and desktop), then local-ui-panes (tmux/Emacs-style splits, zoom, editor/tail/REPL panes) as a later feature; new local-reva-scripts (`#!` scripts with argv and Unix stdin/stdout; head, tail, wc, grep demos). docs/iup-plan.md updated.
 - 11:41 `chore` Step local-comp-core-host complete (saga record).
