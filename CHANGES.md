@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-30
 
+- 11:41 `chore` Step local-comp-core-host complete (saga record).
 - 11:41 `refactor` The machine in components (step local-comp-core; docs/design.md 3.13): reva-core keeps the `Machine` state and the 14 stack/statics helpers every gateway uses; its other methods are extension traits (`machine_trait!`) in reva-core-ffi (`(call)` arguments, registers), reva-core-inspect (dictionary, state, settings), reva-core-run (run loop, nested calls, faults, input, host calls) and reva-core-boot (new machines with the statics and the core dictionary as `const` tables; images). Gate, heap and translate move below it (component core-parts), the canvas too (component canvas: reva-canvas, reva-canvas-out with the op stream and SVG). Hosts import the traits with `use reva_vm::prelude::*`. `machine_trait!` now puts method attributes on the implementation only. Goldens unchanged except parity-examples: sha1.f now ends in its fault (run without file arguments, its `do` loop reads past argv) inside the 5 s limit instead of timing out; the previous build gives the same fault given time. Bench guard boot -21%, fib -17%, loop -9%, dragon -17%. sw-checklist 27 -> 22 (none left in the core).
 - 11:41 `plan` Step local-comp-host split out of local-comp-core-host; new steps local-cli-args (`reva prog.f -- args` as argv[2..], from the sha1.f finding) and local-checklist-warnings (last, after the features; the user, 2026-10-30).
 
