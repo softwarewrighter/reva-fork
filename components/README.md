@@ -44,8 +44,9 @@ components/
   x86-alu/    reva-x86-ops, -shift, -float              operands, ALU, shifts, strings, x87 math
   x86-exec/   reva-x86-fpuexec, -exec                   executing instructions
   x86/      reva-x86     facade: the x86 components under their old paths
-  host/     reva-host    the host side: Host trait, host calls, virtual file system,
-                         embedded reva.f and lib/, version, encodings (build script)
+  host-base/ reva-version, -embedded, -hostcall, -charset   build stamp, reva.f and lib/, host calls, encodings
+  vfs/      reva-vfs, reva-memtree, reva-memfs         file-system traits, the in-memory file system
+  host/     reva-host-traits, -buffer, reva-host       the Host traits, BufferHost, a facade at the old paths
   core-parts/ reva-gate, reva-heap, reva-translate   gates, the heap allocator, translator hooks
   canvas/   reva-canvas, reva-canvas-out           the turtle's display list; ops for windows, SVG
   core/     reva-core, -ffi, -inspect              the Machine and its helpers; (call) args; dictionary, state

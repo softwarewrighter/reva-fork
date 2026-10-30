@@ -1,0 +1,1 @@
+reva-host split: host-base (version, embedded, hostcall, charset), vfs (vfs traits split in three, memtree, memfs), host (traits split in three with blanket Host, BufferHost, facade); implementors updated; sw-checklist 22->18. Plan: UI two stages, ui-terminal, ui-canvas, ui-panes, reva-scripts steps. Pushed as pr/local-comp-host (stacked on #55).

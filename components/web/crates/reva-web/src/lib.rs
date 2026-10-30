@@ -363,7 +363,7 @@ pub extern "C" fn reva_fs_put(path_len: u32) -> i32 {
 /// returns the number of bytes at [`reva_fs_data`].
 #[unsafe(no_mangle)]
 pub extern "C" fn reva_fs_changes() -> u32 {
-    let changes = with_fs(MemFs::take_changes);
+    let changes = with_fs(|fs| fs.take_changes());
     FSBUF.with(|b| {
         let mut b = b.borrow_mut();
         b.clear();

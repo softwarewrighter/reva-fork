@@ -9,8 +9,17 @@ authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+reva-version = { path = "../../../host-base/crates/reva-version" }
+reva-embedded = { path = "../../../host-base/crates/reva-embedded", default-features = false }
+reva-hostcall = { path = "../../../host-base/crates/reva-hostcall" }
+reva-charset = { path = "../../../host-base/crates/reva-charset" }
+reva-vfs = { path = "../../../vfs/crates/reva-vfs" }
+reva-memtree = { path = "../../../vfs/crates/reva-memtree" }
+reva-memfs = { path = "../../../vfs/crates/reva-memfs" }
+reva-host-traits = { path = "../../../host/crates/reva-host-traits" }
+reva-host-buffer = { path = "../../../host/crates/reva-host-buffer" }
 
 [features]
 default = ["embed-lib"]
 # Compile lib/ into the core so `needs` works without the files (browser).
-embed-lib = []
+embed-lib = ["reva-embedded/embed-lib"]
