@@ -11,3 +11,7 @@ rust-version.workspace = true
 [dependencies]
 reva-x86 = { path = "../../../x86/crates/reva-x86" }
 reva-host = { path = "../../../host/crates/reva-host", default-features = false }
+reva-gate = { path = "../../../core-parts/crates/reva-gate" }
+reva-heap = { path = "../../../core-parts/crates/reva-heap" }
+reva-translate = { path = "../../../core-parts/crates/reva-translate" }
+reva-canvas = { path = "../../../canvas/crates/reva-canvas" }

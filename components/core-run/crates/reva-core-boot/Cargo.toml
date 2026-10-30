@@ -1,0 +1,19 @@
+[package]
+name = "reva-core-boot"
+description = "Building machines: statics, the core dictionary, arguments, images"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-core = { path = "../../../core/crates/reva-core" }
+reva-macros = { path = "../../../macros/crates/reva-macros" }
+reva-x86 = { path = "../../../x86/crates/reva-x86" }
+reva-host = { path = "../../../host/crates/reva-host", default-features = false }
+reva-gate = { path = "../../../core-parts/crates/reva-gate" }
+reva-heap = { path = "../../../core-parts/crates/reva-heap" }
+reva-canvas = { path = "../../../canvas/crates/reva-canvas" }
+reva-translate = { path = "../../../core-parts/crates/reva-translate" }

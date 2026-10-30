@@ -4,6 +4,8 @@ use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::x86::{EAX, ESI};
 use reva_core::{Gate, Next};
+use reva_core_ffi::args::CallArgs;
+use reva_core_ffi::regs::MachineRegs;
 use reva_vlib::highlight::Highlight;
 use reva_vlib::iconv::Iconv;
 use reva_vlib::sqlite::SqliteLib;

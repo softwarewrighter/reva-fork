@@ -3,6 +3,7 @@
 use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::{Dispatch, Gate, Machine, Next, st};
+use reva_core_inspect::words::Dictionary;
 use reva_words_calls::vectors::Vectors;
 use reva_words_code::header::Header;
 use reva_words_scan::strings::Strings;

@@ -1,6 +1,6 @@
 number = 20
 slug = "local-comp-core-host"
-status = "pending"
+status = "in-progress"
 description = "reva-core and reva-host (components/core, host): machine.rs (1000+ lines: sta..."
 role = "production"
 context_files = []

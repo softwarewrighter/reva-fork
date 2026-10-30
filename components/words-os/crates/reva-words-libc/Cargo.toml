@@ -13,3 +13,4 @@ reva-core = { path = "../../../core/crates/reva-core" }
 reva-macros = { path = "../../../macros/crates/reva-macros" }
 reva-words-sys = { path = "../reva-words-sys" }
 reva-words-files = { path = "../reva-words-files" }
+reva-core-ffi = { path = "../../../core/crates/reva-core-ffi" }

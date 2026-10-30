@@ -46,7 +46,10 @@ components/
   x86/      reva-x86     facade: the x86 components under their old paths
   host/     reva-host    the host side: Host trait, host calls, virtual file system,
                          embedded reva.f and lib/, version, encodings (build script)
-  core/     reva-core    the Machine, its run loop, gates, heap, images, canvas
+  core-parts/ reva-gate, reva-heap, reva-translate   gates, the heap allocator, translator hooks
+  canvas/   reva-canvas, reva-canvas-out           the turtle's display list; ops for windows, SVG
+  core/     reva-core, -ffi, -inspect              the Machine and its helpers; (call) args; dictionary, state
+  core-run/ reva-core-run, reva-core-boot          the run loop; new machines and images
   vlib/     reva-vlib    virtual libraries: libc, turtle, highlight, sqlite, iconv
   words-base/   reva-words-code, -text, -calls, -scan   the words' helpers
   words-interp/ reva-words-classes, -interp, -eval      classes, interpreter, eval, catch, defining

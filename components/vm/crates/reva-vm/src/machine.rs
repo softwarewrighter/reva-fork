@@ -1,12 +1,14 @@
 //! The machine as hosts see it: reva-core's `Machine` with reva-words'
 //! gateway dispatch installed (docs/design.md 3.12).  Everything else is
-//! reva-core's, reached through `Deref`, so code written against the
-//! one-crate core reads the same.
+//! reva-core's, reached through `Deref`: its fields and helpers directly,
+//! the rest through the traits of [`crate::prelude`] (`use
+//! reva_vm::prelude::*`).
 
 use std::ops::{Deref, DerefMut};
 
-use reva_core::image::ImageError;
 pub use reva_core::machine::{DirStream, Dispatch, Next, Status, st};
+use reva_core_boot::boot::Boot;
+use reva_core_boot::image::{ImageError, Images};
 
 /// A Reva machine, wired to the gateway routines of reva-words.
 pub struct Machine(pub reva_core::Machine);
