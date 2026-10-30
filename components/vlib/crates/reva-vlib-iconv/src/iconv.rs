@@ -13,10 +13,10 @@
 //! cannot hold), EINVAL (input ends inside a character; or an encoding
 //! iconv_open does not know), EBADF (a descriptor not open).
 
-use crate::charset::{self, Bad, Enc};
-use crate::fault::Fault;
-use crate::gates::Gate;
-use crate::machine::st;
+use reva_core::charset::{self, Bad, Enc};
+use reva_core::fault::Fault;
+use reva_core::gates::Gate;
+use reva_core::machine::st;
 
 /// Handle `(lib)` returns for this library ("ICNV").
 pub const ICONV_HANDLE: u32 = 0x4943_4e56;

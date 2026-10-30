@@ -1,0 +1,16 @@
+[package]
+name = "reva-vlib-turtle"
+description = "The virtual library turtle"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-x86 = { path = "../../../x86/crates/reva-x86" }
+reva-core = { path = "../../../core/crates/reva-core" }
+reva-macros = { path = "../../../macros/crates/reva-macros" }
+reva-core-ffi = { path = "../../../core/crates/reva-core-ffi" }
+reva-canvas-out = { path = "../../../canvas/crates/reva-canvas-out" }
