@@ -5,7 +5,7 @@ CoSy's "Textual User Interface" (`Tui.f`) first among them. What needs to
 be done, in what order, and how we will know it works. The low-level
 design (components, crates, modules, files) comes later, after the
 sw-checklist work, within the rules in CLAUDE.md. Saga steps:
-`local-ui-model`, `local-iup`, `local-ui-yew`, `local-tui-cosy`,
+`local-ui-model`, `local-iup`, `local-ui-grid`, `local-tui-cosy`,
 `local-ui-terminal`, `local-ui-canvas` (stage 1); `local-ui-panes`
 (stage 2).
 
@@ -92,16 +92,20 @@ one direct `IupStoreAttribute`.
    calls pause in the desktop app); when an event arrives, the Forth
    callback runs, and its result (`IUP_DEFAULT`, `IUP_CLOSE`, ...)
    decides what happens next. A headless host drives events in tests.
-3. **The renderer** (`local-ui-yew`). Rust/Yew components draw the model
-   in the page: dialogs as windows within the page or in the split view,
-   controls as themed HTML, user input (clicks, edits, keys including
-   function keys, caret and selection) sent back as events. The desktop
-   app gets it through the same page.
+3. **The renderer: one TUI everywhere** (`local-ui-grid`; decided with
+   the user 2026-10-31). The model lays out into a grid of character
+   cells (text, colour, cursor), pure Rust with goldens on the grid. Thin
+   backends draw it: a monospace grid element in the web page (the
+   desktop app shows the same page), and crossterm in the CLI's terminal
+   (step 5). Keys (function keys included), mouse and resize go back as
+   events. crossterm alone cannot do it: it needs a real terminal and does
+   not build for wasm; the grid makes the look the same in all three.
 4. **CoSy's TUI end to end** (`local-tui-cosy`). `Tui.f` running
    unchanged in the desktop app and the browser; whatever it still needs
    fixed here; the CoSy lane told what to drop.
-5. **A terminal renderer** (`local-ui-terminal`) of the same model for
-   the CLI: `Tui.f` and the simple examples in a terminal.
+5. **The terminal backend** (`local-ui-terminal`): the grid in the CLI
+   through crossterm (raw mode, keys, mouse, resize, redrawing changed
+   cells): `Tui.f` and the simple examples in a terminal.
 6. **Graphics** (`local-ui-canvas`; browser and desktop only). Reva drew
    through IUP's `canvas[` and Tecgraf's CD library (`lib/ui/cd`: lines,
    boxes, arcs, polygons, text, colours, clipping, images), repainting
@@ -127,11 +131,10 @@ one direct `IupStoreAttribute`.
 
 ## Open questions
 
-- **The CLI.** Decided: a terminal renderer of the same model (step 5),
-  without graphics. Open: the `crossterm` crate (MIT) or our own raw
-  mode and ANSI (reva-cli's `term.rs` already has raw mode).
-- **Look.** Match IUP's native look, or the REPL page's theme (light and
-  dark)? The plan assumes the page's theme.
+- **The CLI.** Decided: the same cell grid through crossterm (step 5),
+  without graphics.
+- **Look.** Decided: a text-mode TUI, the same in every host, coloured
+  with the REPL page's themes (light and dark). HTML widgets maybe later.
 - **Windows.** One dialog at a time inside the page, several as in-page
   windows, or separate native windows in the desktop app (as the turtle
   graphics window)?

@@ -96,10 +96,274 @@ dependencies = [
 ]
 
 [[package]]
+name = "reva-canvas"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-charset"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-core"
+version = "2026.1026.0"
+dependencies = [
+ "reva-canvas",
+ "reva-gate",
+ "reva-heap",
+ "reva-host",
+ "reva-translate",
+ "reva-x86",
+]
+
+[[package]]
+name = "reva-core-ffi"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+]
+
+[[package]]
+name = "reva-embedded"
+version = "2026.1026.0"
+dependencies = [
+ "reva-version",
+]
+
+[[package]]
+name = "reva-gate"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86-base",
+]
+
+[[package]]
+name = "reva-heap"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-host"
+version = "2026.1026.0"
+dependencies = [
+ "reva-charset",
+ "reva-embedded",
+ "reva-host-buffer",
+ "reva-host-traits",
+ "reva-hostcall",
+ "reva-memfs",
+ "reva-memtree",
+ "reva-version",
+ "reva-vfs",
+]
+
+[[package]]
+name = "reva-host-buffer"
+version = "2026.1026.0"
+dependencies = [
+ "reva-host-traits",
+ "reva-hostcall",
+ "reva-memfs",
+ "reva-vfs",
+]
+
+[[package]]
+name = "reva-host-traits"
+version = "2026.1026.0"
+dependencies = [
+ "reva-embedded",
+ "reva-hostcall",
+ "reva-vfs",
+]
+
+[[package]]
+name = "reva-hostcall"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-macros"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-memfs"
+version = "2026.1026.0"
+dependencies = [
+ "reva-embedded",
+ "reva-memtree",
+ "reva-vfs",
+]
+
+[[package]]
+name = "reva-memtree"
+version = "2026.1026.0"
+dependencies = [
+ "reva-embedded",
+ "reva-vfs",
+]
+
+[[package]]
 name = "reva-sqlite"
 version = "2026.1026.0"
 dependencies = [
  "rusqlite",
+]
+
+[[package]]
+name = "reva-translate"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86",
+]
+
+[[package]]
+name = "reva-version"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-vfs"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-vlib-sqlite"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-core-ffi",
+ "reva-macros",
+ "reva-x86",
+]
+
+[[package]]
+name = "reva-x86"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86-base",
+ "reva-x86-cursor",
+ "reva-x86-decode",
+ "reva-x86-exec",
+ "reva-x86-float",
+ "reva-x86-fpudec",
+ "reva-x86-fpuexec",
+ "reva-x86-fpustate",
+ "reva-x86-mem",
+ "reva-x86-opcodes",
+ "reva-x86-ops",
+ "reva-x86-shift",
+ "reva-x86-types",
+]
+
+[[package]]
+name = "reva-x86-base"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-x86-cursor"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86-base",
+ "reva-x86-mem",
+ "reva-x86-types",
+]
+
+[[package]]
+name = "reva-x86-decode"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86-base",
+ "reva-x86-cursor",
+ "reva-x86-fpudec",
+ "reva-x86-mem",
+ "reva-x86-opcodes",
+ "reva-x86-types",
+]
+
+[[package]]
+name = "reva-x86-exec"
+version = "2026.1026.0"
+dependencies = [
+ "reva-macros",
+ "reva-x86-base",
+ "reva-x86-fpuexec",
+ "reva-x86-mem",
+ "reva-x86-ops",
+ "reva-x86-shift",
+ "reva-x86-types",
+]
+
+[[package]]
+name = "reva-x86-float"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86-types",
+]
+
+[[package]]
+name = "reva-x86-fpudec"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86-base",
+ "reva-x86-cursor",
+ "reva-x86-types",
+]
+
+[[package]]
+name = "reva-x86-fpuexec"
+version = "2026.1026.0"
+dependencies = [
+ "reva-macros",
+ "reva-x86-base",
+ "reva-x86-float",
+ "reva-x86-fpustate",
+ "reva-x86-mem",
+ "reva-x86-ops",
+ "reva-x86-types",
+]
+
+[[package]]
+name = "reva-x86-fpustate"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-x86-mem"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86-base",
+]
+
+[[package]]
+name = "reva-x86-opcodes"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86-base",
+ "reva-x86-cursor",
+ "reva-x86-types",
+]
+
+[[package]]
+name = "reva-x86-ops"
+version = "2026.1026.0"
+dependencies = [
+ "reva-macros",
+ "reva-x86-base",
+ "reva-x86-mem",
+ "reva-x86-types",
+]
+
+[[package]]
+name = "reva-x86-shift"
+version = "2026.1026.0"
+dependencies = [
+ "reva-macros",
+ "reva-x86-base",
+ "reva-x86-mem",
+ "reva-x86-ops",
+ "reva-x86-types",
+]
+
+[[package]]
+name = "reva-x86-types"
+version = "2026.1026.0"
+dependencies = [
+ "reva-x86-fpustate",
 ]
 
 [[package]]

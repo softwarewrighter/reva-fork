@@ -1,0 +1,8 @@
+number = 27
+slug = "local-ui-grid"
+status = "pending"
+description = "The TUI's renderer, one look everywhere (option 2, decided with the user 2026..."
+role = "production"
+context_files = []
+created_at = "2026-10-28T12:45:44"
+commits = []

@@ -51,7 +51,7 @@ components/
   canvas/   reva-canvas, reva-canvas-out           the turtle's display list; ops for windows, SVG
   core/     reva-core, -ffi, -inspect              the Machine and its helpers; (call) args; dictionary, state
   core-run/ reva-core-run, reva-core-boot          the run loop; new machines and images
-  vlib/     reva-vlib    virtual libraries: libc, turtle, highlight, sqlite, iconv
+  vlib/     reva-vlib-turtle, -highlight, -iconv, reva-vlib   virtual libraries (reva-vlib: the old paths)
   words-base/   reva-words-code, -text, -calls, -scan   the words' helpers
   words-interp/ reva-words-classes, -interp, -eval      classes, interpreter, eval, catch, defining
   words-dict/   reva-words-compile, -memory, -system    compiling, numbers, memory, bye/version
@@ -59,7 +59,7 @@ components/
   words/    reva-words   the dispatch table: every gate to its handler
   vm/       reva-vm      the facade the front ends use (re-exports, Machine with
                          dispatch installed; ../docs/design.md 3.12)
-  sqlite/   reva-sqlite  SQLite for the CLI and the desktop app (rusqlite, safe API)
+  sqlite/   reva-sqlite, reva-vlib-sqlite   SQLite (rusqlite, safe API); the virtual library
   cli/      reva-cli     the `reva` command
   web/      reva-web     wasm32 module + www/ (reva.js, index.html) + test/*.mjs
   serve/    reva-serve   one-binary local web app: embeds a site, serves 127.0.0.1
