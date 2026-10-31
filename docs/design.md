@@ -164,7 +164,7 @@ rmdir/list/chdir/cwd), that a host lends through `Host::fs`:
   root. Descriptors are the host's own numbers (from 3), not OS fds.
   VM paths are always `/`-rooted and `/`-separated; on Windows the host
   path `C:\dir` is the VM path `/C:/dir` and back (`vm_path`/`host_path`
-  in `reva-cli/src/fs.rs`), so one `vfs::normalize` serves every host.
+  in reva-hostpath's `paths.rs`), so one `vfs::normalize` serves every host.
 - **Browser and tests:** `MemFs`, an in-memory tree. It records which
   paths changed, and `reva-web` exports them so `reva.js` can keep them in
   `localStorage` and put them back before the next boot. A page bundles
@@ -417,7 +417,9 @@ new module, crate or component, never a merge).
 | `words` | reva-words: the dispatch table (every gate to its handler) | the four above |
 | `vm` | reva-vm | x86, host, core, vlib, words |
 | `sqlite` | reva-sqlite (rusqlite), reva-vlib-sqlite (the virtual library: host calls) | (rusqlite); core |
-| `cli` | reva-cli | vm, sqlite |
+| `cli-edit` | reva-keys (bytes to keys), reva-history, reva-lineedit (the editor), reva-rawterm (raw mode, width) | — |
+| `cli-host` | reva-hostpath, reva-stdfs (the real file system), reva-term (the line reader), reva-stdhost (`StdHost`, SQLite) | vm, sqlite, cli-edit |
+| `cli` | reva-cli (the `reva` binary: options, run, session) | vm, cli-host |
 | `web` | reva-web | vm |
 | `serve` | reva-serve | (web's www/, embedded at build time) |
 | `desktop` | reva-desktop | sqlite (and web's www/, copied by build.sh) |

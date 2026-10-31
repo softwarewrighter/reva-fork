@@ -5,8 +5,9 @@ CoSy's "Textual User Interface" (`Tui.f`) first among them. What needs to
 be done, in what order, and how we will know it works. The low-level
 design (components, crates, modules, files) comes later, after the
 sw-checklist work, within the rules in CLAUDE.md. Saga steps:
-`local-ui-model`, `local-iup`, `local-ui-grid`, `local-tui-cosy`,
-`local-ui-terminal`, `local-ui-canvas` (stage 1); `local-ui-panes`
+`local-ui-model`, `local-iup`, `local-ui-grid`, `local-ui-terminal`,
+`local-tui-cosy`, `local-ui-canvas` (stage 1; the terminal backend before
+`Tui.f`, so the first TUI demo runs in all three hosts); `local-ui-panes`
 (stage 2).
 
 ## Goal
