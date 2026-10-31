@@ -1,6 +1,6 @@
 number = 23
 slug = "local-comp-cli"
-status = "pending"
+status = "in-progress"
 description = "reva-cli (components/cli): main (103 lines), lineedit (key 74 lines, a key-bi..."
 role = "production"
 context_files = []
