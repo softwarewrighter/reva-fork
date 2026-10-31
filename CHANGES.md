@@ -11,6 +11,12 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-10-31
+
+- 13:03 `chore` Step local-comp-cli complete (saga record).
+- 13:03 `refactor` The CLI in components (step local-comp-cli): cli-edit (reva-keys: bytes to keys; reva-history; reva-lineedit: the editor, `key` 74 lines -> `key`/`edit_key`/`history_key`/`move_key`; reva-rawterm: raw mode and width per platform, the Unix `extern` declarations apart from its width probe), cli-host (reva-hostpath: host paths, errno, stat; reva-stdfs: the real file system; reva-term: the line reader; reva-stdhost: `StdHost` and SQLite) and the `reva` binary (options, run, session; `main` 104 lines -> 18). Windows raw mode declares its `extern "system"` block `unsafe` (required since edition 2024; not built here). New golden cli-lineedit-pty (scripts/pty-lineedit.py drives reva at a pseudo-terminal: Ctrl-A, Up, Ctrl-R, Backspace). Goldens and bench unchanged; sw-checklist 15 -> 7 (only the front ends left).
+- 13:03 `plan` local-ui-terminal moves before local-tui-cosy (the user): the first TUI demo in the browser, the desktop app and the CLI together.
+
 ## 2026-10-30
 
 - 16:00 `chore` Step local-comp-vlib complete (saga record).

@@ -60,7 +60,9 @@ components/
   vm/       reva-vm      the facade the front ends use (re-exports, Machine with
                          dispatch installed; ../docs/design.md 3.12)
   sqlite/   reva-sqlite, reva-vlib-sqlite   SQLite (rusqlite, safe API); the virtual library
-  cli/      reva-cli     the `reva` command
+  cli-edit/ reva-keys, -history, -lineedit, -rawterm   the terminal line editor
+  cli-host/ reva-hostpath, -stdfs, -term, -stdhost     the command-line host
+  cli/      reva-cli     the `reva` command: options, run, session
   web/      reva-web     wasm32 module + www/ (reva.js, index.html) + test/*.mjs
   serve/    reva-serve   one-binary local web app: embeds a site, serves 127.0.0.1
                          (std only; ../docs/serve.md)

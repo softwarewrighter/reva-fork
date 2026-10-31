@@ -1,14 +1,26 @@
-//! Host calls on the CLI: SQLite through the reva-sqlite crate, answered
-//! at once (docs/design.md 3.11).  Database names are VM paths, mapped to
-//! host paths as the file words map them.
+//! The real file system, and SQLite through host calls, answered at once
+//! (docs/design.md 3.11).  Database names are VM paths, mapped to host
+//! paths as the file words map them.
 
+use crate::host::StdHost;
 use reva_sqlite::{Reply, Sqlite};
+use reva_stdfs::stdfs::StdFs;
+use reva_vm::host::Resources;
 use reva_vm::hostcall::{HostAnswer, HostCall, HostReply};
+use reva_vm::vfs::FileSystem;
 
-use crate::fs::StdFs;
+impl Resources for StdHost {
+    fn fs(&mut self) -> Option<&mut dyn FileSystem> {
+        Some(&mut self.fs)
+    }
+
+    fn host_call(&mut self, call: &HostCall) -> HostAnswer {
+        answer(&mut self.sql, &mut self.fs, call)
+    }
+}
 
 /// SQLite for this run: paths arrive already mapped (see [`answer`]).
-pub fn new() -> Sqlite {
+pub fn new_sqlite() -> Sqlite {
     Sqlite::new(Box::new(|p| Some(p.into())))
 }
 

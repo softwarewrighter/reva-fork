@@ -1,8 +1,9 @@
 number = 23
 slug = "local-comp-cli"
-status = "pending"
+status = "completed"
 description = "reva-cli (components/cli): main (103 lines), lineedit (key 74 lines, a key-bi..."
 role = "production"
 context_files = []
 created_at = "2026-10-26T12:49:22"
-commits = []
+completed_at = "2026-10-31T13:03:45"
+commits = ["b366e01e709cdcfb4f56f84031c554bfc6370323"]
