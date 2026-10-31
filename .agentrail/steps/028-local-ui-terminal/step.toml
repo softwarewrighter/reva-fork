@@ -1,4 +1,4 @@
-number = 29
+number = 28
 slug = "local-ui-terminal"
 status = "pending"
 description = "The CLI backend of the TUI's cell grid (local-ui-grid; option 2, decided with..."

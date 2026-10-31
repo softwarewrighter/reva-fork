@@ -145,7 +145,7 @@ can also be cross-built (section 5).
 
 | Part | State |
 |---|---|
-| `reva.exe` | works under Wine since this change: file paths were broken on Windows (`include t.f` found nothing) and are fixed now (`reva-cli/src/fs.rs`, unit-tested on every host). Not yet run on real Windows |
+| `reva.exe` | works under Wine since this change: file paths were broken on Windows (`include t.f` found nothing) and are fixed now (reva-hostpath's `paths.rs`, unit-tested on every host). Not yet run on real Windows |
 | browser page | the same wasm on any browser; should work in Edge and Chrome on Windows; not yet checked there |
 | `reva-desktop.exe` | builds (this change adds the `icon.ico` that a Windows build needs, and the `nsis`/`msi` targets); not run: it needs WebView2, which Wine lacks |
 | scripts (`build.sh`, `smoke.sh`, gates, `make-subset.sh`) | bash or POSIX sh; run them in Git Bash (it includes perl) |

@@ -27,7 +27,7 @@ the key table both front ends follow.
 ## Command line: `reva`
 
 * **Only at a terminal.**  When stdin is a terminal, `reva` reads each line
-  through its own small editor (`reva-cli/src/lineedit.rs`, `term.rs`).
+  through its own small editor (components cli-edit and cli-host: reva-lineedit, reva-term; `scripts/pty-lineedit.py` drives it at a pseudo-terminal in the regression suite).
   Piped or redirected input is read as before, byte for byte, so scripts
   and the reg-rs goldens see no change.
 * **History file:** `$REVA_HISTORY` if set (set it empty for no file),

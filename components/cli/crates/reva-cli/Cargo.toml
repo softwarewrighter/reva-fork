@@ -14,4 +14,6 @@ path = "src/main.rs"
 
 [dependencies]
 reva-vm = { path = "../../../vm/crates/reva-vm" }
-reva-sqlite = { path = "../../../sqlite/crates/reva-sqlite" }
+reva-stdhost = { path = "../../../cli-host/crates/reva-stdhost" }
+reva-stdfs = { path = "../../../cli-host/crates/reva-stdfs" }
+reva-term = { path = "../../../cli-host/crates/reva-term" }

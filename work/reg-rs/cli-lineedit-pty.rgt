@@ -1,0 +1,4 @@
+command = "python3 scripts/pty-lineedit.py ${REVA:-target/debug/reva}"
+timeout = 60
+exit_code = 0
+desc = "line editing at a pseudo-terminal: Ctrl-A, Up, Ctrl-R, Backspace"

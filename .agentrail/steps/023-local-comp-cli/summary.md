@@ -1,0 +1,1 @@
+reva-cli split into cli-edit (keys, history, lineedit, rawterm), cli-host (hostpath, stdfs, term, stdhost) and the binary (options, run, session); pty line-edit golden; Windows extern fixed; sw-checklist 15->7. Pushed as pr/local-comp-cli (stacked on #57).

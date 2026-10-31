@@ -323,7 +323,7 @@ Read before working:
 Layout: `components/<name>/` (one Cargo workspace each, crates in
 `crates/`: macros, x86-types, x86-decode, x86-alu, x86-exec, x86, host-base, vfs, host,
 core-parts, canvas, core, core-run, vlib, words-base, words-interp, words-dict,
-words-os, words, vm, sqlite, cli, web, serve, desktop; docs/design.md 3.13), `src/reva.f`, `lib/` (Forth libraries,
+words-os, words, vm, sqlite, cli-edit, cli-host, cli, web, serve, desktop; docs/design.md 3.13), `src/reva.f`, `lib/` (Forth libraries,
 embedded into the VM), `examples/`, `docs/`, `tests/forth/` and
 `work/reg-rs/` (goldens), `scripts/`, `justfile`. Everything builds into
 `target/` at the root (`.cargo/config.toml`).
