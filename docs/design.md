@@ -409,14 +409,14 @@ new module, crate or component, never a merge).
 | `canvas` | reva-canvas (the turtle and its display list), reva-canvas-out (op stream, SVG) | macros |
 | `core` | reva-core (the `Machine` state and the stack and statics helpers every gateway uses), reva-core-ffi (`(call)` arguments, registers), reva-core-inspect (dictionary, state, settings) | x86, host, core-parts, canvas |
 | `core-run` | reva-core-run (the run loop, nested calls, faults, input, host calls), reva-core-boot (new machines: statics and the core dictionary as tables; images) | core |
-| `vlib` | reva-vlib | x86, host, core |
+| `vlib` | reva-vlib-turtle, reva-vlib-highlight, reva-vlib-iconv, reva-vlib (facade: the old paths; reva-vlib-sqlite lives in `sqlite`) | core, canvas |
 | `words-base` | reva-words-code, -text, -calls, -scan: the words' helpers (code space, pure number and string functions, calls into Forth, parsing) | core |
 | `words-interp` | reva-words-classes, -interp, -eval: classes, default vectors, the outer interpreter, eval/include, catch, defining words | core, words-base |
 | `words-dict` | reva-words-compile, -memory, -system: compiling and number words, memory and strings, bye/restart/version | core, words-base |
 | `words-os` | reva-words-sys, -files, -libc, -ffi: system calls, file words, the virtual libc, `(lib)`/`(func)`/`(call)` | core, vlib |
 | `words` | reva-words: the dispatch table (every gate to its handler) | the four above |
 | `vm` | reva-vm | x86, host, core, vlib, words |
-| `sqlite` | reva-sqlite | (rusqlite) |
+| `sqlite` | reva-sqlite (rusqlite), reva-vlib-sqlite (the virtual library: host calls) | (rusqlite); core |
 | `cli` | reva-cli | vm, sqlite |
 | `web` | reva-web | vm |
 | `serve` | reva-serve | (web's www/, embedded at build time) |

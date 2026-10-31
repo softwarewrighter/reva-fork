@@ -1,0 +1,1 @@
+vlib split into reva-vlib-turtle/-highlight/-iconv (vlib) and reva-vlib-sqlite (sqlite), reva-vlib facade; turtle_call and tokens split; sw-checklist 18->15. Plan: TUI cell grid (ui-grid + ui-terminal with crossterm). Pushed as pr/local-comp-vlib.

@@ -134,10 +134,49 @@ version = "2026.1026.0"
 name = "reva-vlib"
 version = "2026.1026.0"
 dependencies = [
+ "reva-vlib-highlight",
+ "reva-vlib-iconv",
+ "reva-vlib-sqlite",
+ "reva-vlib-turtle",
+]
+
+[[package]]
+name = "reva-vlib-highlight"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-core-ffi",
+ "reva-macros",
+ "reva-x86",
+]
+
+[[package]]
+name = "reva-vlib-iconv"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-core-ffi",
+ "reva-macros",
+ "reva-x86",
+]
+
+[[package]]
+name = "reva-vlib-sqlite"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-core-ffi",
+ "reva-macros",
+ "reva-x86",
+]
+
+[[package]]
+name = "reva-vlib-turtle"
+version = "2026.1026.0"
+dependencies = [
  "reva-canvas-out",
  "reva-core",
  "reva-core-ffi",
- "reva-host",
  "reva-macros",
  "reva-x86",
 ]
