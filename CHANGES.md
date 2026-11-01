@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-01
 
+- 12:56 `chore` Step local-release-2026-1101-0 complete (saga record): Merge #67; dev merged into main (38ebedd) and the live demo published as 2026.1101.0, the notebook checked on it in Chrome.
 - 12:23 `release` 2026.1101.0 (step local-release-2026-1101-0): today's first merge to main. Since 2026.1026.0: sw-checklist clean and required, the components restructuring, the UI model, the virtual library iup, the TUI in the browser and the desktop app, the notebook (`needs ui/notebook notebook`, its text in browser storage, beside the graphics), and help with real documentation. Every component's version, the Cargo.lock files, two goldens and two docs.
 - 12:23 `chore` Merge #65, #66 (local-help, local-notebook-web).
 - 09:45 `chore` Step local-notebook-web complete (saga record).
