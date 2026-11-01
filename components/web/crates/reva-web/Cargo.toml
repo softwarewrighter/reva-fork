@@ -13,3 +13,6 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 reva-vm = { path = "../../../vm/crates/reva-vm" }
+reva-web-state = { path = "../reva-web-state" }
+reva-web-run = { path = "../reva-web-run" }
+reva-web-io = { path = "../reva-web-io" }

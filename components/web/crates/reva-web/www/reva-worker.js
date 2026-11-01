@@ -41,6 +41,11 @@ import { Reva, RUNNING, HALTED, HOST_CALL } from "./reva.js";
 
 let reva = null;
 let pumping = false;
+// A host call posted to the page and not yet answered: the VM is stopped
+// on it, so input that arrives meanwhile is queued without running (running
+// would only post the same call again, and its extra answers would go to
+// later calls).
+let waiting = false;
 // Services this worker answers itself (init's `local`): "sqlite" in the
 // browser (sqlite.js); the desktop's page answers instead.
 let local = new Set();
@@ -53,7 +58,7 @@ const post = (m, transfer) => globalThis.postMessage(m, transfer);
 const postUi = (m) => post(m, m.ops ? [m.ops.buffer] : []);
 
 async function pump() {
-  if (pumping || !reva) return;
+  if (pumping || waiting || !reva) return;
   pumping = true;
   post({ type: "status", status: RUNNING });
   let s;
@@ -68,7 +73,10 @@ async function pump() {
   // A host call: the page answers (hostreply), and the VM runs on.
   if (s === HOST_CALL) {
     const call = reva.hostCall();
-    if (!local.has(call.service)) return post({ type: "hostcall", call });
+    if (!local.has(call.service)) {
+      waiting = true;
+      return post({ type: "hostcall", call });
+    }
     reva.resume(await answerLocally(call));
     return pump();
   }
@@ -114,6 +122,7 @@ async function handle(m) {
       pump();
       break;
     case "hostreply":
+      waiting = false;
       reva.resume(m.reply);
       pump();
       break;

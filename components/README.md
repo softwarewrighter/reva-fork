@@ -63,10 +63,12 @@ components/
   cli-edit/ reva-keys, -history, -lineedit, -rawterm   the terminal line editor
   cli-host/ reva-hostpath, -stdfs, -term, -stdhost     the command-line host
   cli/      reva-cli     the `reva` command: options, run, session
-  web/      reva-web     wasm32 module + www/ (reva.js, index.html) + test/*.mjs
-  serve/    reva-serve   one-binary local web app: embeds a site, serves 127.0.0.1
-                         (std only; ../docs/serve.md)
-  desktop/  reva-desktop the Tauri app, with build.sh, smoke.sh, host.js
+  web/      reva-web-state, -run, -io, reva-web   wasm32 module + www/ (reva.js,
+                         index.html) + test/*.mjs
+  serve/    reva-serve-http, reva-serve   one-binary local web app: embeds a site,
+                         serves 127.0.0.1 (std only; ../docs/serve.md)
+  desktop/  reva-desktop-pkg, -state, reva-desktop   the Tauri app, with build.sh,
+                         smoke.sh, host.js
 scripts/      build-web.sh, regress.sh, add-regress.sh, check.sh, bench-guard.sh,
               doc-check.sh (run docs/ samples), parity-examples.sh, ...
 tests/forth/  Forth scripts used by the regression suite
@@ -104,8 +106,8 @@ just check            # fmt, clippy, tests, wasm + node tests, desktop, goldens,
 just check --fast     # the same without the desktop component
 ```
 
-`scripts/check.sh` lists the goldens known to fail on each OS and the
-most sw-checklist FAILs allowed; both may only go down.
+`scripts/check.sh` lists the goldens known to fail on each OS (the list
+may only shrink) and requires sw-checklist to report no FAILs.
 
 Refactors of hot code (gate dispatch, decode, exec) also run the timing
 guard before and after:
