@@ -2508,12 +2508,32 @@ dependencies = [
  "objc2",
  "objc2-app-kit",
  "objc2-foundation",
- "png",
+ "reva-desktop-pkg",
+ "reva-desktop-state",
  "reva-sqlite",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
+]
+
+[[package]]
+name = "reva-desktop-pkg"
+version = "0.1.0"
+dependencies = [
+ "png",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "reva-desktop-state"
+version = "0.1.0"
+dependencies = [
+ "reva-desktop-pkg",
+ "reva-sqlite",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

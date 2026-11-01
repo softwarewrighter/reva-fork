@@ -1,0 +1,12 @@
+[package]
+name = "reva-serve-http"
+description = "Just enough HTTP/1.1 to serve a static site to one local browser"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+# No dependencies, on purpose (see reva-serve).
+[dependencies]

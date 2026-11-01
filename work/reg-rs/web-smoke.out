@@ -36,5 +36,6 @@ ok   host call answered: [1,"5 \nok> "]
 ok   bytes answer: "ok\nok> "
 ok   refused: [true,false]
 ok   worker host call: [["open"],true]
+ok   one answer per call: [["open","open"],true]
 ok   no onHostCall: refused: true
 ok   worker answers sqlite itself: [true,false]

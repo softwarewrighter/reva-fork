@@ -420,9 +420,9 @@ new module, crate or component, never a merge).
 | `cli-edit` | reva-keys (bytes to keys), reva-history, reva-lineedit (the editor), reva-rawterm (raw mode, width) | — |
 | `cli-host` | reva-hostpath, reva-stdfs (the real file system), reva-term (the line reader), reva-stdhost (`StdHost`, SQLite) | vm, sqlite, cli-edit |
 | `cli` | reva-cli (the `reva` binary: options, run, session) | vm, cli-host |
-| `web` | reva-web | vm |
-| `serve` | reva-serve | (web's www/, embedded at build time) |
-| `desktop` | reva-desktop | sqlite (and web's www/, copied by build.sh) |
+| `web` | reva-web-state (the one VM, its buffers, starting), reva-web-run (boot, input, output, build facts), reva-web-io (files, canvas, host calls), reva-web (the module: re-exports every export) | vm |
+| `serve` | reva-serve-http (the site, requests, responses), reva-serve (listening; the embedded site) | (web's www/, embedded at build time) |
+| `desktop` | reva-desktop-pkg (packages: manifest, branding, paths, snapshots), reva-desktop-state (options, the app's state), reva-desktop (the Tauri app: commands, windows, SQLite calls) | sqlite (and web's www/, copied by build.sh) |
 
 `Machine` is defined in reva-core and keeps only the helpers every
 gateway uses; the rest of its methods are extension traits in the crates
@@ -448,8 +448,9 @@ Components reach each other through path dependencies. They share the
 repository's `target/` (`.cargo/config.toml`), one version (checked by
 `scripts/check.sh`), one release profile (repeated in each workspace),
 and one license policy (`deny.toml`). The gate runs fmt, clippy and the
-tests in each component. The steps after this one take each component
-to the code-metrics targets.
+tests in each component. The `local-comp-*` steps took each component
+to the code-metrics targets: since `local-comp-front-ends`, sw-checklist
+reports no FAILs, and the gate requires that.
 
 ## 4. Non-functional requirements
 

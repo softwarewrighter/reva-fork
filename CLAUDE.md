@@ -369,9 +369,9 @@ clippy `-D warnings` and tests in every component, the wasm build
 and its node tests, the goldens on the release CLI, the license check,
 and sw-checklist. `just check --fast` skips the desktop component.
 
-The script lists goldens known to fail per OS and the most sw-checklist
-FAILs allowed. Both may only shrink: lower them in the commit that
-fixes something, never raise them.
+The script lists goldens known to fail per OS; the list may only
+shrink: lower it in the commit that fixes something, never raise it.
+sw-checklist must report 0 FAILs (its warnings are not gated).
 
 Tools it needs on PATH: `reg-rs`, `sed-rs`, `sw-checklist`, `node`,
 `just`; the `wasm32-unknown-unknown` target.
