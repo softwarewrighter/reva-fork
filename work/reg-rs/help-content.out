@@ -1,0 +1,26 @@
+dup  ( a -- a a )
+  context: ~   source: src/reva.f
+  Duplicate the top stack item
+see  ( <name> -- )
+  context: ~util   source: src/reva.f
+  Dumps the bytes corresponding to the "xt" of "<name>".
+
+  If the library 'debugger' has not been 'need'ed yet, will do a
+  dump of the bytes corresponding to the xt.  If that library has
+  been 'need'ed, it will try to disassemble.
+notebook  ( -- )
+  context: ~   source: lib/ui/notebook
+  Opens a small notebook in the TUI: type Forth lines in the top pane, F6
+  evaluates the line under the cursor and shows what it printed, any error
+  and the stack it left in the lower pane.  Done or the close box closes it;
+  its text is kept in notebook.txt.
+needs  ( <name> -- )
+  context: ~   source: src/reva.f
+  Locates the file "<name>" in the user library directory or the
+  standard library directory includes it if it has not already been
+  included.
+no help for nosuchword
+notebook 
+help WORD    the documentation of WORD (help dup, help notebook)
+help/ TEXT   the documented words whose names contain TEXT
+documented words found: 1377 missing: 0 

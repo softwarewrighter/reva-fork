@@ -26,6 +26,7 @@ what has been carried over and what has not, yet).
 | [Portability](portability.md) | what stops on the portable core (native libraries, `shell`, x87/SIMD) and why |
 | [Licenses](licenses.md) | third-party files, their licenses, and the no-copyleft check |
 | [Design](design.md) | how the portable core works and why |
+| [sed-rs asks](sed-rs-asks.md) | what this repository needs from an updated sed-rs (in-place editing, ranges, literal patterns), from using it here |
 | [Code metrics](code-metrics.md) | how the Rust code is shaped: components, limits, rules, and what to do when a part is full |
 
 ## Conventions: every sample is executed

@@ -38,6 +38,14 @@ await reva2.run((s) => (out2 += s));
 check("key resumes", out2, BANNER + "3 \nok> ");
 reva2.feed("9 ~sys.(bye)\n");
 check("halts", await reva2.run(), HALTED);
+
+// help reads the documentation index embedded in the module (lib/helper,
+// /reva/lib/help.idx), in the browser as on the CLI.
+const revaHelp = await Reva.load(wasm);
+revaHelp.feed("help dup\nhelp notebook\nhelp nosuchword\n");
+let helpOut = "";
+await revaHelp.run((s) => (helpOut += s));
+check("help shows documentation", ["Duplicate the top stack item", "Opens a small notebook in the TUI", "no help for nosuchword"].map((t) => helpOut.includes(t)), [true, true, true]);
 check("exit code", reva2.exitCode, 9);
 
 // Files: bundled before boot, written by Forth, kept in a Storage, and
