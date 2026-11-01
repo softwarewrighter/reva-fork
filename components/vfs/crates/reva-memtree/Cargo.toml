@@ -1,0 +1,13 @@
+[package]
+name = "reva-memtree"
+description = "The in-memory file tree behind MemFs"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-vfs = { path = "../../../vfs/crates/reva-vfs" }
+reva-embedded = { path = "../../../host-base/crates/reva-embedded", default-features = false }

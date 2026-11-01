@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} --ui-script tests/ui/hello-world.ui examples/iup/hello-world.f < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "examples/iup/hello-world.f on the scripted UI: a callback word ends the main loop"

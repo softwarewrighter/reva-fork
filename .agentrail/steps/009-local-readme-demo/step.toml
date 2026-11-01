@@ -1,0 +1,9 @@
+number = 9
+slug = "local-readme-demo"
+status = "completed"
+description = "Unplanned, at the user's request (2026-10-27): the README shows the live demo..."
+role = "production"
+context_files = []
+created_at = "2026-10-27T00:04:04"
+completed_at = "2026-10-27T00:07:13"
+commits = ["30de68414b62cb1d51b527922f90d161f2127e62"]

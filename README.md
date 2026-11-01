@@ -1,8 +1,15 @@
-<p align="center"><img src="desktop/reva-desktop/icons/src/reva-fork-logo.png" width="160" alt="reva-fork logo"></p>
+<p align="center"><img src="components/desktop/crates/reva-desktop/icons/src/reva-fork-logo.png" width="160" alt="reva-fork logo"></p>
 
 # reva-fork: Reva Forth on 64-bit hosts and WebAssembly
 
 Copyright (c) 2026 Michael A. Wright
+
+**[Live demo: softwarewrighter.github.io/reva-fork](https://softwarewrighter.github.io/reva-fork/)**,
+the Reva REPL in your browser. Try
+[a dragon curve](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20dragon-demo)
+or [the tree below](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20tree-demo).
+
+[![The live demo after `needs turtle/fractals 12 tree-demo`: the REPL on the left, the fractal tree in the graphics pane on the right](images/live-demo.png)](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20tree-demo)
 
 Reva is a compact, native-code Forth for 32-bit x86 by Ron Aaron and the Reva
 development team. Its original README is kept, unchanged, as
@@ -12,11 +19,6 @@ This fork carries Reva forward to machines and places 32-bit x86 no longer
 reaches: x86-64 and ARM64 on Linux, macOS and Windows, and the web browser
 through WebAssembly. It does that with a **portable core** written in Rust
 that runs Reva's own Forth system, `src/reva.f` (release 2011.2), unchanged.
-
-**Live demo:** [softwarewrighter.github.io/reva-fork](https://softwarewrighter.github.io/reva-fork/),
-the REPL in your browser. Try
-[a dragon curve](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20dragon-demo)
-or [a tree](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=10%20tree-demo).
 
 ## How it works
 
@@ -41,7 +43,7 @@ its banner, `ok>` prompt and error handling.
 The options that were weighed (a token-threaded VM, hand-written 64-bit
 assembly cores, and this one), the architecture, the non-functional
 requirements and the deliberate deviations from the original core are in
-[rust/DESIGN.md](rust/DESIGN.md).
+[docs/design.md](docs/design.md).
 
 ## Quick start
 
@@ -49,20 +51,19 @@ Requires a Rust toolchain (stable, 1.85 or newer). For the browser build, also t
 `wasm32-unknown-unknown` target.
 
 ```bash
-cd rust
-cargo build --release
+cargo build --release --manifest-path components/cli/Cargo.toml   # or: just cli
 echo ': sq dup * ; 7 sq .' | target/release/reva    # prints 49
 target/release/reva                                # interactive REPL
 target/release/reva --help
 
-scripts/build-web.sh                               # reva-web/www/reva.wasm
-python3 -m http.server -d reva-web/www             # open http://localhost:8000
+scripts/build-web.sh                               # components/web/crates/reva-web/www/reva.wasm
+python3 -m http.server -d components/web/crates/reva-web/www             # open http://localhost:8000
 ```
 
 Desktop app (Linux, macOS; see [docs/desktop.md](docs/desktop.md)):
 
 ```bash
-desktop/build.sh --install                         # once; needs WebKitGTK 4.1 headers on Linux
+components/desktop/build.sh --install                         # once; needs WebKitGTK 4.1 headers on Linux
 reva-desktop                                       # the REPL in a window, files in ~/Reva
 reva-desktop --package DIR                         # open a package (start files in reva-package.json)
 ```
@@ -74,9 +75,9 @@ through the virtual install prefix `/reva/`.
 
 | Path | What it is |
 |---|---|
-| [`rust/`](rust/README.md) | the portable core: `reva-vm` (VM library), `reva-cli` (the `reva` command), `reva-web` (WebAssembly module and web console), tests and scripts |
+| [`components/`](components/README.md) | the portable core, one Cargo workspace per component: `vm` (the VM library and the components under it), `cli` (the `reva` command), `web` (WebAssembly module and web console), `serve`, `sqlite`, `desktop` (the Tauri app) |
+| `scripts/`, `tests/forth/`, `work/reg-rs/` | build and gate scripts, the regression suite's Forth scripts and goldens |
 | `src/reva.f`, `src/help.txt`, `lib/`, `examples/`, `tests/`, `bench/` | the Reva Forth system itself, as imported; the portable core runs it |
-| [`desktop/`](docs/desktop.md) | the desktop app (Tauri), in its own Cargo workspace so the core stays dependency-free |
 | [`docs/`](docs/README.md) | new documentation, written from the portable core; every Forth sample in it is executed by the test suite |
 | [`legacy/`](legacy/README.md) | the deprecated 32-bit x86 implementation: assembly core, build machinery, prebuilt binaries |
 | `www/` | the old wiki, deprecated (see below) |
@@ -131,7 +132,7 @@ out of this repository, which receives only general-purpose Reva changes.
 ## Quality
 
 The port is developed with these qualities in mind, each with a concrete
-mechanism described in [rust/DESIGN.md §4](rust/DESIGN.md#4-non-functional-requirements):
+mechanism described in [docs/design.md §4](docs/design.md#4-non-functional-requirements):
 
 - **Portability and availability:** pure Rust, no `unsafe` in the VM, no
   runtime dependencies; one core for the CLI and the browser.
@@ -142,7 +143,7 @@ mechanism described in [rust/DESIGN.md §4](rust/DESIGN.md#4-non-functional-requ
 - **Maintainability and understandability:** `reva.f` is run verbatim, not
   forked; small modules with literate headers; documented deviations.
 - **Testability:** unit and API tests (`cargo test`), a golden-output
-  regression suite (`rust/scripts/regress.sh`, using
+  regression suite (`scripts/regress.sh`, using
   [reg-rs](https://github.com/sw-cli-tools/reg-rs)), and executed
   documentation samples.
 - **Upgradability:** images hold only vx86 bytes and are versioned; native
@@ -157,11 +158,26 @@ mechanism described in [rust/DESIGN.md §4](rust/DESIGN.md#4-non-functional-requ
   pass: `cargo test --release --workspace`, `scripts/doc-check.sh` and the
   reg-rs suite. The original x86 import is the first commit, `edc8cbe`.
 
+## Third-party software
+
+- **SQLite** ([public domain](https://sqlite.org/copyright.html)), for
+  `needs db/sqlite`. The CLI and the desktop app build it in through the
+  [rusqlite](https://github.com/rusqlite/rusqlite) crate (MIT). The browser
+  build does not include it: the page loads SQLite's official WebAssembly
+  build, the [@sqlite.org/sqlite-wasm](https://github.com/sqlite/sqlite-wasm)
+  package (Apache-2.0), from jsDelivr at run time, the first time a program
+  uses SQLite.
+- The desktop app is built on [Tauri](https://tauri.app) (MIT/Apache-2.0).
+
+Every crate and its license, and what is loaded at run time, are listed in
+[docs/licenses.md](docs/licenses.md); the About dialog in the web REPL and
+the desktop app credits them too.
+
 ## License
 
 Copyright (c) 2026 Michael A. Wright
 
-The new work in this repository (the portable core under `rust/`, this
+The new work in this repository (the portable core under `components/`, this
 README, `docs/` and the other files listed in [LICENSING.md](LICENSING.md))
 is released under the **MIT License**; see [LICENSE-MIT](LICENSE-MIT):
 

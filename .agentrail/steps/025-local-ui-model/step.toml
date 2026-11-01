@@ -1,0 +1,9 @@
+number = 25
+slug = "local-ui-model"
+status = "completed"
+description = "The UI model for IUP programs (decided with the user 2026-10-28: reimplement ..."
+role = "production"
+context_files = []
+created_at = "2026-10-28T12:45:44"
+completed_at = "2026-10-31T18:34:53"
+commits = ["3ab632dd864e5bc2cafbe1ee1f64fcbe6715af34"]

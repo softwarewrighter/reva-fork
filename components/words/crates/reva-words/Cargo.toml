@@ -1,0 +1,19 @@
+[package]
+name = "reva-words"
+description = "The gate dispatch table of the Reva core: every gate to its handler in the word families"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-core = { path = "../../../core/crates/reva-core" }
+reva-words-classes = { path = "../../../words-interp/crates/reva-words-classes" }
+reva-words-interp = { path = "../../../words-interp/crates/reva-words-interp" }
+reva-words-eval = { path = "../../../words-interp/crates/reva-words-eval" }
+reva-words-compile = { path = "../../../words-dict/crates/reva-words-compile" }
+reva-words-memory = { path = "../../../words-dict/crates/reva-words-memory" }
+reva-words-system = { path = "../../../words-dict/crates/reva-words-system" }
+reva-words-ffi = { path = "../../../words-os/crates/reva-words-ffi" }

@@ -1,0 +1,26 @@
+[package]
+name = "reva-vm"
+description = "Portable Reva Forth core: an IA-32-subset virtual machine plus the newcore routines in Rust"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-x86 = { path = "../../../x86/crates/reva-x86" }
+reva-host = { path = "../../../host/crates/reva-host", default-features = false }
+reva-core = { path = "../../../core/crates/reva-core" }
+reva-vlib = { path = "../../../vlib/crates/reva-vlib" }
+reva-words = { path = "../../../words/crates/reva-words" }
+reva-core-ffi = { path = "../../../core/crates/reva-core-ffi" }
+reva-core-inspect = { path = "../../../core/crates/reva-core-inspect" }
+reva-core-run = { path = "../../../core-run/crates/reva-core-run" }
+reva-core-boot = { path = "../../../core-run/crates/reva-core-boot" }
+reva-canvas-out = { path = "../../../canvas/crates/reva-canvas-out" }
+
+[features]
+default = ["embed-lib"]
+# Compile lib/ into the core so `needs` works without the files (browser).
+embed-lib = ["reva-host/embed-lib"]

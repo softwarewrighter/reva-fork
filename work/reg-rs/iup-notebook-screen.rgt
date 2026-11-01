@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} --ui-script tests/ui/notebook-screen.ui tests/forth/iup-notebook.f < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "the notebook as the TUI draws it: screens of cells before and after F6, the focus on a button"

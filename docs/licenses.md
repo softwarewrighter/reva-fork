@@ -12,7 +12,7 @@ own parts; this page covers everything else.
   zlib and similar.
 - **No native libraries at run time.** The portable core reaches C libraries
   only through *virtual libraries*: Rust code inside the VM that serves the
-  old library names (libc today; see [DESIGN.md](../rust/DESIGN.md) §3.6).
+  old library names (libc today; see [design.md](design.md) §3.6).
   A library that is not served resolves to 0, as a failed `dlopen` did. So
   nothing in `legacy/bin/` is loaded by the portable core.
 - **Every binary is reviewed.** A tracked binary (executable, shared library,
@@ -24,12 +24,12 @@ file came from.
 
 ## Enforcement
 
-`rust/scripts/license-check.sh` (run it from `rust/`) fails when:
+`scripts/license-check.sh` fails when:
 
 1. any tracked file carries GPL, LGPL or AGPL license text;
 2. a tracked binary is not on its reviewed list, or a listed binary is
    missing from this page;
-3. `cargo deny check licenses` fails ([`rust/deny.toml`](../rust/deny.toml)
+3. `cargo deny check licenses` fails ([`deny.toml`](../deny.toml)
    allows MIT, Apache-2.0, BSD-2/3-Clause, ISC, Zlib, Unicode-3.0, CC0-1.0
    and Unlicense). This step runs when `cargo-deny` is installed.
 
@@ -89,14 +89,34 @@ All under `legacy/` or `contrib/`; none is used by the portable core.
 | assembler in `src/reva.f`, `lib/asm/`, `lib/util/disasm` | FirmWorks (Open Firmware) | MIT ([LICENSE](../LICENSE)) |
 | `lib/ui/iup`, `lib/ui/gui`, `lib/ui/cd`, `lib/ui/im`, `lib/ui/gui-iup-img` | wrappers quoting the Tecgraf license | Reva's terms; the libraries are MIT |
 | `lib/ui/gl`, `lib/ui/glu` | wrappers quoting Mesa's header notice | Reva's terms; Mesa headers are MIT |
+| `components/ui`, `components/ui-layout` | IUP's API (class, attribute, callback and key names, documented behaviour) reimplemented in Rust from IUP's documentation; no IUP code | MIT (this repository); IUP is MIT |
 | `lib/ui/glut` | wrapper quoting freeglut's header notice | Reva's terms; freeglut is MIT |
 | `lib/crypt/sha1` | Wil Baden's SHA-1, ported by Ron Aaron | public domain |
 | `lib/os/process` and others by Danny Reinhold | Reinhold Software Services | Reva's terms (stated in the files) |
 | `legacy/src/brieflz.asm` | BriefLZ, Joergen Ibsen | zlib |
 
+## Loaded at run time (not redistributed)
+
+| What | Version | License | From |
+|---|---|---|---|
+| SQLite's WebAssembly build, package [`@sqlite.org/sqlite-wasm`](https://github.com/sqlite/sqlite-wasm) (`dist/index.mjs`, `dist/sqlite3.wasm`) | 3.54.1-build1 | SQLite: [public domain](https://sqlite.org/copyright.html); the package: Apache-2.0 | `https://cdn.jsdelivr.net/npm/@sqlite.org/sqlite-wasm@3.54.1-build1/` |
+
+The browser build's worker imports it the first time a program uses
+SQLite (`components/web/crates/reva-web/www/sqlite.js`, `SQLITE_WASM`); nothing of it is in
+this repository, the web zip, the live demo's site or the desktop app,
+which has SQLite built in (`reva-sqlite`, below). The version is pinned, and
+jsDelivr serves a published npm version unchanged. The About dialog and
+the README credit it.
+
+If it is ever vendored instead (copied into the repository or a build),
+the copy needs, beside the files: the Apache-2.0 license text (the package
+declares Apache-2.0 in its `package.json` and ships no LICENSE file), a
+NOTICE naming the package, its version and source, and SQLite's
+public-domain dedication; and a row in this page's reviewed lists.
+
 ## Crate dependencies
 
-**Portable core (`rust/`):** `reva-vm`, `reva-web` and `reva-serve` have
+**Portable core (`components/`, but the desktop):** `reva-vm`, `reva-web` and `reva-serve` have
 none. `reva-sqlite`, used by the CLI (and the desktop app), has
 `rusqlite` (MIT) for SQLite through a safe API, with `libsqlite3-sys`
 (MIT) compiling SQLite itself (public domain) into the binary; their own
@@ -106,23 +126,31 @@ dependencies are MIT/Apache-2.0 (`bitflags`, `cc`, `fallible-iterator`,
 other crate must pass `cargo deny check licenses` and get a line here
 saying why it is needed.
 
-**Desktop app (`desktop/`, its own workspace):** `tauri` (MIT/Apache-2.0)
+**The TUI in the page (`components/ui-web`, its own workspace and wasm
+module):** `yew` (MIT/Apache-2.0) for the element, with `wasm-bindgen`,
+`js-sys` and `web-sys` (MIT/Apache-2.0) to reach the page; reva.wasm
+does not depend on them. Their ~85 transitive crates (listed with `cargo
+metadata` for wasm32, 2026-10-31) are MIT, Apache-2.0, BSL-1.0 (`ryu`),
+Unlicense (`memchr`) or Unicode-3.0 (`unicode-ident`): none
+GPL-family.
+
+**Desktop app (`components/desktop`, its own workspace):** `tauri` (MIT/Apache-2.0)
 for the window and webview, `serde`/`serde_json` (MIT/Apache-2.0) for the
 package manifest and commands. Their ~320 transitive crates are permissive
 except five Servo CSS crates that Tauri's HTML handling uses: `cssparser`,
 `cssparser-macros`, `selectors`, `dtoa-short` and `option-ext`, under
 **MPL-2.0**. MPL-2.0 is weak, per-file copyleft and not GPL-family: used
 unmodified, it asks only that their source stays available (it is, on
-crates.io) and that the notice ships with the app. `desktop/deny.toml`
+crates.io) and that the notice ships with the app. `deny.toml`
 allows MPL-2.0 for exactly these crates, so any other MPL dependency fails
 the check until someone decides. On Linux the app links the system's
 WebKitGTK (LGPL) dynamically and never bundles it: ship `.deb`/`.rpm`
 packages that depend on the distribution's `libwebkit2gtk-4.1-0`, not an
 AppImage that would carry it.
 
-The app's icons (`desktop/reva-desktop/icons/icon.png`, `icon.ico`,
+The app's icons (`components/desktop/crates/reva-desktop/icons/icon.png`, `icon.ico`,
 `icon.icns`) and the browser page's `favicon.png` and `favicon.ico`
-(`rust/reva-web/www/`) are the reva-fork logo, Reva's public-domain gear
+(`components/web/crates/reva-web/www/`) are the reva-fork logo, Reva's public-domain gear
 (`contrib/reva*.png`) with a fork, provided by Michael A. Wright in 2026.
-The source is `desktop/reva-desktop/icons/src/reva-fork-logo.jpg`;
-`desktop/make-icons.sh` makes every size from it.
+The source is `components/desktop/crates/reva-desktop/icons/src/reva-fork-logo.jpg`;
+`components/desktop/make-icons.sh` makes every size from it.

@@ -1,0 +1,4 @@
+ok   Ctrl-A moves to the start of the line
+ok   Up recalls the previous line
+ok   Ctrl-R finds an older line
+ok   Backspace deletes before the cursor

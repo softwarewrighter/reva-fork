@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} --ui-script tests/ui/notebook.ui tests/forth/iup-notebook.f < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "a Tui.f-shaped notebook on the scripted UI: F6 evaluates the line, F11 inserts, a file dialog, the close box"

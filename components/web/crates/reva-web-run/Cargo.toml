@@ -1,0 +1,13 @@
+[package]
+name = "reva-web-run"
+description = "The browser module's exports: boot, run, input, output, build info"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-vm = { path = "../../../vm/crates/reva-vm" }
+reva-web-state = { path = "../reva-web-state" }

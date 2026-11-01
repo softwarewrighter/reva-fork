@@ -4,7 +4,7 @@ A walk through everything the portable core can show today, in the order
 that builds on itself: the terminal REPL, the browser REPL, the desktop app,
 and a package. Each step says what to type and what you should see. The
 Forth samples in `forth`/`output` blocks are executed by
-`rust/scripts/doc-check.sh`, so the output shown is what `reva` prints.
+`scripts/doc-check.sh`, so the output shown is what `reva` prints.
 CoSy, which runs as a package, has its own script in
 [ba-cosy-zip-fork](https://github.com/softwarewrighter/ba-cosy-zip-fork)
 (`reva-fork-subset/DEMO.md`).
@@ -15,10 +15,9 @@ Allow about 15 minutes, plus a few minutes for the first desktop build.
 
 ```bash
 git switch dev && git pull          # or main, once dev is merged there
-cd rust
-cargo build --release               # ~20 s; the binary is target/release/reva
+cargo build --release --manifest-path components/cli/Cargo.toml   # ~20 s; the binary is target/release/reva (or: just cli)
 export PATH="$PWD/target/release:$PATH"
-cargo test --release --workspace    # optional: the full test suite
+just test                           # optional: the full test suite
 ```
 
 The gate scripts (`scripts/doc-check.sh`, `scripts/regress.sh`) also need
@@ -140,9 +139,8 @@ ERROR: unknown word:  greet
 ## 3. The browser REPL
 
 ```bash
-cd rust
-scripts/build-web.sh                        # reva-web/www/reva.wasm (~1 MB)
-python3 -m http.server -d reva-web/www      # any static server works
+scripts/build-web.sh                        # components/web/crates/reva-web/www/reva.wasm (~1 MB)
+python3 -m http.server -d components/web/crates/reva-web/www      # any static server works
 ```
 
 Open <http://localhost:8000> (over HTTP: a worker cannot start from
@@ -170,8 +168,8 @@ libwebkit2gtk-4.1-dev build-essential`) or Xcode's command line tools on
 macOS. From the repository root:
 
 ```bash
-desktop/build.sh --install    # first build ~4 min; installs reva-desktop into ~/.cargo/bin
-desktop/smoke.sh              # five checks, all "ok" (uses xvfb-run without a display)
+components/desktop/build.sh --install    # first build ~4 min; installs reva-desktop into ~/.cargo/bin
+components/desktop/smoke.sh              # five checks, all "ok" (uses xvfb-run without a display)
 reva-desktop                  # the REPL in a window
 ```
 

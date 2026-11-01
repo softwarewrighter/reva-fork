@@ -1,0 +1,17 @@
+[package]
+name = "reva-memfs"
+description = "MemFs: an in-memory file system over the embedded library tree"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-vfs = { path = "../../../vfs/crates/reva-vfs" }
+reva-memtree = { path = "../../../vfs/crates/reva-memtree" }
+reva-embedded = { path = "../../../host-base/crates/reva-embedded", default-features = false }
+
+[dev-dependencies]
+reva-embedded = { path = "../../../host-base/crates/reva-embedded" }

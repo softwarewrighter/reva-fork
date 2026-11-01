@@ -1,0 +1,1 @@
+reva-words split into 14 crates in components words-base, words-interp, words-dict, words-os; reva-words is now a compile-time-checked dispatch table assembled from each family module's words! list; pure number/string functions; long functions split; tests in tests/. Goldens unchanged, bench unchanged, sw-checklist 46->40. Pushed as pr/local-comp-words.

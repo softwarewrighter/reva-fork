@@ -1,0 +1,12 @@
+ui< created 1 vbox
+ui< created 2 button
+ui< attr 2 TITLE =Bye
+ui< appended 1 2
+ui< created 3 dialog
+ui< appended 3 1
+ui< attr 3 TOPMOST =YES
+ui< attr 3 TITLE =Hello,\sword!
+ui< shown 3 -1 -1 modeless
+ui< focus 2
+ui> click 2
+Goodbye, cruel world!

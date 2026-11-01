@@ -1,0 +1,1 @@
+Split web (state/run/io/facade), serve (http/serve) and desktop (pkg/state/bin) into crates within code-metrics limits; sw-checklist 7 -> 0 FAILs and the gate now requires 0. Fixed the worker re-posting a pending host call on each input (desktop SQLite second-launch regression since #55), with a web-smoke check. Goldens unchanged except web-smoke (new check); bench -12..-23%.

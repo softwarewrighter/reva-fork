@@ -1,0 +1,12 @@
+[package]
+name = "reva-x86-types"
+description = "vx86 instructions (Op, Insn), operands and the CPU state"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-x86-fpustate = { path = "../reva-x86-fpustate" }

@@ -1,0 +1,18 @@
+[package]
+name = "reva-ui-paint"
+description = "The TUI's look: the ui model's dialogs painted into reva-ui-grid's cells"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-ui-base = { path = "../../../ui/crates/reva-ui-base" }
+reva-ui-layout = { path = "../../../ui-layout/crates/reva-ui-layout" }
+reva-ui-mirror = { path = "../reva-ui-mirror" }
+reva-ui-grid = { path = "../reva-ui-grid" }
+
+[dev-dependencies]
+reva-ui = { path = "../../../ui/crates/reva-ui" }
