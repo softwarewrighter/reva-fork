@@ -244,4 +244,23 @@ await ls.idle();
 check("worker answers sqlite itself", [lsout.includes("SQLite could not be loaded"), lsout.includes("99")], [true, false]);
 ls.terminate();
 
+// The notebook (needs ui/notebook) in the browser build, its ui waits
+// answered with scripted events as the page's TUI would: type "2" at the
+// caret (the start of line 2), then the close box (dialog 7).  Closing it
+// keeps its text in notebook.txt, which the page keeps in its storage.
+const nbStore = new MemStorage();
+const nbEvents = ["key 50", "close 7"];
+const nb = start("reva.wasm", {
+  createWorker: nodeWorker, wasmBytes: wasm, storage: nbStore,
+  onHostCall: (call) => call.op === "wait"
+    ? { bytes: [...new TextEncoder().encode(nbEvents.shift() ?? "close 7")] }
+    : { error: `${call.op} not scripted` },
+});
+await nb.ready;
+nb.feed("needs ui/notebook notebook\n");
+await nb.idle();
+const kept = nbStore.getItem("reva:fs:/notebook.txt") ?? "";
+check("notebook text kept in storage", [kept.startsWith("| Put the cursor"), kept.includes("\n22 3 +\n")], [true, true]);
+nb.terminate();
+
 process.exit(failed ? 1 : 0);
