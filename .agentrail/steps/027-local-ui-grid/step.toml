@@ -1,6 +1,6 @@
 number = 27
 slug = "local-ui-grid"
-status = "pending"
+status = "in-progress"
 description = "The TUI's renderer, one look everywhere (option 2, decided with the user 2026..."
 role = "production"
 context_files = []

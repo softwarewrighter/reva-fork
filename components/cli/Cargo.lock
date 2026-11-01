@@ -336,10 +336,47 @@ name = "reva-ui-base"
 version = "2026.1026.0"
 
 [[package]]
+name = "reva-ui-grid"
+version = "2026.1026.0"
+dependencies = [
+ "reva-ui-layout",
+]
+
+[[package]]
+name = "reva-ui-layout"
+version = "2026.1026.0"
+dependencies = [
+ "reva-ui-base",
+ "reva-ui-tree",
+]
+
+[[package]]
+name = "reva-ui-mirror"
+version = "2026.1026.0"
+dependencies = [
+ "reva-ui-base",
+ "reva-ui-tree",
+]
+
+[[package]]
+name = "reva-ui-paint"
+version = "2026.1026.0"
+dependencies = [
+ "reva-ui-base",
+ "reva-ui-grid",
+ "reva-ui-layout",
+ "reva-ui-mirror",
+]
+
+[[package]]
 name = "reva-ui-script"
 version = "2026.1026.0"
 dependencies = [
  "reva-hostcall",
+ "reva-ui-grid",
+ "reva-ui-layout",
+ "reva-ui-mirror",
+ "reva-ui-paint",
 ]
 
 [[package]]

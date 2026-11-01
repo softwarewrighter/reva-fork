@@ -284,6 +284,7 @@ dependencies = [
 name = "reva-web-io"
 version = "2026.1026.0"
 dependencies = [
+ "reva-ui-base",
  "reva-vm",
  "reva-web-state",
 ]

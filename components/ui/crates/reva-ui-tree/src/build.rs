@@ -11,17 +11,30 @@ use crate::tree::{Node, Tree};
 impl Tree {
     /// A new element of `kind`, in no parent.
     pub fn create(&mut self, kind: Kind) -> Handle {
-        let node = Node {
+        let handle = self.nodes.len() as Handle + 1;
+        self.create_at(handle, kind);
+        handle
+    }
+
+    /// A new element of `kind` at `handle`, where another model made it
+    /// (a renderer's copy follows the change stream; reva-ui-mirror),
+    /// replacing what was there.
+    pub fn create_at(&mut self, handle: Handle, kind: Kind) {
+        let Some(i) = (handle as usize).checked_sub(1) else {
+            return;
+        };
+        if self.nodes.len() <= i {
+            self.nodes.resize_with(i + 1, || None);
+        }
+        let (attrs, callbacks) = (BTreeMap::new(), BTreeMap::new());
+        self.nodes[i] = Some(Node {
             kind,
             parent: None,
             children: Vec::new(),
-            attrs: BTreeMap::new(),
-            callbacks: BTreeMap::new(),
-        };
-        self.nodes.push(Some(node));
-        let handle = self.nodes.len() as Handle;
+            attrs,
+            callbacks,
+        });
         self.changes.push(Change::Created { handle, kind });
-        handle
     }
 
     /// Make `child` the last child of `parent` (taking it out of its old

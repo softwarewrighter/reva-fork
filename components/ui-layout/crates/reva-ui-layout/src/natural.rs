@@ -26,16 +26,23 @@ pub fn title_size(title: &str) -> Size {
     }
 }
 
-/// The natural size of `h`, SIZE and RASTERSIZE applied.
+/// The natural size of `h`, SIZE and RASTERSIZE applied.  A multiline's,
+/// a list's and a text field's SIZE is their content: their border or
+/// brackets, thin in pixels but a whole cell in the TUI, come on top.
 pub fn natural(tree: &Tree, h: Handle) -> Size {
     let Some(node) = tree.node(h) else {
         return Size::default();
     };
     let own = own_size(tree, h, node.kind);
     let (cols, rows) = user_size(tree, h);
+    let (dc, dr) = match node.kind {
+        Kind::MultiLine | Kind::List => (2, 2),
+        Kind::Text => (2, 0),
+        _ => (0, 0),
+    };
     Size {
-        cols: cols.unwrap_or(own.cols),
-        rows: rows.unwrap_or(own.rows),
+        cols: cols.map_or(own.cols, |c| c.saturating_add(dc)),
+        rows: rows.map_or(own.rows, |r| r.saturating_add(dr)),
     }
 }
 
