@@ -1,8 +1,9 @@
 number = 26
 slug = "local-iup"
-status = "in-progress"
+status = "completed"
 description = "The virtual library iup (the C functions lib/ui/iup and lib/ui/gui bind: IupO..."
 role = "production"
 context_files = []
 created_at = "2026-10-28T12:45:44"
-commits = []
+completed_at = "2026-10-31T20:56:30"
+commits = ["a5864235ef8f2be03fef18ad3292d60f04b78eaf"]
