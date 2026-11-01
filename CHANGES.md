@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-31
 
+- 18:00 `chore` Step local-comp-front-ends complete (saga record).
 - 17:59 `refactor` The front ends in components (step local-comp-front-ends): web (reva-web-state: the one VM, its buffers, starting; reva-web-run: boot, input, output, build facts; reva-web-io: files, canvas, host calls, JSON; reva-web re-exports all 29 exports, its tests in tests/), serve (reva-serve-http: site, requests, responses with tests in tests/; reva-serve: listening and the embedded site) and desktop (reva-desktop-pkg: manifest, branding, paths, snapshots; reva-desktop-state: options and the app state; the binary: main, commands, windows, sql). Goldens and bench unchanged; sw-checklist 7 -> 0, and the gate now requires 0 FAILs (CLAUDE.md, components/README.md, docs/design.md 3.13).
 - 17:59 `fix` The page's worker posted a host call again for every input that arrived while the call waited on its answer (the desktop feeds each -e text as input), and the extra answers went to later calls: on the desktop, `sql_fetch$` read an empty column on a second launch (the smoke test's "SQLite keeps a database in the folder", failing since #55). The worker now waits for the answer; new web-smoke check "one answer per call".
 - 17:59 `chore` Merge #57, #58 (local-comp-vlib, local-comp-cli).
