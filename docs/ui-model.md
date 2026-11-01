@@ -197,12 +197,12 @@ cells.
   arrive after each run slice (the `reva_ui_take` export, the "tui" UI
   channel). The desktop app shows the same page, so the same TUI. File
   dialogs are answered "cancelled" there for now.
-- **A demo**: `examples/tui/notebook.f`, a small notebook: F6 evaluates
+- **A demo**: `needs ui/notebook notebook` (lib/ui/notebook, built in
+  everywhere; examples/tui/notebook.f), a small notebook: F6 evaluates
   the line under the cursor; what it prints, any error and the stack it
   leaves show in the lower pane (its `type` and `emit` redirected while
   it runs). It fills the window (`FULLxFULL`) and keeps the top pane's
-  text in `notebook.txt`. In the desktop app, copy it to the app's
-  folder and `include notebook.f`.
+  text in `notebook.txt`.
 - **Goldens** compare screens as text (`screen` lines of a
   `--ui-script`). The terminal backend (crossterm, `local-ui-terminal`)
   draws the same cells in the CLI.
