@@ -94,3 +94,23 @@ fn keys_edit() {
     let mut s = Text::new("", false);
     assert!(!s.key(CR), "Enter does not edit a single line");
 }
+
+#[test]
+fn emacs_keys() {
+    let ctrl = |c: char| c as u32 | CTRL;
+    let mut t = Text::new("one two\nthree", true);
+    t.select(2, 2);
+    assert!(t.key(ctrl('E')) && t.caret == 7, "Ctrl-E: end of the line");
+    assert!(t.key(ctrl('A')) && t.caret == 0, "Ctrl-A: its start");
+    assert!(t.key(ctrl('F')) && t.key(ctrl('F')) && t.key(ctrl('B')) && t.caret == 1);
+    assert!(t.key(ctrl('N')) && t.caret == 9, "Ctrl-N: down");
+    assert!(t.key(ctrl('P')) && t.caret == 1);
+    assert!(t.key(ctrl('D')));
+    assert_eq!(value(&t), "oe two\nthree");
+    assert!(t.key(ctrl('K')));
+    assert_eq!(value(&t), "o\nthree", "Ctrl-K kills to the end of the line");
+    assert!(t.key(ctrl('K')));
+    assert_eq!(value(&t), "othree", "and at its end joins the next");
+    assert!(t.key(ctrl('H')));
+    assert_eq!(value(&t), "three");
+}

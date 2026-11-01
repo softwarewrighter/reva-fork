@@ -9,7 +9,7 @@ use reva_ui_paint::paint::{click, paint};
 use wasm_bindgen::JsCast;
 use yew::prelude::*;
 
-use crate::keys::key_code;
+use crate::keys::{clipboard_key, key_code, pasted};
 use crate::state::{send, with};
 
 /// The stylesheet class of a role.
@@ -52,6 +52,9 @@ fn row(g: &Grid, r: u16) -> Html {
 
 /// A key: its IUP code to the VM, the browser's own use of it prevented.
 fn on_key(e: KeyboardEvent) {
+    if clipboard_key(&e.key(), e.ctrl_key() || e.meta_key()) {
+        return;
+    }
     if let Some(code) = key_code(
         &e.key(),
         e.shift_key(),
@@ -61,6 +64,19 @@ fn on_key(e: KeyboardEvent) {
         e.prevent_default();
         send(vec![format!("key {code}")]);
     }
+}
+
+/// A paste: the clipboard's text typed into the focused element.
+fn on_paste(e: Event) {
+    let Some(text) = e
+        .dyn_ref::<web_sys::ClipboardEvent>()
+        .and_then(|c| c.clipboard_data())
+        .and_then(|d| d.get_data("text/plain").ok())
+    else {
+        return;
+    };
+    e.prevent_default();
+    send(pasted(&text));
 }
 
 /// A click: the cell under it, from the element's size in cells.
@@ -92,7 +108,7 @@ pub fn Tui() -> Html {
     });
     let g = with(|s| paint(&s.mirror, s.size));
     html! {
-        <div class="tui" tabindex="0" onkeydown={Callback::from(on_key)} onmousedown={Callback::from(on_click)}>
+        <div class="tui" tabindex="0" onkeydown={Callback::from(on_key)} onmousedown={Callback::from(on_click)} onpaste={Callback::from(on_paste)}>
             { for (0..g.rows).map(|r| row(&g, r)) }
         </div>
     }

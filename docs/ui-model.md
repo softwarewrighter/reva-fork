@@ -104,8 +104,10 @@ is computed in cells, with IUP's rules:
   container expands where its EXPAND allows (YES by default) and one of
   its children expands; a fill expands along its box.
 
-A dialog is laid out at its SIZE, else its natural size, at most the
-window; the rectangles are relative to the dialog's corner.
+A dialog is laid out at its SIZE (IUP's `FULL`, `HALF`, `THIRD` and
+`QUARTER`, per direction, are fractions of the window: `FULLxFULL`
+fills it), else its natural size, at most the window; the rectangles
+are relative to the dialog's corner.
 
 ## The virtual library `iup`
 
@@ -185,7 +187,9 @@ cells.
 - **The page** (component `ui-web`, crate reva-ui-web): a Yew element
   that draws the cells as spans, a class per role, coloured by the page's
   light and dark themes, and sends keys (function keys too) and clicks
-  back. It is a module of its own built with wasm-bindgen
+  back. Cmd/Ctrl-V pastes: the text arrives as keys, newlines as
+  Enter. Text panes take the REPL's Emacs keys (Ctrl-A, -E, -B, -F,
+  -P, -N, -D, -H, -K). It is a module of its own built with wasm-bindgen
   (`scripts/build-web.sh`; the CLI must match the crate's pinned
   version), so reva.wasm keeps no imports. `www/tui.js` answers the VM's
   `ui` waits with its events and shows the TUI over the REPL while a
@@ -193,6 +197,12 @@ cells.
   arrive after each run slice (the `reva_ui_take` export, the "tui" UI
   channel). The desktop app shows the same page, so the same TUI. File
   dialogs are answered "cancelled" there for now.
+- **A demo**: `examples/tui/notebook.f`, a small notebook: F6 evaluates
+  the line under the cursor; what it prints, any error and the stack it
+  leaves show in the lower pane (its `type` and `emit` redirected while
+  it runs). It fills the window (`FULLxFULL`) and keeps the top pane's
+  text in `notebook.txt`. In the desktop app, copy it to the app's
+  folder and `include notebook.f`.
 - **Goldens** compare screens as text (`screen` lines of a
   `--ui-script`). The terminal backend (crossterm, `local-ui-terminal`)
   draws the same cells in the CLI.

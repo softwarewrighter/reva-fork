@@ -78,3 +78,20 @@ pub fn expand_attr(tree: &Tree, h: Handle) -> Expand {
         vertical,
     }
 }
+
+/// A dialog's SIZE in IUP's fractions of the screen (`FULL`, `HALF`,
+/// `THIRD`, `QUARTER`, per direction: `FULLxHALF`), as cells of `screen`.
+pub fn screen_size(tree: &Tree, h: Handle, screen: Size) -> (Option<u16>, Option<u16>) {
+    let Some(size) = tree.node(h).and_then(|n| n.attrs.get("SIZE")) else {
+        return (None, None);
+    };
+    let (w, hh) = size.split_once(['x', 'X']).unwrap_or((size, ""));
+    let part = |v: &str, all: u16| match v.trim() {
+        "FULL" => Some(all),
+        "HALF" => Some(all / 2),
+        "THIRD" => Some(all / 3),
+        "QUARTER" => Some(all / 4),
+        _ => None,
+    };
+    (part(w, screen.cols), part(hh, screen.rows))
+}
