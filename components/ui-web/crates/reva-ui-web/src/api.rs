@@ -47,3 +47,9 @@ pub fn reset() {
     with(|s| s.mirror = Mirror::default());
     redraw();
 }
+
+/// Type `text` into the focused element (a paste the page caught).
+#[wasm_bindgen]
+pub fn paste(text: &str) {
+    crate::state::send(crate::keys::pasted(text));
+}

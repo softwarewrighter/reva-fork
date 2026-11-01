@@ -93,9 +93,9 @@
   /* The TUI of IUP programs (tui.js): a grid of cells over the page. */
   #tui { position:fixed; inset:0; z-index:5; background:var(--bg); overflow:hidden; }
   #tui[hidden] { display:none; }
-  .tui, .tui-probe { font:14px/1 ui-monospace, Menlo, Consolas, monospace; white-space:pre; }
+  .tui, .tui-probe { font:14px/normal ui-monospace, Menlo, Consolas, monospace; white-space:pre; }
   .tui { display:inline-block; outline:none; cursor:default; user-select:none; }
-  .tui-row { height:1em; }
+  .tui-row { white-space:pre; } /* the font's own line height: descenders fit, box lines join */
   .tui-probe { position:absolute; visibility:hidden; }
   .tui-screen { color:var(--muted); }
   .tui-dialog { background:var(--tui-dialog); }

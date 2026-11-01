@@ -14,14 +14,17 @@ use reva_ui_tree::tree::Tree;
 use crate::boxes::boxed;
 use crate::geom::{Placed, Rect, Size};
 use crate::natural::{expands, natural};
-use crate::units::user_size;
+use crate::units::{screen_size, user_size};
 
 /// Where every element of `dialog` goes, the dialog first, in a window of
-/// `avail` cells: the dialog at its SIZE, else its natural size, at most
+/// `avail` cells: the dialog at its SIZE (IUP's `FULL`, `HALF`, `THIRD` and
+/// `QUARTER` are fractions of `avail`), else its natural size, at most
 /// `avail`.
 pub fn layout(tree: &Tree, dialog: Handle, avail: Size) -> Vec<Placed> {
     let n = natural(tree, dialog);
     let (cols, rows) = user_size(tree, dialog);
+    let (full_cols, full_rows) = screen_size(tree, dialog, avail);
+    let (cols, rows) = (full_cols.or(cols), full_rows.or(rows));
     let cols = cols.unwrap_or(n.cols).min(avail.cols);
     let rows = rows.unwrap_or(n.rows).min(avail.rows);
     let mut out = Vec::new();

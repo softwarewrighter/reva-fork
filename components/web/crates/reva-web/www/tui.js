@@ -31,6 +31,12 @@ export class TuiPane {
     mod.mount(this.screen, (line) => this.event(line));
     this.mod = mod;
     new ResizeObserver(() => this.fit()).observe(this.pane);
+    // A paste the element did not take (WebKit may send it to the document).
+    document.addEventListener("paste", (e) => {
+      if (this.pane.hidden || e.defaultPrevented) return;
+      e.preventDefault();
+      mod.paste(e.clipboardData?.getData("text/plain") ?? "");
+    });
     this.fit();
     return mod;
   }

@@ -95,7 +95,7 @@ fn build(state: State, icon: Option<(Vec<u8>, u32, u32)>) -> tauri::Result<tauri
         .setup(move |app| {
             let mut w = tauri::WebviewWindowBuilder::new(app, "main", Default::default())
                 .title(&title)
-                .inner_size(960.0, 680.0);
+                .inner_size(1280.0, 860.0);
             if let Some((rgba, width, height)) = icon {
                 w = w.icon(tauri::image::Image::new_owned(rgba, width, height))?;
             }

@@ -25,3 +25,18 @@ fn browser_keys_as_iup_codes() {
     assert_eq!(key_code("Shift", true, false, false), None);
     assert_eq!(key_code("AudioVolumeUp", false, false, false), None);
 }
+
+#[test]
+fn clipboard_keys_and_pasted_text() {
+    use reva_ui_web::keys::{clipboard_key, pasted};
+    assert!(clipboard_key("v", true) && clipboard_key("C", true));
+    assert!(!clipboard_key("v", false), "a plain v types");
+    assert!(!clipboard_key("s", true), "Ctrl-S is the program's");
+    assert_eq!(
+        pasted("6 7 *\n."),
+        [
+            "key 54", "key 32", "key 55", "key 32", "key 42", "key 13", "key 46"
+        ]
+    );
+    assert_eq!(pasted("a\tb\r\n"), ["key 97", "key 32", "key 98", "key 13"]);
+}

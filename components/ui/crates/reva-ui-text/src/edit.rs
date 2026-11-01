@@ -3,6 +3,19 @@
 use reva_ui_base::keys::{BS, CR, CTRL, DEL, DOWN, END, HOME, LEFT, RIGHT, SHIFT, UP, printable};
 
 use crate::pos::moved;
+
+/// Emacs keys (as the REPL's line editor has them): Ctrl and a letter, and
+/// the key it stands for.  Ctrl-K, kill to the end of the line, is apart.
+const EMACS: &[(char, u32)] = &[
+    ('A', HOME),
+    ('E', END),
+    ('B', LEFT),
+    ('F', RIGHT),
+    ('P', UP),
+    ('N', DOWN),
+    ('D', DEL),
+    ('H', BS),
+];
 use crate::text::{Motion, Text};
 
 impl Text {
@@ -70,9 +83,20 @@ impl Text {
 
     /// Edit as key `code` (reva-ui-base's `keys`) does: typing, Backspace,
     /// Delete, Enter in a multiline, the arrows, Home and End (with Ctrl
-    /// the ends of the text; with Shift extending the selection).  False
+    /// the ends of the text; with Shift extending the selection).  The
+    /// Emacs keys too: Ctrl-A, -E, -B, -F, -P, -N, -D, -H, and Ctrl-K killing
+    /// to the end of the line (or joining the next).  False
     /// if the key does not edit.
     pub fn key(&mut self, code: u32) -> bool {
+        if code == ('K' as u32 | CTRL) {
+            self.move_caret(Motion::LineEnd, true);
+            self.delete(true);
+            return true;
+        }
+        let code = EMACS
+            .iter()
+            .find(|e| code == (e.0 as u32 | CTRL))
+            .map_or(code, |e| e.1);
         let (shift, ctrl) = (code & SHIFT != 0, code & CTRL != 0);
         let motion = match code & !(SHIFT | CTRL) {
             LEFT => Some(Motion::Left),

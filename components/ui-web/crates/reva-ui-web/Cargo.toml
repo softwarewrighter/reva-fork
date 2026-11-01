@@ -20,4 +20,4 @@ reva-ui-paint = { path = "../../../ui-grid/crates/reva-ui-paint" }
 yew = { version = "0.23", features = ["csr"] }
 wasm-bindgen = "=0.2.129"
 js-sys = "0.3"
-web-sys = { version = "0.3", features = ["Element", "DomRect", "KeyboardEvent", "MouseEvent", "HtmlElement"] }
+web-sys = { version = "0.3", features = ["ClipboardEvent", "DataTransfer", "DomRect", "Element", "HtmlElement", "KeyboardEvent", "MouseEvent"] }
