@@ -66,6 +66,30 @@ input line gets the keys from `www/lineedit.js`.
 * On macOS, Alt-B/F/D work whatever character Option would type, and
   Cmd-key shortcuts are left to the system.
 
+## Help: `help WORD`, `help/ TEXT`
+
+At any prompt (CLI, web page, desktop app), `help WORD` shows a word's
+documentation: its stack picture, context, source and description, as
+the original Reva's help did. `help/ TEXT` lists the documented words
+whose names contain TEXT, and `help` alone says how to use both.
+
+```text
+ok> help dup
+dup  ( a -- a a )
+  context: ~   source: src/reva.f
+  Duplicate the top stack item
+```
+
+The original read a SQLite database (`help.db`, built by
+`tools/genhelp.f`). reva-fork builds a text index of the same
+documentation, `src/help.txt` and the `def:` entries after the `|||` line
+of every file in `lib/`, when it is built (reva-embedded's `helpgen.rs`),
+and embeds it as `/reva/lib/help.idx`; `lib/helper` reads it. So help
+needs no SQLite and covers new libraries as soon as they document their
+words. The golden `help-content` checks real descriptions and that every
+documented word (1377) is found; the web smoke test checks help in the
+browser build.
+
 ## Design
 
 * **Line level, in the host.**  The VM reads whole lines: the page feeds a

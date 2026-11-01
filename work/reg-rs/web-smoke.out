@@ -6,6 +6,7 @@ ok   still yielding: 0
 ok   key waits: 1
 ok   key resumes: "reva-fork 2026.1026.0 portable\n\nok> 3 \nok> "
 ok   halts: 2
+ok   help shows documentation: [true,true,true]
 ok   exit code: 9
 ok   bundled file: "reva-fork 2026.1026.0 portable\n\nok> bundled\nok> \nok> "
 ok   persisted: "savedÃ©"

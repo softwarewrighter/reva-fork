@@ -1,6 +1,6 @@
 number = 30
 slug = "local-help"
-status = "pending"
+status = "in-progress"
 description = "At the user's request (2026-11-01): 'help' prints real documentation in the C..."
 role = "production"
 context_files = []

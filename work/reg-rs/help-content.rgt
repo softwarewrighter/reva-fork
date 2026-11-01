@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} < tests/forth/help.f"
+timeout = 60
+exit_code = 0
+desc = "help shows real documentation: words from reva.f and libraries, unknown words, help/, and every documented word found"
