@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-01
 
+- 09:29 `chore` Step local-help complete (saga record).
 - 09:21 `feat` help shows real documentation (step local-help; docs/repl.md): `help WORD` prints the stack picture, context, source and description, `help/ TEXT` the words whose names contain TEXT, in every host. The build makes a text index of src/help.txt and lib/'s def: entries (reva-embedded helpgen.rs, read as genhelp.f did: a description runs to its delimiter) embedded as /reva/lib/help.idx; lib/helper reads it instead of the original SQLite help.db. New golden help-content (descriptions, an unknown word, help/, all 1377 documented words found); the web smoke test checks help in the browser build. New docs/sed-rs-asks.md: what this repository needs from sed-rs.
 - 09:21 `chore` Merge #64 (local-ui-notebook); the times of the two lines below corrected (they were written ahead of the clock).
 - 09:06 `chore` CHANGES.md restored: the saga-record commit emptied it (a failed sed-rs edit went on to commit).
