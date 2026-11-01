@@ -1,0 +1,13 @@
+[package]
+name = "reva-ui-layout"
+description = "IUP's layout of the UI model, in character cells"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-ui-base = { path = "../../../ui/crates/reva-ui-base" }
+reva-ui-tree = { path = "../../../ui/crates/reva-ui-tree" }

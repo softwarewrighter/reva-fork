@@ -1,0 +1,12 @@
+[package]
+name = "reva-ui-tree"
+description = "The UI model's element tree and attributes"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-ui-base = { path = "../reva-ui-base" }
