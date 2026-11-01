@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-01
 
+- 09:45 `chore` Step local-notebook-web complete (saga record).
 - 09:39 `feat` The notebook in the browser (step local-notebook-web; docs/web.md): while a dialog is shown the TUI takes the place of the REPL's output and input line in its column instead of covering the page, so the graphics pane stays beside it and turtle drawings made from notebook lines show next to the notebook; the REPL comes back when the dialog closes. notebook.txt is kept with the page's files in local storage and survives a reload (checked in Chrome; new web smoke check drives the notebook with scripted events and reads the storage). On the live demo with the next release.
 - 09:29 `chore` Step local-help complete (saga record).
 - 09:21 `feat` help shows real documentation (step local-help; docs/repl.md): `help WORD` prints the stack picture, context, source and description, `help/ TEXT` the words whose names contain TEXT, in every host. The build makes a text index of src/help.txt and lib/'s def: entries (reva-embedded helpgen.rs, read as genhelp.f did: a description runs to its delimiter) embedded as /reva/lib/help.idx; lib/helper reads it instead of the original SQLite help.db. New golden help-content (descriptions, an unknown word, help/, all 1377 documented words found); the web smoke test checks help in the browser build. New docs/sed-rs-asks.md: what this repository needs from sed-rs.
