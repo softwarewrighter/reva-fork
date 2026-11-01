@@ -1,0 +1,11 @@
+# The notebook as the TUI draws it (80x24 cells): at the start, after
+# typing a line and F6 (gui's line-text? leaves the line selected), and
+# with the focus moved to the File... button.
+screen
+type 6 7 *
+key K_F6
+screen
+key K_TAB
+key K_TAB
+screen 60x20
+close 7

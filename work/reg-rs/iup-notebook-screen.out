@@ -1,0 +1,131 @@
+ui< created 1 vbox
+ui< created 2 label
+ui< attr 2 TITLE =ready
+ui< appended 1 2
+ui< created 3 multiline
+ui< attr 3 SIZE =200x40
+ui< attr 3 EXPAND =YES
+ui< appended 1 3
+ui< created 4 multiline
+ui< attr 4 SIZE =200x16
+ui< appended 1 4
+ui< created 5 hbox
+ui< created 6 button
+ui< attr 6 TITLE =File...
+ui< appended 5 6
+ui< appended 1 5
+ui< created 7 dialog
+ui< appended 7 1
+ui< attr 7 TOPMOST =YES
+ui< attr 7 TITLE =Notebook
+ui< shown 7 -1 -1 modeless
+ui< focus 3
+ui| screen 80x24
+ui| 
+ui| 
+ui| 
+ui| 
+ui|              ┌ Notebook ─────────────────────────────────────────×┐
+ui|              │ready                                               │
+ui|              │┌──────────────────────────────────────────────────┐│
+ui|              ││                                                  ││
+ui|              ││                                                  ││
+ui|              ││                                                  ││
+ui|              ││                                                  ││
+ui|              ││                                                  ││
+ui|              │└──────────────────────────────────────────────────┘│
+ui|              │┌──────────────────────────────────────────────────┐│
+ui|              ││                                                  ││
+ui|              ││                                                  ││
+ui|              │└──────────────────────────────────────────────────┘│
+ui|              │[ File... ]                                         │
+ui|              └────────────────────────────────────────────────────┘
+ui| 
+ui| 
+ui| 
+ui| 
+ui| 
+ui| cursor 15,7
+ui> key 54
+ui< attr 3 VALUE =6
+ui< attr 3 CARET =1,2
+ui< attr 3 SELECTION
+ui> key 32
+ui< attr 3 VALUE =6\s
+ui< attr 3 CARET =1,3
+ui< attr 3 SELECTION
+ui> key 55
+ui< attr 3 VALUE =6\s7
+ui< attr 3 CARET =1,4
+ui< attr 3 SELECTION
+ui> key 32
+ui< attr 3 VALUE =6\s7\s
+ui< attr 3 CARET =1,5
+ui< attr 3 SELECTION
+ui> key 42
+ui< attr 3 VALUE =6\s7\s*
+ui< attr 3 CARET =1,6
+ui< attr 3 SELECTION
+ui> key K_F6
+ui< attr 3 VALUE =6\s7\s*
+ui< attr 3 CARET =1,6
+ui< attr 3 SELECTION =1,1:1,6
+ui< attr 4 VALUE =42
+ui< attr 4 CARET =1,1
+ui< attr 4 SELECTION
+ui< attr 2 TITLE =evaluated
+ui| screen 80x24
+ui| 
+ui| 
+ui| 
+ui| 
+ui|              ┌ Notebook ─────────────────────────────────────────×┐
+ui|              │evaluated                                           │
+ui|              │┌──────────────────────────────────────────────────┐│
+ui|              ││6 7 *                                             ││
+ui|              ││                                                  ││
+ui|              ││                                                  ││
+ui|              ││                                                  ││
+ui|              ││                                                  ││
+ui|              │└──────────────────────────────────────────────────┘│
+ui|              │┌──────────────────────────────────────────────────┐│
+ui|              ││42                                                ││
+ui|              ││                                                  ││
+ui|              │└──────────────────────────────────────────────────┘│
+ui|              │[ File... ]                                         │
+ui|              └────────────────────────────────────────────────────┘
+ui| 
+ui| 
+ui| 
+ui| 
+ui| 
+ui| cursor 20,7
+ui> key K_TAB
+ui< focus 4
+ui> key K_TAB
+ui< focus 6
+ui| screen 60x20
+ui| 
+ui| 
+ui|    ┌ Notebook ─────────────────────────────────────────×┐
+ui|    │evaluated                                           │
+ui|    │┌──────────────────────────────────────────────────┐│
+ui|    ││6 7 *                                             ││
+ui|    ││                                                  ││
+ui|    ││                                                  ││
+ui|    ││                                                  ││
+ui|    ││                                                  ││
+ui|    │└──────────────────────────────────────────────────┘│
+ui|    │┌──────────────────────────────────────────────────┐│
+ui|    ││42                                                ││
+ui|    ││                                                  ││
+ui|    │└──────────────────────────────────────────────────┘│
+ui|    │[ File... ]                                         │
+ui|    └────────────────────────────────────────────────────┘
+ui| 
+ui| 
+ui| 
+ui> close 7
+text: 6 7 *
+result: 42
+depth 0 

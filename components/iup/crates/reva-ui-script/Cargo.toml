@@ -10,3 +10,7 @@ rust-version.workspace = true
 
 [dependencies]
 reva-hostcall = { path = "../../../host-base/crates/reva-hostcall" }
+reva-ui-mirror = { path = "../../../ui-grid/crates/reva-ui-mirror" }
+reva-ui-grid = { path = "../../../ui-grid/crates/reva-ui-grid" }
+reva-ui-paint = { path = "../../../ui-grid/crates/reva-ui-paint" }
+reva-ui-layout = { path = "../../../ui-layout/crates/reva-ui-layout" }

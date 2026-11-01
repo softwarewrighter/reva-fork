@@ -27,6 +27,8 @@ fn key_names_as_tui_uses_them() {
     assert_eq!(from_name("K_cS"), Some('S' as u32 | CTRL));
     assert_eq!(from_name("K_xF6"), None);
     assert_eq!(from_name("F6"), None);
+    assert_eq!(from_name("K_é"), None, "not a key name, and no panic");
+    assert_eq!(from_name("K_sé"), None);
 }
 
 #[test]

@@ -42,7 +42,7 @@ fail() { printf '\ncheck: FAILED: %s\n' "$*" >&2; exit 1; }
 
 # The components the core builds from, dependencies first; the desktop
 # (Tauri, a few hundred crates) is step 3.
-COMPONENTS="macros x86-types x86-decode x86-alu x86-exec x86 host-base vfs host core-parts canvas ui ui-layout core core-run iup vlib words-base words-interp words-dict words-os words vm sqlite cli-edit cli-host cli web serve"
+COMPONENTS="macros x86-types x86-decode x86-alu x86-exec x86 host-base vfs host core-parts canvas ui ui-layout ui-grid ui-web core core-run iup vlib words-base words-interp words-dict words-os words vm sqlite cli-edit cli-host cli web serve"
 
 version() { awk -F'"' '/^version *=/ { print $2; exit }' "$root/components/$1/Cargo.toml"; }
 for c in $COMPONENTS; do
