@@ -179,3 +179,27 @@ fn frames_and_huge_sizes() {
     assert_eq!(natural(&t, dialog).rows, u16::MAX);
     assert_eq!(where_is(&t, dialog, SCREEN, dialog), rect(0, 0, 80, 24));
 }
+
+#[test]
+fn dialogs_sized_as_fractions_of_the_screen() {
+    let (mut t, [dialog, vbox, ..]) = form();
+    let screen = Size {
+        cols: 100,
+        rows: 40,
+    };
+    t.set(dialog, "SIZE", Some("FULLxFULL"));
+    assert_eq!(where_is(&t, dialog, screen, dialog), rect(0, 0, 100, 40));
+    assert_eq!(
+        where_is(&t, dialog, screen, vbox).cols,
+        98,
+        "the box fills it across"
+    );
+    t.set(dialog, "SIZE", Some("HALFxQUARTER"));
+    assert_eq!(where_is(&t, dialog, screen, dialog), rect(0, 0, 50, 10));
+    t.set(dialog, "SIZE", Some("THIRDx"));
+    assert_eq!(
+        where_is(&t, dialog, screen, dialog),
+        rect(0, 0, 33, 5),
+        "rows natural"
+    );
+}

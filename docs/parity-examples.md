@@ -5,7 +5,7 @@ Each program in `examples/` is run on the portable core with stdin
 closed and a 5s limit. See [parity.md](parity.md) for what the
 statuses mean and which areas are planned.
 
-132 examples: error 24, fault 20, missing 9, runs 68, timeout 11
+133 examples: error 24, fault 21, missing 9, runs 68, timeout 11
 
 Most common first missing word (top 10):
 
@@ -138,6 +138,7 @@ Most common first missing word (top 10):
 | `examples/threads.f` | os | error: could not load pthread_mutex_init |
 | `examples/tictactoe.f` | os | timeout |
 | `examples/tinyelf.f` | lib | runs |
+| `examples/tui/notebook.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/utf8.f` | lib | runs |
 | `examples/widgets.f` | core | runs |
 | `examples/widgets2.f` | core | runs |
