@@ -11,6 +11,12 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-01
+
+- 08:38 `feat` The TUI notebook as a library (step local-ui-notebook): `needs ui/notebook notebook` opens it anywhere (lib/ui/notebook, built in): the live demo, the desktop app, the CLI with --ui-script. Cmd-Enter (Ctrl-Enter) evaluates the line as F6 does; F1 shows what the keys do; a first notebook (no notebook.txt) starts with example lines to try; golden tui-notebook-help. examples/tui/notebook.f is its two-line use; the README links it on the live demo.
+- 08:38 `docs` CLAUDE.md: every merge to main bumps the version to YYYY.MMDD.N (the user, 2026-11-01), N from 0 for the day's first merge.
+- 08:38 `chore` Merge #62, #63 (local-ui-grid, local-tui-paste); dev merged into main (4e596b4, still 2026.1026.0: the bump rule came after) and the live demo published from it.
+
 ## 2026-10-31
 
 - 22:55 `chore` Step local-tui-paste complete (saga record).
