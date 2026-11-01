@@ -1,0 +1,8 @@
+number = 34
+slug = "local-image-everywhere"
+status = "pending"
+description = "At the user's request (2026-11-01): saved images as the one-file way to ship ..."
+role = "production"
+context_files = []
+created_at = "2026-11-01T09:26:51"
+commits = []
