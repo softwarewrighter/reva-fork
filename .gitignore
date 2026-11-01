@@ -1,0 +1,3 @@
+/target
+/components/web/crates/reva-web/www/reva.wasm
+/components/web/crates/reva-web/www/ui/

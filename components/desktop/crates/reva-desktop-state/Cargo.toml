@@ -1,0 +1,15 @@
+[package]
+name = "reva-desktop-state"
+description = "The desktop app's options and state"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+reva-desktop-pkg = { path = "../reva-desktop-pkg" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reva-sqlite = { path = "../../../sqlite/crates/reva-sqlite" }

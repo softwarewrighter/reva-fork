@@ -96,7 +96,12 @@ with~ ~debug-priv
 : seeconstant ." constant: " : const_or_val dup >xt @ ? ;
 : seevalue ." value: "  const_or_val ;
 
-: ((see)) ( addr -- addr' ) 0; -1 disasm ; 
+| A core routine of the portable core is Rust, reached through a gateway
+| address whose bytes read as hlt (F4), which Reva's own code never starts
+| with: say so instead of disassembling the gateway region forever.
+: ((see)) ( addr -- addr' ) 0;
+	dup c@ $F4 = if ." core routine, written in Rust (vx86 gateway at " dup .x ." )" cr ;then
+	-1 disasm ; 
 : seevar ." variable: " dup >xt @ dup .x ."  -> " @ .x cr ;
 : seedeferred
 	." deferred word: " cr

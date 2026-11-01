@@ -1,0 +1,4 @@
+command = "scripts/build-web.sh > /dev/null && node components/web/crates/reva-web/test/smoke.mjs"
+timeout = 60
+exit_code = 0
+desc = "WebAssembly build: boot, run, pause for key, yield, halt (needs node)"

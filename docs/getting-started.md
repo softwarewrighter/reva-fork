@@ -15,7 +15,7 @@ cd reva-fork/rust
 cargo build --release
 ```
 
-The binary is `rust/target/release/reva`. It runs on Linux, macOS and
+The binary is `target/release/reva`. It runs on Linux, macOS and
 Windows, on x86-64 and ARM64 alike. `reva.f` is compiled into it; nothing
 else needs to be installed.
 
@@ -104,9 +104,8 @@ that fails half way is removed.
 ## In the browser
 
 ```bash
-cd rust
-scripts/build-web.sh                        # builds reva-web/www/reva.wasm
-python3 -m http.server -d reva-web/www      # then open http://localhost:8000
+scripts/build-web.sh                        # builds components/web/crates/reva-web/www/reva.wasm
+python3 -m http.server -d components/web/crates/reva-web/www      # then open http://localhost:8000
 ```
 
 The page is a small console running the same core. The VM runs in a Web

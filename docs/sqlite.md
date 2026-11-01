@@ -10,11 +10,22 @@ Reva's SQLite binding run unchanged.
 | Host | SQLite | Database files |
 |---|---|---|
 | CLI (`reva`) | built in (the `reva-sqlite` crate) | real files, paths as for the file words |
-| desktop app | coming next (saga step `local-sqlite-desktop`) | the app's folder |
-| browser | coming (SQLite's WebAssembly build) | the browser's private file system |
+| desktop app | built in (the `reva-sqlite` crate, in the app's native side) | the app's folder (`~/Reva`, `--root`, or the package) |
+| browser | SQLite's own WebAssembly build, loaded from jsDelivr the first time a program uses SQLite (not redistributed) | the browser's private file system (OPFS) |
 
-Where SQLite is not available yet, the first `sql_...` call stops the line
-with a note saying so.
+In the browser each database runs in memory and is written back to OPFS
+(directory `reva-sqlite/`) after every committed change, so it survives a
+reload; nothing keeps the file open, so a second tab or a page in the
+back/forward cache does not block another. Each change rewrites the whole
+file, which suits REPL-sized databases. Without OPFS, databases last for
+the session; offline, the first `sql_...` call stops with "SQLite could
+not be loaded (offline?)".
+
+In the desktop app a database name is a path in the app's folder, as for
+the file words (`notes.db` and `/notes.db` are both `~/Reva/notes.db`); a
+name that would leave the folder does not open. The app loads the
+folder's files into the VM at start, so a database file (up to 16 MB) is
+also visible to the file words: do not write to it with them.
 
 ## Example
 
@@ -47,8 +58,11 @@ message.
 The library does not call SQLite's C API. It uses the virtual library
 `reva-sqlite`, whose functions take handles as small integers and strings
 as `( a n )`; the VM turns each call into a *host call* that the host
-answers (the CLI with rusqlite, SQLite through a safe Rust API). See
-[portability.md](portability.md) and rust/DESIGN.md 3.11.
+answers with rusqlite, SQLite through a safe Rust API: the CLI at once,
+the desktop app through its page (the VM runs in a worker there, which
+pauses until the native side answers). In the browser the VM's worker
+answers with SQLite's WebAssembly build (`components/web/crates/reva-web/www/sqlite.js`). See [portability.md](portability.md)
+and docs/design.md 3.11.
 
 A statement's first step runs it and keeps its rows, so a SELECT's whole
 result is held in memory until the statement is reset or finalized. A

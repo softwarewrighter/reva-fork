@@ -1,7 +1,7 @@
 | turtle/core: Logo-style turtle graphics on a canvas
 | vim: ft=reva :
 |
-| The turtle lives on the host side of the VM (rust/reva-vm/src/canvas.rs):
+| The turtle lives on the host side of the VM (components/core/crates/reva-core/src/canvas.rs):
 | position and heading are kept in floating point there, so these words
 | take plain integers (pixels, degrees, $RRGGBB colours) and need no
 | floats.  What it draws goes to a graphics window (the desktop app, the

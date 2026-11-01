@@ -7,7 +7,7 @@ can be built in, and CoSy's build is `cosy-serve` (ba-cosy-zip-fork).
 
 ```text
 just serve                       # build for this machine, run it
-rust/scripts/build-serve.sh      # the same, without just: → rust/target/serve/reva-serve-VERSION-TARGET
+scripts/build-serve.sh      # the same, without just: → target/serve/reva-serve-VERSION-TARGET
 reva-serve-VERSION-TARGET        # serves, opens the browser; Ctrl-C to stop
 ```
 
@@ -35,7 +35,7 @@ usage: reva-serve [options]
 
 ## Building release binaries
 
-`rust/scripts/build-serve.sh [options] [TARGET ...]` (POSIX sh) builds the
+`scripts/build-serve.sh [options] [TARGET ...]` (POSIX sh) builds the
 site with `make-web-zip.sh` (or takes `--site DIR`), then compiles
 `reva-serve` with it embedded, one binary per target, each with a `.sha256`:
 
@@ -53,13 +53,13 @@ NAME` (passed to make-web-zip.sh; the binary is `NAME-serve`), `--port N`
 
 ```text
 # on a Mac: the universal binary
-rust/scripts/build-serve.sh mac
+scripts/build-serve.sh mac
 # on Linux: static Linux binary plus a Windows .exe
-rust/scripts/build-serve.sh linux windows
+scripts/build-serve.sh linux windows
 ```
 
 The build inputs reach `build.rs` as environment variables:
-`REVA_SERVE_SITE` (the directory to embed; default `rust/reva-web/www`, so
+`REVA_SERVE_SITE` (the directory to embed; default `components/web/crates/reva-web/www`, so
 a plain `cargo build -p reva-serve` serves the source tree),
 `REVA_SERVE_NAME` and `REVA_SERVE_PORT`.
 

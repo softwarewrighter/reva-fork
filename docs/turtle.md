@@ -20,18 +20,18 @@ From a reva-fork checkout on `dev`:
 
 ```text
 # desktop app (Linux, macOS): build once, then
-desktop/build.sh --install
+components/desktop/build.sh --install
 reva-desktop -e 'needs turtle/fractals' -e '5 koch-demo'
 
 # browser
-rust/scripts/build-web.sh
-python3 -m http.server -d rust/reva-web/www 8000
+scripts/build-web.sh
+python3 -m http.server -d components/web/crates/reva-web/www 8000
 #   open http://localhost:8000/   then type:  needs turtle/fractals 12 dragon-demo
 #   http://localhost:8000/?canvas=pane keeps the drawing inside the page
 #   http://localhost:8000/?canvas=split puts it beside the REPL (see web.md)
 
 # CLI: no window; write SVG files
-cd rust && cargo build --release
+cargo build --release --manifest-path components/cli/Cargo.toml
 target/release/reva -e 'needs turtle/fractals 6 hilbert-demo " hilbert.svg" svg-save . bye'
 ```
 
@@ -205,5 +205,5 @@ needs turtle/fractals
 * **Limits:** depth caps per demo, 1,000,000 lines per drawing, a turtle
   stack of 4,096 (`tpush`), pen width 0-100.
 
-See also [DESIGN.md](../rust/DESIGN.md) for the VM and
+See also [design.md](design.md) for the VM and
 [portability.md](portability.md) for virtual libraries.

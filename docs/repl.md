@@ -27,7 +27,7 @@ the key table both front ends follow.
 ## Command line: `reva`
 
 * **Only at a terminal.**  When stdin is a terminal, `reva` reads each line
-  through its own small editor (`reva-cli/src/lineedit.rs`, `term.rs`).
+  through its own small editor (components cli-edit and cli-host: reva-lineedit, reva-term; `scripts/pty-lineedit.py` drives it at a pseudo-terminal in the regression suite).
   Piped or redirected input is read as before, byte for byte, so scripts
   and the reg-rs goldens see no change.
 * **History file:** `$REVA_HISTORY` if set (set it empty for no file),
@@ -48,7 +48,7 @@ the key table both front ends follow.
 
 ## Web page, desktop app, zips, `reva-serve`
 
-All of these run the same page (`rust/reva-web/www/index.html`), whose
+All of these run the same page (`components/web/crates/reva-web/www/index.html`), whose
 input line gets the keys from `www/lineedit.js`.
 
 * **History** is in `localStorage`, one list per package: `reva:history`
@@ -86,7 +86,7 @@ input line gets the keys from `www/lineedit.js`.
 * **Small and dependency-free.**  `lineedit.js` is one module: pure editing
   operations (`edit`), a key map (`keyCommand`), the `History` list, and
   `lineEditor(input, …)` which joins them to the element.  The pure parts
-  are tested in Node: `node rust/reva-web/test/lineedit.mjs` (in `just
+  are tested in Node: `node components/web/crates/reva-web/test/lineedit.mjs` (in `just
   test`).  The CLI's decoder, editor, search and history have unit tests
   (`cargo test -p reva-cli`).
 * **Never in the way.**  Storage errors (full, blocked, private mode) leave

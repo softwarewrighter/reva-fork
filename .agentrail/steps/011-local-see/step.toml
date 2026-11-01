@@ -1,0 +1,9 @@
+number = 11
+slug = "local-see"
+status = "completed"
+description = "At the user's request (2026-10-27; also CoSy's ask 3a in ba-cosy-zip-fork doc..."
+role = "production"
+context_files = []
+created_at = "2026-10-27T11:29:16"
+completed_at = "2026-10-27T20:29:54"
+commits = ["de5eaa5718925c6d10206cc5b7137346eb59ec10"]

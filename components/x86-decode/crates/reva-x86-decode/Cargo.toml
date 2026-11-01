@@ -1,0 +1,17 @@
+[package]
+name = "reva-x86-decode"
+description = "The vx86 decoder: prefixes, the opcode table, 0F"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-x86-base = { path = "../../../x86-types/crates/reva-x86-base" }
+reva-x86-mem = { path = "../../../x86-types/crates/reva-x86-mem" }
+reva-x86-types = { path = "../../../x86-types/crates/reva-x86-types" }
+reva-x86-cursor = { path = "../reva-x86-cursor" }
+reva-x86-opcodes = { path = "../reva-x86-opcodes" }
+reva-x86-fpudec = { path = "../reva-x86-fpudec" }

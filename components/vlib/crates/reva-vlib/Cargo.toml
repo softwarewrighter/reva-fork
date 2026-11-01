@@ -1,0 +1,16 @@
+[package]
+name = "reva-vlib"
+description = "Virtual libraries of the Reva core: highlight, iconv, SQLite (host calls), turtle"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-vlib-turtle = { path = "../reva-vlib-turtle" }
+reva-vlib-highlight = { path = "../reva-vlib-highlight" }
+reva-vlib-iconv = { path = "../reva-vlib-iconv" }
+reva-vlib-iup = { path = "../../../iup/crates/reva-vlib-iup" }
+reva-vlib-sqlite = { path = "../../../sqlite/crates/reva-vlib-sqlite" }

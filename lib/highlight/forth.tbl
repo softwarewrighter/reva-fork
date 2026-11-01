@@ -1,7 +1,7 @@
 | highlight/forth.tbl: the Forth token table
 |
 | Read by `pp` and `hl-type` (lib/highlight/core, through reva-vm's
-| highlight.rs) and by the blog's rust/scripts/forth-highlight.py, so the
+| highlight.rs) and by the blog's scripts/forth-highlight.py, so the
 | REPLs and the figures colour the same tokens.  A package can add its own
 | table after this one (CoSy does); later lines win.
 |

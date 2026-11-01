@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} tests/forth/iconv.f < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "the virtual libiconv through lib/string/iconv: UTF-8 <-> UCS-2LE, Latin-1, and EINVAL, E2BIG, EILSEQ, EBADF as in C"

@@ -11,9 +11,9 @@ files live in a folder on disk instead of browser storage, and it can open a
 From a checkout:
 
 ```text
-desktop/build.sh              # builds desktop/target/release/reva-desktop
-desktop/build.sh --install    # ... and installs reva-desktop into ~/.cargo/bin
-desktop/smoke.sh              # checks it: evaluate, files, a package
+components/desktop/build.sh              # builds target/release/reva-desktop
+components/desktop/build.sh --install    # ... and installs reva-desktop into ~/.cargo/bin
+components/desktop/smoke.sh              # checks it: evaluate, files, a package
 ```
 
 Needs Rust (with the `wasm32-unknown-unknown` target, which the build adds)
@@ -25,7 +25,7 @@ and:
 - **macOS:** Xcode's command line tools (`xcode-select --install`).
 
 The first build compiles Tauri and takes a few minutes; later builds take
-seconds. `desktop/build.sh --bundle` makes installers (`.deb`/`.rpm`,
+seconds. `components/desktop/build.sh --bundle` makes installers (`.deb`/`.rpm`,
 `.app`/`.dmg`, or NSIS/MSI on Windows) and needs `cargo install tauri-cli`
 first; [packaging.md](packaging.md) covers signing and what to ship.
 
@@ -55,6 +55,12 @@ ones are skipped with a note), and each file Forth writes or deletes is
 written back at once. Hidden files and folders (`.git`) are not loaded. The
 built-in library stays at `/reva/lib/` and is never written to disk. Paths
 cannot leave the folder.
+
+
+SQLite databases (`needs db/sqlite`, see [sqlite.md](sqlite.md)) are
+files of the same folder, opened by the app's native side: the VM's
+calls pause it while the page asks the `host_call` command, which answers
+from the `reva-sqlite` crate.
 
 ## Packages
 
@@ -139,7 +145,7 @@ the UI service; until then a package runs in the REPL window.
 - **One VM build.** The VM runs in the page, in a Web Worker, exactly as in
   the browser; the native side only supplies files and the window. That
   keeps one behaviour to test and one front end to maintain.
-- **Own Cargo workspace.** `desktop/` is separate from `rust/`, so the
+- **Own Cargo workspace.** `components/desktop` is its own Cargo workspace, like every component, so the
   portable core keeps zero dependencies and its tests stay fast.
 - **Branding at run time, not build time.** Packages are folders, not
   builds: one app binary serves Reva, CoSy and the next package, and a

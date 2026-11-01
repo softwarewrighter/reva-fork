@@ -1,0 +1,20 @@
+# Component words-os: gate families of the core's words (reva-words assembles them).
+# One Cargo workspace per component (docs/code-metrics.md); the build
+# output goes to the repository's target/ (.cargo/config.toml).
+[workspace]
+resolver = "2"
+members = ["crates/reva-words-sys", "crates/reva-words-files", "crates/reva-words-libc", "crates/reva-words-ffi"]
+
+[workspace.package]
+version = "2026.1026.0"
+edition = "2024"
+publish = false
+license = "MIT"
+authors = ["Reva development team"]
+rust-version = "1.89"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"

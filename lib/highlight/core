@@ -6,10 +6,10 @@
 |   hl-table ( a n -- ) add a token table file (later tables win)
 |   hl-color? ( -- f )  does this output show colour?
 |
-| The tokenizer lives on the host side (rust/reva-vm/src/highlight.rs),
+| The tokenizer lives on the host side (components/vlib/crates/reva-vlib/src/highlight.rs),
 | reached like libc through `(call)`.  Which words get which colour comes
 | from token tables, plain text shared with the blog's
-| rust/scripts/forth-highlight.py; this file loads highlight/forth.tbl.
+| scripts/forth-highlight.py; this file loads highlight/forth.tbl.
 | Where the output cannot show colour (the CLI writing to a pipe or file,
 | or `--color never`), `pp` and `hl-type` print exactly what `type` does.
 | `slurp type` stays plain.  See docs/highlight.md.

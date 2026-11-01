@@ -1,0 +1,15 @@
+[package]
+name = "reva-words-calls"
+description = "Calls back into Forth (vectors, lists) and the heap words"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-core = { path = "../../../core/crates/reva-core" }
+reva-macros = { path = "../../../macros/crates/reva-macros" }
+reva-words-code = { path = "../reva-words-code" }
+reva-core-run = { path = "../../../core-run/crates/reva-core-run" }
