@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-31
 
+- 18:36 `chore` Step local-ui-model complete (saga record).
 - 18:34 `feat` The UI model of IUP programs (step local-ui-model; docs/ui-model.md): component ui (reva-ui-base: element kinds by IUP class name, IUP 3 key codes and names, the change stream and its line form; reva-ui-text: editable text with caret, selection, IUP's position forms and editing keys; reva-ui-tree: elements, attributes with IUP's inheritance and defaults, callbacks by name; reva-ui: VALUE/CARET/SELECTION/SELECTEDTEXT/INSERT/APPEND computed from the text, dialogs shown and hidden, focus, keys and clicks to callbacks, DEFAULT/CLOSE handling) and component ui-layout (IUP's natural sizes, SIZE, EXPAND, boxes with MARGIN, GAP, ALIGNMENT, in character cells). No VM, no rendering, no dependencies; 25 tests (a Tui.f-shaped dialog among them). IUP's API reimplemented from its documentation (docs/licenses.md). sw-checklist 0 FAILs.
 - 18:34 `chore` Merge #59 (local-comp-front-ends).
 - 18:00 `chore` Step local-comp-front-ends complete (saga record).
