@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-01
 
+- 12:23 `release` 2026.1101.0 (step local-release-2026-1101-0): today's first merge to main. Since 2026.1026.0: sw-checklist clean and required, the components restructuring, the UI model, the virtual library iup, the TUI in the browser and the desktop app, the notebook (`needs ui/notebook notebook`, its text in browser storage, beside the graphics), and help with real documentation. Every component's version, the Cargo.lock files, two goldens and two docs.
+- 12:23 `chore` Merge #65, #66 (local-help, local-notebook-web).
 - 09:45 `chore` Step local-notebook-web complete (saga record).
 - 09:39 `feat` The notebook in the browser (step local-notebook-web; docs/web.md): while a dialog is shown the TUI takes the place of the REPL's output and input line in its column instead of covering the page, so the graphics pane stays beside it and turtle drawings made from notebook lines show next to the notebook; the REPL comes back when the dialog closes. notebook.txt is kept with the page's files in local storage and survives a reload (checked in Chrome; new web smoke check drives the notebook with scripted events and reads the storage). On the live demo with the next release.
 - 09:29 `chore` Step local-help complete (saga record).
