@@ -1,6 +1,7 @@
 //! The libraries and functions the port serves, by name.
 
 use reva_core::{Gate, st};
+use reva_vlib::iup::names as iup;
 use reva_vlib::{highlight, iconv, sqlite, turtle};
 
 /// Handle `(lib)` returns for the virtual libc.  Nonzero, and not a valid
@@ -45,6 +46,8 @@ pub fn lib_handle(name: &str) -> u32 {
         sqlite::SQL_HANDLE
     } else if is(iconv::ICONV_NAMES) {
         iconv::ICONV_HANDLE
+    } else if is(iup::IUP_NAMES) {
+        iup::IUP_HANDLE
     } else {
         0
     }
@@ -69,6 +72,7 @@ pub fn func_addr(handle: u32, name: &str) -> u32 {
         highlight::HL_HANDLE => highlight::lookup(name).map_or(0, Gate::addr),
         sqlite::SQL_HANDLE => sqlite::lookup(name).map_or(0, Gate::addr),
         iconv::ICONV_HANDLE => iconv::lookup(name).unwrap_or(0),
+        iup::IUP_HANDLE => iup::lookup(name).unwrap_or(0),
         _ => 0,
     }
 }

@@ -15,3 +15,4 @@ reva-gate = { path = "../../../core-parts/crates/reva-gate" }
 reva-heap = { path = "../../../core-parts/crates/reva-heap" }
 reva-translate = { path = "../../../core-parts/crates/reva-translate" }
 reva-canvas = { path = "../../../canvas/crates/reva-canvas" }
+reva-ui = { path = "../../../ui/crates/reva-ui" }

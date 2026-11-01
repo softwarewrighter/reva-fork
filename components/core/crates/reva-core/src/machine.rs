@@ -175,6 +175,11 @@ pub struct Machine {
     /// The virtual libiconv's open descriptors: (from, to), `None` once
     /// closed; descriptor n is index n-1.  Host state: not part of an image.
     pub iconv_descs: Vec<Option<(crate::charset::Enc, crate::charset::Enc)>>,
+    /// The user interface of an IUP program (reva-vlib-iup over the ui
+    /// component's model), and the buffers its strings are returned in, by
+    /// (element, attribute).  Host state: not part of an image.
+    pub ui: reva_ui::ui::Ui,
+    pub ui_bufs: HashMap<(u32, String), (u32, u32)>,
 }
 
 // The statics block must fit its region (checked at compile time).

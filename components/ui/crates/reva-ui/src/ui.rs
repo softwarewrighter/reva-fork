@@ -22,8 +22,22 @@ pub struct Ui {
     /// The dialogs shown, the one on top last.
     pub shown: Vec<Handle>,
     pub focus: Option<Handle>,
-    /// A callback returned [`CLOSE`]: the main loop ends.
+    /// A callback returned [`CLOSE`]: the innermost loop ends.
     pub closed: bool,
+    /// The event loops running, innermost last (`IupMainLoop` inside
+    /// `IupPopup` inside ...).
+    pub loops: Vec<Loop>,
+    /// The callbacks running, innermost last, each with what the host
+    /// restores when it returns (for Reva, the data stack: ESI and EAX).
+    pub calls: Vec<(Call, [u32; 2])>,
+}
+
+/// An event loop: `IupMainLoop`, or `IupPopup` of a dialog (it ends when
+/// the dialog is hidden).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Loop {
+    Main,
+    Popup(Handle),
 }
 
 /// Something the user did, as a renderer reports it.

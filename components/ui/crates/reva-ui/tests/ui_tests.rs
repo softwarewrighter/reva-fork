@@ -232,3 +232,26 @@ fn the_change_stream_follows_everything() {
         assert_eq!(decode(&encode(c)).as_ref(), Some(c));
     }
 }
+
+#[test]
+fn a_popup_loop_inside_the_main_loop() {
+    use reva_ui::ui::Loop;
+    let Tui { mut ui, dialog, .. } = tui();
+    let popup = ui.create(Kind::Dialog);
+    ui.show(dialog, 0, 0, false);
+    ui.loops.push(Loop::Main);
+    ui.show(popup, -1, -1, true);
+    ui.loops.push(Loop::Popup(popup));
+    assert!(ui.running());
+    ui.closed = true;
+    assert!(!ui.running(), "CLOSE ends the popup's loop");
+    ui.end_loop();
+    assert!(!ui.shown.contains(&popup), "and hides its dialog");
+    assert!(ui.running(), "the main loop goes on");
+    ui.show(popup, -1, -1, true);
+    ui.loops.push(Loop::Popup(popup));
+    ui.hide(popup);
+    assert!(!ui.running(), "hiding the popup ends its loop too");
+    ui.end_loop();
+    assert_eq!(ui.loops, vec![Loop::Main]);
+}

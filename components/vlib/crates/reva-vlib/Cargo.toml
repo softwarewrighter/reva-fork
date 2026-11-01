@@ -12,4 +12,5 @@ rust-version.workspace = true
 reva-vlib-turtle = { path = "../reva-vlib-turtle" }
 reva-vlib-highlight = { path = "../reva-vlib-highlight" }
 reva-vlib-iconv = { path = "../reva-vlib-iconv" }
+reva-vlib-iup = { path = "../../../iup/crates/reva-vlib-iup" }
 reva-vlib-sqlite = { path = "../../../sqlite/crates/reva-vlib-sqlite" }
