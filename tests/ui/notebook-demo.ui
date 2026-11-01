@@ -1,0 +1,11 @@
+# examples/tui/notebook.f: an unknown word, then a line that prints and
+# leaves a number; what each printed and left shows in the lower pane.
+# The notebook fills the screen (FULLxFULL).
+type 6 7*.
+key K_F6
+key K_END
+key K_CR
+type 6 7 * dup . 1+
+key K_F6
+screen 72x24
+click 6

@@ -1,0 +1,4 @@
+command = "rm -f notebook.txt; ${REVA:-target/debug/reva} --ui-script tests/ui/notebook-demo.ui examples/tui/notebook.f < /dev/null; s=$?; rm -f notebook.txt; exit $s"
+timeout = 60
+exit_code = 0
+desc = "examples/tui/notebook.f: errors, output and the stack in the result pane"
