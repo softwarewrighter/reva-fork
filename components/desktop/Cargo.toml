@@ -3,7 +3,7 @@
 # building or testing the core should never need them.  See README.md.
 [workspace]
 resolver = "2"
-members = ["crates/reva-desktop"]
+members = ["crates/reva-desktop-pkg", "crates/reva-desktop-state", "crates/reva-desktop"]
 
 [workspace.package]
 version = "0.1.0"

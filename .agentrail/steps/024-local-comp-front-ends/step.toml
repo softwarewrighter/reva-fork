@@ -1,6 +1,6 @@
 number = 24
 slug = "local-comp-front-ends"
-status = "pending"
+status = "in-progress"
 description = "reva-web, reva-serve, reva-sqlite, reva-desktop (components/web, serve, sqlit..."
 role = "production"
 context_files = []

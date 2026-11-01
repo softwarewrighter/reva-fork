@@ -12,3 +12,6 @@ rust-version.workspace = true
 # for one person's browser needs.  So the binary is small, builds for any
 # target with just `rustup target add`, and adds nothing to the license
 # review (see docs/serve.md, "Design").
+
+[dependencies]
+reva-serve-http = { path = "../reva-serve-http" }

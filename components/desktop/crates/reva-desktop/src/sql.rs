@@ -4,38 +4,24 @@
 //! as the `host_call` command and go back as `{ int }`, `{ bytes }` or
 //! `{ error }` (see components/web/crates/reva-web/www/reva.js, `Reva.resume`).
 
-use std::path::PathBuf;
 use std::sync::Mutex;
 
-use reva_sqlite::{Reply, Sqlite};
+use reva_desktop_state::state::State;
+use reva_sqlite::Reply;
 use serde::Deserialize;
 use serde_json::{Value, json};
 
 /// A host call as the page sends it (`Reva.hostCall`).
 #[derive(Deserialize)]
 pub struct Call {
-    service: String,
-    op: String,
-    ints: Vec<i64>,
-    bytes: Vec<Vec<u8>>,
-}
-
-/// SQLite for the folder `root`.  A database name is a VM path (a name
-/// without a leading `/` is taken from `/`), mapped into the folder as the
-/// file words map paths; one that would leave the folder does not open.
-pub fn new(root: PathBuf) -> Sqlite {
-    Sqlite::new(Box::new(move |name| {
-        let vm = if name.starts_with('/') {
-            name.to_string()
-        } else {
-            format!("/{name}")
-        };
-        crate::real_path(&root, &vm)
-    }))
+    pub service: String,
+    pub op: String,
+    pub ints: Vec<i64>,
+    pub bytes: Vec<Vec<u8>>,
 }
 
 #[tauri::command]
-pub fn host_call(state: tauri::State<'_, Mutex<crate::State>>, call: Call) -> Value {
+pub fn host_call(state: tauri::State<'_, Mutex<State>>, call: Call) -> Value {
     if call.service != "sqlite" {
         return json!({ "error": format!("{} is not available in the desktop app", call.service) });
     }
