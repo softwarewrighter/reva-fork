@@ -1,0 +1,8 @@
+number = 30
+slug = "local-help"
+status = "pending"
+description = "At the user's request (2026-11-01): 'help' prints real documentation in the C..."
+role = "production"
+context_files = []
+created_at = "2026-11-01T09:00:45"
+commits = []
