@@ -409,9 +409,10 @@ new module, crate or component, never a merge).
 | `canvas` | reva-canvas (the turtle and its display list), reva-canvas-out (op stream, SVG) | macros |
 | `ui` | reva-ui-base (kinds, IUP key codes, the change stream and its text form), reva-ui-text (editable text), reva-ui-tree (elements, attributes, callbacks), reva-ui (the model: text attributes, dialogs, focus, events); docs/ui-model.md | — |
 | `ui-layout` | reva-ui-layout (IUP's layout in character cells) | ui |
+| `iup` | reva-vlib-iup (the virtual library `iup`: IUP's C functions over the model, its event loop and callbacks), reva-ui-script (a headless host answering from a script; `reva --ui-script`) | core, ui |
 | `core` | reva-core (the `Machine` state and the stack and statics helpers every gateway uses), reva-core-ffi (`(call)` arguments, registers), reva-core-inspect (dictionary, state, settings) | x86, host, core-parts, canvas |
 | `core-run` | reva-core-run (the run loop, nested calls, faults, input, host calls), reva-core-boot (new machines: statics and the core dictionary as tables; images) | core |
-| `vlib` | reva-vlib-turtle, reva-vlib-highlight, reva-vlib-iconv, reva-vlib (facade: the old paths; reva-vlib-sqlite lives in `sqlite`) | core, canvas |
+| `vlib` | reva-vlib-turtle, reva-vlib-highlight, reva-vlib-iconv, reva-vlib (facade: the old paths; reva-vlib-sqlite lives in `sqlite`, reva-vlib-iup in `iup`) | core, canvas |
 | `words-base` | reva-words-code, -text, -calls, -scan: the words' helpers (code space, pure number and string functions, calls into Forth, parsing) | core |
 | `words-interp` | reva-words-classes, -interp, -eval: classes, default vectors, the outer interpreter, eval/include, catch, defining words | core, words-base |
 | `words-dict` | reva-words-compile, -memory, -system: compiling and number words, memory and strings, bye/restart/version | core, words-base |

@@ -1,0 +1,14 @@
+# Two lines evaluated with F6 (gui's line-text? reads a line by selecting
+# it, so End drops the selection before typing on), a note inserted with
+# F11, a file chosen through a button, then the close box.
+type 2 3 +
+key K_F6
+key K_END
+key K_CR
+type 10 dup *
+key K_F6
+key K_END
+key K_F11
+click 6
+file /tmp/notes.txt
+close 7

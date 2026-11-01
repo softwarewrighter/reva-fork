@@ -11,8 +11,8 @@
 #   runs            exits normally, no error printed
 #   missing: WORD   stopped at the first word the core does not define yet
 #   fault: MESSAGE  a VM fault (bad address, unsupported instruction, ...)
-#   error: MESSAGE  reva.f reported an error (a C function or library it
-#                   could not load, ...)
+#   error: MESSAGE  reva.f reported an error or an uncaught throw (a C
+#                   function or library it could not load, ...)
 #   timeout         still running after the time limit (interactive/looping)
 # Area is a heuristic from the program's `needs` lines.
 set -uo pipefail
@@ -59,6 +59,11 @@ classify() {
     local err
     err=$(grep -m1 -oE '^ERROR: .*' <<<"$out" | "$SED_RS" -e 's/^ERROR: //; s/[[:space:]]+/ /g; s/ *$//')
     if [[ -n "$err" ]]; then echo "error: $err"; return; fi
+    # An uncaught throw: reva.f prints "Caught: N" after the message
+    if grep -q -E '^Caught: ' <<<"$out"; then
+        err=$(awk '/^Caught: / { print last; exit } NF { last = $0 }' <<<"$out" | "$SED_RS" -e 's/[[:space:]]+/ /g; s/ *$//')
+        echo "error: ${err:-uncaught throw}"; return
+    fi
     echo "runs"
 }
 

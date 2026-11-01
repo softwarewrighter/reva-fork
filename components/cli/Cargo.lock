@@ -118,6 +118,7 @@ dependencies = [
  "reva-stdfs",
  "reva-stdhost",
  "reva-term",
+ "reva-ui-script",
  "reva-vm",
 ]
 
@@ -130,6 +131,7 @@ dependencies = [
  "reva-heap",
  "reva-host",
  "reva-translate",
+ "reva-ui",
  "reva-x86",
 ]
 
@@ -299,6 +301,7 @@ dependencies = [
  "reva-sqlite",
  "reva-stdfs",
  "reva-term",
+ "reva-ui-script",
  "reva-vm",
 ]
 
@@ -320,6 +323,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "reva-ui"
+version = "2026.1026.0"
+dependencies = [
+ "reva-ui-base",
+ "reva-ui-text",
+ "reva-ui-tree",
+]
+
+[[package]]
+name = "reva-ui-base"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-ui-script"
+version = "2026.1026.0"
+dependencies = [
+ "reva-hostcall",
+]
+
+[[package]]
+name = "reva-ui-text"
+version = "2026.1026.0"
+dependencies = [
+ "reva-ui-base",
+]
+
+[[package]]
+name = "reva-ui-tree"
+version = "2026.1026.0"
+dependencies = [
+ "reva-ui-base",
+]
+
+[[package]]
 name = "reva-version"
 version = "2026.1026.0"
 
@@ -333,6 +370,7 @@ version = "2026.1026.0"
 dependencies = [
  "reva-vlib-highlight",
  "reva-vlib-iconv",
+ "reva-vlib-iup",
  "reva-vlib-sqlite",
  "reva-vlib-turtle",
 ]
@@ -354,6 +392,18 @@ dependencies = [
  "reva-core",
  "reva-core-ffi",
  "reva-macros",
+ "reva-x86",
+]
+
+[[package]]
+name = "reva-vlib-iup"
+version = "2026.1026.0"
+dependencies = [
+ "reva-core",
+ "reva-core-ffi",
+ "reva-macros",
+ "reva-ui",
+ "reva-ui-base",
  "reva-x86",
 ]
 

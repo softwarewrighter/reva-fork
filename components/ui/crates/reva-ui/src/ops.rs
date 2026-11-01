@@ -4,7 +4,7 @@ use reva_ui_base::change::{Change, Handle};
 use reva_ui_base::kind::{Kind, is_text, takes_focus};
 use reva_ui_text::text::Text;
 
-use crate::ui::Ui;
+use crate::ui::{Loop, Ui};
 
 impl Ui {
     /// An empty model.
@@ -75,10 +75,14 @@ impl Ui {
         }
     }
 
-    /// Whether `IupMainLoop` goes on: a dialog is shown and no callback
-    /// returned `CLOSE`.
+    /// Whether the innermost loop goes on: no callback returned `CLOSE`,
+    /// and its dialog (a popup's) or any dialog (the main loop's) is shown.
     pub fn running(&self) -> bool {
-        !self.closed && !self.shown.is_empty()
+        !self.closed
+            && match self.loops.last() {
+                Some(Loop::Popup(d)) => self.shown.contains(d),
+                _ => !self.shown.is_empty(),
+            }
     }
 
     /// The elements in `root` that take the focus, in order: active,

@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} --ui-script tests/ui/simple-button.ui examples/iup/simple-button.f < /dev/null"
+timeout = 60
+exit_code = 0
+desc = "examples/iup/simple-button.f on the scripted UI: inline actions, focus, Enter"

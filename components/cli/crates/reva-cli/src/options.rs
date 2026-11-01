@@ -19,6 +19,8 @@ usage: reva [options] [file ...]
       --allow-shell    let `shell` (C `system`) run OS commands; off by default
       --no-edit        at a terminal, read plain lines (no history or line editing)
       --color WHEN     colour in `pp`/`hl-type` listings: auto (default), always, never
+      --ui-script FILE answer IUP programs' user interface from FILE (headless; prints
+                       what is shown; docs/ui-model.md)
   -h, --help           this text
   -V, --version        version
 ";
@@ -37,6 +39,7 @@ pub struct Options {
     pub allow_shell: bool,
     pub no_edit: bool,
     pub color: Option<bool>,
+    pub ui_script: Option<String>,
 }
 
 pub fn parse_args() -> Result<Options, String> {
@@ -54,6 +57,7 @@ pub fn parse_args() -> Result<Options, String> {
             "--trace" => o.trace = true,
             "--allow-shell" => o.allow_shell = true,
             "--no-edit" => o.no_edit = true,
+            "--ui-script" => o.ui_script = Some(value(&a)?),
             "--color" => {
                 o.color = match value(&a)?.as_str() {
                     "auto" => None,

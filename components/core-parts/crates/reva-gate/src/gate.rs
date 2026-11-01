@@ -62,4 +62,7 @@ gates! {
     SqColumnInt, SqColumnText, SqColumnBlob, SqPtr,
     // the virtual library `libiconv` (iconv.rs), through `(call)`
     IcOpen, Iconv, IcClose,
+    // the virtual library `iup` (reva-vlib-iup): its event loop, and the
+    // return from a callback (its C functions are table entries, not gates)
+    IupLoop, IupResume,
 }
