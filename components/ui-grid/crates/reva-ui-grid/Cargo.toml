@@ -1,0 +1,12 @@
+[package]
+name = "reva-ui-grid"
+description = "The TUI's grid of character cells, each with a colour role, and the cursor"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-ui-layout = { path = "../../../ui-layout/crates/reva-ui-layout" }

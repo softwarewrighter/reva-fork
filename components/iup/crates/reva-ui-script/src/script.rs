@@ -9,14 +9,19 @@
 //! close 1           a dialog's close box
 //! file /tmp/a.txt   the answer to a file dialog
 //! cancel            a file dialog cancelled
+//! screen 100x30     print the screen as the TUI shows it (80x24 by default)
 //! ```
 
 use std::collections::VecDeque;
+
+use reva_ui_mirror::mirror::Mirror;
 
 /// The events not yet given, and what the host showed so far.
 #[derive(Clone, Debug, Default)]
 pub struct UiScript {
     pub lines: VecDeque<String>,
+    /// The UI as the changes sent so far describe it, for `screen`.
+    pub mirror: Mirror,
 }
 
 /// The script `text` as lines of events: comments and blank lines left

@@ -126,6 +126,14 @@ dependencies are MIT/Apache-2.0 (`bitflags`, `cc`, `fallible-iterator`,
 other crate must pass `cargo deny check licenses` and get a line here
 saying why it is needed.
 
+**The TUI in the page (`components/ui-web`, its own workspace and wasm
+module):** `yew` (MIT/Apache-2.0) for the element, with `wasm-bindgen`,
+`js-sys` and `web-sys` (MIT/Apache-2.0) to reach the page; reva.wasm
+does not depend on them. Their ~85 transitive crates (listed with `cargo
+metadata` for wasm32, 2026-10-31) are MIT, Apache-2.0, BSL-1.0 (`ryu`),
+Unlicense (`memchr`) or Unicode-3.0 (`unicode-ident`): none
+GPL-family.
+
 **Desktop app (`components/desktop`, its own workspace):** `tauri` (MIT/Apache-2.0)
 for the window and webview, `serde`/`serde_json` (MIT/Apache-2.0) for the
 package manifest and commands. Their ~320 transitive crates are permissive

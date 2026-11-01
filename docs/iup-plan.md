@@ -103,6 +103,8 @@ one direct `IupStoreAttribute`.
    (step 5). Keys (function keys included), mouse and resize go back as
    events. crossterm alone cannot do it: it needs a real terminal and does
    not build for wasm; the grid makes the look the same in all three.
+   Done: components `ui-grid` and `ui-web`; see
+   [ui-model.md](ui-model.md#the-tui).
 4. **CoSy's TUI end to end** (`local-tui-cosy`). `Tui.f` running
    unchanged in the desktop app and the browser; whatever it still needs
    fixed here; the CoSy lane told what to drop.

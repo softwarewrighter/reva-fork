@@ -92,7 +92,10 @@ is computed in cells, with IUP's rules:
 - **SIZE** is in IUP's character units (a quarter of a character across,
   an eighth down; `400x100` is 100 by 13 cells), RASTERSIZE, MARGIN and
   GAP in pixels (8 by 16 to a cell), CMARGIN and CGAP in character units.
-  Either replaces the natural size in its direction.
+  Either replaces the natural size in its direction. A multiline's, a
+  list's and a text field's SIZE is their content: their border (or
+  brackets), thin in pixels but a whole cell here, comes on top, so
+  `editbox[ " 200x16" size` has two lines of text.
 - **Boxes** put their children one after another at their natural sizes,
   with GAP between and MARGIN around, and share the space left equally
   among the children that expand along the box. Across, an expanding
@@ -152,12 +155,47 @@ focus 3
 close 1           a dialog's close box
 file /tmp/a.txt   the answer to a file dialog
 cancel            a file dialog cancelled
+screen 100x30     print the screen as the TUI draws it (80x24 by default)
 ```
 
-The goldens `iup-hello-world`, `iup-simple-button` and `iup-notebook` (a
-Tui.f-shaped notebook, `tests/forth/iup-notebook.f`) run this way. The
-browser and the desktop app refuse `ui` calls until the grid renderer
-(`local-ui-grid`).
+The goldens `iup-hello-world`, `iup-simple-button`, `iup-notebook` (a
+Tui.f-shaped notebook, `tests/forth/iup-notebook.f`) and
+`iup-notebook-screen` (its screens) run this way. The browser and the
+desktop app draw the TUI (below).
+
+## The TUI
+
+Step `local-ui-grid`: one look in every host, a grid of character
+cells.
+
+- **reva-ui-mirror** (component `ui-grid`): a renderer's copy of the
+  model, kept by applying the change stream; the renderer is in another
+  place than the VM (the page, a terminal, the script host).
+- **reva-ui-grid** and **reva-ui-paint**: the shown dialogs painted
+  (reva-ui-paint) into a grid of cells (reva-ui-grid), each a
+  character and a colour *role* (screen, dialog, border, title, text,
+  button, focus, active border, field, selection, disabled), and the
+  text cursor at the focused element's caret. Dialogs and frames are
+  boxes titled in their top border, a dialog with its close box `×`;
+  buttons `[ OK ]`, toggles `[x] Bold`, text fields between brackets,
+  multilines and lists in a box, scrolled to the caret, the selection
+  marked. Dialogs go where they were shown (pixels at 8 by 16 to a
+  cell), centred for IUP's named positions, the top one last. `click`
+  turns a cell into event lines (`focus 5`, `click 5`, `close 1`).
+- **The page** (component `ui-web`, crate reva-ui-web): a Yew element
+  that draws the cells as spans, a class per role, coloured by the page's
+  light and dark themes, and sends keys (function keys too) and clicks
+  back. It is a module of its own built with wasm-bindgen
+  (`scripts/build-web.sh`; the CLI must match the crate's pinned
+  version), so reva.wasm keeps no imports. `www/tui.js` answers the VM's
+  `ui` waits with its events and shows the TUI over the REPL while a
+  dialog is shown and an event loop runs; changes made outside the loop
+  arrive after each run slice (the `reva_ui_take` export, the "tui" UI
+  channel). The desktop app shows the same page, so the same TUI. File
+  dialogs are answered "cancelled" there for now.
+- **Goldens** compare screens as text (`screen` lines of a
+  `--ui-script`). The terminal backend (crossterm, `local-ui-terminal`)
+  draws the same cells in the CLI.
 
 ## Not yet
 

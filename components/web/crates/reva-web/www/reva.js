@@ -267,11 +267,17 @@ export class Reva {
    */
   flushUi(onUi) {
     if (!this.x.reva_canvas_take) return; // a module built before the canvas
-    if (this.x.reva_canvas_reset()) onUi({ type: "ui", channel: "canvas", reset: true });
+    if (this.x.reva_canvas_reset()) {
+      onUi({ type: "ui", channel: "canvas", reset: true });
+      onUi({ type: "ui", channel: "tui", reset: true });
+    }
     for (let n; (n = this.x.reva_canvas_take());) {
       const ops = new Float32Array(this.x.memory.buffer, this.x.reva_canvas_ptr(), n).slice();
       onUi({ type: "ui", channel: "canvas", ops });
     }
+    // The TUI's changes not sent with a `ui` wait (tui.js).
+    const n = this.x.reva_ui_take?.() ?? 0;
+    if (n) onUi({ type: "ui", channel: "tui", text: this.dec.decode(new Uint8Array(this.x.memory.buffer, this.x.reva_fs_data(), n)) });
   }
 
   /** A UI message from the page: `{ channel: "canvas", resend: true }`. */
