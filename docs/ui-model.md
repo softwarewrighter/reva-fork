@@ -192,17 +192,19 @@ cells.
   -P, -N, -D, -H, -K). It is a module of its own built with wasm-bindgen
   (`scripts/build-web.sh`; the CLI must match the crate's pinned
   version), so reva.wasm keeps no imports. `www/tui.js` answers the VM's
-  `ui` waits with its events and shows the TUI over the REPL while a
-  dialog is shown and an event loop runs; changes made outside the loop
+  `ui` waits with its events and shows the TUI in the REPL column, in
+  place of the output and the input line, while a dialog is shown and an
+  event loop runs (so turtle drawings made from the TUI show in the
+  graphics pane beside it, or the desktop app's graphics window); changes made outside the loop
   arrive after each run slice (the `reva_ui_take` export, the "tui" UI
   channel). The desktop app shows the same page, so the same TUI. File
   dialogs are answered "cancelled" there for now.
-- **A demo**: `examples/tui/notebook.f`, a small notebook: F6 evaluates
+- **A demo**: `needs ui/notebook notebook` (lib/ui/notebook, built in
+  everywhere; examples/tui/notebook.f), a small notebook: F6 evaluates
   the line under the cursor; what it prints, any error and the stack it
   leaves show in the lower pane (its `type` and `emit` redirected while
   it runs). It fills the window (`FULLxFULL`) and keeps the top pane's
-  text in `notebook.txt`. In the desktop app, copy it to the app's
-  folder and `include notebook.f`.
+  text in `notebook.txt`.
 - **Goldens** compare screens as text (`screen` lines of a
   `--ui-script`). The terminal backend (crossterm, `local-ui-terminal`)
   draws the same cells in the CLI.

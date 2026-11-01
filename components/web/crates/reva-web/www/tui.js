@@ -10,8 +10,9 @@
 // cells and reports keys and clicks as event lines, the next of which
 // answers the wait (events that come while the VM is busy wait in turn).
 // Changes made outside the loop arrive on the "tui" UI channel after each
-// run slice.  The pane shows while a dialog is shown.  File dialogs are
-// answered "cancelled" for now.
+// run slice.  While a dialog is shown the TUI takes the place of the REPL's
+// output and input line in its column, so the graphics pane stays in sight.
+// File dialogs are answered "cancelled" for now.
 
 export class TuiPane {
   constructor(pane) {
@@ -98,12 +99,15 @@ export class TuiPane {
     return { bytes: Array.from(new TextEncoder().encode(line)) };
   }
 
+  /** Show the TUI in place of the REPL's output and input line, or not. */
   show(on) {
     const was = !this.pane.hidden;
     this.pane.hidden = !on;
+    document.body.classList.toggle("tui-on", on);
     if (on && !was) {
       this.fit();
       this.pane.querySelector(".tui")?.focus();
     }
+    if (!on && was) document.getElementById("line")?.focus();
   }
 }
