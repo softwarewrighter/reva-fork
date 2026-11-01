@@ -94,6 +94,7 @@ one direct `IupStoreAttribute`.
    calls pause in the desktop app); when an event arrives, the Forth
    callback runs, and its result (`IUP_DEFAULT`, `IUP_CLOSE`, ...)
    decides what happens next. A headless host drives events in tests.
+   Done: component `iup`; see [ui-model.md](ui-model.md#the-virtual-library-iup).
 3. **The renderer: one TUI everywhere** (`local-ui-grid`; decided with
    the user 2026-10-31). The model lays out into a grid of character
    cells (text, colour, cursor), pure Rust with goldens on the grid. Thin

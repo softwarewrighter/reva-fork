@@ -104,10 +104,66 @@ is computed in cells, with IUP's rules:
 A dialog is laid out at its SIZE, else its natural size, at most the
 window; the rectangles are relative to the dialog's corner.
 
+## The virtual library `iup`
+
+Step `local-iup`: component `iup`, crate reva-vlib-iup, answers the C
+functions `lib/ui/iup` binds over the model, which the machine keeps
+(`Machine::ui`, host state like open files: not in an image). Programs
+load it as before (`" libiupall.so" lib iup`, `func:`), and `lib/ui/gui`
+and the programs run unchanged.
+
+- **No pointers cross.** Elements are the model's handles (small
+  integers); strings are copied in, and returned strings are copied into
+  VM buffers kept per element and attribute.
+- **Addresses.** The functions are not gates: `(func)` gives each an
+  address in the null page (`0x400` + 4 per entry of the table in
+  `names.rs`), where nothing can run, and `(call)` looks it up. The table
+  is append-only, as the gates are, since images store the addresses.
+- **The event loop.** `IupMainLoop` and `IupPopup` (of a dialog) jump to
+  the gate `IupLoop`, which sends the host the changes since the last time
+  and asks for an event: the host call `ui` `wait`, bytes = the change
+  lines, answered with one event line (`key K_F6`, `key 65`, `click 5`,
+  `focus 3`, `close 1`). A host that answers later (the desktop's page)
+  pauses the VM there, as SQLite calls do. The loop ends when no dialog is
+  shown (a popup's: when it is hidden) or a callback returns `CLOSE`; the
+  `(call)` then returns 0.
+- **Callbacks** run as IUP ran them: a C call into the Forth word, its
+  arguments and the element pushed as C pushes them, returning to the gate
+  `IupResume`. So both Reva's `callback` words (their own stack) and plain
+  `{ ... }` blocks (the result left in EAX) work. Afterwards the data stack
+  (ESI and EAX) is as it was, as C's convention keeps those registers. A
+  callback can itself wait for the host (SQLite, a file dialog, a popup).
+  A fault inside one leaves the loops, back to the interpreter.
+- **File dialogs.** `IupPopup` of a file dialog asks the host (`ui`
+  `file`, bytes = DIALOGTYPE, TITLE, FILTER, DIRECTORY, MULTIPLEFILES),
+  answered with the path (bytes) or a cancel (an integer); the dialog's
+  VALUE and STATUS (`0`, `-1`) follow.
+
+**Hosts.** The CLI has no UI yet (`local-ui-terminal`); with `reva
+--ui-script FILE` it answers from a script (crate reva-ui-script) and
+prints what is shown (`ui< ` change lines, `ui> ` events):
+
+```text
+# a comment
+key K_F6          a key, by IUP's name or code
+type 2 3 +        the characters, one key each
+click 5           a button, toggle or menu item (by handle)
+focus 3
+close 1           a dialog's close box
+file /tmp/a.txt   the answer to a file dialog
+cancel            a file dialog cancelled
+```
+
+The goldens `iup-hello-world`, `iup-simple-button` and `iup-notebook` (a
+Tui.f-shaped notebook, `tests/forth/iup-notebook.f`) run this way. The
+browser and the desktop app refuse `ui` calls until the grid renderer
+(`local-ui-grid`).
+
 ## Not yet
 
 Left to the steps that need them: drawing a menu bar (a dialog's MENU
 reserves its row), switching tabs and zbox children, lists' selection
-and editing, the matrix, timers firing, canvases (`local-ui-canvas`).
-IUP calls `K_ANY` before the key's own callback; the model calls one or
-the other, which is what the programs do.
+and editing, the matrix and its `IupMat*` functions, timers firing,
+`IupLoopStep` waiting for an event (it returns `DEFAULT`), canvases
+(`local-ui-canvas`). IUP calls `K_ANY` before the key's own callback;
+the model calls one or the other, which is what the programs do.

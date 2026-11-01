@@ -1,0 +1,40 @@
+ui< created 1 vbox
+ui< created 2 vbox
+ui< created 3 fill
+ui< appended 2 3
+ui< created 4 label
+ui< attr 4 TITLE =Hello!
+ui< appended 2 4
+ui< created 5 fill
+ui< appended 2 5
+ui< created 6 hbox
+ui< created 7 fill
+ui< appended 6 7
+ui< created 8 button
+ui< attr 8 TITLE =Click\sme!
+ui< appended 6 8
+ui< created 9 fill
+ui< appended 6 9
+ui< created 10 button
+ui< attr 10 TITLE =Click\sme,\stoo!
+ui< appended 6 10
+ui< created 11 fill
+ui< appended 6 11
+ui< appended 2 6
+ui< created 12 fill
+ui< appended 2 12
+ui< appended 1 2
+ui< created 13 dialog
+ui< appended 13 1
+ui< attr 13 TOPMOST =YES
+ui< attr 13 TITLE =Simple\stest!
+ui< shown 13 -1 -1 modeless
+ui< focus 8
+ui> click 10
+well done!
+ui> focus 10
+ui< focus 10
+ui> key K_sTAB
+ui< focus 8
+ui> key K_CR
+bye

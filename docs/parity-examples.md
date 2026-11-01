@@ -5,7 +5,7 @@ Each program in `examples/` is run on the portable core with stdin
 closed and a 5s limit. See [parity.md](parity.md) for what the
 statuses mean and which areas are planned.
 
-132 examples: error 31, fault 7, missing 9, runs 73, timeout 12
+132 examples: error 24, fault 20, missing 9, runs 68, timeout 11
 
 Most common first missing word (top 10):
 
@@ -36,7 +36,7 @@ Most common first missing word (top 10):
 | `examples/catch.f` | core | runs |
 | `examples/cgi.f` | net | runs |
 | `examples/class.f` | core | runs |
-| `examples/codesize.f` | lib | runs |
+| `examples/codesize.f` | lib | error: "~debug" is not a word |
 | `examples/console-colors.f` | os | timeout |
 | `examples/data/array.f` | lib | runs |
 | `examples/data/binarytree.f` | lib | runs |
@@ -56,9 +56,9 @@ Most common first missing word (top 10):
 | `examples/fizzbuzz.f` | core | runs |
 | `examples/gcd.f` | core | runs |
 | `examples/gettext.f` | lib | missing: `set-po` |
-| `examples/gl/gl-scene.f` | gui | runs |
-| `examples/gl/gl-shading.f` | gui | runs |
-| `examples/gl/gl-twod.f` | gui | runs |
+| `examples/gl/gl-scene.f` | gui | error: Could not load the OpenGL library |
+| `examples/gl/gl-shading.f` | gui | error: Could not load the OpenGL library |
+| `examples/gl/gl-twod.f` | gui | error: Could not load the OpenGL library |
 | `examples/gpgme.f` | lib | error: could not load gpgme_check_version |
 | `examples/gtk.f` | gui | error: could not load gtk_init |
 | `examples/gui/hello1.f` | gui | error: could not load window_xy |
@@ -67,7 +67,7 @@ Most common first missing word (top 10):
 | `examples/gui/hello4.f` | gui | error: could not load window_xy |
 | `examples/hanoi.f` | core | runs |
 | `examples/hello/hello-app.f` | lib | runs |
-| `examples/hello/hello-guiapp.f` | gui | error: could not load IupOpen |
+| `examples/hello/hello-guiapp.f` | gui | runs |
 | `examples/hello/hello.f` | core | runs |
 | `examples/hello/hello2.f` | core | runs |
 | `examples/hello/hello3.f` | core | runs |
@@ -75,30 +75,30 @@ Most common first missing word (top 10):
 | `examples/hello/hello5.f` | core | runs |
 | `examples/hello/hello6.f` | core | runs |
 | `examples/hello/hello7.f` | core | runs |
-| `examples/http.f` | net | runs |
+| `examples/http.f` | net | error: uncaught throw |
 | `examples/ignorecase.f` | core | missing: `Foo` |
 | `examples/iskey.f` | core | timeout |
-| `examples/iup/binary-clock.f` | gui | error: could not load IupOpen |
-| `examples/iup/brownian.f` | gui | error: could not load IupOpen |
-| `examples/iup/callback-test.f` | gui | error: could not load IupOpen |
-| `examples/iup/cd-test.f` | gui | error: could not load IupOpen |
-| `examples/iup/console.f` | gui | error: could not load IupOpen |
-| `examples/iup/db-test.f` | gui | error: could not load IupOpen |
-| `examples/iup/file-dlg.f` | gui | error: could not load IupOpen |
-| `examples/iup/frame-test.f` | gui | error: could not load IupOpen |
-| `examples/iup/gl-test.f` | gui | error: could not load IupOpen |
-| `examples/iup/gui-test.f` | gui | error: could not load IupOpen |
-| `examples/iup/gui-test2.f` | gui | error: could not load IupOpen |
-| `examples/iup/hello-world.f` | gui | error: could not load IupOpen |
-| `examples/iup/hello-world2.f` | gui | error: could not load IupOpen |
-| `examples/iup/hello-world3.f` | gui | error: could not load IupOpen |
-| `examples/iup/image-convert.f` | gui | error: could not load IupOpen |
-| `examples/iup/iup.f` | gui | error: could not load IupOpen |
-| `examples/iup/menu-test.f` | gui | error: could not load IupOpen |
-| `examples/iup/new-test.f` | gui | error: could not load IupOpen |
+| `examples/iup/binary-clock.f` | gui | error: could not load cdContextIup |
+| `examples/iup/brownian.f` | gui | error: could not load cdContextIup |
+| `examples/iup/callback-test.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/cd-test.f` | gui | error: could not load cdContextIup |
+| `examples/iup/console.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/db-test.f` | gui | fault: stack underflow |
+| `examples/iup/file-dlg.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/frame-test.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/gl-test.f` | gui | error: Could not load the OpenGL library |
+| `examples/iup/gui-test.f` | gui | error: could not load IupImageLibOpen |
+| `examples/iup/gui-test2.f` | gui | error: could not load IupImageLibOpen |
+| `examples/iup/hello-world.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/hello-world2.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/hello-world3.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/image-convert.f` | gui | error: could not load IupImageLibOpen |
+| `examples/iup/iup.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/menu-test.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/new-test.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/pdf-test.f` | gui | error: could not load cdContextPDF |
-| `examples/iup/simple-button.f` | gui | error: could not load IupOpen |
-| `examples/json.f` | net | runs |
+| `examples/iup/simple-button.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/json.f` | net | error: null nully |
 | `examples/keys.f` | core | fault: stack underflow |
 | `examples/makeexe.f` | core | runs |
 | `examples/map.f` | lib | runs |
@@ -119,7 +119,7 @@ Most common first missing word (top 10):
 | `examples/revafind.f` | os | runs |
 | `examples/robotron.f` | core | runs |
 | `examples/see2.f` | lib | runs |
-| `examples/sha1.f` | lib | timeout |
+| `examples/sha1.f` | lib | fault: bad memory access: 3527000 byte(s) at 0x00000003 |
 | `examples/sieve.f` | core | timeout |
 | `examples/smtp.f` | net | timeout |
 | `examples/sockets.f` | net | runs |

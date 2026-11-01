@@ -5,7 +5,7 @@
 use crate::host::StdHost;
 use reva_sqlite::{Reply, Sqlite};
 use reva_stdfs::stdfs::StdFs;
-use reva_vm::host::Resources;
+use reva_vm::host::{Console, Resources};
 use reva_vm::hostcall::{HostAnswer, HostCall, HostReply};
 use reva_vm::vfs::FileSystem;
 
@@ -15,7 +15,17 @@ impl Resources for StdHost {
     }
 
     fn host_call(&mut self, call: &HostCall) -> HostAnswer {
-        answer(&mut self.sql, &mut self.fs, call)
+        if call.service != "ui" {
+            return answer(&mut self.sql, &mut self.fs, call);
+        }
+        let Some(ui) = self.ui.as_mut() else {
+            return HostAnswer::Unavailable(
+                "the CLI shows no user interface yet (--ui-script FILE scripts one)".into(),
+            );
+        };
+        let (answer, log) = ui.answer(call);
+        Console::write(self, log.as_bytes());
+        answer
     }
 }
 

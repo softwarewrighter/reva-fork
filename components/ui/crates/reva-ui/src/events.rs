@@ -13,7 +13,7 @@ use reva_ui_base::change::{Change, Handle};
 use reva_ui_base::keys::{CR, SHIFT, SP, TAB, name};
 use reva_ui_base::kind::Kind;
 
-use crate::ui::{CLOSE, CONTINUE, Call, DEFAULT, Event, Ui};
+use crate::ui::{CLOSE, CONTINUE, Call, DEFAULT, Event, Loop, Ui};
 
 impl Ui {
     /// What `event` does: a callback for the host to run (then
@@ -52,6 +52,15 @@ impl Ui {
             Event::Key(code) if ret == DEFAULT || ret == CONTINUE => self.default_key(code),
             _ => None,
         }
+    }
+
+    /// Leave the innermost loop: a popup's dialog is hidden, and `CLOSE`
+    /// applies to this loop only.
+    pub fn end_loop(&mut self) {
+        if let Some(Loop::Popup(d)) = self.loops.pop() {
+            self.hide(d);
+        }
+        self.closed = false;
     }
 
     /// Callback `name` of `handle` or a parent, as a [`Call`].

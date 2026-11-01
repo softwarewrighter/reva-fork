@@ -19,6 +19,7 @@ dependencies = [
  "reva-heap",
  "reva-host",
  "reva-translate",
+ "reva-ui",
  "reva-x86",
 ]
 
@@ -120,6 +121,33 @@ name = "reva-translate"
 version = "2026.1026.0"
 dependencies = [
  "reva-x86",
+]
+
+[[package]]
+name = "reva-ui"
+version = "2026.1026.0"
+dependencies = [
+ "reva-ui-base",
+ "reva-ui-text",
+ "reva-ui-tree",
+]
+
+[[package]]
+name = "reva-ui-base"
+version = "2026.1026.0"
+
+[[package]]
+name = "reva-ui-text"
+version = "2026.1026.0"
+dependencies = [
+ "reva-ui-base",
+]
+
+[[package]]
+name = "reva-ui-tree"
+version = "2026.1026.0"
+dependencies = [
+ "reva-ui-base",
 ]
 
 [[package]]
