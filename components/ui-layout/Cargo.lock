@@ -4,11 +4,11 @@ version = 4
 
 [[package]]
 name = "reva-ui-base"
-version = "2026.1026.0"
+version = "2026.1101.0"
 
 [[package]]
 name = "reva-ui-layout"
-version = "2026.1026.0"
+version = "2026.1101.0"
 dependencies = [
  "reva-ui-base",
  "reva-ui-tree",
@@ -16,7 +16,7 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-tree"
-version = "2026.1026.0"
+version = "2026.1101.0"
 dependencies = [
  "reva-ui-base",
 ]
