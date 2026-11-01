@@ -94,7 +94,7 @@ pub fn name(code: u32) -> Option<String> {
 /// [`name`].
 pub fn from_name(name: &str) -> Option<u32> {
     let rest = name.strip_prefix("K_")?;
-    for split in 0..=rest.len().min(4) {
+    for split in (0..=rest.len().min(4)).filter(|s| rest.is_char_boundary(*s)) {
         let (mods, base) = rest.split_at(split);
         let Some(bits) = mods
             .chars()

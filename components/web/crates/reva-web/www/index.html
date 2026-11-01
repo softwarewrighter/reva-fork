@@ -15,8 +15,10 @@
 <link rel="icon" href="favicon.png">
 <style>
   :root { --bg:#fbfaf7; --fg:#1d1d1b; --muted:#6b6a65; --accent:#1f6f5c; --line:#dcd9d0; }
+  :root { --tui-dialog:#f1efe8; --tui-field:#ffffff; }
   @media (prefers-color-scheme: dark) {
     :root { --bg:#151513; --fg:#e8e6df; --muted:#9a988f; --accent:#6fc2a9; --line:#34332f; }
+    :root { --tui-dialog:#1f1f1c; --tui-field:#0d0d0c; }
   }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--fg);
@@ -88,6 +90,25 @@
     body.split.collapsed #side { width:auto; height:40px; }
     body.split.collapsed #side .strip { writing-mode:horizontal-tb; padding:0; }
   }
+  /* The TUI of IUP programs (tui.js): a grid of cells over the page. */
+  #tui { position:fixed; inset:0; z-index:5; background:var(--bg); overflow:hidden; }
+  #tui[hidden] { display:none; }
+  .tui, .tui-probe { font:14px/1 ui-monospace, Menlo, Consolas, monospace; white-space:pre; }
+  .tui { display:inline-block; outline:none; cursor:default; user-select:none; }
+  .tui-row { height:1em; }
+  .tui-probe { position:absolute; visibility:hidden; }
+  .tui-screen { color:var(--muted); }
+  .tui-dialog { background:var(--tui-dialog); }
+  .tui-border { background:var(--tui-dialog); color:var(--muted); }
+  .tui-title { background:var(--tui-dialog); color:var(--accent); font-weight:bold; }
+  .tui-text { background:var(--tui-dialog); color:var(--fg); }
+  .tui-button { background:var(--line); color:var(--fg); }
+  .tui-focus { background:var(--accent); color:var(--bg); }
+  .tui-active { background:var(--tui-dialog); color:var(--accent); }
+  .tui-field { background:var(--tui-field); color:var(--fg); }
+  .tui-selection { background:var(--accent); color:var(--bg); opacity:.75; }
+  .tui-disabled { background:var(--tui-dialog); color:var(--muted); }
+  .tui-cursor { background:var(--fg); color:var(--bg); }
 </style>
 </head>
 <body>
@@ -100,6 +121,7 @@
   <form id="f"><span id="prompt">ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
     <button type="button" id="stop" title="Stop the running word (Ctrl-C)" disabled>Stop</button></form>
   <div id="panes"></div>
+  <div id="tui" hidden><div class="tui-root"></div></div>
   <footer id="footer"></footer>
 </main>
 <script type="module">
@@ -110,6 +132,7 @@
   import { start, RUNNING, HALTED } from "./reva.js";
   import { hostSetup } from "./host.js";
   import { CanvasChannel } from "./ui.js";
+  import { TuiPane } from "./tui.js";
   import { loadPackage } from "./package.js";
   import { splitView } from "./split.js";
   import { aboutDialog, packageAbout, showHint } from "./about.js";
@@ -223,21 +246,30 @@
   const image = query.get("image") ?? undefined;
   const gfx = document.getElementById("gfx");
   let canvas = null;
+  const tui = new TuiPane(document.getElementById("tui"));
   const reva = start("reva.wasm", {
     image,
     files: pkg?.files,
     storage: host.storage,
     prefix: pkg && !host.keepsFiles ? pkg.prefix : undefined,
     onOutput: (s) => { write(s); host.output?.(s); },
-    onUi: (m) => { if (m.channel === "canvas") canvas.handle(m); },
+    onUi: (m) => {
+      if (m.channel === "canvas") canvas.handle(m);
+      else if (m.channel === "tui") tui.handle(m);
+    },
     // Host calls (SQLite, docs/design.md 3.11): a host that serves them
     // answers (the desktop app, natively); in a browser the VM's worker
     // answers SQLite itself with SQLite's wasm build (sqlite.js).
     localServices: host.hostCall ? [] : ["sqlite"],
-    onHostCall: (call) => host.hostCall?.(call)
-      ?? { error: `${call.service} is not available in the browser` },
+    // The TUI of IUP programs is the page's own (tui.js), here and in the
+    // desktop app.
+    onHostCall: (call) => call.service === "ui" ? tui.answer(call)
+      : host.hostCall?.(call) ?? { error: `${call.service} is not available in the browser` },
     onStatus: (s) => {
       stop.disabled = s !== RUNNING;
+      // Back at the REPL or halted: no event loop runs, so the TUI steps
+      // aside (it shows again at the next one).
+      if (s !== RUNNING) tui.show(false);
       if (s === HALTED) {
         echo(`\n[exited with status ${reva.exitCode}]\n`);
         line.disabled = true;

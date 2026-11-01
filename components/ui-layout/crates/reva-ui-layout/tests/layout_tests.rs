@@ -53,13 +53,13 @@ fn natural_sizes_of_controls() {
     assert_eq!(
         natural(&t, edit),
         Size {
-            cols: 100,
-            rows: 13
+            cols: 102,
+            rows: 15
         },
-        "SIZE in quarter and eighth characters"
+        "SIZE in quarter and eighth characters is the content; the border comes on top"
     );
     t.set(text, "RASTERSIZE", Some("80x"));
-    assert_eq!(natural(&t, text), Size { cols: 10, rows: 1 });
+    assert_eq!(natural(&t, text), Size { cols: 12, rows: 1 });
     assert_eq!(title_size("a&&b\nlonger"), Size { cols: 6, rows: 2 });
 }
 
@@ -143,8 +143,8 @@ fn tui_panes_share_the_height() {
     assert_eq!(
         natural(&t, dialog),
         Size {
-            cols: 104,
-            rows: 31
+            cols: 106,
+            rows: 35
         }
     );
     t.set(dialog, "SIZE", Some("x400"));
@@ -152,10 +152,10 @@ fn tui_panes_share_the_height() {
         cols: 200,
         rows: 60,
     };
-    assert_eq!(where_is(&t, dialog, big, dialog), rect(0, 0, 104, 50));
-    assert_eq!(where_is(&t, dialog, big, vbox), rect(1, 1, 102, 48));
-    assert_eq!(where_is(&t, dialog, big, text), rect(2, 2, 100, 23));
-    assert_eq!(where_is(&t, dialog, big, res), rect(2, 26, 100, 22));
+    assert_eq!(where_is(&t, dialog, big, dialog), rect(0, 0, 106, 50));
+    assert_eq!(where_is(&t, dialog, big, vbox), rect(1, 1, 104, 48));
+    assert_eq!(where_is(&t, dialog, big, text), rect(2, 2, 102, 23));
+    assert_eq!(where_is(&t, dialog, big, res), rect(2, 26, 102, 22));
 }
 
 #[test]

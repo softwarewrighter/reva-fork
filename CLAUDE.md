@@ -322,7 +322,7 @@ Read before working:
 
 Layout: `components/<name>/` (one Cargo workspace each, crates in
 `crates/`: macros, x86-types, x86-decode, x86-alu, x86-exec, x86, host-base, vfs, host,
-core-parts, canvas, ui, ui-layout, core, core-run, iup, vlib, words-base, words-interp, words-dict,
+core-parts, canvas, ui, ui-layout, ui-grid, ui-web, core, core-run, iup, vlib, words-base, words-interp, words-dict,
 words-os, words, vm, sqlite, cli-edit, cli-host, cli, web, serve, desktop; docs/design.md 3.13), `src/reva.f`, `lib/` (Forth libraries,
 embedded into the VM), `examples/`, `docs/`, `tests/forth/` and
 `work/reg-rs/` (goldens), `scripts/`, `justfile`. Everything builds into
@@ -374,7 +374,8 @@ shrink: lower it in the commit that fixes something, never raise it.
 sw-checklist must report 0 FAILs (its warnings are not gated).
 
 Tools it needs on PATH: `reg-rs`, `sed-rs`, `sw-checklist`, `node`,
-`just`; the `wasm32-unknown-unknown` target.
+`just`, `wasm-bindgen` (the version components/ui-web pins); the
+`wasm32-unknown-unknown` target.
 
 ## Workflow
 

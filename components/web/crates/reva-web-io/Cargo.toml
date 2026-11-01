@@ -11,3 +11,4 @@ rust-version.workspace = true
 [dependencies]
 reva-vm = { path = "../../../vm/crates/reva-vm" }
 reva-web-state = { path = "../reva-web-state" }
+reva-ui-base = { path = "../../../ui/crates/reva-ui-base" }
