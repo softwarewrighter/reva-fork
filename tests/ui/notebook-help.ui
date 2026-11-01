@@ -1,0 +1,10 @@
+# A first notebook (no notebook.txt): the example lines, F6 on the second
+# and third, then F1's help.
+screen 76x22
+key K_F6
+key K_DOWN
+key K_F6
+screen 76x22
+key K_F1
+screen 76x22
+click 6

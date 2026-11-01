@@ -1,6 +1,8 @@
-# examples/tui/notebook.f: an unknown word, then a line that prints and
-# leaves a number; what each printed and left shows in the lower pane.
-# The notebook fills the screen (FULLxFULL).
+# examples/tui/notebook.f: below the example lines, an unknown word, then
+# a line that prints and leaves a number; what each printed and left
+# shows in the lower pane.  The notebook fills the screen (FULLxFULL).
+key K_cEND
+key K_CR
 type 6 7*.
 key K_F6
 key K_END

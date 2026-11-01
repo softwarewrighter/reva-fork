@@ -1,0 +1,120 @@
+| vim: ft=reva :
+|
+| ui/notebook -- a small notebook in the TUI (reva-fork; docs/ui-model.md)
+|
+|   needs ui/notebook  notebook
+|
+| Type a Forth line in the top pane and press F6 (fn+F6 on a Mac
+| keyboard): the line under the cursor is evaluated, and what it prints,
+| any error and the stack it leaves show in the lower pane.  Enter starts
+| a new line, Tab moves between the panes and the Done button, Done or
+| the x in the top border closes it.  It fills the window, and keeps the
+| top pane's text in notebook.txt (in the current folder: the desktop
+| app's, the browser's saved files), loaded when it opens.
+
+push~
+
+needs ui/gui
+
+~
+with~ ~ui
+
+variable nb-text   variable nb-res   variable nb-status
+
+| The line under the cursor of the top pane.
+: nb-line ( -- a n )  nb-text @ caret-y? line-text? rot drop ;
+
+| While a line is evaluated, what it prints goes to the lower pane.
+| `attr` makes its strings C strings in place (a 0 after them), so what
+| is typed (word names in the dictionary, for `words`) is copied first.
+variable nb-old-emit   variable nb-old-type   variable nb-emit-pad
+create nb-buf 256 allot
+: nb-chunk ( a n -- )  >r nb-buf r@ move  nb-res @ nb-buf r> " INSERT" attr drop ;
+: nb-type ( a n -- )
+  repeat
+    2dup 255 min dup >r nb-chunk
+    swap r@ + swap r> -
+  dup 0 > while 2drop ;
+: nb-emit ( c -- )  nb-emit-pad c!  nb-emit-pad 1 nb-type ;
+: nb-to-pane ( -- )
+  ['] emit @ nb-old-emit !  ['] type @ nb-old-type !
+  ['] nb-emit is emit  ['] nb-type is type ;
+: nb-to-repl ( -- )  nb-old-emit @ is emit  nb-old-type @ is type ;
+
+| What the line left on the stack, oldest first (what is above depth d0).
+variable nb-d0
+: nb-.new ( -- )
+  depth nb-d0 @ - dup 0 > if dup 0 do dup i - pick . loop then drop ;
+
+| F6: evaluate the line; its output, any error and the stack below.  A
+| plain word, not a `callback` one: the TUI runs it on the data stack (as
+| IUP called C callbacks) and puts the stack back afterwards, so words
+| like `help` and `.s` work as at the REPL.
+: nb-f6
+  nb-res @ " " setval drop
+  depth nb-d0 !
+  nb-to-pane
+  nb-line ['] eval catch ?dup if ." error " . cr then
+  cr ." stack: " nb-.new
+  nb-to-repl
+  nb-res @ " 1,1" " CARET" attr drop
+  nb-status @ " evaluated" title drop
+  gui-default ;
+
+| F1: what the keys do, in the lower pane.
+: nb-.help ( -- )
+  ." Cmd-Enter (Ctrl-Enter), or F6 (fn+F6 on a Mac): evaluate the line;" cr
+  ."        what it prints, any error and the stack it leaves show here" cr
+  ." Enter  a new line; arrows, Home, End, Ctrl-A, Ctrl-E, Ctrl-K edit" cr
+  ." Cmd-V  paste (Ctrl-V elsewhere)     Tab  the next pane or button" cr
+  ." Done   or the x in the top border: close (the text is kept)" cr
+  ." Forth needs a space between words: 6 7 *  not  6 7*" ;
+: nb-f1
+  nb-res @ " " setval drop
+  nb-to-pane nb-.help nb-to-repl
+  nb-res @ " 1,1" " CARET" attr drop
+  gui-default ;
+
+: nb-dialog ( -- dialog )
+  dialog[
+    " Cmd-Enter or F6 evaluates the line  -  F1 help  -  Done closes" label[ expand-horizontal dup nb-status ! ]w
+    editbox[ expand
+      ['] nb-f6 z" K_F6" set-callback
+      ['] nb-f6 z" K_cCR" set-callback
+      ['] nb-f1 z" K_F1" set-callback
+      dup nb-text ! ]w
+    editbox[ " x64" size expand-horizontal dup nb-res ! ]w
+    hbox[ " Done" button[ { gui-close } action ]w ]w
+  ]d " FULLxFULL" size " Reva notebook" title ;
+
+| The top pane's text, kept in notebook.txt.
+: nb-file ( -- a n )  " notebook.txt" ;
+| A first notebook (no notebook.txt yet) starts with lines to try.
+: nb-line+ ( a n -- )  nb-text @ -rot " APPEND" attr drop ;
+: nb-examples ( -- )
+  " | Put the cursor on a line and press Cmd-Enter (or F6).  F1: help." nb-line+
+  " 2 3 +" nb-line+
+  " 6 7 * dup . 1+" nb-line+
+  " : sq dup * ;  7 sq" nb-line+
+  " : tens  10 0 do i 10 * . loop ;  tens" nb-line+
+  " words" nb-line+
+  nb-text @ " 2,1" " CARET" attr drop ;
+: nb-load ( -- )  nb-file slurp dup if nb-text @ -rot setval drop else 2drop nb-examples then ;
+: nb-save ( -- )  nb-text @ getval rot drop  nb-file creat >r r@ write r> close ;
+
+| Open the notebook; it returns when the notebook is closed.
+: notebook ( -- )  nb-dialog nb-load show gui-main-loop nb-save destroy ;
+
+pop~
+
+|||
+
+def: notebook
+ctx: ~
+stack: --
+desc: =
+Opens a small notebook in the TUI: type Forth lines in the top pane, F6
+evaluates the line under the cursor and shows what it printed, any error
+and the stack it left in the lower pane.  Done or the close box closes it;
+its text is kept in notebook.txt.
+=

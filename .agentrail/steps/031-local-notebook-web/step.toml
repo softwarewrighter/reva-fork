@@ -1,0 +1,8 @@
+number = 31
+slug = "local-notebook-web"
+status = "pending"
+description = "Requirements from the user (2026-11-01), unsatisfied until done: (1) the brow..."
+role = "production"
+context_files = []
+created_at = "2026-11-01T09:00:45"
+commits = []
