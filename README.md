@@ -7,7 +7,9 @@ Copyright (c) 2026 Michael A. Wright
 **[Live demo: softwarewrighter.github.io/reva-fork](https://softwarewrighter.github.io/reva-fork/)**,
 the Reva REPL in your browser. Try
 [a dragon curve](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20dragon-demo)
-or [the tree below](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20tree-demo).
+or [the tree below](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20tree-demo),
+or [the TUI notebook](https://softwarewrighter.github.io/reva-fork/?eval=needs%20ui/notebook%20notebook)
+(type a Forth line such as `6 7 *` in the top pane, then F6).
 
 [![The live demo after `needs turtle/fractals 12 tree-demo`: the REPL on the left, the fractal tree in the graphics pane on the right](images/live-demo.png)](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20tree-demo)
 

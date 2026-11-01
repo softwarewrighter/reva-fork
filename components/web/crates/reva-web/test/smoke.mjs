@@ -16,7 +16,7 @@ const check = (what, got, want) => {
 };
 
 // The boot ends as Reva's saved executable started: banner, then a prompt.
-const BANNER = "reva-fork 2026.1026.0 portable\n\nok> ";
+const BANNER = "reva-fork 2026.1101.0 portable\n\nok> ";
 check("boot status", reva.status, NEED_INPUT);
 // The footer's facts come from the module (reva_vm::version), as `reva -V`.
 const BUILD_KEYS = ["name", "version", "copyright", "license", "repository", "build_host", "build_commit", "build_time"];
@@ -38,6 +38,14 @@ await reva2.run((s) => (out2 += s));
 check("key resumes", out2, BANNER + "3 \nok> ");
 reva2.feed("9 ~sys.(bye)\n");
 check("halts", await reva2.run(), HALTED);
+
+// help reads the documentation index embedded in the module (lib/helper,
+// /reva/lib/help.idx), in the browser as on the CLI.
+const revaHelp = await Reva.load(wasm);
+revaHelp.feed("help dup\nhelp notebook\nhelp nosuchword\n");
+let helpOut = "";
+await revaHelp.run((s) => (helpOut += s));
+check("help shows documentation", ["Duplicate the top stack item", "Opens a small notebook in the TUI", "no help for nosuchword"].map((t) => helpOut.includes(t)), [true, true, true]);
 check("exit code", reva2.exitCode, 9);
 
 // Files: bundled before boot, written by Forth, kept in a Storage, and
@@ -235,5 +243,24 @@ ls.feed(RSQL + '" c.db" rsql_open .\n');
 await ls.idle();
 check("worker answers sqlite itself", [lsout.includes("SQLite could not be loaded"), lsout.includes("99")], [true, false]);
 ls.terminate();
+
+// The notebook (needs ui/notebook) in the browser build, its ui waits
+// answered with scripted events as the page's TUI would: type "2" at the
+// caret (the start of line 2), then the close box (dialog 7).  Closing it
+// keeps its text in notebook.txt, which the page keeps in its storage.
+const nbStore = new MemStorage();
+const nbEvents = ["key 50", "close 7"];
+const nb = start("reva.wasm", {
+  createWorker: nodeWorker, wasmBytes: wasm, storage: nbStore,
+  onHostCall: (call) => call.op === "wait"
+    ? { bytes: [...new TextEncoder().encode(nbEvents.shift() ?? "close 7")] }
+    : { error: `${call.op} not scripted` },
+});
+await nb.ready;
+nb.feed("needs ui/notebook notebook\n");
+await nb.idle();
+const kept = nbStore.getItem("reva:fs:/notebook.txt") ?? "";
+check("notebook text kept in storage", [kept.startsWith("| Put the cursor"), kept.includes("\n22 3 +\n")], [true, true]);
+nb.terminate();
 
 process.exit(failed ? 1 : 0);

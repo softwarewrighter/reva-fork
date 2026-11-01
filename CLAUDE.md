@@ -309,9 +309,12 @@ a portable core: vx86, an IA-32-subset virtual machine in Rust, with
 the original core's routines as Rust "gates". Hosts: the `reva` CLI,
 a WebAssembly build for the browser, `reva-serve`, and a Tauri desktop
 app. Version scheme `YYYY.MMDD.N` (see `components/host-base/crates/reva-version/src/version.rs`):
-the day's version is set once (`.0`) and all of that day's work stays on
-it; `.1`, `.2` ... only for another release shipped to `main` the same
-day. Bump only when the user asks.
+every merge to `main` bumps it (the user, 2026-11-01): the merge's date
+(Pacific time) and N = 0 for the day's first merge to `main`, +1 for each
+further one that day, with no digit limit (9, 10, ... 99, 100). The bump is
+its own commit on `dev` (every component's version, the Cargo.lock files,
+the goldens that show the banner, a `release` line in CHANGES.md), gated,
+before the merge; nothing reaches `main` without it.
 
 Read before working:
 

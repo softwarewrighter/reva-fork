@@ -11,6 +11,21 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-01
+
+- 12:23 `release` 2026.1101.0 (step local-release-2026-1101-0): today's first merge to main. Since 2026.1026.0: sw-checklist clean and required, the components restructuring, the UI model, the virtual library iup, the TUI in the browser and the desktop app, the notebook (`needs ui/notebook notebook`, its text in browser storage, beside the graphics), and help with real documentation. Every component's version, the Cargo.lock files, two goldens and two docs.
+- 12:23 `chore` Merge #65, #66 (local-help, local-notebook-web).
+- 09:45 `chore` Step local-notebook-web complete (saga record).
+- 09:39 `feat` The notebook in the browser (step local-notebook-web; docs/web.md): while a dialog is shown the TUI takes the place of the REPL's output and input line in its column instead of covering the page, so the graphics pane stays beside it and turtle drawings made from notebook lines show next to the notebook; the REPL comes back when the dialog closes. notebook.txt is kept with the page's files in local storage and survives a reload (checked in Chrome; new web smoke check drives the notebook with scripted events and reads the storage). On the live demo with the next release.
+- 09:29 `chore` Step local-help complete (saga record).
+- 09:21 `feat` help shows real documentation (step local-help; docs/repl.md): `help WORD` prints the stack picture, context, source and description, `help/ TEXT` the words whose names contain TEXT, in every host. The build makes a text index of src/help.txt and lib/'s def: entries (reva-embedded helpgen.rs, read as genhelp.f did: a description runs to its delimiter) embedded as /reva/lib/help.idx; lib/helper reads it instead of the original SQLite help.db. New golden help-content (descriptions, an unknown word, help/, all 1377 documented words found); the web smoke test checks help in the browser build. New docs/sed-rs-asks.md: what this repository needs from sed-rs.
+- 09:21 `chore` Merge #64 (local-ui-notebook); the times of the two lines below corrected (they were written ahead of the clock).
+- 09:06 `chore` CHANGES.md restored: the saga-record commit emptied it (a failed sed-rs edit went on to commit).
+- 09:06 `chore` Step local-ui-notebook complete (saga record).
+- 08:38 `feat` The TUI notebook as a library (step local-ui-notebook): `needs ui/notebook notebook` opens it anywhere (lib/ui/notebook, built in): the live demo, the desktop app, the CLI with --ui-script. Cmd-Enter (Ctrl-Enter) evaluates the line as F6 does; F1 shows what the keys do; a first notebook (no notebook.txt) starts with example lines to try; golden tui-notebook-help. examples/tui/notebook.f is its two-line use; the README links it on the live demo.
+- 08:38 `docs` CLAUDE.md: every merge to main bumps the version to YYYY.MMDD.N (the user, 2026-11-01), N from 0 for the day's first merge.
+- 08:38 `chore` Merge #62, #63 (local-ui-grid, local-tui-paste); dev merged into main (4e596b4, still 2026.1026.0: the bump rule came after) and the live demo published from it.
+
 ## 2026-10-31
 
 - 22:55 `chore` Step local-tui-paste complete (saga record).
