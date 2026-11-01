@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "reva-ui"
-version = "2026.1026.0"
+version = "2026.1101.0"
 dependencies = [
  "reva-ui-base",
  "reva-ui-text",
@@ -13,18 +13,18 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-base"
-version = "2026.1026.0"
+version = "2026.1101.0"
 
 [[package]]
 name = "reva-ui-grid"
-version = "2026.1026.0"
+version = "2026.1101.0"
 dependencies = [
  "reva-ui-layout",
 ]
 
 [[package]]
 name = "reva-ui-layout"
-version = "2026.1026.0"
+version = "2026.1101.0"
 dependencies = [
  "reva-ui-base",
  "reva-ui-tree",
@@ -32,7 +32,7 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-mirror"
-version = "2026.1026.0"
+version = "2026.1101.0"
 dependencies = [
  "reva-ui-base",
  "reva-ui-tree",
@@ -40,7 +40,7 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-paint"
-version = "2026.1026.0"
+version = "2026.1101.0"
 dependencies = [
  "reva-ui",
  "reva-ui-base",
@@ -51,14 +51,14 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-text"
-version = "2026.1026.0"
+version = "2026.1101.0"
 dependencies = [
  "reva-ui-base",
 ]
 
 [[package]]
 name = "reva-ui-tree"
-version = "2026.1026.0"
+version = "2026.1101.0"
 dependencies = [
  "reva-ui-base",
 ]

@@ -4,11 +4,11 @@ version = 4
 
 [[package]]
 name = "reva-canvas"
-version = "2026.1026.0"
+version = "2026.1101.0"
 
 [[package]]
 name = "reva-canvas-out"
-version = "2026.1026.0"
+version = "2026.1101.0"
 dependencies = [
  "reva-canvas",
  "reva-macros",
@@ -16,4 +16,4 @@ dependencies = [
 
 [[package]]
 name = "reva-macros"
-version = "2026.1026.0"
+version = "2026.1101.0"
