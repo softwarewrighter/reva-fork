@@ -8,6 +8,7 @@ use reva_core_ffi::args::CallArgs;
 use reva_core_ffi::regs::MachineRegs;
 use reva_vlib::highlight::Highlight;
 use reva_vlib::iconv::Iconv;
+use reva_vlib::iup::call::IupLib;
 use reva_vlib::sqlite::SqliteLib;
 use reva_vlib::turtle::Turtle;
 use reva_words_files::dirs::Dirs;
@@ -17,7 +18,7 @@ type R<T = ()> = Result<T, Fault>;
 
 reva_macros::machine_trait! {
     /// Calling host functions.
-    pub trait Call: Dirs, Env, Highlight, Iconv, SqliteLib, Turtle {
+    pub trait Call: Dirs, Env, Highlight, Iconv, IupLib, SqliteLib, Turtle {
         /// `PROC _call` ( x1 .. xn fn n -- result ): a cdecl call.  Only host
         /// functions can be called; the first C argument is the deepest of the
         /// `n` cells, as when the original pushed them onto the C stack.
@@ -26,6 +27,9 @@ reva_macros::machine_trait! {
             // the answer is in, so a call that waits can be retried.
             let n = self.reg(EAX);
             let f = self.mem.read_u32(self.reg(ESI))?;
+            if let Some(next) = self.iup_call(host, f, n) {
+                return next;
+            }
             if let Some(next) = Gate::from_addr(f).and_then(|g| self.sqlite_call(host, g, n)) {
                 return next;
             }

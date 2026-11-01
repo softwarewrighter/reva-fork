@@ -57,6 +57,8 @@ reva_macros::machine_trait! {
                 sql_bufs: HashMap::new(),
                 sql_ptr: 0,
                 iconv_descs: Vec::new(),
+                ui: Default::default(),
+                ui_bufs: HashMap::new(),
             }
         }
 

@@ -21,6 +21,9 @@ pub struct StdHost {
     pub tail: Vec<u8>,
     /// SQLite for `lib/db/sqlite` (host calls; see sql.rs).
     pub sql: reva_sqlite::Sqlite,
+    /// The UI of IUP programs, from a script (`--ui-script`); none: the
+    /// CLI shows none yet.
+    pub ui: Option<reva_ui_script::script::UiScript>,
 }
 
 impl StdHost {
@@ -35,6 +38,7 @@ impl StdHost {
             reader,
             tail: Vec::new(),
             sql: crate::resources::new_sqlite(),
+            ui: None,
         }
     }
 

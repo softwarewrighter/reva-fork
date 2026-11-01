@@ -1,0 +1,12 @@
+[package]
+name = "reva-ui-script"
+description = "A headless UI host: answers the iup library's host calls from a script"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-hostcall = { path = "../../../host-base/crates/reva-hostcall" }

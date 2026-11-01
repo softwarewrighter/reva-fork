@@ -1,0 +1,6 @@
+# "Click me, too!" (10) says well done and goes on; Shift-Tab back to
+# "Click me!" (8), whose Enter ends the main loop.
+click 10
+focus 10
+key K_sTAB
+key K_CR

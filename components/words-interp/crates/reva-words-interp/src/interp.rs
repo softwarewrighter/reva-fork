@@ -4,7 +4,7 @@ use crate::outer::Outer;
 use crate::query::Query;
 use reva_core::fault::Fault;
 use reva_core::host::Host;
-use reva_core::layout::{EOF_KEY, S0, TIB};
+use reva_core::layout::{DSTACK_HI, EOF_KEY, S0, TIB};
 use reva_core::x86::ESI;
 use reva_core::{Dispatch, Gate, Machine, Next, st};
 use reva_words_calls::vectors::Vectors;
@@ -66,7 +66,9 @@ pub fn query_key_got(m: &mut Machine, _: Gate, _: &mut dyn Host) -> R<Next> {
 
 /// The next word of the line, looked up through `find`'s vector.
 pub fn interp_word(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
-    if m.cpu.r[ESI as usize] > S0 {
+    // Only on the data stack: a `callback` word (lib/callbacks) runs on a
+    // stack of its own, below the return stack, which this does not police.
+    if (S0 + 1..=DSTACK_HI).contains(&m.cpu.r[ESI as usize]) {
         return Err(Fault::StackUnderflow);
     }
     let (a, n) = m.parsews(host)?;

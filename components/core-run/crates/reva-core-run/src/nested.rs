@@ -79,6 +79,9 @@ reva_macros::machine_trait! {
             let eip = self.cpu.eip;
             let at = self.describe_addr(eip);
             host.write(format!("\n*** {f} (in {at}, eip {eip:#010x})\n").as_bytes());
+            // A fault inside an IUP callback leaves its event loops.
+            self.ui.loops.clear();
+            self.ui.calls.clear();
             let _ = self.rollback_definition();
             self.reset_after_fault();
             self.cpu.eip = self.repl_entry();

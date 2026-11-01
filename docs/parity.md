@@ -76,7 +76,7 @@ with `argc` = 2, as on the original)
 
 | Cause | Programs | Roadmap |
 |---|---|---|
-| a native C library (IUP, GTK, pthreads, expat, ...; iconv and SQLite are served now) | 31 | 4 (virtual libraries, [portability.md](portability.md)), or the GUI decision below |
+| a native C library (GTK, OpenGL, CD, pthreads, expat, ...; iconv, SQLite and IUP itself are served now) | 31 | 4 (virtual libraries, [portability.md](portability.md)), or the GUI decision below |
 | interactive or endless (time limit) | 12 | none: expected with stdin closed |
 | other faults and missing words (one is `lib/asm`, which ran the external FASM assembler) | 16 | investigate per program |
 
@@ -87,7 +87,7 @@ with `argc` = 2, as on the original)
 | os | 9 | yes, through the host | files: done (CLI and browser); processes, threads: CLI host first; browser where meaningful |
 | net | 7 | CLI yes; browser decide | sockets, HTTP, CGI |
 | db | 5 | SQLite: CLI done, desktop and browser next | [sqlite.md](sqlite.md): `lib/db/sqlite` over host calls (rusqlite on the CLI and desktop, SQLite's wasm build in the browser); sqlite2, sqlite3 run; sqlite and zipdb stop on `value` (2011.2 takes an initial value), db-report on `0L println` (an older Reva idiom); MySQL dropped (GPL client) |
-| gui | 29 | new UI library | decided: a host UI service (browser first, then the [desktop app](desktop.md), which exists now as a REPL window that packages can brand with their own title and icon); IUP/GTK/OpenGL/Win32 programs stay in `examples/` for reference. First channel done: 2D [turtle graphics](turtle.md) in a separate window, a pane, or a [split view](web.md#the-split-view) beside the REPL (desktop, browser), or as SVG (CLI) |
+| gui | 29 | new UI library | decided: a host UI service (browser first, then the [desktop app](desktop.md), which exists now as a REPL window that packages can brand with their own title and icon); IUP/GTK/OpenGL/Win32 programs stay in `examples/` for reference. IUP: the model and the virtual library `iup` run the examples up to their event loop ([ui-model.md](ui-model.md)); `reva --ui-script` scripts their events; drawing them is next (`local-ui-grid`). First channel done: 2D [turtle graphics](turtle.md) in a separate window, a pane, or a [split view](web.md#the-split-view) beside the REPL (desktop, browser), or as SVG (CLI) |
 
 ## New in the portable core
 

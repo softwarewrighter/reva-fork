@@ -1,0 +1,2 @@
+# The Bye button (handle 2): its callback says goodbye and returns gui-close.
+click 2

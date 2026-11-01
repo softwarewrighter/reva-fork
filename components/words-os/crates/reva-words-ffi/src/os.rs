@@ -5,6 +5,7 @@ use crate::loader::Loader;
 use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::{Dispatch, Gate, Machine, Next};
+use reva_vlib::iup::run::IupRun;
 use reva_words_files::filewords::FileWords;
 use reva_words_files::save::Save;
 use reva_words_libc::syscall::Syscall;
@@ -35,12 +36,24 @@ pub const ENTRIES: &[(Gate, Dispatch)] = reva_macros::words! {
         | SqBindText | SqBindBlob | SqBindZeroblob | SqReset | SqClear | SqStep
         | SqFinalize | SqColumnInt | SqColumnText | SqColumnBlob | SqPtr | IcOpen | Iconv
         | IcClose => c_function;
+    IupLoop => iup_loop;
+    IupResume => iup_resume;
     MakeExe | LzPack | LzDepack | LzMax => not_implemented;
 };
 
 /// `(call)`.
 pub fn call_fn(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
     m.ffi_call(host)
+}
+
+/// The gate `IupLoop`: the iup library's event loop (reva-vlib-iup).
+pub fn iup_loop(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
+    m.iup_loop(host)
+}
+
+/// The gate `IupResume`: an iup callback returned.
+pub fn iup_resume(m: &mut Machine, _: Gate, _: &mut dyn Host) -> R<Next> {
+    m.iup_resume()
 }
 
 /// A virtual library's function reached by `call` or `jmp`, not `(call)`.

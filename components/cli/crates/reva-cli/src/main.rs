@@ -31,6 +31,7 @@ use std::process::ExitCode;
 use options::{Options, USAGE, color_auto, parse_args};
 use reva_stdhost::host::StdHost;
 use reva_term::reader::LineReader;
+use reva_ui_script::script::UiScript;
 use reva_vm::{Machine, Start, embedded};
 use run::Run;
 
@@ -55,6 +56,15 @@ fn main() -> ExitCode {
     let reader = interactive.then(|| LineReader::new(!opts.no_edit));
     let color = opts.color.unwrap_or_else(color_auto);
     let mut host = StdHost::new(opts.allow_shell, color, reader);
+    if let Some(path) = &opts.ui_script {
+        match std::fs::read_to_string(path) {
+            Ok(text) => host.ui = Some(UiScript::new(&text)),
+            Err(e) => {
+                eprintln!("reva: {path}: {e}");
+                return ExitCode::from(2);
+            }
+        }
+    }
     session::session(&run, &mut vm, &mut host)
 }
 
