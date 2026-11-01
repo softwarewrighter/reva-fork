@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-10-31
 
+- 21:58 `chore` Step local-ui-grid complete (saga record).
 - 21:57 `feat` The TUI, one look everywhere (step local-ui-grid; docs/ui-model.md "The TUI"): component ui-grid (reva-ui-mirror: a renderer's copy of the model from the change stream; reva-ui-grid: character cells with colour roles and the cursor; reva-ui-paint: dialogs painted into them, boxes titled in their top border with a close box, buttons, toggles, fields, panes scrolled to the caret, the selection, and clicks as events) and component ui-web (reva-ui-web: a Yew element drawing the cells in the page, keys and clicks back; its own wasm-bindgen module, so reva.wasm keeps no imports). www/tui.js answers the VM's `ui` waits and shows the TUI while a dialog is shown and a loop runs, in the browser and the desktop app; changes outside the loop arrive after each slice (new export reva_ui_take, the "tui" UI channel). `--ui-script` scripts print screens (`screen`); new golden iup-notebook-screen. A multiline's, list's and text field's SIZE is now their content, the TUI's border cells on top. build-web.sh builds the TUI module (wasm-bindgen 0.2.129, now a gate tool); the desktop build and the web zip ship it. Yew's crates are permissive (docs/licenses.md).
 - 21:57 `fix` keys::from_name panicked on a non-ASCII name (`K_é`).
 - 21:57 `chore` Merge #61 (local-iup).
