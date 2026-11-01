@@ -1,6 +1,6 @@
 number = 25
 slug = "local-ui-model"
-status = "pending"
+status = "in-progress"
 description = "The UI model for IUP programs (decided with the user 2026-10-28: reimplement ..."
 role = "production"
 context_files = []

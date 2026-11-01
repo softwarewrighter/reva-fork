@@ -49,6 +49,8 @@ components/
   host/     reva-host-traits, -buffer, reva-host       the Host traits, BufferHost, a facade at the old paths
   core-parts/ reva-gate, reva-heap, reva-translate   gates, the heap allocator, translator hooks
   canvas/   reva-canvas, reva-canvas-out           the turtle's display list; ops for windows, SVG
+  ui/       reva-ui-base, -text, -tree, reva-ui   the model of IUP programs' UIs (../docs/ui-model.md)
+  ui-layout/ reva-ui-layout   IUP's layout of the model, in character cells
   core/     reva-core, -ffi, -inspect              the Machine and its helpers; (call) args; dictionary, state
   core-run/ reva-core-run, reva-core-boot          the run loop; new machines and images
   vlib/     reva-vlib-turtle, -highlight, -iconv, reva-vlib   virtual libraries (reva-vlib: the old paths)

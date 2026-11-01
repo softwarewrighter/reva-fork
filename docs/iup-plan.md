@@ -85,7 +85,8 @@ one direct `IupStoreAttribute`.
    attributes by IUP's names and its inheritance rules, callbacks by
    name, the layout IUP computes (natural size, `EXPAND`, `SIZE`,
    margins and gaps), and a stream of changes a renderer applies.
-   Tested on its own.
+   Tested on its own. Done: components `ui` and `ui-layout`; scope and
+   rules in [ui-model.md](ui-model.md).
 2. **The `iup` virtual library** (`local-iup`). The C functions above,
    answered in the VM over that model; handles are integers, strings
    copied, so no pointer crosses. Events: `IupMainLoop` and `IupPopup`

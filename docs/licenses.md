@@ -89,6 +89,7 @@ All under `legacy/` or `contrib/`; none is used by the portable core.
 | assembler in `src/reva.f`, `lib/asm/`, `lib/util/disasm` | FirmWorks (Open Firmware) | MIT ([LICENSE](../LICENSE)) |
 | `lib/ui/iup`, `lib/ui/gui`, `lib/ui/cd`, `lib/ui/im`, `lib/ui/gui-iup-img` | wrappers quoting the Tecgraf license | Reva's terms; the libraries are MIT |
 | `lib/ui/gl`, `lib/ui/glu` | wrappers quoting Mesa's header notice | Reva's terms; Mesa headers are MIT |
+| `components/ui`, `components/ui-layout` | IUP's API (class, attribute, callback and key names, documented behaviour) reimplemented in Rust from IUP's documentation; no IUP code | MIT (this repository); IUP is MIT |
 | `lib/ui/glut` | wrapper quoting freeglut's header notice | Reva's terms; freeglut is MIT |
 | `lib/crypt/sha1` | Wil Baden's SHA-1, ported by Ron Aaron | public domain |
 | `lib/os/process` and others by Danny Reinhold | Reinhold Software Services | Reva's terms (stated in the files) |
