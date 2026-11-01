@@ -90,9 +90,13 @@
     body.split.collapsed #side { width:auto; height:40px; }
     body.split.collapsed #side .strip { writing-mode:horizontal-tb; padding:0; }
   }
-  /* The TUI of IUP programs (tui.js): a grid of cells over the page. */
-  #tui { position:fixed; inset:0; z-index:5; background:var(--bg); overflow:hidden; }
+  /* The TUI of IUP programs (tui.js): a grid of cells in the REPL column,
+     in place of the output and the input line while a dialog is shown, so
+     the graphics pane (beside it in the split view, below it otherwise)
+     stays in sight. */
+  #tui { flex:1; min-height:0; overflow:hidden; margin:8px 0; }
   #tui[hidden] { display:none; }
+  body.tui-on #out, body.tui-on #f { display:none; }
   .tui, .tui-probe { font:14px/normal ui-monospace, Menlo, Consolas, monospace; white-space:pre; }
   .tui { display:inline-block; outline:none; cursor:default; user-select:none; }
   .tui-row { white-space:pre; } /* the font's own line height: descenders fit, box lines join */
@@ -120,8 +124,8 @@
   <div id="out" aria-live="polite"></div>
   <form id="f"><span id="prompt">ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
     <button type="button" id="stop" title="Stop the running word (Ctrl-C)" disabled>Stop</button></form>
-  <div id="panes"></div>
   <div id="tui" hidden><div class="tui-root"></div></div>
+  <div id="panes"></div>
   <footer id="footer"></footer>
 </main>
 <script type="module">

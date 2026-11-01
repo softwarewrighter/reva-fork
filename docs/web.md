@@ -65,6 +65,19 @@ Esc, the Close button or a click outside closes it. It is the same in the
 zips, in reva-serve binaries and in the desktop app, where links open in the
 system browser.
 
+## The notebook and IUP dialogs
+
+`needs ui/notebook notebook` opens the TUI notebook on the page
+([ui-model.md](ui-model.md#the-tui)), as do other IUP programs' dialogs.
+While a dialog is shown, the TUI takes the place of the REPL's output and
+input line in the REPL column; the graphics pane stays beside it in the
+split view (`?canvas=split`, the live demo's default), so a notebook line
+like `needs turtle/fractals 4 koch-demo` draws next to the notebook. The
+notebook's text is kept in `notebook.txt`, which the page saves with its
+other files in local storage (`reva:fs:/notebook.txt`), so it is there
+again after a reload. Try it:
+<http://localhost:8000/?canvas=split&eval=needs%20ui/notebook%20notebook>.
+
 ## SQLite in the browser
 
 `needs db/sqlite` works on the page: the VM's worker loads SQLite's
