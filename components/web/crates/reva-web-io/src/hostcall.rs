@@ -4,10 +4,11 @@
 //! the browser refuses until it has SQLite) and answers with one of the
 //! `reva_resume_*` / `reva_refuse` exports, then runs again.
 
-use reva_vm::hostcall::{HostCall, HostReply};
+use crate::json::to_json;
+use reva_vm::hostcall::HostReply;
 use reva_vm::prelude::*;
-
-use super::{FSBUF, with};
+use reva_web_state::buffers::buffer;
+use reva_web_state::state::with;
 
 thread_local! {
     /// The pending call as JSON (see [`reva_host_call_ptr`]).
@@ -52,28 +53,4 @@ pub extern "C" fn reva_resume_bytes(len: u32) {
 pub extern "C" fn reva_refuse(len: u32) {
     let why = String::from_utf8_lossy(&buffer(len)).into_owned();
     with(|w| w.vm.refuse(why), ())
-}
-
-fn buffer(len: u32) -> Vec<u8> {
-    FSBUF.with(|b| {
-        let b = b.borrow();
-        b[..(len as usize).min(b.len())].to_vec()
-    })
-}
-
-/// `call` as the JSON [`reva_host_call_ptr`] gives.  Service and operation
-/// names are plain identifiers, so they need no escaping.
-pub(crate) fn to_json(call: &HostCall) -> String {
-    let list = |v: Vec<String>| v.join(",");
-    let ints = list(call.ints.iter().map(i64::to_string).collect());
-    let bytes = list(
-        call.bytes
-            .iter()
-            .map(|b| format!("[{}]", list(b.iter().map(u8::to_string).collect())))
-            .collect(),
-    );
-    format!(
-        r#"{{"service":"{}","op":"{}","ints":[{ints}],"bytes":[{bytes}]}}"#,
-        call.service, call.op
-    )
 }

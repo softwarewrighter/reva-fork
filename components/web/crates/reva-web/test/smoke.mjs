@@ -199,6 +199,21 @@ ws.feed(RSQL + '" b.db" rsql_open .\n');
 await ws.idle();
 check("worker host call", [calls, wsout.endsWith("42 \nok> ")], [["open"], true]);
 ws.terminate();
+// Input that arrives while the page is still answering a call does not
+// ask again: one call, one answer (the desktop feeds each -e text as input).
+let slout = "";
+const slcalls = [];
+const sl = start("reva.wasm", {
+  createWorker: nodeWorker, wasmBytes: wasm, onOutput: (t) => (slout += t),
+  onHostCall: (call) => (slcalls.push(call.op), new Promise((r) => setTimeout(() => r({ int: slcalls.length }), 50))),
+});
+await sl.ready;
+sl.feed(RSQL + '" b.db" rsql_open .\n');
+sl.feed(RSQL + '" c.db" rsql_open .\n');
+await new Promise((r) => setTimeout(r, 400));
+await sl.idle();
+check("one answer per call", [slcalls, slout.endsWith("ok> 1 \nok> \nok> 2 \nok> ")], [["open", "open"], true]);
+sl.terminate();
 let nsout = "";
 const ns = start("reva.wasm", { createWorker: nodeWorker, wasmBytes: wasm, onOutput: (t) => (nsout += t) });
 await ns.ready;

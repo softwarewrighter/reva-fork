@@ -234,6 +234,32 @@ name = "reva-web"
 version = "2026.1026.0"
 dependencies = [
  "reva-vm",
+ "reva-web-io",
+ "reva-web-run",
+ "reva-web-state",
+]
+
+[[package]]
+name = "reva-web-io"
+version = "2026.1026.0"
+dependencies = [
+ "reva-vm",
+ "reva-web-state",
+]
+
+[[package]]
+name = "reva-web-run"
+version = "2026.1026.0"
+dependencies = [
+ "reva-vm",
+ "reva-web-state",
+]
+
+[[package]]
+name = "reva-web-state"
+version = "2026.1026.0"
+dependencies = [
+ "reva-vm",
 ]
 
 [[package]]
