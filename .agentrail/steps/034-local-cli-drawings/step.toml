@@ -1,6 +1,6 @@
 number = 34
 slug = "local-cli-drawings"
-status = "pending"
+status = "in-progress"
 description = "At the user's request (2026-11-01): the CLI has no graphics window, so a turt..."
 role = "production"
 context_files = []

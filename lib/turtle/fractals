@@ -114,6 +114,8 @@ variable angle
     ." Try (depth first):" cr
     ."   5 koch-demo   6 sierpinski-demo   12 dragon-demo" cr
     ."   6 hilbert-demo   10 tree-demo   5 plant-demo" cr
-    ." Save the drawing:  \" fractal.svg\" svg-save ." cr ;
+    ." Save the drawing:  \" fractal.svg\" svg-save ." cr
+    ." (The CLI has no window: it writes each drawing to a new" cr
+    ."  turtle-NNN.svg or .png itself; see reva --help, --draw.)" cr ;
 
 pop~

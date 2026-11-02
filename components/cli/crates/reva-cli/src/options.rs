@@ -3,6 +3,7 @@
 use std::io::{self, IsTerminal};
 use std::process::ExitCode;
 
+use reva_drawings::drawings::{Mode, parse_mode};
 use reva_vm::version;
 
 /// What `--help` prints.
@@ -19,6 +20,9 @@ usage: reva [options] [file ...]
       --allow-shell    let `shell` (C `system`) run OS commands; off by default
       --no-edit        at a terminal, read plain lines (no history or line editing)
       --color WHEN     colour in `pp`/`hl-type` listings: auto (default), always, never
+      --draw WHEN      turtle drawings to new files turtle-NNN.svg/.png (never overwriting):
+                       auto (default: at a terminal; PNG shown inline in iTerm2/WezTerm),
+                       svg, png, off
       --ui-script FILE answer IUP programs' user interface from FILE (headless; prints
                        what is shown; docs/ui-model.md)
   -h, --help           this text
@@ -40,6 +44,7 @@ pub struct Options {
     pub no_edit: bool,
     pub color: Option<bool>,
     pub ui_script: Option<String>,
+    pub draw: Mode,
 }
 
 pub fn parse_args() -> Result<Options, String> {
@@ -58,6 +63,7 @@ pub fn parse_args() -> Result<Options, String> {
             "--allow-shell" => o.allow_shell = true,
             "--no-edit" => o.no_edit = true,
             "--ui-script" => o.ui_script = Some(value(&a)?),
+            "--draw" => o.draw = parse_mode(&value(&a)?)?,
             "--color" => {
                 o.color = match value(&a)?.as_str() {
                     "auto" => None,
