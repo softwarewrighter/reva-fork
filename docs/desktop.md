@@ -35,6 +35,7 @@ first; [packaging.md](packaging.md) covers signing and what to ship.
 reva-desktop                          # the Reva REPL; files in ~/Reva
 reva-desktop --package DIR            # open the package in DIR
 reva-desktop --root DIR               # the REPL with files in DIR
+reva-desktop --image app.img          # start from a saved image (save NAME, reva --save-image)
 reva-desktop -e ': sq dup * ; 7 sq .' --print-output   # batch: feed lines, copy output to stdout
 ```
 
@@ -75,7 +76,12 @@ A package is a folder with a `reva-package.json`:
 
 `name` titles the window ("CoSy on Reva"); `start` lists files to `include`, in order, after
 Reva starts, and again after Forth's `restart` (which starts a fresh system,
-as relaunching did; files on disk are kept). `--eval` lines are fed once. Relative paths in Forth resolve against the package folder, so
+as relaunching did; files on disk are kept). `"image": "app.img"` (a
+saved image in the package, made with `save app.img` or `reva
+--save-image app.img`) starts the VM from that image instead of booting
+`reva.f`, so a loaded system such as CoSy starts at once; the `start` files
+are still included after it. `--image FILE` overrides the manifest, and a
+missing image is a note (the app boots `reva.f`). `--eval` lines are fed once. Relative paths in Forth resolve against the package folder, so
 a package can `include` its own sources. A folder without a manifest opens
 as a plain folder.
 

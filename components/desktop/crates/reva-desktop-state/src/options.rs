@@ -12,6 +12,8 @@ usage: reva-desktop [options]
   --root DIR       keep files in DIR instead of ~/Reva (ignored with --package)
   --canvas WHERE   where turtle graphics go: window (default), pane, or split
                    (REPL and graphics side by side); overrides the manifest
+  --image FILE     start from a saved image (save NAME, reva --save-image)
+                   instead of booting reva.f; overrides the manifest
   -e, --eval TEXT  feed TEXT as a line after start (repeatable)
   --print-output   copy everything Reva prints to stdout (for scripts and tests)
   -h, --help       this text
@@ -23,6 +25,7 @@ usage: reva-desktop [options]
 pub struct Options {
     pub package: Option<PathBuf>,
     pub root: Option<PathBuf>,
+    pub image: Option<PathBuf>,
     pub evals: Vec<String>,
     pub print_output: bool,
     pub canvas: Option<String>,
@@ -37,6 +40,7 @@ pub fn parse_args() -> Result<Options, String> {
         match a.as_str() {
             "--package" => o.package = Some(value(&a)?.into()),
             "--root" => o.root = Some(value(&a)?.into()),
+            "--image" => o.image = Some(value(&a)?.into()),
             "--canvas" => {
                 let v = value(&a)?;
                 if !CANVAS.contains(&v.as_str()) {
