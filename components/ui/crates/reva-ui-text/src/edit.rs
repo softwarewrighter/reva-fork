@@ -25,8 +25,8 @@ impl Text {
         Text {
             caret: chars.len(),
             chars,
-            anchor: None,
             multiline,
+            ..Text::default()
         }
     }
 
@@ -45,14 +45,10 @@ impl Text {
         self.anchor = (a != b).then_some(a);
     }
 
-    /// Type `s` at the caret, replacing the selection; the caret ends
-    /// after it.
+    /// Put `s` at the caret, replacing the selection; the caret ends after
+    /// it.  One undo step.
     pub fn insert(&mut self, s: &str) {
-        let (a, b) = self.selection().unwrap_or((self.caret, self.caret));
-        let new: Vec<char> = s.chars().filter(|c| self.multiline || *c != '\n').collect();
-        let n = new.len();
-        self.chars.splice(a..b, new);
-        self.select(a + n, a + n);
+        self.edit(s, false);
     }
 
     /// Backspace (`forward` false) or Delete: the selection, else one
@@ -79,15 +75,24 @@ impl Text {
         };
         let to = moved(&self.chars, self.caret, motion);
         self.select(if extend { anchor } else { to }, to);
+        self.typing = false;
     }
 
     /// Edit as key `code` (reva-ui-base's `keys`) does: typing, Backspace,
     /// Delete, Enter in a multiline, the arrows, Home and End (with Ctrl
     /// the ends of the text; with Shift extending the selection).  The
     /// Emacs keys too: Ctrl-A, -E, -B, -F, -P, -N, -D, -H, and Ctrl-K killing
-    /// to the end of the line (or joining the next).  False
-    /// if the key does not edit.
+    /// to the end of the line (or joining the next).  Ctrl-Z undoes (Cmd-Z
+    /// in the page), Ctrl-Y redoes.  False if the key does not edit.
     pub fn key(&mut self, code: u32) -> bool {
+        if code == ('Z' as u32 | CTRL) || code == ('Y' as u32 | CTRL) {
+            if code & 0xFF == 'Z' as u32 {
+                self.undo()
+            } else {
+                self.redo()
+            };
+            return true;
+        }
         if code == ('K' as u32 | CTRL) {
             self.move_caret(Motion::LineEnd, true);
             self.delete(true);
@@ -121,7 +126,7 @@ impl Text {
             (None, DEL) => self.delete(true),
             (None, CR) if self.multiline => self.insert("\n"),
             _ => match printable(code) {
-                Some(c) => self.insert(c.encode_utf8(&mut [0; 4])),
+                Some(c) => self.edit(c.encode_utf8(&mut [0; 4]), true),
                 None => return false,
             },
         }

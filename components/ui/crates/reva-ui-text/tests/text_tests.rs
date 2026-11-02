@@ -114,3 +114,46 @@ fn emacs_keys() {
     assert!(t.key(ctrl('H')));
     assert_eq!(value(&t), "three");
 }
+
+#[test]
+fn undo_and_redo() {
+    let ctrl = |c: char| c as u32 | CTRL;
+    let mut t = Text::new("", true);
+    for c in "hello world".chars() {
+        t.key(c as u32);
+    }
+    assert!(t.key(CR));
+    for c in "two".chars() {
+        t.key(c as u32);
+    }
+    assert_eq!(value(&t), "hello world\ntwo");
+    assert!(t.key(ctrl('Z')));
+    assert_eq!(value(&t), "hello world\n", "typing is one step");
+    assert!(t.key(ctrl('Z')));
+    assert_eq!(value(&t), "hello world", "Enter is its own step");
+    assert!(t.key(ctrl('Y')));
+    assert_eq!(value(&t), "hello world\n", "Ctrl-Y redoes");
+    t.select(0, 5);
+    t.insert("bye");
+    assert_eq!(value(&t), "bye world\n");
+    assert!(
+        !t.key(ctrl('Y')) || value(&t) == "bye world\n",
+        "an edit ends the redo"
+    );
+    assert!(t.key(ctrl('Z')));
+    assert_eq!(value(&t), "hello world\n");
+    assert_eq!(t.caret, 5, "the caret goes back to where it was");
+    assert!(t.key(ctrl('K')));
+    assert_eq!(value(&t), "hello\n", "Ctrl-K, a step of its own");
+    assert!(t.key(ctrl('Z')));
+    assert_eq!(value(&t), "hello world\n");
+    while t.undo() {}
+    assert_eq!(value(&t), "", "back to the start");
+    assert!(t.key(ctrl('Z')), "nothing left to undo: still the undo key");
+    t.key(LEFT);
+    assert!(t.key('x' as u32) && t.key('y' as u32));
+    t.key(LEFT);
+    t.key('z' as u32);
+    assert!(t.undo());
+    assert_eq!(value(&t), "xy", "moving the caret ends a typing step");
+}

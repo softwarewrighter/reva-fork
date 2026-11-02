@@ -1,0 +1,18 @@
+[package]
+name = "reva-ui-term"
+description = "The TUI in the CLI's terminal: reva-ui-paint's cells drawn with crossterm, keys and clicks back"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-hostcall = { path = "../../../host-base/crates/reva-hostcall" }
+reva-ui-base = { path = "../../../ui/crates/reva-ui-base" }
+reva-ui-layout = { path = "../../../ui-layout/crates/reva-ui-layout" }
+reva-ui-mirror = { path = "../../../ui-grid/crates/reva-ui-mirror" }
+reva-ui-grid = { path = "../../../ui-grid/crates/reva-ui-grid" }
+reva-ui-paint = { path = "../../../ui-grid/crates/reva-ui-paint" }
+crossterm = "0.29"

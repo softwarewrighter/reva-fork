@@ -6,7 +6,7 @@ resolver = "2"
 members = ["crates/reva-ui-layout"]
 
 [workspace.package]
-version = "2026.1101.0"
+version = "2026.1101.1"
 edition = "2024"
 publish = false
 license = "MIT"

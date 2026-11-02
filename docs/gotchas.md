@@ -78,6 +78,9 @@ file read with `include` (or given on the command line), the first unknown
 word abandons the *rest of the file*, and the stack is restored to what it
 was before the `include`. Check the first `ERROR:` line in the output.
 
+A file that is not there is reported (`include: nosuch.f: no such file`)
+and `ioerr` is 1; the original Reva said nothing.
+
 ## Times are UTC
 
 `time&date` and `localtime` report UTC: the portable core has no time-zone
@@ -102,8 +105,8 @@ Quirks of `reva.f` itself (unchanged, as on Linux x86):
 `lib/` is built into the core and appears at `/reva/lib/` (read-only)
 even without the files on disk, so `needs` works everywhere. In the
 browser all files are in memory: the page bundles its own, and what Forth
-code writes is kept in `localStorage` (about 5 MB per site, so keep demo
-files small). Empty directories are not kept, and modification times there
+code writes, or you upload, is kept in IndexedDB (the browser's quota for
+the site; older pages used localStorage's 5 MB, moved over at first start). Empty directories are not kept, and modification times there
 read as 0.
 
 ## Stop in the browser

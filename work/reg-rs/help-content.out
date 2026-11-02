@@ -10,10 +10,10 @@ see  ( <name> -- )
   been 'need'ed, it will try to disassemble.
 notebook  ( -- )
   context: ~   source: lib/ui/notebook
-  Opens a small notebook in the TUI: type Forth lines in the top pane, F6
-  evaluates the line under the cursor and shows what it printed, any error
-  and the stack it left in the lower pane.  Done or the close box closes it;
-  its text is kept in notebook.txt.
+  Opens a small notebook in the TUI: type Forth lines in the top pane;
+  Ctrl-J or F6 evaluates the line under the cursor and shows what it
+  printed, any error and the stack it left in the lower pane.  F1 shows the
+  keys.  Done or the close box closes it; its text is kept in notebook.txt.
 needs  ( <name> -- )
   context: ~   source: src/reva.f
   Locates the file "<name>" in the user library directory or the

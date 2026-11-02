@@ -11,6 +11,8 @@
 //                   input  { text }      a line (or any text) to read
 //                   start  { text }      start input: read now and again
 //                                        after each `restart`
+//                   put    { path, data } add a file (an upload); the page
+//                                        saves it to storage itself
 //                   close  {}            end of input
 //                   stop   {}            interrupt the running word
 //                   ui     { channel, resend? }
@@ -116,6 +118,9 @@ async function handle(m) {
     case "start":
       reva.feedStart(m.text);
       pump();
+      break;
+    case "put":
+      reva?.put(m.path, m.data);
       break;
     case "close":
       reva.closeInput();

@@ -3,10 +3,10 @@
 # output goes to the repository's target/ (.cargo/config.toml).
 [workspace]
 resolver = "2"
-members = ["crates/reva-canvas", "crates/reva-canvas-out"]
+members = ["crates/reva-canvas", "crates/reva-canvas-out", "crates/reva-canvas-png"]
 
 [workspace.package]
-version = "2026.1101.0"
+version = "2026.1101.1"
 edition = "2024"
 publish = false
 license = "MIT"

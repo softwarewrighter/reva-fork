@@ -22,7 +22,7 @@ usage: reva-serve [options]
 ```
 
 - **Fixed port, on purpose.** The page keeps your files in the browser's
-  localStorage, and localStorage belongs to the address, port included. A
+  IndexedDB, which belongs to the address, port included. A
   fixed port means your files are there the next time you run it.
 - **Already running?** If the port is held by a copy of the same app (any
   version), the second launch just opens the browser on it and exits.

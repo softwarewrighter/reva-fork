@@ -1,0 +1,9 @@
+number = 36
+slug = "local-cosy-in-reva"
+status = "completed"
+description = "At the user's request (2026-11-01): docs/cosy-in-reva.md, the ways to run CoS..."
+role = "production"
+context_files = []
+created_at = "2026-11-01T19:46:04"
+completed_at = "2026-11-01T19:59:04"
+commits = ["b4bd3cfdfd822411bd2a8480a6425a3e1691c4f2"]

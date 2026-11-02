@@ -41,13 +41,17 @@ const toLatin1 = (bytes) => {
 };
 const fromLatin1 = (s) => Uint8Array.from(s, (c) => c.charCodeAt(0));
 
-/** Every file saved in `storage` under `prefix`, as `{ path: bytes }`. */
+/**
+ * Every file saved in `storage` under `prefix`, as `{ path: bytes }`.
+ * A store with `getBytes`/`setBytes` (store.js) keeps bytes as bytes; plain
+ * Web Storage, strings of one char per byte.
+ */
 export function storedFiles(storage, prefix = "reva:fs:") {
   const files = {};
   for (let i = 0; i < storage.length; i++) {
     const key = storage.key(i);
     if (key && key.startsWith(prefix))
-      files[key.slice(prefix.length)] = fromLatin1(storage.getItem(key));
+      files[key.slice(prefix.length)] = storage.getBytes?.(key) ?? fromLatin1(storage.getItem(key));
   }
   return files;
 }
@@ -56,7 +60,8 @@ export function storedFiles(storage, prefix = "reva:fs:") {
 export function saveChanges(storage, list, prefix = "reva:fs:") {
   for (const { path, data } of list) {
     try {
-      if (data) storage.setItem(prefix + path, toLatin1(data));
+      if (data && storage.setBytes) storage.setBytes(prefix + path, data);
+      else if (data) storage.setItem(prefix + path, toLatin1(data));
       else storage.removeItem(prefix + path);
     } catch (e) {
       console.warn(`reva: could not save ${path}:`, e);
@@ -420,6 +425,11 @@ class LocalSession extends Session {
     this.setStatus(s, s === HALTED ? this.reva.exitCode : 0);
   }
   feed(text) { this.reva.feed(text); this.pump(); }
+  /** Add a file (an upload) to the running VM and to storage. */
+  put(path, data) {
+    this.reva.put(path, data);
+    if (this.storage) saveChanges(this.storage, [{ path, data }], this.prefix);
+  }
   feedStart(text) { this.reva.feedStart(text); this.pump(); }
   closeInput() { this.reva.closeInput(); this.pump(); }
   stop() { if (this.status === RUNNING) this.reva.interrupt(); }
@@ -475,6 +485,11 @@ class WorkerSession extends Session {
     if (this.startText) this.w.postMessage({ type: "start", text: this.startText });
   }
   feed(text) { this.status = RUNNING; this.w.postMessage({ type: "input", text }); }
+  /** Add a file (an upload) to the running VM and to storage. */
+  put(path, data) {
+    this.w.postMessage({ type: "put", path, data });
+    if (this.o.storage) saveChanges(this.o.storage, [{ path, data }], this.o.prefix);
+  }
   feedStart(text) {
     this.startText += text;
     this.status = RUNNING;

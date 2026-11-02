@@ -4,11 +4,11 @@ version = 4
 
 [[package]]
 name = "reva-macros"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-x86"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
  "reva-x86-cursor",
@@ -27,11 +27,11 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-base"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-x86-cursor"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
  "reva-x86-mem",
@@ -40,7 +40,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-decode"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
  "reva-x86-cursor",
@@ -52,7 +52,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-exec"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-macros",
  "reva-x86-base",
@@ -65,14 +65,14 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-float"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-types",
 ]
 
 [[package]]
 name = "reva-x86-fpudec"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
  "reva-x86-cursor",
@@ -81,7 +81,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-fpuexec"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-macros",
  "reva-x86-base",
@@ -94,18 +94,18 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-fpustate"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-x86-mem"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
 ]
 
 [[package]]
 name = "reva-x86-opcodes"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
  "reva-x86-cursor",
@@ -114,7 +114,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-ops"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-macros",
  "reva-x86-base",
@@ -124,7 +124,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-shift"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-macros",
  "reva-x86-base",
@@ -135,7 +135,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-types"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-fpustate",
 ]

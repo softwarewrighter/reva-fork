@@ -22,11 +22,13 @@ what has been carried over and what has not, yet).
 | [Plan: IUP programs](iup-plan.md) | high-level plan for running Reva's IUP GUI programs and CoSy's TUI, reimplemented in Rust with a Yew renderer |
 | [The UI model](ui-model.md) | IUP's elements, attributes, callbacks, keys and layout (in character cells) as the Rust model the iup library and the TUI build on: scope and rules |
 | [SQLite](sqlite.md) | `needs db/sqlite`: databases through the `~db` words; built into the CLI, desktop and browser next |
+| [CoSy in reva-fork](cosy-in-reva.md) | the ways to run CoSy (built in ba-cosy-zip-fork; no CoSy code here): what works today, what is planned |
 | [Turtle graphics](turtle.md) | `~turtle`: Logo-style drawing in a graphics window; fractal demos; SVG |
 | [Portability](portability.md) | what stops on the portable core (native libraries, `shell`, x87/SIMD) and why |
 | [Licenses](licenses.md) | third-party files, their licenses, and the no-copyleft check |
 | [Design](design.md) | how the portable core works and why |
 | [sed-rs asks](sed-rs-asks.md) | what this repository needs from an updated sed-rs (in-place editing, ranges, literal patterns), from using it here |
+| [Future features](future-features.md) | ideas discussed and not scheduled, with why they wait (host paths in the desktop app) |
 | [Code metrics](code-metrics.md) | how the Rust code is shaped: components, limits, rules, and what to do when a part is full |
 
 ## Conventions: every sample is executed

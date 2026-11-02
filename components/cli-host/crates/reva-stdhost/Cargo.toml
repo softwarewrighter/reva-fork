@@ -14,3 +14,4 @@ reva-stdfs = { path = "../../../cli-host/crates/reva-stdfs" }
 reva-term = { path = "../../../cli-host/crates/reva-term" }
 reva-sqlite = { path = "../../../sqlite/crates/reva-sqlite" }
 reva-ui-script = { path = "../../../iup/crates/reva-ui-script" }
+reva-ui-term = { path = "../../../iup/crates/reva-ui-term" }

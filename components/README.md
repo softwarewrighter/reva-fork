@@ -19,7 +19,7 @@ re-implemented in Rust. See [design.md](../docs/design.md) for the rationale.
   and a portable `syscall` subset; `time&date`, `ms@`, `getenv` work.
 - File words (`open/r`, `read`, `seek`, `stat`, `rename`, …) through
   `Host::fs`: real files on the CLI, an in-memory file system in the
-  browser (kept in `localStorage`); `lib/` is built in. See design.md §3.7.
+  browser (kept in IndexedDB); `lib/` is built in. See design.md §3.7.
 - Hosts: `reva` CLI (Linux/macOS/Windows, any CPU) and a WebAssembly module
   with a minimal web console; the VM runs in a Web Worker with time slices
   and a Stop button (design.md §3.8).
@@ -48,12 +48,13 @@ components/
   vfs/      reva-vfs, reva-memtree, reva-memfs         file-system traits, the in-memory file system
   host/     reva-host-traits, -buffer, reva-host       the Host traits, BufferHost, a facade at the old paths
   core-parts/ reva-gate, reva-heap, reva-translate   gates, the heap allocator, translator hooks
-  canvas/   reva-canvas, reva-canvas-out           the turtle's display list; ops for windows, SVG
+  canvas/   reva-canvas, -out, -png                the turtle's display list; ops for windows, SVG, PNG
   ui/       reva-ui-base, -text, -tree, reva-ui   the model of IUP programs' UIs (../docs/ui-model.md)
   ui-layout/ reva-ui-layout   IUP's layout of the model, in character cells
   ui-grid/  reva-ui-mirror, -grid, -paint   the TUI: the model painted into character cells
   ui-web/   reva-ui-web     the TUI in the page (Yew; scripts/build-web.sh)
-  iup/      reva-vlib-iup, reva-ui-script   the virtual library iup; a scripted headless UI host
+  iup/      reva-vlib-iup, reva-ui-script, reva-ui-term   the virtual library iup; a
+                         scripted headless UI host; the TUI in the terminal (crossterm)
   core/     reva-core, -ffi, -inspect              the Machine and its helpers; (call) args; dictionary, state
   core-run/ reva-core-run, reva-core-boot          the run loop; new machines and images
   vlib/     reva-vlib-turtle, -highlight, -iconv, reva-vlib   virtual libraries (reva-vlib: the old paths)
@@ -67,7 +68,7 @@ components/
   sqlite/   reva-sqlite, reva-vlib-sqlite   SQLite (rusqlite, safe API); the virtual library
   cli-edit/ reva-keys, -history, -lineedit, -rawterm   the terminal line editor
   cli-host/ reva-hostpath, -stdfs, -term, -stdhost     the command-line host
-  cli/      reva-cli     the `reva` command: options, run, session
+  cli/      reva-cli, reva-drawings   the `reva` command: options, run, session; drawings as files
   web/      reva-web-state, -run, -io, reva-web   wasm32 module + www/ (reva.js,
                          index.html) + test/*.mjs
   serve/    reva-serve-http, reva-serve   one-binary local web app: embeds a site,

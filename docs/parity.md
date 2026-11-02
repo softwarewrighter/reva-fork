@@ -63,7 +63,7 @@ pages are written.
 | Text Input and Output | yes (`."`; `accept` reads the input queue) | ready |
 | Changing Numeric Base | yes (`hex`, `decimal`, `binary`, prefixes) | ready |
 | Libraries | yes (`needs`) | ready |
-| Files & File Handling | yes (`open/r`, `open/rw`, `creat`, `read`, `write`, `seek`, `stat`, `rename`, `delete`; CLI: real files, browser: in memory + `localStorage`) | ready |
+| Files & File Handling | yes (`open/r`, `open/rw`, `creat`, `read`, `write`, `seek`, `stat`, `rename`, `delete`; CLI: real files, browser: in memory + IndexedDB, Upload button) | ready |
 
 ## Example programs
 
