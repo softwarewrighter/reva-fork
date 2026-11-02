@@ -78,6 +78,9 @@ file read with `include` (or given on the command line), the first unknown
 word abandons the *rest of the file*, and the stack is restored to what it
 was before the `include`. Check the first `ERROR:` line in the output.
 
+A file that is not there is reported (`include: nosuch.f: no such file`)
+and `ioerr` is 1; the original Reva said nothing.
+
 ## Times are UTC
 
 `time&date` and `localtime` report UTC: the portable core has no time-zone
