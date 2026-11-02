@@ -1,0 +1,1 @@
+Release 2026.1101.1: version bump (#74) merged, dev merged into main (e174845), live demo published and checked in Chrome (footer 2026.1101.1 e174845, Upload button, IndexedDB migration note, tree in the split view). Notebook files in the repo root were set aside for the publish's clean-tree check and restored byte-identical.

@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-01
 
+- 21:15 `chore` Step local-release-2026-1101-1 complete (saga record): Merge #74; dev merged into main (e174845) and the live demo published as 2026.1101.1, checked in Chrome (footer, Upload, IndexedDB migration note, a fractal in the split view).
 - 21:02 `release` 2026.1101.1 (step local-release-2026-1101-1): today's second merge to main. Since 2026.1101.0: IUP dialogs and the notebook full screen in the CLI's terminal; notebook keys for terminals (Ctrl-J, Ctrl-X Ctrl-E, also in every REPL), undo and redo, autosave with notebook.bak, multi-line paste; the CLI's turtle drawings as files (`--draw`, SVG or PNG, inline in iTerm2/WezTerm); the README's notebook screenshot; docs/cosy-in-reva.md; Upload in the browser and files kept in IndexedDB; `include` of a missing file says so. Every component's version, the Cargo.lock files, two goldens (boot-progress, web-smoke), the web smoke test and two docs. Step local-release-2026-1101-1 inserted; local-image-everywhere paused for it.
 - 21:02 `chore` Merge #73 (local-include-missing).
 - 20:39 `chore` Step local-include-missing complete (saga record).
