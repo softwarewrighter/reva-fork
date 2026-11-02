@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-01
 
+- 19:49 `docs` README: a second screenshot, images/notebook.png, of the TUI notebook beside the graphics pane (a line evaluated, its output and stack, and the tree its `10 tree-demo` line drew), linking to that example on the live demo; the notebook hint names Ctrl-J, Ctrl-X Ctrl-E, Cmd-Enter and F6 (step local-readme-notebook, at the user's request). Taken in Chrome from a local build of dev (6263e56). Steps local-readme-notebook and local-cosy-in-reva inserted.
+- 19:49 `chore` Merge #68, #69 (local-ui-terminal, local-cli-drawings).
 - 19:41 `chore` Step local-cli-drawings complete (saga record).
 - 19:24 `feat` The CLI's turtle drawings as files (step local-cli-drawings, at the user's request; docs/turtle.md): the CLI has no graphics window, so after each run (a line typed, the files and -e texts, piped input) a drawing that changed goes to the next free turtle-001.svg, turtle-002.svg, ... or .png in the current folder, never over an existing file (created exclusively), and its name is printed above the prompt. `--draw auto|svg|png|off`: auto (the default) writes SVG at a terminal, or in iTerm2 and WezTerm a PNG also shown inline; nothing when output is redirected, so scripts and goldens are unchanged. New crates reva-canvas-png (tiny-skia, BSD-3-Clause; not in the wasm build) and reva-drawings; golden cli-drawings; the fractals help says where CLI drawings go. docs/sed-rs-asks.md: three more BRE surprises.
 - 18:06 `chore` Step local-ui-terminal complete (saga record).
