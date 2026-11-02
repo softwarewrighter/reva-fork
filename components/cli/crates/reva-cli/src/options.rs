@@ -17,6 +17,8 @@ usage: reva [options] [file ...]
       --save-image PATH  after files and -e, save an image and exit
       --show-boot      print what booting printed (progress digits, errors)
       --trace          trace every VM step to stderr (very slow)
+      --underflow WHAT when a word takes more than the stack holds: warn (default:
+                       say so once and go on, as Reva did) or fail (stop with an error)
       --allow-shell    let `shell` (C `system`) run OS commands; off by default
       --no-edit        at a terminal, read plain lines (no history or line editing)
       --color WHEN     colour in `pp`/`hl-type` listings: auto (default), always, never
@@ -40,6 +42,7 @@ pub struct Options {
     pub save_image: Option<String>,
     pub show_boot: bool,
     pub trace: bool,
+    pub underflow_fail: bool,
     pub allow_shell: bool,
     pub no_edit: bool,
     pub color: Option<bool>,
@@ -60,6 +63,13 @@ pub fn parse_args() -> Result<Options, String> {
             "--save-image" => o.save_image = Some(value(&a)?),
             "--show-boot" => o.show_boot = true,
             "--trace" => o.trace = true,
+            "--underflow" => {
+                o.underflow_fail = match value(&a)?.as_str() {
+                    "warn" => false,
+                    "fail" => true,
+                    v => return Err(format!("--underflow {v}: use warn or fail")),
+                }
+            }
             "--allow-shell" => o.allow_shell = true,
             "--no-edit" => o.no_edit = true,
             "--ui-script" => o.ui_script = Some(value(&a)?),

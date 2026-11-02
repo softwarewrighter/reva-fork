@@ -71,6 +71,9 @@ pub enum Op {
     KeyName,
     KeyCode,
     Version,
+    /// `IupExitLoop`: the innermost loop ends once the running callback
+    /// returns.
+    ExitLoop,
 }
 
 use Args as A;
@@ -154,6 +157,7 @@ pub const FUNCS: &[(&str, Op)] = &[
     ("IupGLIsCurrent", Zero),
     ("IupGLSwapBuffers", Zero),
     ("IupGLPalette", Zero),
+    ("IupExitLoop", ExitLoop),
 ];
 
 /// The address `(func)` gives function `name`.

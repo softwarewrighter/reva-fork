@@ -161,6 +161,11 @@ pub struct Machine {
     /// and those already reported (see `ffi.rs`).  Transient.
     pub missing_lib: Option<String>,
     pub reported_libs: Vec<String>,
+    /// Data-stack underflow (the interpreter finds the stack below empty
+    /// between words): stop with an error, or, as Reva did, go on, with a
+    /// warning once until the stack is back at or above empty.
+    pub underflow_fail: bool,
+    pub underflow_warned: bool,
     /// The turtle and its drawing (canvas.rs, turtle.rs).  Host state, like
     /// open files: not part of an image, and new after `restart`.
     pub canvas: crate::canvas::Canvas,

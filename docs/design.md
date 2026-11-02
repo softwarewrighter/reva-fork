@@ -463,7 +463,7 @@ reports no FAILs, and the gate requires that.
 | Quality | How it is addressed |
 |---|---|
 | **Portability / availability** | Pure Rust, no `unsafe` in the VM, no dependencies; one core for CLI and `wasm32` (module has zero imports). |
-| **Reliability** | All memory access bounds-checked; null guard; return-stack floor; data-stack underflow check between words; faults recover to the REPL and roll back a half-made definition (as newcore did). |
+| **Reliability** | All memory access bounds-checked; null guard; return-stack floor; data-stack underflow noticed between words (a warning, or an error with `--underflow fail`); faults recover to the REPL and roll back a half-made definition (as newcore did). |
 | **Traceability** | Every gateway names its newcore routine; deviations are commented; fault reports name the Forth word and offset (`in bad+0xc`); `--trace` logs each step. |
 | **Maintainability / understandability** | Small modules with literate headers; the boot source is `reva.f` verbatim plus two documented lines (§3.6) — no fork of the Forth code. |
 | **Testability** | Unit tests per module, API tests (`components/vm/crates/reva-vm/tests`), and a reg-rs golden-output suite (`work/reg-rs`) over the CLI and the wasm build. |
@@ -479,8 +479,12 @@ reports no FAILs, and the gate requires that.
 
 1. End of input with a partial line interprets that line before exiting
    (newcore lost it).
-2. Data-stack underflow is reported between words (newcore ran on in its
-   underflow area).
+2. Data-stack underflow is noticed between words. By default (since
+   2026-11-02, for CoSy's Tui.f and four examples) it is a warning, once
+   per episode, and words go on in the slack above the stack as newcore's
+   did; `reva --underflow fail` stops with an error as the port used to.
+   `type` of a buffer that cannot be read writes nothing, as the OS's
+   `write` failed for Reva, instead of faulting.
 3. Running out of code or dictionary space faults instead of exiting via
    `os_bye`, unless Forth code has redefined `heapgone`/`dictgone`.
 4. `free` of a non-allocated address is ignored instead of crashing.
