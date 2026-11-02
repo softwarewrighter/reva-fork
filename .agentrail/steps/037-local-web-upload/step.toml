@@ -1,6 +1,6 @@
 number = 37
 slug = "local-web-upload"
-status = "pending"
+status = "in-progress"
 description = "At the user's request (2026-11-01): upload files into the web page. An Upload..."
 role = "production"
 context_files = []

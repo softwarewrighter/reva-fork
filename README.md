@@ -105,7 +105,8 @@ still-supported topic rebuilt, then delete with the rest of `legacy/`.
 
 - **Works:** all of `reva.f`; the REPL; `include` and `needs`; contexts;
   the embedded assembler; the file words (real files on the CLI; in the
-  browser, in memory and kept in `localStorage`); `time&date`, `ms@`,
+  browser, in memory and kept in IndexedDB, plus an Upload button);
+  `time&date`, `ms@`,
   `getenv`; saved images (`save`, `--image`, also in the browser) and
   `restart`. 69 of the 132
   programs in `examples/` run unchanged

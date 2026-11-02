@@ -102,8 +102,8 @@ Quirks of `reva.f` itself (unchanged, as on Linux x86):
 `lib/` is built into the core and appears at `/reva/lib/` (read-only)
 even without the files on disk, so `needs` works everywhere. In the
 browser all files are in memory: the page bundles its own, and what Forth
-code writes is kept in `localStorage` (about 5 MB per site, so keep demo
-files small). Empty directories are not kept, and modification times there
+code writes, or you upload, is kept in IndexedDB (the browser's quota for
+the site; older pages used localStorage's 5 MB, moved over at first start). Empty directories are not kept, and modification times there
 read as 0.
 
 ## Stop in the browser
