@@ -499,6 +499,12 @@ reports no FAILs, and the gate requires that.
    keyboard input reaches Forth only through `key`, which can pause the VM.
 9. `stat` fills the i386 `struct stat` and repeats `st_mtime` in
    `st_ctime`: `reva.f`'s `mtime` reads the ctime cell (offset 48).
+10. `include FILE` of a file that cannot be read says so
+    (`include: FILE: no such file`, a diagnostic: stderr on the CLI, the
+    output in the page) and sets `ioerr` to 1 as before; newcore only set
+    `ioerr`, so a typo or an upload under another name did nothing,
+    silently. `(include)`, which `needs` uses to try several folders,
+    stays silent; `needs` reports a library it cannot find itself.
 
 ## 6. The road to native speed
 
