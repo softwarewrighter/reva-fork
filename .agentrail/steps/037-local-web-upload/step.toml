@@ -1,0 +1,8 @@
+number = 37
+slug = "local-web-upload"
+status = "pending"
+description = "At the user's request (2026-11-01): upload files into the web page. An Upload..."
+role = "production"
+context_files = []
+created_at = "2026-11-01T09:26:51"
+commits = []
