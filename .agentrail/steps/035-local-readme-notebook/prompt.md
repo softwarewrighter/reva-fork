@@ -1,0 +1,1 @@
+At the user's request (2026-11-01): a screen capture of the TUI notebook in images/, inlined in README.md as a second screenshot below the live demo's (the notebook beside a turtle drawing in the split view, a few evaluated lines and their results). Capture without stealing focus (window ID). Also fix the README's 'then F6' hint (Ctrl-J, Ctrl-X Ctrl-E, Cmd-Enter or F6).
