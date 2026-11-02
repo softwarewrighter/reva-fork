@@ -142,7 +142,8 @@ notes each file and its size, then the space used and available for the
 site. A name with spaces cannot be `include`d: rename it first. Upload is
 the browser's way around having no file system; the desktop app has none:
 its files are a folder on disk (`~/Reva` or the package), so copy a file
-there, or open the folder with `--package`.
+there, or open the folder with `--package` (host paths in the desktop
+app: [future-features.md](future-features.md)).
 
 - **The name** is the browser's name for the file, exactly as it is (case,
   dots, spaces, non-ASCII), without its folder: the browser never tells a
