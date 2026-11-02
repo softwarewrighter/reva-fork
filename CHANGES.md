@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-02
 
+- 10:17 `plan` Saga reordered after the parity review, at the user's request (GUI support before the examples triage): 41 image-everywhere, 42 one-version, 43 ui-canvas, 44 portable-gates, 45 examples-triage (now naming the faulting examples, the not-counted ones and parity.md's stale glossary row), 46 tui-cosy, then two new steps, 47 vlib-bignum-xml (fib2, xmlparse) and 48 cli-sockets (dhttpd, http, json, xmlrpc), then publish-package and the rest.
+- 10:17 `chore` Merge #75 (local-brand-fork).
 - 10:13 `chore` Step local-brand-fork complete (saga record).
 - 08:00 `release` 2026.1102.0 (step local-brand-fork), at the user's request: today's first merge to main, to be made later today with more features. Since 2026.1101.1: the header's Reva Fork branding. Every component's version, the Cargo.lock files, two goldens (boot-progress, web-smoke), the web smoke test and two docs. Step local-one-version queued after local-image-everywhere, at the user's request: the release version in one file, so the next bump is not 68 files.
 - 07:45 `feat` Branding, at the user's request (step local-brand-fork): the page header of the browser and the desktop app shows a small copy of the desktop icon (favicon.png) and "Reva Fork" in place of "Reva Forth"; the page title, the desktop window title and the About button's label say Reva Fork too. That it is Forth is evident, and the About says so. A package's title still replaces the name, beside the package's icon, or no logo if it has none. The CLI has no header. docs/web.md, desktop.md. Checked in Chrome. Step local-brand-fork inserted; local-image-everywhere (now 41) still paused.
