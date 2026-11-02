@@ -535,18 +535,18 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-base"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-ui-grid"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-layout",
 ]
 
 [[package]]
 name = "reva-ui-layout"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-base",
  "reva-ui-tree",
@@ -554,7 +554,7 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-mirror"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-base",
  "reva-ui-tree",
@@ -562,7 +562,7 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-paint"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-base",
  "reva-ui-grid",
@@ -572,14 +572,14 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-tree"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-base",
 ]
 
 [[package]]
 name = "reva-ui-web"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "js-sys",
  "reva-ui-base",

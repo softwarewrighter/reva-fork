@@ -16,7 +16,7 @@ const check = (what, got, want) => {
 };
 
 // The boot ends as Reva's saved executable started: banner, then a prompt.
-const BANNER = "reva-fork 2026.1101.0 portable\n\nok> ";
+const BANNER = "reva-fork 2026.1101.1 portable\n\nok> ";
 check("boot status", reva.status, NEED_INPUT);
 // The footer's facts come from the module (reva_vm::version), as `reva -V`.
 const BUILD_KEYS = ["name", "version", "copyright", "license", "repository", "build_host", "build_commit", "build_time"];
