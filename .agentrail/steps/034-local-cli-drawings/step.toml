@@ -1,8 +1,9 @@
 number = 34
 slug = "local-cli-drawings"
-status = "in-progress"
+status = "completed"
 description = "At the user's request (2026-11-01): the CLI has no graphics window, so a turt..."
 role = "production"
 context_files = []
 created_at = "2026-11-01T14:05:13"
-commits = []
+completed_at = "2026-11-01T19:41:22"
+commits = ["36fa2952687282f02d185fbe14dfc571a3f0e9d4"]
