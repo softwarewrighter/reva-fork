@@ -96,7 +96,7 @@ looks like each package it opens:
 
 | Key | Effect | Default |
 |---|---|---|
-| `title` | window title and page header | `<name> on Reva`, or `Reva Forth` |
+| `title` | window title and page header | `<name> on Reva`, or `Reva Fork` |
 | `icon` | PNG in the package (256×256 suits every desktop): the window icon, which is also the taskbar icon on Windows and X11, and on macOS the Dock and app-switcher icon while the app runs | Reva's icon |
 | `id` | Linux only: the Wayland `app_id` and X11 `WM_CLASS` (letters, digits, `.` `-` `_`). Docks use it to find the package's `.desktop` entry, and with it the dock icon and name | `reva-desktop` |
 

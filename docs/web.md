@@ -120,8 +120,8 @@ a folder:
 |---|---|
 | `files` | fetched (six at a time) into the VM at `/<file>`, as the desktop app maps the package folder to `/`; a file that fails is a note, not a stop |
 | `start` | fetched too, and included after start and after each `restart` |
-| `title` | page title and header (default `<name> on Reva`) |
-| `icon` | the page's icon (favicon) |
+| `title` | page title and header (default `<name> on Reva`; without a package, `Reva Fork` beside Reva's icon) |
+| `icon` | the page's icon (favicon) and the logo beside the title in the header (none: no logo) |
 | `id` | names the storage prefix, `reva:<id>:fs:` (default from `name`), so two packages on one site keep their files apart |
 | `canvas` | where graphics go, unless the URL says |
 | `about` | the package's entry in the About dialog: `{ "name", "version", "description", "build", "credits": [text], "links": [{ "label", "url" }] }`, all optional (`name` defaults to `title`; `build` is the package's own commit and date, so a bug report names both layers); only http(s) links become links |
