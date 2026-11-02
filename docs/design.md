@@ -406,7 +406,7 @@ new module, crate or component, never a merge).
 | `vfs` | reva-vfs (types; `FileSystem` as `FsFiles` + `FsMeta` + `FsDirs`), reva-memtree, reva-memfs | host-base |
 | `host` | reva-host-traits (`Host` as `Console` + `Platform` + `Resources`), reva-host-buffer (`BufferHost`), reva-host (facade: every old path) | host-base, vfs |
 | `core-parts` | reva-gate (the gateway table), reva-heap, reva-translate (translator hooks, the decode cache) | x86 |
-| `canvas` | reva-canvas (the turtle and its display list), reva-canvas-out (op stream, SVG) | macros |
+| `canvas` | reva-canvas (the turtle and its display list), reva-canvas-out (op stream, SVG), reva-canvas-png (PNG; the CLI only, not wasm) | macros |
 | `ui` | reva-ui-base (kinds, IUP key codes, the change stream and its text form), reva-ui-text (editable text), reva-ui-tree (elements, attributes, callbacks), reva-ui (the model: text attributes, dialogs, focus, events); docs/ui-model.md | — |
 | `ui-layout` | reva-ui-layout (IUP's layout in character cells) | ui |
 | `ui-grid` | reva-ui-mirror (a renderer's copy of the model from the change stream), reva-ui-grid (character cells with colour roles, the cursor), reva-ui-paint (the TUI's look: dialogs painted into the cells; clicks) | ui, ui-layout |
@@ -424,7 +424,7 @@ new module, crate or component, never a merge).
 | `sqlite` | reva-sqlite (rusqlite), reva-vlib-sqlite (the virtual library: host calls) | (rusqlite); core |
 | `cli-edit` | reva-keys (bytes to keys), reva-history, reva-lineedit (the editor), reva-rawterm (raw mode, width) | — |
 | `cli-host` | reva-hostpath, reva-stdfs (the real file system), reva-term (the line reader), reva-stdhost (`StdHost`, SQLite) | vm, sqlite, cli-edit |
-| `cli` | reva-cli (the `reva` binary: options, run, session) | vm, cli-host |
+| `cli` | reva-cli (the `reva` binary: options, run, session), reva-drawings (turtle drawings as new SVG/PNG files, inline in iTerm2/WezTerm) | vm, cli-host, canvas |
 | `web` | reva-web-state (the one VM, its buffers, starting), reva-web-run (boot, input, output, build facts), reva-web-io (files, canvas, host calls), reva-web (the module: re-exports every export) | vm |
 | `serve` | reva-serve-http (the site, requests, responses), reva-serve (listening; the embedded site) | (web's www/, embedded at build time) |
 | `desktop` | reva-desktop-pkg (packages: manifest, branding, paths, snapshots), reva-desktop-state (options, the app's state), reva-desktop (the Tauri app: commands, windows, SQLite calls) | sqlite (and web's www/, copied by build.sh) |
