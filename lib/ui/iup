@@ -62,6 +62,7 @@ iup drop
 3 func: IupPopup | ih, x, y
 3 vfunc: IupShowXY | ih, x, y
 0 vfunc: IupMainLoop
+0 vfunc: IupExitLoop	| reva-fork: ends the main loop (as a callback returning IUP_CLOSE)
 0 func: IupLoopStep				| changed to vfunc: according IUP doc
 0 vfunc: IupFlush
 1 func: IupRefresh

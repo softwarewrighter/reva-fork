@@ -81,6 +81,14 @@ was before the `include`. Check the first `ERROR:` line in the output.
 A file that is not there is reported (`include: nosuch.f: no such file`)
 and `ioerr` is 1; the original Reva said nothing.
 
+## Stack underflow is a warning
+
+A word that takes more than the stack holds (`drop` on an empty stack)
+prints `warning: stack underflow (depth -1)` once, and Forth goes on, as
+Reva did: words run in the slack above the stack, and later pushes bring it
+back. Programs written for Reva rely on it (CoSy's Tui.f, and
+`examples/sqlite.f`). `reva --underflow fail` stops with an error instead.
+
 ## Times are UTC
 
 `time&date` and `localtime` report UTC: the portable core has no time-zone

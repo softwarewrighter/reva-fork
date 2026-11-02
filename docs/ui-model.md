@@ -64,7 +64,11 @@ what it does by default: Tab and Shift-Tab move the focus, Enter and space
 click a button, other keys edit a text element. A click runs a button's,
 toggle's or item's ACTION (a toggle's with its new state); the close box
 runs CLOSE_CB, else hides the dialog. A callback returning `CLOSE` ends
-the main loop, which also ends when no dialog is shown.
+the main loop, which also ends when no dialog is shown, and so does
+`IupExitLoop` (added to the library for `add-callback`). `add-callback (
+xt -- )` in `lib/ui/gui`, from older Reva, runs `xt` as a callback; in
+this VM callbacks are plain Forth, so it runs at once, and its `gui-close`
+ends the loop (CoSy's Tui.f uses it on every key).
 
 **Keys** have IUP 3's codes: a character or a named key (`K_F1` is
 `0xFFBE`, `K_HOME` `0xFF50`, `K_DEL` `0xFFFF`, ...) with bits for Shift,

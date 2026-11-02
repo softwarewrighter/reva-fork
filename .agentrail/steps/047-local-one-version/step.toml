@@ -1,0 +1,8 @@
+number = 47
+slug = "local-one-version"
+status = "in-progress"
+description = "At the user's request (2026-11-02): the release version in one place. Today a..."
+role = "production"
+context_files = []
+created_at = "2026-11-02T07:53:27"
+commits = []
