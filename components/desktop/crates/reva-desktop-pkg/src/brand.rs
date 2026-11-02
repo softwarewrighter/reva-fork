@@ -62,7 +62,7 @@ pub fn branding(dir: Option<&Path>, m: &Manifest, notes: &mut Vec<String>) -> Br
     let title = match (&m.title, &m.name) {
         (Some(t), _) => t.clone(),
         (None, Some(n)) => format!("{n} on Reva"),
-        (None, None) => "Reva Forth".to_string(),
+        (None, None) => "Reva Fork".to_string(),
     };
     let (icon, icon_png) = match (dir, &m.icon) {
         (Some(dir), Some(rel)) => brand_icon(dir, rel, notes),
