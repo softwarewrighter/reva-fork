@@ -98,6 +98,12 @@ check("ctrl-g restores", [input.value, prompt.textContent], ["xyz", "ok>"]);
 input.key("r", { ctrlKey: true }); input.type("1 2");
 const enter = input.key("Enter");
 check("enter runs the match", [enter.prevented, input.value, prompt.textContent], [false, "1 2 + .", "ok>"]);
+let submitted = 0;
+input.form = { requestSubmit() { submitted++; } };
+input.key("Home"); input.key("x", { ctrlKey: true }); input.key("Control"); input.key("e", { ctrlKey: true });
+check("ctrl-x ctrl-e runs the line", [submitted, input.value], [1, "1 2 + ."]);
+input.key("a", { ctrlKey: true }); input.key("x", { ctrlKey: true }); input.key("f", { ctrlKey: true }); input.key("e", { ctrlKey: true });
+check("ctrl-e alone: end of line", [submitted, input.selectionStart], [1, 7]);
 
 console.log(failed ? `${failed} FAILED` : "all ok");
 process.exit(failed ? 1 : 0);

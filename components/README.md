@@ -53,7 +53,8 @@ components/
   ui-layout/ reva-ui-layout   IUP's layout of the model, in character cells
   ui-grid/  reva-ui-mirror, -grid, -paint   the TUI: the model painted into character cells
   ui-web/   reva-ui-web     the TUI in the page (Yew; scripts/build-web.sh)
-  iup/      reva-vlib-iup, reva-ui-script   the virtual library iup; a scripted headless UI host
+  iup/      reva-vlib-iup, reva-ui-script, reva-ui-term   the virtual library iup; a
+                         scripted headless UI host; the TUI in the terminal (crossterm)
   core/     reva-core, -ffi, -inspect              the Machine and its helpers; (call) args; dictionary, state
   core-run/ reva-core-run, reva-core-boot          the run loop; new machines and images
   vlib/     reva-vlib-turtle, -highlight, -iconv, reva-vlib   virtual libraries (reva-vlib: the old paths)

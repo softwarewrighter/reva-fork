@@ -2,6 +2,8 @@
 //! (docs/design.md 3.11).  Database names are VM paths, mapped to host
 //! paths as the file words map them.
 
+use std::io::IsTerminal;
+
 use crate::host::StdHost;
 use reva_sqlite::{Reply, Sqlite};
 use reva_stdfs::stdfs::StdFs;
@@ -19,8 +21,14 @@ impl Resources for StdHost {
             return answer(&mut self.sql, &mut self.fs, call);
         }
         let Some(ui) = self.ui.as_mut() else {
+            // At a terminal, the TUI; with piped input there is no screen.
+            if self.reader.is_some() && std::io::stdout().is_terminal() {
+                let _ = std::io::Write::flush(&mut self.out);
+                return self.ui_term.answer(call);
+            }
             return HostAnswer::Unavailable(
-                "the CLI shows no user interface yet (--ui-script FILE scripts one)".into(),
+                "the CLI shows a user interface only at a terminal (--ui-script FILE scripts one)"
+                    .into(),
             );
         };
         let (answer, log) = ui.answer(call);
