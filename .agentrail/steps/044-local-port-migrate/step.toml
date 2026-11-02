@@ -1,0 +1,8 @@
+number = 44
+slug = "local-port-migrate"
+status = "pending"
+description = "At the user's request (2026-11-02): a migration path for Windows-only Reva pr..."
+role = "production"
+context_files = []
+created_at = "2026-11-02T15:39:51"
+commits = []

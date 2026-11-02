@@ -1,0 +1,45 @@
+| compat/reva70: Reva 7.0's behaviour where 2011.2's differs, for programs
+| written for 7.0 (CoSy is one).  Load it first:  needs compat/reva70
+|
+| - `needs ui/gui` and `needs ui/iup` load 7.0's libraries (compat/r70/ui/:
+|   func: results, add-callback's pending queue), each change for the port
+|   marked "reva-fork:".
+| - The 7.0 words 2011.2 lacks or defines otherwise: >defer, make, undo,
+|   save-default, and value as an ordinary word.
+| Opt-in: 2011.2 stays the default for everything else.  docs/compat-reva70.md
+
+push~
+~priv ~sys ~
+
+| The libraries this layer serves from compat/r70/.
+: (r70?) ( a n -- f )
+  2dup " ui/gui" cmp 0if 2drop true ;then  " ui/iup" cmp 0 = ;
+
+| Load 7.0's copy of library a n once, and record it as `needs` does, so
+| 2011.2 code that needs it later finds it loaded.
+: (needs-r70) ( a n -- )
+  2dup ['] ~needs find-word if 3drop ;then
+  2dup libdir here 512 + place " compat/r70/" here 512 + +place
+  here 512 + +place  here 512 + count (include)
+  push~ ~needs (create) p: ; pop~ ;
+
+: needs ( <name> -- )
+  parsews 2dup (r70?) if (needs-r70) ;then (needs) ;
+
+| ---- 7.0's deferred words (as ba-cosy-zip-fork's compat708.f found them)
+macro : >defer p: is ; forth
+create (undo-tbl) 32 2* cells allot  variable (undo-n)
+: (find-default) ( dxt -- a | 0 )
+  (undo-n) @ 0 ?do (undo-tbl) i 2* cells + dup @ 2 pick = if nip unloop ;then drop loop drop 0 ;
+| save-default <name>: remember the deferred word's current action for undo.
+: save-default ( <name> -- ) ' dup @ (undo-tbl) (undo-n) @ 2* cells + 2! 1 (undo-n) +! ;
+: (undo) ( dxt -- ) dup (find-default) ?dup if cell+ @ else ['] noop then swap ! ;
+macro : undo defer? then,> (undo) ; forth
+: make ( <name> -- ) defer? here swap ! p: ] ;
+save-default type  save-default emit  save-default prompt
+
+| 7.0's value is an ordinary word (2011.2's is a macro), so a word may
+| call it:  : >value refs+> value ;
+: value create , ['] 'value class! ;
+
+pop~

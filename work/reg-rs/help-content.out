@@ -23,4 +23,4 @@ no help for nosuchword
 notebook 
 help WORD    the documentation of WORD (help dup, help notebook)
 help/ TEXT   the documented words whose names contain TEXT
-documented words found: 1377 missing: 0 
+documented words found: 1379 missing: 0 

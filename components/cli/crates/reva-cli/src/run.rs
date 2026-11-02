@@ -33,9 +33,13 @@ impl Run<'_> {
                 eprintln!();
             }
         }
+        if !matches!(self.start, Start::Image(..)) {
+            vm.record_prompt();
+        }
         if !self.interactive {
             vm.quiet_prompt();
         } else if normal && !self.opts.show_boot {
+            vm.restore_prompt();
             // The banner and first `ok>` prompt, as Reva showed them.
             host.write(rest.as_bytes());
         }
