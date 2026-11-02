@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-01
 
+- 19:59 `chore` Step local-cosy-in-reva complete (saga record).
+- 19:58 `docs` docs/cosy-in-reva.md (step local-cosy-in-reva, at the user's request): the ways to run CoSy on reva-fork, from the package ba-cosy-zip-fork builds (this repository holds no CoSy code). Works, checked today from a scratch copy: the CLI REPL and scripted runs, CLI drawings as PNG files, the notebook over CoSy in the terminal and the browser, the browser through reva-serve; the zip works but is published only where Bob agrees. Broken: ba-cosy's `just cosy-zip`/`cosy-serve` call reva-fork's old `rust/` paths (run `scripts/` directly). Not yet: a saved image of a loaded CoSy. Planned: Tui.f windows, upload, images, a published site (steps 37 to 40). All CoSy builds were deleted afterwards. Linked from docs/README.md.
 - 19:51 `chore` Step local-readme-notebook complete (saga record).
 - 19:49 `docs` README: a second screenshot, images/notebook.png, of the TUI notebook beside the graphics pane (a line evaluated, its output and stack, and the tree its `10 tree-demo` line drew), linking to that example on the live demo; the notebook hint names Ctrl-J, Ctrl-X Ctrl-E, Cmd-Enter and F6 (step local-readme-notebook, at the user's request). Taken in Chrome from a local build of dev (6263e56). Steps local-readme-notebook and local-cosy-in-reva inserted.
 - 19:49 `chore` Merge #68, #69 (local-ui-terminal, local-cli-drawings).
