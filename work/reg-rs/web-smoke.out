@@ -8,6 +8,7 @@ ok   key resumes: "reva-fork 2026.1101.0 portable\n\nok> 3 \nok> "
 ok   halts: 2
 ok   help shows documentation: [true,true,true]
 ok   exit code: 9
+ok   include of a missing file: true
 ok   bundled file: "reva-fork 2026.1101.0 portable\n\nok> bundled\nok> \nok> "
 ok   persisted: "savedÃ©"
 ok   restored: "reva-fork 2026.1101.0 portable\n\nok> savedé0 \nok> "

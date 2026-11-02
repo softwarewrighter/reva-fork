@@ -41,17 +41,31 @@ pub fn eval_done(m: &mut Machine, _: Gate, _: &mut dyn Host) -> R<Next> {
     Ok(Next::Ret)
 }
 
-/// `include FILE`.
+/// `include FILE`.  Unlike the original, which only set `ioerr`, a file
+/// that cannot be read is reported (a diagnostic: stderr on the CLI, the
+/// output in the page); `ioerr` is set as before.
 pub fn include(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
     let (a, n) = m.parsews(host)?;
+    let name = String::from_utf8_lossy(m.mem.slice(a, n)?).into_owned();
     m.upsh(a)?;
     m.upsh(n)?;
-    Ok(Next::Jump(Gate::Include2.addr()))
+    let next = start_include(m, host)?;
+    if matches!(next, Next::Ret) {
+        host.diag(&format!("include: {name}: no such file\n"));
+    }
+    Ok(next)
 }
 
 /// `__include` ( a n -- ): slurp, eval, free.  As in the original, the
-/// data stack is restored afterwards.
+/// data stack is restored afterwards, and a missing file only sets
+/// `ioerr` (`needs` tries several folders this way and reports itself).
 pub fn include2(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
+    start_include(m, host)
+}
+
+/// Slurp the file named on the stack and evaluate it (then
+/// `include_done`); `Next::Ret` with `ioerr` set if it cannot be read.
+pub fn start_include(m: &mut Machine, host: &mut dyn Host) -> R<Next> {
     if !m.slurp(host)? {
         m.drop1()?;
         m.drop1()?;
