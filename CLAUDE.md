@@ -372,6 +372,14 @@ clippy `-D warnings` and tests in every component, the wasm build
 and its node tests, the goldens on the release CLI, the license check,
 and sw-checklist. `just check --fast` skips the desktop component.
 
+**Docs-only exception** (the user, 2026-11-01): a commit that changes
+only Markdown (`*.md`), `images/` and saga records (`.agentrail/`)
+runs `scripts/doc-check.sh` on the Markdown files it changes instead of
+`just check`. Adding or removing a `docs/*.md` page also changes the
+`docs-samples` golden, so run `scripts/regress.sh -p docs-samples` too.
+Anything else in the commit (code, `lib/`, scripts, goldens) means the
+full gate.
+
 The script lists goldens known to fail per OS; the list may only
 shrink: lower it in the commit that fixes something, never raise it.
 sw-checklist must report 0 FAILs (its warnings are not gated).

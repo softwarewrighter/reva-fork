@@ -9,9 +9,12 @@ the Reva REPL in your browser. Try
 [a dragon curve](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20dragon-demo)
 or [the tree below](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20tree-demo),
 or [the TUI notebook](https://softwarewrighter.github.io/reva-fork/?eval=needs%20ui/notebook%20notebook)
-(type a Forth line such as `6 7 *` in the top pane, then F6).
+(type a Forth line such as `6 7 *` in the top pane, then Ctrl-J, Ctrl-X
+Ctrl-E, Cmd-Enter or F6; F1 lists the keys).
 
 [![The live demo after `needs turtle/fractals 12 tree-demo`: the REPL on the left, the fractal tree in the graphics pane on the right](images/live-demo.png)](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20tree-demo)
+
+[![The TUI notebook (`needs ui/notebook notebook`) beside the graphics pane: the line `6 7 * dup . 1+` evaluated, its output 42 and the stack 43 in the lower pane, and the tree its `10 tree-demo` line drew](images/notebook.png)](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=10%20tree-demo&eval=needs%20ui/notebook%20notebook)
 
 Reva is a compact, native-code Forth for 32-bit x86 by Ron Aaron and the Reva
 development team. Its original README is kept, unchanged, as
@@ -102,7 +105,8 @@ still-supported topic rebuilt, then delete with the rest of `legacy/`.
 
 - **Works:** all of `reva.f`; the REPL; `include` and `needs`; contexts;
   the embedded assembler; the file words (real files on the CLI; in the
-  browser, in memory and kept in `localStorage`); `time&date`, `ms@`,
+  browser, in memory and kept in IndexedDB, plus an Upload button);
+  `time&date`, `ms@`,
   `getenv`; saved images (`save`, `--image`, also in the browser) and
   `restart`. 69 of the 132
   programs in `examples/` run unchanged

@@ -1,0 +1,1 @@
+README second screenshot images/notebook.png (notebook beside the tree, 6 7 * dup . 1+ evaluated) linking to the live-demo example; notebook hint updated. Captured with the Chrome extension (no focus change), converted with sips.

@@ -38,6 +38,9 @@ pub struct Editor {
     pub(crate) last_query: String,
     /// First char shown, when the line is wider than the terminal.
     pub(crate) scroll: usize,
+    /// Ctrl-X was the last key: Ctrl-E next runs the line (Emacs's
+    /// "evaluate", as in the notebook).
+    pub(crate) prefix: bool,
 }
 
 /// A letter, digit or `_`: part of a word.

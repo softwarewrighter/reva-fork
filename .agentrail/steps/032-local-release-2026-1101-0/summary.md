@@ -1,0 +1,1 @@
+Released 2026.1101.0: version bump PR #67 (all components, locks, banner goldens, docs), gated; dev merged into main (38ebedd) and the live demo published; checked in Chrome: footer 2026.1101.0 build 38ebedd, needs ui/notebook notebook opens beside the graphics pane, Cmd-Enter evaluates (stack: 5).

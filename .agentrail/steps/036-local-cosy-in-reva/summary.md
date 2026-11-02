@@ -1,0 +1,1 @@
+docs/cosy-in-reva.md written and linked; CoSy verified in CLI, CLI drawings, terminal + browser notebook, reva-serve (scratch copy, all builds deleted). Findings: ba-cosy's cosy-zip/cosy-serve use old rust/ paths; CoSy saved image does not resume (step 38). Desktop not re-run (would open a window on the shared Mac).

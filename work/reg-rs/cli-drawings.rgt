@@ -1,0 +1,4 @@
+command = """scripts/in-tempdir.sh sh -c 'touch turtle-001.svg; "$REVA" --draw svg -e "needs turtle/fractals 3 koch-demo bye" 2>&1; "$REVA" --draw png -e "needs turtle/fractals 3 koch-demo bye" 2>&1; "$REVA" -e "needs turtle/fractals 4 koch-demo bye" 2>&1; ls; head -c 120 turtle-002.svg; echo; head -c 4 turtle-001.png | tail -c 3; echo'"""
+timeout = 60
+exit_code = 0
+desc = "the CLI's drawings: new files, never over an existing one (an SVG and a PNG; auto writes nothing when output is redirected)"

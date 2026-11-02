@@ -111,3 +111,12 @@ fn escaping() {
     assert_eq!(unescape("a\\sb\\n").as_deref(), Some("a b\n"));
     assert_eq!(unescape("trailing\\"), None);
 }
+
+#[test]
+fn pasted_line_breaks_are_one_enter_each() {
+    use reva_ui_base::keys::pasted;
+    let want = ["key 97", "key 13", "key 98", "key 13", "key 99", "key 32"];
+    for text in ["a\nb\nc\t", "a\rb\rc\t", "a\r\nb\r\nc\t"] {
+        assert_eq!(pasted(text), want, "{text:?}");
+    }
+}

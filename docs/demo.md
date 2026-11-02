@@ -32,7 +32,7 @@ The binary is self-contained: `reva.f` and `lib/` are compiled in.
 Run `reva` with no arguments. It prints the banner and a prompt:
 
 ```text
-reva-fork 2026.1101.0 portable
+reva-fork 2026.1101.1 portable
 ok>
 ```
 
@@ -150,7 +150,8 @@ Open <http://localhost:8000> (over HTTP: a worker cannot start from
 |---|---|
 | `: sq dup * ;` then `7 sq .` | `49` |
 | `" notes.txt" creat value h  " kept" h write  h close` | nothing (ok) |
-| reload the page, then `" notes.txt" slurp type` | `kept`: files persist in `localStorage` |
+| reload the page, then `" notes.txt" slurp type` | `kept`: files persist in the browser (IndexedDB) |
+| **Upload**, choose a `.f` file, then `include NAME` | the file's name and size, the space used; then it runs |
 | `: forever repeat again ; forever` | the page stays responsive; **Stop** is enabled |
 | click **Stop** (or Ctrl-C) | `*** interrupted (in forever+0x0, ...)` and `ok>` |
 | `2 3 + .` | `5`: definitions survived the interrupt |

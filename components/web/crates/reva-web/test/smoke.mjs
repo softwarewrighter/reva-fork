@@ -16,7 +16,7 @@ const check = (what, got, want) => {
 };
 
 // The boot ends as Reva's saved executable started: banner, then a prompt.
-const BANNER = "reva-fork 2026.1101.0 portable\n\nok> ";
+const BANNER = "reva-fork 2026.1101.1 portable\n\nok> ";
 check("boot status", reva.status, NEED_INPUT);
 // The footer's facts come from the module (reva_vm::version), as `reva -V`.
 const BUILD_KEYS = ["name", "version", "copyright", "license", "repository", "build_host", "build_commit", "build_time"];
@@ -47,6 +47,13 @@ let helpOut = "";
 await revaHelp.run((s) => (helpOut += s));
 check("help shows documentation", ["Duplicate the top stack item", "Opens a small notebook in the TUI", "no help for nosuchword"].map((t) => helpOut.includes(t)), [true, true, true]);
 check("exit code", reva2.exitCode, 9);
+
+// include of a missing file says so (in the output: the page has no stderr).
+const revaInc = await Reva.load(wasm);
+revaInc.feed("include nosuch.f ioerr @ .\n");
+let incOut = "";
+await revaInc.run((s) => (incOut += s));
+check("include of a missing file", incOut.includes("include: nosuch.f: no such file\n1 "), true);
 
 // Files: bundled before boot, written by Forth, kept in a Storage, and
 // restored by the next instance.

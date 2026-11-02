@@ -167,7 +167,8 @@ rmdir/list/chdir/cwd), that a host lends through `Host::fs`:
   in reva-hostpath's `paths.rs`), so one `vfs::normalize` serves every host.
 - **Browser and tests:** `MemFs`, an in-memory tree. It records which
   paths changed, and `reva-web` exports them so `reva.js` can keep them in
-  `localStorage` and put them back before the next boot. A page bundles
+  the page's storage (IndexedDB, `www/store.js`; any Web Storage-like
+  object a host gives) and put them back before the next boot. A page bundles
   its own files the same way (`Reva.load(url, { files, storage })`).
 
 Results follow the kernel: a value or `-errno`, and `ioerr` is 0 or the
@@ -204,9 +205,9 @@ and the page only draws and stores (`www/reva.js` `start()`):
   `scheduler.yield()` does it by design). That fair turn is what lets
   `input` and `stop` messages in while the VM computes. Measured: about 90%
   of the unsliced speed.
-- **Messages:** `init`, `input`, `close`, `stop` to the worker; `output`,
-  `status`, `files`, `error` back (table in `reva-worker.js`). Workers
-  cannot see `localStorage`, so changed files travel to the page, which
+- **Messages:** `init`, `input`, `put`, `close`, `stop` to the worker;
+  `output`, `status`, `files`, `error` back (table in `reva-worker.js`).
+  The page owns the storage, so changed files travel to the page, which
   saves them whenever the VM waits for input or halts.
 - **Drawing:** the page appends output at most once per animation frame and
   caps the console's length.
@@ -406,12 +407,12 @@ new module, crate or component, never a merge).
 | `vfs` | reva-vfs (types; `FileSystem` as `FsFiles` + `FsMeta` + `FsDirs`), reva-memtree, reva-memfs | host-base |
 | `host` | reva-host-traits (`Host` as `Console` + `Platform` + `Resources`), reva-host-buffer (`BufferHost`), reva-host (facade: every old path) | host-base, vfs |
 | `core-parts` | reva-gate (the gateway table), reva-heap, reva-translate (translator hooks, the decode cache) | x86 |
-| `canvas` | reva-canvas (the turtle and its display list), reva-canvas-out (op stream, SVG) | macros |
+| `canvas` | reva-canvas (the turtle and its display list), reva-canvas-out (op stream, SVG), reva-canvas-png (PNG; the CLI only, not wasm) | macros |
 | `ui` | reva-ui-base (kinds, IUP key codes, the change stream and its text form), reva-ui-text (editable text), reva-ui-tree (elements, attributes, callbacks), reva-ui (the model: text attributes, dialogs, focus, events); docs/ui-model.md | — |
 | `ui-layout` | reva-ui-layout (IUP's layout in character cells) | ui |
 | `ui-grid` | reva-ui-mirror (a renderer's copy of the model from the change stream), reva-ui-grid (character cells with colour roles, the cursor), reva-ui-paint (the TUI's look: dialogs painted into the cells; clicks) | ui, ui-layout |
 | `ui-web` | reva-ui-web (the TUI in the page: a Yew element, built with wasm-bindgen apart from reva.wasm) | ui-grid |
-| `iup` | reva-vlib-iup (the virtual library `iup`: IUP's C functions over the model, its event loop and callbacks), reva-ui-script (a headless host answering from a script; `reva --ui-script`) | core, ui |
+| `iup` | reva-vlib-iup (the virtual library `iup`: IUP's C functions over the model, its event loop and callbacks), reva-ui-script (a headless host answering from a script; `reva --ui-script`), reva-ui-term (the TUI in the CLI's terminal, with crossterm) | core, ui, ui-grid |
 | `core` | reva-core (the `Machine` state and the stack and statics helpers every gateway uses), reva-core-ffi (`(call)` arguments, registers), reva-core-inspect (dictionary, state, settings) | x86, host, core-parts, canvas |
 | `core-run` | reva-core-run (the run loop, nested calls, faults, input, host calls), reva-core-boot (new machines: statics and the core dictionary as tables; images) | core |
 | `vlib` | reva-vlib-turtle, reva-vlib-highlight, reva-vlib-iconv, reva-vlib (facade: the old paths; reva-vlib-sqlite lives in `sqlite`, reva-vlib-iup in `iup`) | core, canvas |
@@ -424,7 +425,7 @@ new module, crate or component, never a merge).
 | `sqlite` | reva-sqlite (rusqlite), reva-vlib-sqlite (the virtual library: host calls) | (rusqlite); core |
 | `cli-edit` | reva-keys (bytes to keys), reva-history, reva-lineedit (the editor), reva-rawterm (raw mode, width) | — |
 | `cli-host` | reva-hostpath, reva-stdfs (the real file system), reva-term (the line reader), reva-stdhost (`StdHost`, SQLite) | vm, sqlite, cli-edit |
-| `cli` | reva-cli (the `reva` binary: options, run, session) | vm, cli-host |
+| `cli` | reva-cli (the `reva` binary: options, run, session), reva-drawings (turtle drawings as new SVG/PNG files, inline in iTerm2/WezTerm) | vm, cli-host, canvas |
 | `web` | reva-web-state (the one VM, its buffers, starting), reva-web-run (boot, input, output, build facts), reva-web-io (files, canvas, host calls), reva-web (the module: re-exports every export) | vm |
 | `serve` | reva-serve-http (the site, requests, responses), reva-serve (listening; the embedded site) | (web's www/, embedded at build time) |
 | `desktop` | reva-desktop-pkg (packages: manifest, branding, paths, snapshots), reva-desktop-state (options, the app's state), reva-desktop (the Tauri app: commands, windows, SQLite calls) | sqlite (and web's www/, copied by build.sh) |
@@ -472,7 +473,7 @@ reports no FAILs, and the gate requires that.
 | **Performance** | Interpreter with decode cache now; basic-block translation to x86-64 / ARM64 / wasm later (§6). |
 | **Usability** | `reva` behaves like the original REPL (banner, `ok>`, `reva.f`'s error messages); piped input runs as a batch without prompts. |
 | **Responsiveness (browser)** | The VM runs in a Web Worker; the page draws once per frame. Measured in headless Chromium: the longest frame gap during a 15 s computation is 17 ms (on the page's thread before: 50 ms, and boot froze it for 133 ms). Stop takes effect within one 8 ms slice (§3.8). |
-| **Data durability (browser)** | Files Forth code writes are saved to `localStorage` after every run slice that ends waiting for input or halted; a failed save (quota) is logged, not fatal. |
+| **Data durability (browser)** | Files Forth code writes are saved to IndexedDB (localStorage where it cannot open) after every run slice that ends waiting for input or halted; a failed save (quota) is logged, not fatal. |
 
 ## 5. Deliberate deviations from newcore
 
@@ -498,6 +499,12 @@ reports no FAILs, and the gate requires that.
    keyboard input reaches Forth only through `key`, which can pause the VM.
 9. `stat` fills the i386 `struct stat` and repeats `st_mtime` in
    `st_ctime`: `reva.f`'s `mtime` reads the ctime cell (offset 48).
+10. `include FILE` of a file that cannot be read says so
+    (`include: FILE: no such file`, a diagnostic: stderr on the CLI, the
+    output in the page) and sets `ioerr` to 1 as before; newcore only set
+    `ioerr`, so a typo or an upload under another name did nothing,
+    silently. `(include)`, which `needs` uses to try several folders,
+    stays silent; `needs` reports a library it cannot find itself.
 
 ## 6. The road to native speed
 
@@ -526,7 +533,7 @@ block translation should land within ~2× of the original x86 Reva.
 2. ✅ All of `reva.f` boots (assembler, contexts, `needs`, FFI layer, OS
    personality) and restarts as its executable did (§3.6). ✅ File words
    and file system calls through `Host::fs`, with an in-memory file system
-   for the browser (bundled files plus `localStorage`) and `lib/` embedded
+   for the browser (bundled files plus IndexedDB) and `lib/` embedded
    (§3.7). ✅ The browser host runs the VM in a Web Worker with time slices
    and Stop (§3.8). ✅ `save`/`(save)` write images, which start on the
    CLI and in the browser; `restart` (§3.9). `makeexe` (a native

@@ -18,3 +18,4 @@ reva-stdhost = { path = "../../../cli-host/crates/reva-stdhost" }
 reva-stdfs = { path = "../../../cli-host/crates/reva-stdfs" }
 reva-term = { path = "../../../cli-host/crates/reva-term" }
 reva-ui-script = { path = "../../../iup/crates/reva-ui-script" }
+reva-drawings = { path = "../reva-drawings" }
