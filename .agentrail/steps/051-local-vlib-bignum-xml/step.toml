@@ -1,8 +1,0 @@
-number = 51
-slug = "local-vlib-bignum-xml"
-status = "pending"
-description = "Parity (the user, 2026-11-02, from the parity review): two virtual libraries ..."
-role = "production"
-context_files = []
-created_at = "2026-11-02T10:17:30"
-commits = []
