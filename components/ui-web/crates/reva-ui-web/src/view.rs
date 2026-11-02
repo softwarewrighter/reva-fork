@@ -52,7 +52,7 @@ fn row(g: &Grid, r: u16) -> Html {
 
 /// A key: its IUP code to the VM, the browser's own use of it prevented.
 fn on_key(e: KeyboardEvent) {
-    if clipboard_key(&e.key(), e.ctrl_key() || e.meta_key()) {
+    if clipboard_key(&e.key(), e.ctrl_key(), e.meta_key()) {
         return;
     }
     if let Some(code) = key_code(

@@ -144,9 +144,10 @@ and the programs run unchanged.
   answered with the path (bytes) or a cancel (an integer); the dialog's
   VALUE and STATUS (`0`, `-1`) follow.
 
-**Hosts.** The CLI has no UI yet (`local-ui-terminal`); with `reva
---ui-script FILE` it answers from a script (crate reva-ui-script) and
-prints what is shown (`ui< ` change lines, `ui> ` events):
+**Hosts.** At a terminal the CLI shows the TUI (below); with piped input
+it has no screen and refuses. With `reva --ui-script FILE` it answers
+from a script instead (crate reva-ui-script) and prints what is shown
+(`ui< ` change lines, `ui> ` events):
 
 ```text
 # a comment
@@ -200,14 +201,31 @@ cells.
   channel). The desktop app shows the same page, so the same TUI. File
   dialogs are answered "cancelled" there for now.
 - **A demo**: `needs ui/notebook notebook` (lib/ui/notebook, built in
-  everywhere; examples/tui/notebook.f), a small notebook: F6 evaluates
-  the line under the cursor; what it prints, any error and the stack it
-  leaves show in the lower pane (its `type` and `emit` redirected while
-  it runs). It fills the window (`FULLxFULL`) and keeps the top pane's
-  text in `notebook.txt`.
+  everywhere; examples/tui/notebook.f), a small notebook: Ctrl-J,
+  Ctrl-X Ctrl-E, F6 or (in the page) Cmd-Enter evaluates the line under
+  the cursor; what it prints, any error and the stack it leaves show in
+  the lower pane (its `type` and `emit` redirected while it runs). Text
+  elements undo (Ctrl-Z; Cmd-Z in the page on a Mac) and redo (Ctrl-Y),
+  a run of typing as one step. It fills the window (`FULLxFULL`) and
+  keeps the top pane's text in `notebook.txt`, saved at each evaluation
+  and on closing; what the file held when the notebook opened is copied
+  to `notebook.bak` first. F1 shows the keys.
 - **Goldens** compare screens as text (`screen` lines of a
-  `--ui-script`). The terminal backend (crossterm, `local-ui-terminal`)
-  draws the same cells in the CLI.
+  `--ui-script`).
+- **The terminal** (crate reva-ui-term, in component `iup`; step
+  `local-ui-terminal`): at an interactive terminal the CLI draws the same
+  cells with crossterm, in the 256-colour palette close to the page's dark
+  theme, redrawing only the cells that changed. While a dialog is shown
+  the terminal is in raw mode on its alternate screen with mouse reports
+  on; keys, clicks, pastes (each line break one Enter) and resizes go
+  back as events. Terminals that can (kitty, WezTerm, Ghostty, iTerm2
+  with CSI u) are asked to report Ctrl-Enter apart from Enter; elsewhere
+  Ctrl-J or F6 evaluate (Cmd-Enter never reaches a terminal program).
+  Ctrl-C closes the dialog on top (the terminal has no other
+  way out of a loop). The REPL gets the terminal back before it prompts,
+  at exit, and on a panic. File dialogs are answered "cancelled" for now.
+  Checked in a real terminal (tmux): `needs ui/notebook notebook`, F6,
+  Ctrl-C, the REPL again.
 
 ## Not yet
 

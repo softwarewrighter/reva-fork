@@ -29,9 +29,11 @@ fn browser_keys_as_iup_codes() {
 #[test]
 fn clipboard_keys_and_pasted_text() {
     use reva_ui_web::keys::{clipboard_key, pasted};
-    assert!(clipboard_key("v", true) && clipboard_key("C", true));
-    assert!(!clipboard_key("v", false), "a plain v types");
-    assert!(!clipboard_key("s", true), "Ctrl-S is the program's");
+    assert!(clipboard_key("v", true, false) && clipboard_key("C", false, true));
+    assert!(!clipboard_key("v", false, false), "a plain v types");
+    assert!(!clipboard_key("s", true, false), "Ctrl-S is the program's");
+    assert!(clipboard_key("x", false, true), "Cmd-X cuts");
+    assert!(!clipboard_key("x", true, false), "Ctrl-X is the program's");
     assert_eq!(
         pasted("6 7 *\n."),
         [

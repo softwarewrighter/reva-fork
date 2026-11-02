@@ -1,4 +1,4 @@
-command = 'rm -f notebook.txt; ${REVA:-target/debug/reva} --ui-script tests/ui/notebook-help.ui -e "needs ui/notebook notebook" -e bye < /dev/null; s=$?; rm -f notebook.txt; exit $s'
+command = """scripts/in-tempdir.sh sh -c '"$REVA" --ui-script "$ROOT/tests/ui/notebook-help.ui" -e "needs ui/notebook notebook" -e bye < /dev/null'"""
 timeout = 60
 exit_code = 0
 desc = "needs ui/notebook: a first notebook with its example lines, F6, and F1 help"

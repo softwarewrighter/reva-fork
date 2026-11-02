@@ -20,6 +20,7 @@ the key table both front ends follow.
 | Alt-D | kill the word after the cursor |
 | Ctrl-Y | yank (paste) the last kill |
 | Ctrl-T | transpose characters |
+| Ctrl-X Ctrl-E | run the line, as Enter does (Emacs's chord; it evaluates a line in the notebook too); any other key after Ctrl-X is itself |
 | Ctrl-L | clear the screen (CLI only) |
 | Ctrl-C | CLI: drop the line, new prompt (while a word runs: ends `reva`, as before); web: stop the running word |
 | Ctrl-D on an empty line | CLI: end of input (`reva` exits 0) |
@@ -60,7 +61,8 @@ input line gets the keys from `www/lineedit.js`.
   Ctrl-W (close tab), Ctrl-N (new window) and Ctrl-T (new tab) for
   themselves; use Alt-Backspace and Down instead.  In the desktop app every
   key reaches the line.  Ctrl-R is taken from the browser's reload while
-  the input has focus.
+  the input has focus, and Ctrl-X from cut (Shift-Delete still cuts; on
+  a Mac cut is Cmd-X).
 * **Ctrl-C** stops a running word (as before); while searching it ends the
   search instead.
 * On macOS, Alt-B/F/D work whatever character Option would type, and

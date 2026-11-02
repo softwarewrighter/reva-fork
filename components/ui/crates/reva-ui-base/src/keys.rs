@@ -123,3 +123,20 @@ pub fn printable(code: u32) -> Option<char> {
     }
     char::from_u32(code & !SHIFT).filter(|c| *c >= ' ' && (*c as u32) < 0xFF00)
 }
+
+/// Pasted `text` as event lines, one key per character: a line break
+/// (`\n`, `\r` as terminals send it, or `\r\n`) as one Enter, a tab as a
+/// space (Tab moves the focus), other control characters left out.
+pub fn pasted(text: &str) -> Vec<String> {
+    let text = text.replace("\r\n", "\n").replace('\r', "\n");
+    let key = |c: char| match c {
+        '\n' => Some(CR),
+        '\t' => Some(SP),
+        c if c.is_control() => None,
+        c => Some(c as u32),
+    };
+    text.chars()
+        .filter_map(key)
+        .map(|k| format!("key {k}"))
+        .collect()
+}

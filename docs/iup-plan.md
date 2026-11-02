@@ -110,7 +110,8 @@ one direct `IupStoreAttribute`.
    fixed here; the CoSy lane told what to drop.
 5. **The terminal backend** (`local-ui-terminal`): the grid in the CLI
    through crossterm (raw mode, keys, mouse, resize, redrawing changed
-   cells): `Tui.f` and the simple examples in a terminal.
+   cells): `Tui.f` and the simple examples in a terminal. Done: crate
+   reva-ui-term; see [ui-model.md](ui-model.md#the-tui).
 6. **Graphics** (`local-ui-canvas`; browser and desktop only). Reva drew
    through IUP's `canvas[` and Tecgraf's CD library (`lib/ui/cd`: lines,
    boxes, arcs, polygons, text, colours, clipping, images), repainting

@@ -91,7 +91,7 @@ export function keyCommand(e) {
     return {
       a: "home", e: "end", b: "left", f: "right", d: "delete", h: "backspace",
       k: "kill-end", u: "kill-start", w: "kill-word-back", y: "yank", t: "transpose",
-      p: "prev", n: "next", r: "search-back", s: "search-forward", g: "cancel",
+      p: "prev", n: "next", r: "search-back", s: "search-forward", g: "cancel", x: "prefix",
     }[letter];
   }
   if (e.altKey) {
@@ -162,6 +162,7 @@ export function lineEditor(input, { prompt, storage = safeLocalStorage(), key = 
   let draft = "";
   let kill = "";
   let search = null; // { dir, query, at, original }
+  let prefix = false; // Ctrl-X was the last key: Ctrl-E next runs the line
 
   const set = (text, pos = text.length) => {
     input.value = text;
@@ -243,6 +244,16 @@ export function lineEditor(input, { prompt, storage = safeLocalStorage(), key = 
       // on the line and then does its usual thing.
       endSearch(false);
       if (e.key === "Enter") return;
+    }
+    // Ctrl-X Ctrl-E runs the line, as Enter does (Emacs's "evaluate", as
+    // in the notebook and the CLI); any other key after Ctrl-X is itself.
+    if (["Shift", "Control", "Alt", "Meta"].includes(e.key)) return;
+    const chord = prefix;
+    prefix = cmd === "prefix";
+    if (prefix) return e.preventDefault();
+    if (chord && cmd === "end") {
+      e.preventDefault();
+      return input.form?.requestSubmit();
     }
     if (!cmd) return;
     e.preventDefault();

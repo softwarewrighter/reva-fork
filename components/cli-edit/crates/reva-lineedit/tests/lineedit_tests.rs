@@ -118,3 +118,18 @@ fn scrolls_long_lines() {
     assert!(e.render("ok> ", 20).ends_with("\r\x1b[4C"));
     assert_eq!(visible_width("\x1b[1mok>\x1b[0m "), 4);
 }
+
+#[test]
+fn ctrl_x_ctrl_e_runs_the_line() {
+    let h = hist(&[]);
+    let mut e = Editor::default();
+    assert_eq!(
+        typed(&mut e, &h, b"2 3 + .\x18\x05"),
+        [Outcome::Line("2 3 + .".into())]
+    );
+    e.reset();
+    // Ctrl-E alone is still the end of the line; Ctrl-X then another key is that key.
+    assert!(typed(&mut e, &h, b"ab\x01\x05c").is_empty());
+    assert!(typed(&mut e, &h, b"\x18d").is_empty());
+    assert_eq!(typed(&mut e, &h, b"\r"), [Outcome::Line("abcd".into())]);
+}

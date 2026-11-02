@@ -24,6 +24,9 @@ pub struct StdHost {
     /// The UI of IUP programs, from a script (`--ui-script`); none: the
     /// CLI shows none yet.
     pub ui: Option<reva_ui_script::script::UiScript>,
+    /// The UI of IUP programs in this terminal, when there is one
+    /// (interactive runs without a script).
+    pub ui_term: reva_ui_term::term::UiTerm,
 }
 
 impl StdHost {
@@ -39,11 +42,14 @@ impl StdHost {
             tail: Vec::new(),
             sql: crate::resources::new_sqlite(),
             ui: None,
+            ui_term: Default::default(),
         }
     }
 
     /// The next line typed (interactive runs only), with its newline.
     pub fn read_line(&mut self) -> Input {
+        // A dialog's event loop is over: the terminal is the REPL's again.
+        self.ui_term.suspend();
         let _ = self.out.flush();
         let prompt = String::from_utf8_lossy(&self.tail).into_owned();
         self.tail.clear();
