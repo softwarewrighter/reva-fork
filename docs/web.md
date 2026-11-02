@@ -120,6 +120,7 @@ a folder:
 |---|---|
 | `files` | fetched (six at a time) into the VM at `/<file>`, as the desktop app maps the package folder to `/`; a file that fails is a note, not a stop |
 | `start` | fetched too, and included after start and after each `restart` |
+| `image` | a saved image in the package (`save NAME`, `reva --save-image`), fetched and started from instead of booting `reva.f` (`?image=` in the URL wins); the `start` files are still included after it |
 | `title` | page title and header (default `<name> on Reva`; without a package, `Reva Fork` beside Reva's icon) |
 | `icon` | the page's icon (favicon) and the logo beside the title in the header (none: no logo) |
 | `id` | names the storage prefix, `reva:<id>:fs:` (default from `name`), so two packages on one site keep their files apart |

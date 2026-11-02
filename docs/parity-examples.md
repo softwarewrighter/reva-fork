@@ -43,7 +43,7 @@ Most common first missing word (top 10):
 | `examples/data/hash.f` | lib | runs |
 | `examples/data/parray.f` | lib | runs |
 | `examples/datediff.f` | lib | runs |
-| `examples/db-report.f` | db | fault: bad memory access: 1363376 byte(s) at 0x00000005 |
+| `examples/db-report.f` | db | fault: bad memory access: 1363420 byte(s) at 0x00000005 |
 | `examples/defer.f` | core | runs |
 | `examples/dhttpd.f` | net | missing: `tcpsock` |
 | `examples/dllexplorer.f` | core | missing: `k32` |
@@ -119,7 +119,7 @@ Most common first missing word (top 10):
 | `examples/revafind.f` | os | runs |
 | `examples/robotron.f` | core | runs |
 | `examples/see2.f` | lib | runs |
-| `examples/sha1.f` | lib | fault: bad memory access: 3527000 byte(s) at 0x00000003 |
+| `examples/sha1.f` | lib | fault: bad memory access: 3527032 byte(s) at 0x00000003 |
 | `examples/sieve.f` | core | timeout |
 | `examples/smtp.f` | net | timeout |
 | `examples/sockets.f` | net | runs |

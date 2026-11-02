@@ -22,6 +22,9 @@ pub struct Manifest {
     pub about: Option<serde_json::Value>,
     /// The page header's hint (`code` in backticks).
     pub hint: Option<String>,
+    /// A saved image in the package (`save NAME`, `reva --save-image`):
+    /// the VM starts from it instead of booting reva.f.
+    pub image: Option<String>,
 }
 
 /// The `canvas` values the page knows.
