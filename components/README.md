@@ -48,7 +48,7 @@ components/
   vfs/      reva-vfs, reva-memtree, reva-memfs         file-system traits, the in-memory file system
   host/     reva-host-traits, -buffer, reva-host       the Host traits, BufferHost, a facade at the old paths
   core-parts/ reva-gate, reva-heap, reva-translate   gates, the heap allocator, translator hooks
-  canvas/   reva-canvas, reva-canvas-out           the turtle's display list; ops for windows, SVG
+  canvas/   reva-canvas, -out, -png                the turtle's display list; ops for windows, SVG, PNG
   ui/       reva-ui-base, -text, -tree, reva-ui   the model of IUP programs' UIs (../docs/ui-model.md)
   ui-layout/ reva-ui-layout   IUP's layout of the model, in character cells
   ui-grid/  reva-ui-mirror, -grid, -paint   the TUI: the model painted into character cells
@@ -68,7 +68,7 @@ components/
   sqlite/   reva-sqlite, reva-vlib-sqlite   SQLite (rusqlite, safe API); the virtual library
   cli-edit/ reva-keys, -history, -lineedit, -rawterm   the terminal line editor
   cli-host/ reva-hostpath, -stdfs, -term, -stdhost     the command-line host
-  cli/      reva-cli     the `reva` command: options, run, session
+  cli/      reva-cli, reva-drawings   the `reva` command: options, run, session; drawings as files
   web/      reva-web-state, -run, -io, reva-web   wasm32 module + www/ (reva.js,
                          index.html) + test/*.mjs
   serve/    reva-serve-http, reva-serve   one-binary local web app: embeds a site,
