@@ -36,24 +36,16 @@ pub fn key_code(key: &str, shift: bool, ctrl: bool, alt: bool) -> Option<u32> {
     Some(code(base, shift, ctrl, alt))
 }
 
-/// Whether the browser keeps `key` with Ctrl or Cmd (`ctrl`): copy, cut
-/// and paste, so that a paste event follows.
-pub fn clipboard_key(key: &str, ctrl: bool) -> bool {
-    ctrl && matches!(key, "c" | "C" | "v" | "V" | "x" | "X")
+/// Whether the browser keeps `key` with Ctrl (`ctrl`) or Cmd (`meta`):
+/// copy and paste, and cut with Cmd only, so that a paste event follows;
+/// Ctrl-X goes to the program (Ctrl-X Ctrl-E evaluates in the notebook).
+pub fn clipboard_key(key: &str, ctrl: bool, meta: bool) -> bool {
+    match key {
+        "c" | "C" | "v" | "V" => ctrl || meta,
+        "x" | "X" => meta,
+        _ => false,
+    }
 }
 
-/// Pasted `text` as event lines, one key per character: newlines as
-/// Enter, tabs as spaces (Tab moves the focus), other control characters
-/// left out.
-pub fn pasted(text: &str) -> Vec<String> {
-    let key = |c: char| match c {
-        '\n' => Some(13),
-        '\t' => Some(32),
-        c if c.is_control() => None,
-        c => Some(c as u32),
-    };
-    text.chars()
-        .filter_map(key)
-        .map(|k| format!("key {k}"))
-        .collect()
-}
+/// Pasted text as event lines: reva-ui-base's, shared with the terminal.
+pub use reva_ui_base::keys::pasted;

@@ -411,7 +411,7 @@ new module, crate or component, never a merge).
 | `ui-layout` | reva-ui-layout (IUP's layout in character cells) | ui |
 | `ui-grid` | reva-ui-mirror (a renderer's copy of the model from the change stream), reva-ui-grid (character cells with colour roles, the cursor), reva-ui-paint (the TUI's look: dialogs painted into the cells; clicks) | ui, ui-layout |
 | `ui-web` | reva-ui-web (the TUI in the page: a Yew element, built with wasm-bindgen apart from reva.wasm) | ui-grid |
-| `iup` | reva-vlib-iup (the virtual library `iup`: IUP's C functions over the model, its event loop and callbacks), reva-ui-script (a headless host answering from a script; `reva --ui-script`) | core, ui |
+| `iup` | reva-vlib-iup (the virtual library `iup`: IUP's C functions over the model, its event loop and callbacks), reva-ui-script (a headless host answering from a script; `reva --ui-script`), reva-ui-term (the TUI in the CLI's terminal, with crossterm) | core, ui, ui-grid |
 | `core` | reva-core (the `Machine` state and the stack and statics helpers every gateway uses), reva-core-ffi (`(call)` arguments, registers), reva-core-inspect (dictionary, state, settings) | x86, host, core-parts, canvas |
 | `core-run` | reva-core-run (the run loop, nested calls, faults, input, host calls), reva-core-boot (new machines: statics and the core dictionary as tables; images) | core |
 | `vlib` | reva-vlib-turtle, reva-vlib-highlight, reva-vlib-iconv, reva-vlib (facade: the old paths; reva-vlib-sqlite lives in `sqlite`, reva-vlib-iup in `iup`) | core, canvas |

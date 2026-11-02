@@ -73,24 +73,24 @@ Most common first missing word (top 10):
 | `examples/iskey.f` | core | timeout |
 | `examples/iup/binary-clock.f` | gui | error: could not load cdContextIup |
 | `examples/iup/brownian.f` | gui | error: could not load cdContextIup |
-| `examples/iup/callback-test.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/callback-test.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/cd-test.f` | gui | error: could not load cdContextIup |
-| `examples/iup/console.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/console.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/db-test.f` | gui | fault: stack underflow |
-| `examples/iup/file-dlg.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
-| `examples/iup/frame-test.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/file-dlg.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/frame-test.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/gl-test.f` | gui | error: Could not load the OpenGL library |
 | `examples/iup/gui-test.f` | gui | error: could not load IupImageLibOpen |
 | `examples/iup/gui-test2.f` | gui | error: could not load IupImageLibOpen |
-| `examples/iup/hello-world.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
-| `examples/iup/hello-world2.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
-| `examples/iup/hello-world3.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/hello-world.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/hello-world2.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/hello-world3.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/image-convert.f` | gui | error: could not load IupImageLibOpen |
-| `examples/iup/iup.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
-| `examples/iup/menu-test.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
-| `examples/iup/new-test.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/iup.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/menu-test.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/new-test.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/pdf-test.f` | gui | error: could not load cdContextPDF |
-| `examples/iup/simple-button.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/simple-button.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/json.f` | net | error: null nully |
 | `examples/keys.f` | core | fault: stack underflow |
 | `examples/makeexe.f` | core | runs |
@@ -131,7 +131,7 @@ Most common first missing word (top 10):
 | `examples/threads.f` | os | error: could not load pthread_mutex_init |
 | `examples/tictactoe.f` | os | timeout |
 | `examples/tinyelf.f` | lib | runs |
-| `examples/tui/notebook.f` | gui | fault: the CLI shows no user interface yet (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/tui/notebook.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/utf8.f` | lib | runs |
 | `examples/widgets.f` | core | runs |
 | `examples/widgets2.f` | core | runs |

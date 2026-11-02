@@ -12,6 +12,15 @@ impl Editor {
         {
             return o;
         }
+        // Ctrl-X Ctrl-E runs the line, as Enter does (and as it evaluates
+        // a line in the notebook); any other key after Ctrl-X is itself.
+        if std::mem::take(&mut self.prefix) && k == Key::Ctrl('e') {
+            return Outcome::Line(self.text());
+        }
+        if k == Key::Ctrl('x') {
+            self.prefix = true;
+            return Outcome::Edit;
+        }
         let n = self.buf.len();
         match k {
             Key::Enter => return Outcome::Line(self.text()),
