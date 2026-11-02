@@ -307,6 +307,11 @@ forth
 
 : gui-main-loop IupMainLoop gui-release ;
 
+| reva-fork: older Reva's ui/gui queued xt to run once the callback running
+| returns; here callbacks are plain Forth in the VM, so it runs now.  Its
+| result is a callback's: gui-close ends the main loop.
+: add-callback ( xt -- )  execute gui-close = if IupExitLoop then ;
+
 : action     ( handle xt -- handle )  z" ACTION" | fall through...
 : set-callback ( handle xt zstr -- handle ) __dup swap  IupSetCallback  drop  ;
 : action-cb  ( handle xt -- handle )  z" ACTION_CB"  set-callback  ;

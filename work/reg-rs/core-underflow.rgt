@@ -1,0 +1,3 @@
+command = "${REVA:-target/debug/reva} -e '1 2 + . cr drop 3 . cr' -e bye < /dev/null; ${REVA:-target/debug/reva} --underflow fail -e '1 2 + . cr drop 3 . cr' -e bye < /dev/null"
+exit_code = 0
+desc = "an underflow warns once and goes on, as Reva did; --underflow fail stops with an error instead"

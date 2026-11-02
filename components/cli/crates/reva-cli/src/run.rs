@@ -40,6 +40,7 @@ impl Run<'_> {
             host.write(rest.as_bytes());
         }
         vm.set_trace(self.opts.trace);
+        vm.underflow_fail = self.opts.underflow_fail;
         self.queue(vm);
         Ok(())
     }

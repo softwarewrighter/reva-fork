@@ -113,6 +113,10 @@ reva_macros::machine_trait! {
                 Op::KeyName => self.iup_out(0, "KEYNAME", name(ih))?,
                 Op::KeyCode => some(self.iup_zstr(ih)?.and_then(|n| from_name(&n))),
                 Op::Version => self.iup_out(0, "VERSION", Some("3.0 (reva-fork)".into()))?,
+                Op::ExitLoop => {
+                    self.ui.closed = !self.ui.loops.is_empty();
+                    0
+                }
                 _ => 0,
             })
         }
