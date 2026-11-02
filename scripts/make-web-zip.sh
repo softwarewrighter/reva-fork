@@ -73,7 +73,7 @@ STAGE=$OUT/$SITE
 ZIP=$OUT/$SITE.zip
 rm -rf "$STAGE" "$ZIP"
 mkdir -p "$STAGE"
-for f in index.html host.js reva.js reva-worker.js reva.wasm ui.js tui.js canvas.html split.js package.js about.js lineedit.js ansi.js sqlite.js favicon.png favicon.ico; do
+for f in index.html host.js reva.js reva-worker.js reva.wasm ui.js tui.js canvas.html split.js package.js about.js lineedit.js ansi.js sqlite.js store.js upload.js favicon.png favicon.ico; do
     cp "$WWW/$f" "$STAGE/$f"
 done
 cp -R "$WWW/ui" "$STAGE/ui"

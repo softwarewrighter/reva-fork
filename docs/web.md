@@ -122,15 +122,58 @@ a folder:
 | `start` | fetched too, and included after start and after each `restart` |
 | `title` | page title and header (default `<name> on Reva`) |
 | `icon` | the page's icon (favicon) |
-| `id` | names the localStorage prefix, `reva:<id>:fs:` (default from `name`), so two packages on one site keep their files apart |
+| `id` | names the storage prefix, `reva:<id>:fs:` (default from `name`), so two packages on one site keep their files apart |
 | `canvas` | where graphics go, unless the URL says |
 | `about` | the package's entry in the About dialog: `{ "name", "version", "description", "build", "credits": [text], "links": [{ "label", "url" }] }`, all optional (`name` defaults to `title`; `build` is the package's own commit and date, so a bug report names both layers); only http(s) links become links |
 | `hint` | replaces Reva's hint in the page header; `` `code` `` in backticks |
 
 Paths must be plain relative paths (no `..`, no leading `/`); others are
-skipped with a note. Files the VM writes are stored in localStorage and win
-over the package's copy on the next load, so edits survive a reload. The
-desktop app ignores `files` (it reads the folder itself).
+skipped with a note. Files the VM writes are stored in the page's storage
+(below) and win over the package's copy on the next load, so edits survive
+a reload. The desktop app ignores `files` (it reads the folder itself).
+
+## Files: storage and Upload
+
+**Upload.** The header's **Upload** button puts files chosen on your
+computer into Reva's files, at `/NAME`, and into the page's storage, so they
+are there after a reload too. Then `include NAME` loads a Forth file, as on
+the CLI; other files (data, a CoSy `.csy`) are read the same way. The REPL
+notes each file and its size, then the space used and available for the
+site. A name with spaces cannot be `include`d: rename it first. Upload is
+the browser's way around having no file system; the desktop app has none:
+its files are a folder on disk (`~/Reva` or the package), so copy a file
+there, or open the folder with `--package` (host paths in the desktop
+app: [future-features.md](future-features.md)).
+
+- **The name** is the browser's name for the file, exactly as it is (case,
+  dots, spaces, non-ASCII), without its folder: the browser never tells a
+  page where a chosen file came from. It becomes `/NAME`, stored under
+  `reva:fs:/NAME` (`reva:<package>:fs:/NAME` in a package).
+- **Replace:** uploading a file of the same name replaces it, in the
+  running VM and in storage; the note says "replaced the old copy".
+- **Delete:** Forth's `delete ( a n -- )`, e.g. `" hello.f" delete`,
+  removes it from the VM and from storage, as for any file Forth deletes.
+
+**Storage.** Files the VM writes and uploads are kept in **IndexedDB**
+(database `reva-files`, keys `reva:fs:PATH` or `reva:<package>:fs:PATH`),
+as bytes, with room for far more than localStorage's 5 MB (the browser's
+quota for the site, usually a share of the free disk). The page opens it
+once at start and keeps a copy in memory, so reads stay synchronous;
+writes go through to the database in order (`www/store.js`). Where
+IndexedDB cannot open, the page falls back to localStorage as before.
+
+**Moving from localStorage.** On first start, files saved in localStorage
+by older pages (`reva:fs:` and `reva:<package>:fs:` keys) are moved into
+IndexedDB and removed from localStorage, with a note ("1 saved file(s)
+moved..."). History and the split position stay in localStorage.
+
+**Pluggable.** The page talks to its storage through the Web Storage
+interface (`length`, `key`, `getItem`, `setItem`, `removeItem`), plus
+optional `getBytes`/`setBytes` (bytes as bytes) and `usage()`. A host's
+`host.js` decides what that object is: the browser's opens IndexedDB, the
+desktop app's is a folder on disk. Another host can keep files elsewhere,
+for example a CoSy host keeping notebooks on its own server, by returning
+an object with the same methods whose writes go to that server.
 
 ## The uploadable zip: `just web-zip`
 
@@ -180,9 +223,9 @@ Pages serves. Only `main` is published: the tree must be clean and HEAD on
 `just publish --dry-run` builds the commit from any HEAD and pushes nothing.
 
 Every `softwarewrighter.github.io` project page shares one origin, so the
-demo's saved files and history (`reva:` keys in `localStorage`) share the
-storage quota with the other projects' demos there, and those pages could
-read them.
+demo's saved files (IndexedDB) and history (`reva:` keys in
+`localStorage`) share the storage quota with the other projects' demos
+there, and those pages could read them.
 
 ## Design notes
 
@@ -197,7 +240,7 @@ read them.
 * **Defaults in meta tags, not code.** The zip is `www/` plus a package,
   with two `<meta>` values set (`reva-package`, `reva-canvas`). No build
   step rewrites JavaScript, and a URL option still overrides either.
-* **Files are per origin.** localStorage belongs to scheme + host + port. A
+* **Files are per origin.** IndexedDB and localStorage belong to scheme + host + port. A
   site moved to another host starts with no saved files, and the split
   position is remembered per origin too. Storage is optional: where a
   browser blocks it the page says so and works without it.

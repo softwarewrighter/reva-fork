@@ -13,7 +13,8 @@
 // VM's root.  All URLs are relative to DIR, which is relative to the page,
 // so a package works unchanged from any host and under any subpath.
 //
-// Files the VM writes are kept in localStorage under `reva:<id>:fs:`, so
+// Files the VM writes are kept in the page's storage (IndexedDB, store.js)
+// under `reva:<id>:fs:`, so
 // two packages served from one origin keep their files apart; a stored file
 // wins over the package's copy, so edits survive a reload.
 
