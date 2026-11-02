@@ -3,10 +3,10 @@
 use crate::options::{Options, home};
 use crate::sqlite::new_sqlite;
 use reva_desktop_pkg::brand::{Branding, branding};
-use reva_desktop_pkg::manifest::{CANVAS, Manifest};
+use reva_desktop_pkg::manifest::{CANVAS, Manifest, package_file};
 use serde::Serialize;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// What the page needs to start, sent by `session`.
 #[derive(Serialize, Clone)]
@@ -23,6 +23,8 @@ pub struct Session {
     /// With `--package`: `{ name, title, about, hint }` from the manifest,
     /// for the About dialog and the header.
     pub package: Option<serde_json::Value>,
+    /// Start from a saved image (the `image` command sends it).
+    pub image: bool,
     /// Notes for the user (skipped files, a missing manifest, ...).
     pub notes: Vec<String>,
 }
@@ -32,6 +34,8 @@ pub struct State {
     pub session: Session,
     pub root: PathBuf,
     pub brand: Branding,
+    /// The saved image to start from (`--image`, else the manifest's).
+    pub image: Option<PathBuf>,
     /// SQLite for `lib/db/sqlite` (host calls; see the app's sql.rs).
     pub sql: reva_sqlite::Sqlite,
 }
@@ -49,6 +53,7 @@ pub fn build_state(o: Options) -> Result<State, String> {
     let package = o.package.is_some().then_some(root.as_path());
     let brand = branding(package, &manifest, &mut notes);
     let canvas = choose_canvas(o.canvas, manifest.canvas.take(), &mut notes);
+    let image = choose_image(o.image, package, manifest.image.take(), &mut notes);
     Ok(State {
         session: Session {
             title: brand.title.clone(),
@@ -58,11 +63,13 @@ pub fn build_state(o: Options) -> Result<State, String> {
             print_output: o.print_output,
             canvas,
             package: package.map(|_| package_json(&manifest)),
+            image: image.is_some(),
             notes,
         },
         sql: new_sqlite(root.clone()),
         root,
         brand,
+        image,
     })
 }
 
@@ -109,6 +116,25 @@ fn choose_canvas(
         }
         (None, None) => None,
     }
+}
+
+/// The image to start from: `--image`, else the manifest's file in the
+/// package, if it is there.
+fn choose_image(
+    option: Option<PathBuf>,
+    package: Option<&Path>,
+    manifest: Option<String>,
+    notes: &mut Vec<String>,
+) -> Option<PathBuf> {
+    let path = option.or_else(|| package_file(package?, &manifest?))?;
+    if path.is_file() {
+        return Some(path);
+    }
+    notes.push(format!(
+        "image {} not found: booting reva.f",
+        path.display()
+    ));
+    None
 }
 
 /// The package as the page's About dialog and header see it.

@@ -211,7 +211,8 @@
   // The host (host.js) says where files are kept (the browser: in
   // IndexedDB; the desktop app: in a folder) and what to feed at start.
   // reva.status starts as RUNNING (booting); onStatus reports each change.
-  // ?image=app.img starts from a saved image instead of booting reva.f.
+  // ?image=app.img (or a package's or the host's image) starts from a
+  // saved image instead of booting reva.f.
   const host = await hostSetup();
   const query = new URLSearchParams(location.search);
   // ?package=DIR/ (or the reva-package meta) loads a package from a static
@@ -255,7 +256,7 @@
   const meta = document.querySelector('meta[name="reva-canvas"]')?.content || undefined;
   const mode = query.get("canvas") ?? pkg?.canvas ?? host.canvas ?? meta ?? "window";
   const split = mode === "split" ? splitView(document.querySelector("main"), document.getElementById("panes")) : null;
-  const image = query.get("image") ?? undefined;
+  const image = query.get("image") ?? pkg?.image ?? host.image ?? undefined;
   const gfx = document.getElementById("gfx");
   let canvas = null;
   const tui = new TuiPane(document.getElementById("tui"));

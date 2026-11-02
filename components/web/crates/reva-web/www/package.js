@@ -37,7 +37,7 @@ export function packageId(m) {
 
 /**
  * Fetch the package at `dir` (relative to `base`, default the page).
- * Resolves to `{ name, title, icon (URL) | undefined, canvas, about, start
+ * Resolves to `{ name, title, icon (URL) | undefined, image (URL) | undefined, canvas, about, start
  * (lines to feed), files ({ "/path": bytes }), prefix, historyKey, notes }`; rejects
  * only when the manifest itself cannot be read.  A missing file is a note,
  * so one bad entry does not stop the rest.
@@ -81,6 +81,7 @@ export async function loadPackage(dir, { base = globalThis.location?.href, fetch
     name,
     title: typeof m.title === "string" ? m.title : name && `${name} on Reva`,
     icon: plainPath(m.icon) ? new URL(m.icon, root).href : undefined,
+    image: plainPath(m.image) ? new URL(m.image, root).href : undefined,
     canvas: typeof m.canvas === "string" ? m.canvas : undefined,
     about: packageAbout(m),
     hint: typeof m.hint === "string" && m.hint.length < 500 ? m.hint : undefined,

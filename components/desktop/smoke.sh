@@ -73,6 +73,19 @@ SH
     check "a broken icon is a note, not a failure" "package started" "$out"
 fi
 
+# saved images (the CLI makes one): --image, and a package's "image"
+cli="${REVA_CLI:-$here/../../target/release/reva}"
+if [[ -x "$cli" ]]; then
+    "$cli" -e ': from-image ." started from the image" ;' --save-image "$work/app.img"
+    out=$(run --root "$work/home" --image "$work/app.img" --print-output -e from-image -e bye)
+    check "--image starts from a saved image" "started from the image" "$out"
+    mkdir -p "$work/imgpkg"
+    cp "$work/app.img" "$work/imgpkg/app.img"
+    echo '{"name": "Img", "image": "app.img"}' > "$work/imgpkg/reva-package.json"
+    out=$(run --package "$work/imgpkg" --print-output -e from-image -e bye)
+    check "a package's image is where it starts" "started from the image" "$out"
+fi
+
 # turtle graphics: the drawing reaches the second (canvas) window
 out=$(run --root "$work/home" --print-output -e 'needs turtle/fractals 4 koch-demo' -e bye)
 check "turtle graphics draw in their own window" "[canvas: 768 lines]" "$out"

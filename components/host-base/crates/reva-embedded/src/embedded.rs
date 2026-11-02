@@ -58,8 +58,15 @@ pub const BOOT_TAIL: &str = "' ~priv.exception-reset (boot-restart)\n";
 pub const STRINGS_MARKER: &str = "hide (compstrend)";
 
 /// The line inserted before [`STRINGS_MARKER`]: what `save` does with the
-/// string area before it writes an executable.
-pub const STRINGS_SAVE: &str = "(compstr) @ (compstrend) @ over - setextra\n";
+/// string area before it writes an executable, as a word that stays
+/// visible, so a host that saves an image itself (the CLI's
+/// `--save-image`, [`SAVE_STRINGS`]) records strings compiled after boot.
+/// Run once here for the boot image.
+pub const STRINGS_SAVE: &str =
+    ": (save-strings) (compstr) @ (compstrend) @ over - setextra ; (save-strings)\n";
+
+/// The input a host feeds before it saves an image itself.
+pub const SAVE_STRINGS: &str = "(save-strings)\n";
 
 /// `reva.f` defines its banner word here.  The line after it gets
 /// [`reva_version::version::VER_WORD`]: this fork's `.ver`.

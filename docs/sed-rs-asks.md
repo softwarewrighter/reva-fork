@@ -82,6 +82,17 @@ sed-rs --diff -e 's/old/new/' < file      # dry run: only the diff
 
 **Why:** every edit was followed by a separate `diff` to confirm it.
 
+## 6. A script file: `-f FILE`
+
+```bash
+sed-rs -i --expect=2 -f edits.sed docs/desktop.md
+```
+
+**Why (2026-11-02, sed-rs 0.3.0):** two edits whose replacements hold
+`|`, backquotes and quotes were written to a script file to avoid shell
+quoting; `-f` is not accepted (`unexpected argument '-f'`), so the edit
+went to an editor instead. POSIX sed and GNU sed both have `-f`.
+
 ## What already works well
 
 - `\n` in a replacement, to insert a line after a match.
