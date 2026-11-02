@@ -1,6 +1,6 @@
 number = 36
 slug = "local-cosy-in-reva"
-status = "pending"
+status = "in-progress"
 description = "At the user's request (2026-11-01): docs/cosy-in-reva.md, the ways to run CoS..."
 role = "production"
 context_files = []
