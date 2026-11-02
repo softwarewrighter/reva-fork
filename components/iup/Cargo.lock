@@ -188,15 +188,15 @@ dependencies = [
 
 [[package]]
 name = "reva-canvas"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-charset"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-core"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-canvas",
  "reva-gate",
@@ -209,7 +209,7 @@ dependencies = [
 
 [[package]]
 name = "reva-core-ffi"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-core",
  "reva-macros",
@@ -217,25 +217,25 @@ dependencies = [
 
 [[package]]
 name = "reva-embedded"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-version",
 ]
 
 [[package]]
 name = "reva-gate"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
 ]
 
 [[package]]
 name = "reva-heap"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-host"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-charset",
  "reva-embedded",
@@ -250,7 +250,7 @@ dependencies = [
 
 [[package]]
 name = "reva-host-buffer"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-host-traits",
  "reva-hostcall",
@@ -260,7 +260,7 @@ dependencies = [
 
 [[package]]
 name = "reva-host-traits"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-embedded",
  "reva-hostcall",
@@ -269,15 +269,15 @@ dependencies = [
 
 [[package]]
 name = "reva-hostcall"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-macros"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-memfs"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-embedded",
  "reva-memtree",
@@ -286,7 +286,7 @@ dependencies = [
 
 [[package]]
 name = "reva-memtree"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-embedded",
  "reva-vfs",
@@ -294,14 +294,14 @@ dependencies = [
 
 [[package]]
 name = "reva-translate"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86",
 ]
 
 [[package]]
 name = "reva-ui"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-base",
  "reva-ui-text",
@@ -310,18 +310,18 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-base"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-ui-grid"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-layout",
 ]
 
 [[package]]
 name = "reva-ui-layout"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-base",
  "reva-ui-tree",
@@ -329,7 +329,7 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-mirror"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-base",
  "reva-ui-tree",
@@ -337,7 +337,7 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-paint"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-base",
  "reva-ui-grid",
@@ -347,7 +347,7 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-script"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-hostcall",
  "reva-ui-grid",
@@ -358,7 +358,7 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-term"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "crossterm",
  "reva-hostcall",
@@ -371,29 +371,29 @@ dependencies = [
 
 [[package]]
 name = "reva-ui-text"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-base",
 ]
 
 [[package]]
 name = "reva-ui-tree"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-ui-base",
 ]
 
 [[package]]
 name = "reva-version"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-vfs"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-vlib-iup"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-core",
  "reva-core-ffi",
@@ -405,7 +405,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
  "reva-x86-cursor",
@@ -424,11 +424,11 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-base"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-x86-cursor"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
  "reva-x86-mem",
@@ -437,7 +437,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-decode"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
  "reva-x86-cursor",
@@ -449,7 +449,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-exec"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-macros",
  "reva-x86-base",
@@ -462,14 +462,14 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-float"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-types",
 ]
 
 [[package]]
 name = "reva-x86-fpudec"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
  "reva-x86-cursor",
@@ -478,7 +478,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-fpuexec"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-macros",
  "reva-x86-base",
@@ -491,18 +491,18 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-fpustate"
-version = "2026.1101.0"
+version = "2026.1101.1"
 
 [[package]]
 name = "reva-x86-mem"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
 ]
 
 [[package]]
 name = "reva-x86-opcodes"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-base",
  "reva-x86-cursor",
@@ -511,7 +511,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-ops"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-macros",
  "reva-x86-base",
@@ -521,7 +521,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-shift"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-macros",
  "reva-x86-base",
@@ -532,7 +532,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-types"
-version = "2026.1101.0"
+version = "2026.1101.1"
 dependencies = [
  "reva-x86-fpustate",
 ]
