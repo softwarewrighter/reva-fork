@@ -1,6 +1,6 @@
 number = 38
 slug = "local-include-missing"
-status = "pending"
+status = "in-progress"
 description = "Found in step 37 (2026-11-01): 'include nosuch.f' of a missing file says noth..."
 role = "production"
 context_files = []

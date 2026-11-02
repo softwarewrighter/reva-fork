@@ -48,6 +48,13 @@ await revaHelp.run((s) => (helpOut += s));
 check("help shows documentation", ["Duplicate the top stack item", "Opens a small notebook in the TUI", "no help for nosuchword"].map((t) => helpOut.includes(t)), [true, true, true]);
 check("exit code", reva2.exitCode, 9);
 
+// include of a missing file says so (in the output: the page has no stderr).
+const revaInc = await Reva.load(wasm);
+revaInc.feed("include nosuch.f ioerr @ .\n");
+let incOut = "";
+await revaInc.run((s) => (incOut += s));
+check("include of a missing file", incOut.includes("include: nosuch.f: no such file\n1 "), true);
+
 // Files: bundled before boot, written by Forth, kept in a Storage, and
 // restored by the next instance.
 class MemStorage {
