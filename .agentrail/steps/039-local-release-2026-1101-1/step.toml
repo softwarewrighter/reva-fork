@@ -1,0 +1,8 @@
+number = 39
+slug = "local-release-2026-1101-1"
+status = "in-progress"
+description = "Release 2026.1101.1 (the user, 2026-11-01): today's second merge to main (YYY..."
+role = "production"
+context_files = []
+created_at = "2026-11-01T21:02:11"
+commits = []
