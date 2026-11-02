@@ -19,7 +19,7 @@ re-implemented in Rust. See [design.md](../docs/design.md) for the rationale.
   and a portable `syscall` subset; `time&date`, `ms@`, `getenv` work.
 - File words (`open/r`, `read`, `seek`, `stat`, `rename`, …) through
   `Host::fs`: real files on the CLI, an in-memory file system in the
-  browser (kept in `localStorage`); `lib/` is built in. See design.md §3.7.
+  browser (kept in IndexedDB); `lib/` is built in. See design.md §3.7.
 - Hosts: `reva` CLI (Linux/macOS/Windows, any CPU) and a WebAssembly module
   with a minimal web console; the VM runs in a Web Worker with time slices
   and a Stop button (design.md §3.8).

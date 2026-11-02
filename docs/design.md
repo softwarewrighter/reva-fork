@@ -167,7 +167,8 @@ rmdir/list/chdir/cwd), that a host lends through `Host::fs`:
   in reva-hostpath's `paths.rs`), so one `vfs::normalize` serves every host.
 - **Browser and tests:** `MemFs`, an in-memory tree. It records which
   paths changed, and `reva-web` exports them so `reva.js` can keep them in
-  `localStorage` and put them back before the next boot. A page bundles
+  the page's storage (IndexedDB, `www/store.js`; any Web Storage-like
+  object a host gives) and put them back before the next boot. A page bundles
   its own files the same way (`Reva.load(url, { files, storage })`).
 
 Results follow the kernel: a value or `-errno`, and `ioerr` is 0 or the
@@ -204,9 +205,9 @@ and the page only draws and stores (`www/reva.js` `start()`):
   `scheduler.yield()` does it by design). That fair turn is what lets
   `input` and `stop` messages in while the VM computes. Measured: about 90%
   of the unsliced speed.
-- **Messages:** `init`, `input`, `close`, `stop` to the worker; `output`,
-  `status`, `files`, `error` back (table in `reva-worker.js`). Workers
-  cannot see `localStorage`, so changed files travel to the page, which
+- **Messages:** `init`, `input`, `put`, `close`, `stop` to the worker;
+  `output`, `status`, `files`, `error` back (table in `reva-worker.js`).
+  The page owns the storage, so changed files travel to the page, which
   saves them whenever the VM waits for input or halts.
 - **Drawing:** the page appends output at most once per animation frame and
   caps the console's length.
@@ -472,7 +473,7 @@ reports no FAILs, and the gate requires that.
 | **Performance** | Interpreter with decode cache now; basic-block translation to x86-64 / ARM64 / wasm later (§6). |
 | **Usability** | `reva` behaves like the original REPL (banner, `ok>`, `reva.f`'s error messages); piped input runs as a batch without prompts. |
 | **Responsiveness (browser)** | The VM runs in a Web Worker; the page draws once per frame. Measured in headless Chromium: the longest frame gap during a 15 s computation is 17 ms (on the page's thread before: 50 ms, and boot froze it for 133 ms). Stop takes effect within one 8 ms slice (§3.8). |
-| **Data durability (browser)** | Files Forth code writes are saved to `localStorage` after every run slice that ends waiting for input or halted; a failed save (quota) is logged, not fatal. |
+| **Data durability (browser)** | Files Forth code writes are saved to IndexedDB (localStorage where it cannot open) after every run slice that ends waiting for input or halted; a failed save (quota) is logged, not fatal. |
 
 ## 5. Deliberate deviations from newcore
 
@@ -526,7 +527,7 @@ block translation should land within ~2× of the original x86 Reva.
 2. ✅ All of `reva.f` boots (assembler, contexts, `needs`, FFI layer, OS
    personality) and restarts as its executable did (§3.6). ✅ File words
    and file system calls through `Host::fs`, with an in-memory file system
-   for the browser (bundled files plus `localStorage`) and `lib/` embedded
+   for the browser (bundled files plus IndexedDB) and `lib/` embedded
    (§3.7). ✅ The browser host runs the VM in a Web Worker with time slices
    and Stop (§3.8). ✅ `save`/`(save)` write images, which start on the
    CLI and in the browser; `restart` (§3.9). `makeexe` (a native

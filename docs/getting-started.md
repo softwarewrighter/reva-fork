@@ -115,8 +115,9 @@ page. **Stop** (or Ctrl-C) interrupts the running word and returns to the
 worker cannot start from a `file://` page.
 
 In the browser, files live in memory: `lib/` is built in (so `needs`
-works), and files your code writes are kept in the browser's
-`localStorage`, so they are still there after a reload. A page can bundle
+works), and files your code writes are kept in the browser (IndexedDB),
+so they are still there after a reload. The **Upload** button brings files
+from your computer in; then `include NAME`. A page can bundle
 its own files too; see `start` in `reva-web/www/reva.js`.
 
 ## Files
