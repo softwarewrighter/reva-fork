@@ -154,7 +154,10 @@ echo hi | reva --image app.img          # from the image
 
 In the browser, pass the image to `start` (`start("reva.wasm", { image:
 "app.img" })` in `reva-web/www/reva.js`), or open the console page as
-`index.html?image=app.img`. A page's start files (`index.html?include=app.f`,
+`index.html?image=app.img`; a package names its image in its manifest
+(`"image": "app.img"`), and the desktop app takes `--image app.img`
+([desktop.md](desktop.md)). `reva --save-image` keeps strings compiled
+after boot as `save` does, so the two images are the same. A page's start files (`index.html?include=app.f`,
 or a desktop package's `start` list) are included again after `restart`, as
 the CLI re-runs its file arguments.
 
