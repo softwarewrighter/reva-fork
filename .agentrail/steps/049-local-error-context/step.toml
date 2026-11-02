@@ -1,8 +1,0 @@
-number = 49
-slug = "local-error-context"
-status = "pending"
-description = "Errors that say where and why: CoSy's ask 15 (high, 2026-11-02) with the user..."
-role = "production"
-context_files = []
-created_at = "2026-10-28T20:12:27"
-commits = []
