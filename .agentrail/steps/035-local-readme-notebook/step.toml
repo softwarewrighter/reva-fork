@@ -1,0 +1,9 @@
+number = 35
+slug = "local-readme-notebook"
+status = "completed"
+description = "At the user's request (2026-11-01): a screen capture of the TUI notebook in i..."
+role = "production"
+context_files = []
+created_at = "2026-11-01T19:46:04"
+completed_at = "2026-11-01T19:51:49"
+commits = ["e7c96894fed08a238cba8e9998ef9ee5e9ffd634"]
