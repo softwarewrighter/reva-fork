@@ -72,6 +72,10 @@ pub mod st {
         DIRENT_BUF,
         // what the virtual libiconv's `_libiconv_version` reads (iconv.rs)
         ICONV_VERSION,
+        // reva.f's own prompt, recorded by the host after booting reva.f
+        // (0 in older images), so a quiet prompt for piped input never
+        // replaces one a program installed (config.rs `quiet_prompt`)
+        PROMPT_DEFAULT,
     }
 }
 

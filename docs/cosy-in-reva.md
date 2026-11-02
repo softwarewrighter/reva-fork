@@ -41,7 +41,7 @@ script stored there.
 | Browser, on a web host (zip) | works, not published | `scripts/make-web-zip.sh --package build --name cosy`; publish only where Bob agrees |
 | Desktop app | works (ba-cosy) | `cosy-desktop` or `CoSy.app` from ba-cosy-zip-fork; not re-run on 2026-11-01 |
 | ba-cosy's `just cosy-zip`, `just cosy-serve` | **broken** | they call reva-fork's old paths; workaround below |
-| Bob's `Tui.f` windows (IUP) | **not yet** (stops at `add-callback`, ask 14) | step 47 `local-tui-cosy` |
+| Bob's `Tui.f` windows (IUP) | **opens** with `needs compat/reva70` in place of compat708.f ([compat-reva70.md](compat-reva70.md)); two Windows-only lines to migrate | step 44 `local-port-migrate` |
 | Upload a file into the page | works | the header's Upload button ([web.md](web.md)) |
 | One saved image (`--image`) | **works** (checked 2026-11-02) | below |
 | A published site (e.g. cosy.softwarewrighter.com) | planned, Bob's call | step 52 `local-publish-package` |
