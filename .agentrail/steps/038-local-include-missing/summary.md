@@ -1,0 +1,1 @@
+include of a missing file reports 'include: NAME: no such file' (diag) in every host, incl. CLI file args; ioerr unchanged; (include)/needs untouched; no new gate. Goldens core-include (.err) and web-smoke rebased after review; page smoke check; docs. Gate green apart from known docs-samples and one sha1.f parity flake (passed on rerun).

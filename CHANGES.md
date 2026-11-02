@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-01
 
+- 20:39 `chore` Step local-include-missing complete (saga record).
 - 20:26 `fix` `include` of a file that cannot be read says so (step local-include-missing): `include: nosuch.f: no such file`, a diagnostic (stderr on the CLI, the output in the page and the desktop app), also for a file named on the CLI's command line; `ioerr` is still 1, so code that tests it is unchanged. The original only set `ioerr`, so a typo, or an upload under another name, did nothing silently. `(include)`, which `needs` uses to try several folders, stays silent (`needs` reports itself). The include gate shares a helper with `(include)`, no new gate. Golden core-include gains the message (its .err); a page smoke check (golden web-smoke gains its line); parity-examples failed once in the gate and passed on rerun (the sha1.f timing flake, step local-portable-gates); docs/design.md deviation 10, gotchas.md.
 - 20:21 `chore` Step local-web-upload complete (saga record).
 - 20:20 `docs` docs/future-features.md, at the user's request: ideas discussed and not scheduled, starting with host paths in the desktop app (`include /any/host/path`), why it came up (step 37's Upload) and why it waits; linked from docs/README.md and web.md.
