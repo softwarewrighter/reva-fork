@@ -141,6 +141,13 @@ mouse and resize events, and coloured output. Its ~37 transitive crates
 WITH LLVM-exception OR Apache-2.0 OR MIT (`rustix`, `linux-raw-sys`) or
 Unicode-3.0 (`unicode-ident`): none GPL-family.
 
+**The CLI's PNG drawings (`components/canvas`, crate reva-canvas-png,
+used by the CLI only, not the wasm module):** `tiny-skia` and
+`tiny-skia-path` (BSD-3-Clause) rasterise the drawing and encode the PNG.
+Their transitive crates (`cargo metadata`, 2026-11-01) are MIT, MIT OR
+Apache-2.0, BSD-2-Clause (`arrayref`), Zlib (`zlib-rs`) or a choice
+including MIT (`adler2`, `bytemuck`, `miniz_oxide`): none GPL-family.
+
 **Desktop app (`components/desktop`, its own workspace):** `tauri` (MIT/Apache-2.0)
 for the window and webview, `serde`/`serde_json` (MIT/Apache-2.0) for the
 package manifest and commands. Their ~320 transitive crates are permissive

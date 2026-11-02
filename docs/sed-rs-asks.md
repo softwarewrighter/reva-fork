@@ -54,7 +54,13 @@ and `&` mean themselves.
 **Why:** most edits here replace exact code (Forth, Rust, Markdown),
 full of these characters. Writing `[(]`, `[+]`, `[.]` is error-prone;
 `\(` and `\+` silently became operators through the BRE conversion, and
-two of four edits matched nothing.
+two of four edits matched nothing.  Later (2026-11-01): `||` in a Rust
+pattern matched as an empty alternation and spliced the replacement into
+the wrong place; `\{` became an interval (`repetition quantifier expects
+a valid decimal`); and `^| ` (a Markdown table row) read `|` as
+alternation, so the empty `^` branch matched every line and the
+replacement was prepended to all 544 lines of a file.  Without `-i`, a failed run under `> file` also leaves
+the file empty, so each of these needed a restore from the `.orig` copy.
 
 ## 4. Report edits that changed nothing: `--strict`
 

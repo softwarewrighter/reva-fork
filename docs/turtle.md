@@ -4,8 +4,8 @@ Logo-style turtle graphics: Forth words move a turtle that draws lines on a
 2D canvas in a **separate graphics window**. It works the same in the
 [desktop app](desktop.md) (a second native window), in the browser (a popup
 window, a pane below the REPL, or the [split view](web.md#the-split-view)
-beside it), and on the CLI. The CLI has no window, so
-there you save the drawing as SVG instead.
+beside it), and on the CLI. The CLI has no window, so there each drawing
+goes to a **file** instead ([below](#the-cli-drawings-as-files)).
 
 ```text
 needs turtle/fractals
@@ -30,14 +30,34 @@ python3 -m http.server -d components/web/crates/reva-web/www 8000
 #   http://localhost:8000/?canvas=pane keeps the drawing inside the page
 #   http://localhost:8000/?canvas=split puts it beside the REPL (see web.md)
 
-# CLI: no window; write SVG files
+# CLI: no window; each drawing goes to a new file
 cargo build --release --manifest-path components/cli/Cargo.toml
-target/release/reva -e 'needs turtle/fractals 6 hilbert-demo " hilbert.svg" svg-save . bye'
+target/release/reva --draw png -e 'needs turtle/fractals 6 hilbert-demo bye'
 ```
 
 The graphics window has a **Save PNG** button. After you close it, the REPL's
 **Graphics** button brings it back, and the next drawing that starts with
 `clear` reopens it.
+
+## The CLI: drawings as files
+
+After each run (each line typed at the prompt, the files and `-e` texts,
+piped input) a drawing that changed is written to the next free
+`turtle-001.svg`, `turtle-002.svg`, ... (or `.png`) in the current folder,
+and its name is printed (`drawing: turtle-001.svg`). An existing file is
+never overwritten: the number goes up instead. An unchanged drawing is not
+written again. `--draw WHEN` chooses:
+
+| `--draw` | What happens |
+|---|---|
+| `auto` (default) | at a terminal: SVG, or in iTerm2 or WezTerm a PNG that is also shown **inline**, under the line that drew it; when output is redirected (scripts, goldens): nothing |
+| `svg` | SVG files, also when output is redirected |
+| `png` | PNG files (800 × 800, the window's view, rendered with tiny-skia); inline in iTerm2 and WezTerm |
+| `off` | no files; `svg-save` still writes one by name |
+
+Inside tmux or screen the inline image is not shown (they do not pass it
+on), so `auto` writes SVG there. A notebook line that draws is written when
+the notebook closes.
 
 ## The vocabulary: `needs turtle/core`
 
