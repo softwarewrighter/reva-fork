@@ -22,6 +22,7 @@ what has been carried over and what has not, yet).
 | [Plan: IUP programs](iup-plan.md) | high-level plan for running Reva's IUP GUI programs and CoSy's TUI, reimplemented in Rust with a Yew renderer |
 | [The UI model](ui-model.md) | IUP's elements, attributes, callbacks, keys and layout (in character cells) as the Rust model the iup library and the TUI build on: scope and rules |
 | [SQLite](sqlite.md) | `needs db/sqlite`: databases through the `~db` words; built into the CLI, desktop and browser next |
+| [Reva 7.0 compatibility](compat-reva70.md) | `needs compat/reva70`: Reva 7.0's ui/gui, ui/iup and words for programs written for 7.0 (CoSy), opt-in |
 | [CoSy in reva-fork](cosy-in-reva.md) | the ways to run CoSy (built in ba-cosy-zip-fork; no CoSy code here): what works today, what is planned |
 | [Turtle graphics](turtle.md) | `~turtle`: Logo-style drawing in a graphics window; fractal demos; SVG |
 | [Portability](portability.md) | what stops on the portable core (native libraries, `shell`, x87/SIMD) and why |

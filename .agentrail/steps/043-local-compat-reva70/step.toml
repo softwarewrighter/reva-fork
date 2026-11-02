@@ -1,6 +1,6 @@
 number = 43
 slug = "local-compat-reva70"
-status = "pending"
+status = "in-progress"
 description = "At the user's request (2026-11-02): a Reva 7.0 compatibility layer, so CoSy (..."
 role = "production"
 context_files = []
