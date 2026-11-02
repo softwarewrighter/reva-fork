@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Reva Forth</title>
+<title>Reva Fork</title>
 <!-- The package this page opens when the URL has no ?package= (set by
      scripts/make-web-zip.sh; empty: plain Reva).  A relative URL. -->
 <meta name="reva-package" content="">
@@ -26,6 +26,7 @@
   main { max-width: 900px; margin: 0 auto; padding: 16px; display:flex; flex-direction:column; height:100vh; }
   header { color: var(--muted); padding-bottom: 8px; border-bottom: 1px solid var(--line); }
   header b { color: var(--accent); }
+  #logo { width:1.3em; height:1.3em; vertical-align:-0.3em; margin-right:.35em; }
   footer { color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:6px; margin-top:8px; }
   footer a { color:inherit; }
   #out { flex:1; overflow:auto; white-space:pre-wrap; word-break:break-word; margin:8px 0; }
@@ -120,7 +121,7 @@
   <header><button type="button" id="about-btn" title="About this program, its licenses and source">About</button>
     <button type="button" id="upload-btn" title="Put files from this computer into Reva's files (then: include NAME)" hidden>Upload</button>
     <button type="button" id="gfx" title="Show the turtle graphics window" hidden>Graphics</button>
-    <b>Reva Forth</b> <span id="hint">— portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code>
+    <img id="logo" src="favicon.png" alt=""><b>Reva Fork</b> <span id="hint">— portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code>
     or <code>needs turtle/fractals 5 koch-demo</code></span></header>
   <div id="out" aria-live="polite"></div>
   <form id="f"><span id="prompt">ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
@@ -236,6 +237,11 @@
     document.querySelector("header b").textContent = title;
   }
   if (pkg?.icon) document.querySelector('link[rel="icon"]').href = pkg.icon;
+  // The header's logo is Reva's beside Reva's name; beside a package's
+  // title, its own icon or none.
+  const logo = document.getElementById("logo");
+  if (pkg?.icon) logo.src = pkg.icon;
+  else if (title && (pkg || host.package)) logo.hidden = true;
   // A package's "hint" replaces Reva's in the header (`code` in backticks).
   const hint = pkg?.hint ?? host.package?.hint;
   if (typeof hint === "string") showHint(document.getElementById("hint"), `— ${hint}`);
