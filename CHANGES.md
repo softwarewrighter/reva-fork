@@ -11,6 +11,12 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-02
+
+- 10:13 `chore` Step local-brand-fork complete (saga record).
+- 08:00 `release` 2026.1102.0 (step local-brand-fork), at the user's request: today's first merge to main, to be made later today with more features. Since 2026.1101.1: the header's Reva Fork branding. Every component's version, the Cargo.lock files, two goldens (boot-progress, web-smoke), the web smoke test and two docs. Step local-one-version queued after local-image-everywhere, at the user's request: the release version in one file, so the next bump is not 68 files.
+- 07:45 `feat` Branding, at the user's request (step local-brand-fork): the page header of the browser and the desktop app shows a small copy of the desktop icon (favicon.png) and "Reva Fork" in place of "Reva Forth"; the page title, the desktop window title and the About button's label say Reva Fork too. That it is Forth is evident, and the About says so. A package's title still replaces the name, beside the package's icon, or no logo if it has none. The CLI has no header. docs/web.md, desktop.md. Checked in Chrome. Step local-brand-fork inserted; local-image-everywhere (now 41) still paused.
+
 ## 2026-11-01
 
 - 21:15 `chore` Step local-release-2026-1101-1 complete (saga record): Merge #74; dev merged into main (e174845) and the live demo published as 2026.1101.1, checked in Chrome (footer, Upload, IndexedDB migration note, a fractal in the split view).
