@@ -6,7 +6,7 @@ resolver = "2"
 members = ["crates/reva-host-traits", "crates/reva-host-buffer", "crates/reva-host"]
 
 [workspace.package]
-version = "2026.1101.1"
+version = "2026.1102.0"
 edition = "2024"
 publish = false
 license = "MIT"

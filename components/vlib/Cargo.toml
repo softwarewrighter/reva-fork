@@ -6,7 +6,7 @@ resolver = "2"
 members = ["crates/reva-vlib", "crates/reva-vlib-turtle", "crates/reva-vlib-highlight", "crates/reva-vlib-iconv"]
 
 [workspace.package]
-version = "2026.1101.1"
+version = "2026.1102.0"
 edition = "2024"
 publish = false
 license = "MIT"
