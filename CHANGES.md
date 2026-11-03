@@ -11,10 +11,14 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
-## 2026-11-02
+## 2026-11-03
 
+- 08:41 `chore` CHANGES: the release record belongs to 2026-11-03 (Pacific), not under 2026-11-02.
 - 08:39 `chore` Release 2026.1102.0: dev merged into main (0a0474e) and the live demo published, checked in Chrome (Reva Fork header and logo, footer 2026.1102.0 build 0a0474e, a tree in the split view, the runaway bar in the page). Since 2026.1101.1: the Reva Fork branding; saved images everywhere (and --save-image keeping late strings); stack underflow warns and goes on as Reva did; the Reva 7.0 layer (needs compat/reva70); reva --port-check; errors that say FILE:LINE, the word and the stack; runaway loops pause (page) or hit --max-cpu (CLI); images keep their own prompt.
 - 08:39 `chore` Merge #81 (local-runaway-guard).
+
+## 2026-11-02
+
 - 18:33 `chore` Step local-runaway-guard complete (saga record).
 - 18:24 `chore` Merge #80 (local-error-context).
 - 18:24 `feat` A runaway loop no longer pegs a core (step local-runaway-guard; CoSy's ask 12). Browser and desktop: after 5 s running without waiting for input the VM pauses (no slices, no CPU) and a bar offers Stop, 5 s more or Keep going; a hidden tab pauses it too and showing it goes on (`?background` keeps it running). `Reva.run` takes `limitMs` and `paused` and returns the new PAUSED; the worker and the in-page session handle `resume`, `hidden` and Stop while paused; a line typed while paused waits. CLI: `--max-cpu SECONDS` ends such a run with `*** time limit` and exit 124 (as `timeout`), 30 s by default under `--ui-script`, off otherwise. The optional compile-time warning for a last self-call was left out: deliberate loops that wait for input (`: loop key emit loop ;`) would warn too. Checked in Chrome (the bar, Stop). Goldens: cli-max-cpu (new), web-smoke (5 new checks). Docs: gotchas.md, web.md, getting-started.md.
