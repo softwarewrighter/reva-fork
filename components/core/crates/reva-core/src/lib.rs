@@ -17,7 +17,7 @@ pub mod vars;
 
 // Paths the moved code uses (crate::x86, crate::host, ...), from the
 // crates they live in.
-pub use machine::{DirStream, Dispatch, Flow, Machine, Next, Status, st};
+pub use machine::{DirStream, Dispatch, Flow, IncludeFrame, Machine, Next, Status, st};
 pub use reva_canvas::canvas;
 pub use reva_gate::gate;
 pub use reva_gate::gate as gates;

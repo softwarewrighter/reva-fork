@@ -72,6 +72,10 @@ pub mod st {
         DIRENT_BUF,
         // what the virtual libiconv's `_libiconv_version` reads (iconv.rs)
         ICONV_VERSION,
+        // reva.f's own prompt, recorded by the host after booting reva.f
+        // (0 in older images), so a quiet prompt for piped input never
+        // replaces one a program installed (config.rs `quiet_prompt`)
+        PROMPT_DEFAULT,
     }
 }
 
@@ -130,6 +134,16 @@ pub struct DirStream {
     pub next: usize,
 }
 
+/// A file being included: its name, its text in memory, and the parse
+/// position in the text around it when the include began, so an error can
+/// say `FILE:LINE` and the chain of files (reva-words-eval, reva-core-inspect).
+pub struct IncludeFrame {
+    pub name: String,
+    pub start: u32,
+    pub end: u32,
+    pub from: u32,
+}
+
 pub struct Machine {
     /// Runs gateways (see [`Dispatch`]).
     pub dispatch: Dispatch,
@@ -161,6 +175,13 @@ pub struct Machine {
     /// and those already reported (see `ffi.rs`).  Transient.
     pub missing_lib: Option<String>,
     pub reported_libs: Vec<String>,
+    /// Data-stack underflow (the interpreter finds the stack below empty
+    /// between words): stop with an error, or, as Reva did, go on, with a
+    /// warning once until the stack is back at or above empty.
+    pub underflow_fail: bool,
+    pub underflow_warned: bool,
+    /// The files being included, outermost first.  Transient.
+    pub includes: Vec<IncludeFrame>,
     /// The turtle and its drawing (canvas.rs, turtle.rs).  Host state, like
     /// open files: not part of an image, and new after `restart`.
     pub canvas: crate::canvas::Canvas,

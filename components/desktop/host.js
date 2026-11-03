@@ -33,6 +33,8 @@ export async function hostSetup() {
     input: s.input,
     title: s.title,
     canvas: s.canvas ?? undefined,
+    // a saved image to start from (--image, or the manifest's "image")
+    image: s.image ? new Uint8Array(await invoke("image")) : undefined,
     // the open package's manifest keys for the About dialog (about.js)
     package: s.package ?? undefined,
     // links (About) open in the system browser, not in this window

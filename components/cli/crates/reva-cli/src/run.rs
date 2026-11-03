@@ -3,6 +3,7 @@
 
 use std::io::{self, Write};
 use std::process::ExitCode;
+use std::time::{Duration, Instant};
 
 use crate::options::{Options, exit_code};
 use reva_stdhost::host::StdHost;
@@ -33,13 +34,18 @@ impl Run<'_> {
                 eprintln!();
             }
         }
+        if !matches!(self.start, Start::Image(..)) {
+            vm.record_prompt();
+        }
         if !self.interactive {
             vm.quiet_prompt();
         } else if normal && !self.opts.show_boot {
+            vm.restore_prompt();
             // The banner and first `ok>` prompt, as Reva showed them.
             host.write(rest.as_bytes());
         }
         vm.set_trace(self.opts.trace);
+        vm.underflow_fail = self.opts.underflow_fail;
         self.queue(vm);
         Ok(())
     }
@@ -82,7 +88,7 @@ impl Run<'_> {
     /// machine the same way and hand it the input not yet read.
     pub fn until_blocked(&self, vm: &mut Machine, host: &mut StdHost) -> Result<Status, ExitCode> {
         loop {
-            match vm.run_until_blocked(host) {
+            match self.run_limited(vm, host)? {
                 Status::Restart => {
                     let (input, closed) = vm.take_input();
                     *vm = self.start.machine().map_err(|e| {
@@ -95,6 +101,30 @@ impl Run<'_> {
                         vm.close_input();
                     }
                 }
+                s => return Ok(s),
+            }
+        }
+    }
+
+    /// Run until `vm` blocks, or, past `--max-cpu` seconds without waiting
+    /// for input (a runaway loop), stop with `*** time limit` (exit 124, as
+    /// `timeout` does).
+    fn run_limited(&self, vm: &mut Machine, host: &mut StdHost) -> Result<Status, ExitCode> {
+        let limit = match (self.opts.max_cpu, &self.opts.ui_script) {
+            (Some(s), _) if s > 0.0 => Some(Duration::from_secs_f64(s)),
+            (None, Some(_)) => Some(Duration::from_secs(30)),
+            _ => None,
+        };
+        let t0 = Instant::now();
+        loop {
+            match reva_vm::prelude::Run::run(&mut vm.0, host, 1 << 20) {
+                Status::Yielded if limit.is_some_and(|l| t0.elapsed() > l) => {
+                    let _ = host.out.flush();
+                    let secs = limit.map_or(0.0, |l| l.as_secs_f64());
+                    eprintln!("\n*** time limit: {secs} s without waiting for input (--max-cpu)");
+                    return Err(ExitCode::from(124));
+                }
+                Status::Yielded => continue,
                 s => return Ok(s),
             }
         }

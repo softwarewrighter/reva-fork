@@ -58,16 +58,32 @@ pub const BOOT_TAIL: &str = "' ~priv.exception-reset (boot-restart)\n";
 pub const STRINGS_MARKER: &str = "hide (compstrend)";
 
 /// The line inserted before [`STRINGS_MARKER`]: what `save` does with the
-/// string area before it writes an executable.
-pub const STRINGS_SAVE: &str = "(compstr) @ (compstrend) @ over - setextra\n";
+/// string area before it writes an executable, as a word that stays
+/// visible, so a host that saves an image itself (the CLI's
+/// `--save-image`, [`SAVE_STRINGS`]) records strings compiled after boot.
+/// Run once here for the boot image.
+pub const STRINGS_SAVE: &str =
+    ": (save-strings) (compstr) @ (compstrend) @ over - setextra ; (save-strings)\n";
+
+/// The input a host feeds before it saves an image itself.
+pub const SAVE_STRINGS: &str = "(save-strings)\n";
 
 /// `reva.f` defines its banner word here.  The line after it gets
 /// [`reva_version::version::VER_WORD`]: this fork's `.ver`.
 pub const VER_MARKER: &str = ": .ver ";
 
+/// `reva.f` defines `ERROR` (the "ERROR: ..." message) here.
+pub const ERROR_MARKER: &str = ": ERROR ( a' n' a n  -- )";
+
+/// Inserted after the [`ERROR_MARKER`] line: the same `ERROR`, first
+/// printing `FILE:LINE: ` while a file is being included (`(where)`), so an
+/// error in a file says where; every later use (`word?`, `needs`) gets it.
+pub const ERROR_WORD: &str = ": ERROR ( a' n' a n -- ) cr (where) .\" ERROR: \" type_ type cr ;\n";
+
 /// The boot source: `reva.f` up to [`BOOT_MARKER`] with [`STRINGS_SAVE`]
 /// inserted before [`STRINGS_MARKER`], the fork's `.ver` after the
-/// [`VER_MARKER`] line, then [`BOOT_TAIL`].  `STRINGS_SAVE` and `BOOT_TAIL`
+/// [`VER_MARKER`] line, [`ERROR_WORD`] after the [`ERROR_MARKER`] line,
+/// then [`BOOT_TAIL`].  `STRINGS_SAVE` and `BOOT_TAIL`
 /// together stand in for "save an executable, then run it".
 pub fn boot_source() -> &'static str {
     static SRC: std::sync::OnceLock<String> = std::sync::OnceLock::new();
@@ -80,9 +96,14 @@ pub fn boot_source() -> &'static str {
             Some(j) => format!("{}{STRINGS_SAVE}{}", &head[..j], &head[j..]),
             None => head.to_string(),
         };
-        if let Some(k) = src.find(VER_MARKER) {
-            let eol = src[k..].find('\n').map_or(src.len(), |n| k + n + 1);
-            src.insert_str(eol, reva_version::version::VER_WORD);
+        for (marker, text) in [
+            (VER_MARKER, reva_version::version::VER_WORD),
+            (ERROR_MARKER, ERROR_WORD),
+        ] {
+            if let Some(k) = src.find(marker) {
+                let eol = src[k..].find('\n').map_or(src.len(), |n| k + n + 1);
+                src.insert_str(eol, text);
+            }
         }
         src.push_str(BOOT_TAIL);
         src

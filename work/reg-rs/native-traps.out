@@ -1,8 +1,10 @@
 
-*** shell (running an OS command) is not allowed here: the CLI allows it with --allow-shell; the browser never does (see docs/portability.md) (in core:CallFn, eip 0x000010d8)
+*** shell (running an OS command) is not allowed here: the CLI allows it with --allow-shell; the browser never does (see docs/portability.md) (in core:CallFn, eip 0x000010d8) after `shell`
+stack (0)
 1 
 
-*** unsupported SSE instruction at 0x00147940: 0f 58 c1 c3 00 00 00 00 (see docs/portability.md) (in sse+0x0, eip 0x00147940)
+*** unsupported SSE instruction at 0x0014799c: 0f 58 c1 c3 00 00 00 00 (see docs/portability.md) (in sse+0x0, eip 0x0014799c) after `sse`
+stack (0)
 2 
 allowed
 3 

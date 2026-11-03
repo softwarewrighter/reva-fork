@@ -22,6 +22,7 @@ just web-zip                      # or: scripts/make-web-zip.sh
 | `?include=FILE` | include FILE after start and after each `restart` (repeatable) |
 | `?eval=TEXT` | feed TEXT once after start (repeatable) |
 | `?image=FILE` | start from a saved image instead of booting `reva.f` |
+| `?background` | keep running while the tab is hidden (otherwise a running VM pauses there; see [gotchas.md](gotchas.md#a-runaway-loop-pauses)) |
 
 When the URL does not say, the page falls back to the package's `canvas`,
 then to its own default: the `reva-canvas` meta tag in `index.html`, which
@@ -120,8 +121,9 @@ a folder:
 |---|---|
 | `files` | fetched (six at a time) into the VM at `/<file>`, as the desktop app maps the package folder to `/`; a file that fails is a note, not a stop |
 | `start` | fetched too, and included after start and after each `restart` |
-| `title` | page title and header (default `<name> on Reva`) |
-| `icon` | the page's icon (favicon) |
+| `image` | a saved image in the package (`save NAME`, `reva --save-image`), fetched and started from instead of booting `reva.f` (`?image=` in the URL wins); the `start` files are still included after it |
+| `title` | page title and header (default `<name> on Reva`; without a package, `Reva Fork` beside Reva's icon) |
+| `icon` | the page's icon (favicon) and the logo beside the title in the header (none: no logo) |
 | `id` | names the storage prefix, `reva:<id>:fs:` (default from `name`), so two packages on one site keep their files apart |
 | `canvas` | where graphics go, unless the URL says |
 | `about` | the package's entry in the About dialog: `{ "name", "version", "description", "build", "credits": [text], "links": [{ "label", "url" }] }`, all optional (`name` defaults to `title`; `build` is the package's own commit and date, so a bug report names both layers); only http(s) links become links |

@@ -5,7 +5,7 @@ Each program in `examples/` is run on the portable core with stdin
 closed and a 5s limit. See [parity.md](parity.md) for what the
 statuses mean and which areas are planned.
 
-133 examples: error 24, fault 21, missing 9, runs 68, timeout 11
+133 examples: error 24, fault 16, missing 9, runs 72, timeout 12
 
 Most common first missing word (top 10):
 
@@ -43,7 +43,7 @@ Most common first missing word (top 10):
 | `examples/data/hash.f` | lib | runs |
 | `examples/data/parray.f` | lib | runs |
 | `examples/datediff.f` | lib | runs |
-| `examples/db-report.f` | db | fault: bad memory access: 1363376 byte(s) at 0x00000005 |
+| `examples/db-report.f` | db | runs |
 | `examples/defer.f` | core | runs |
 | `examples/dhttpd.f` | net | missing: `tcpsock` |
 | `examples/dllexplorer.f` | core | missing: `k32` |
@@ -83,7 +83,7 @@ Most common first missing word (top 10):
 | `examples/iup/callback-test.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/cd-test.f` | gui | error: could not load cdContextIup |
 | `examples/iup/console.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
-| `examples/iup/db-test.f` | gui | fault: stack underflow |
+| `examples/iup/db-test.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/file-dlg.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/frame-test.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/gl-test.f` | gui | error: Could not load the OpenGL library |
@@ -99,7 +99,7 @@ Most common first missing word (top 10):
 | `examples/iup/pdf-test.f` | gui | error: could not load cdContextPDF |
 | `examples/iup/simple-button.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/json.f` | net | error: null nully |
-| `examples/keys.f` | core | fault: stack underflow |
+| `examples/keys.f` | core | timeout |
 | `examples/makeexe.f` | core | runs |
 | `examples/map.f` | lib | runs |
 | `examples/md5.f` | lib | runs |
@@ -119,12 +119,12 @@ Most common first missing word (top 10):
 | `examples/revafind.f` | os | runs |
 | `examples/robotron.f` | core | runs |
 | `examples/see2.f` | lib | runs |
-| `examples/sha1.f` | lib | fault: bad memory access: 3527000 byte(s) at 0x00000003 |
+| `examples/sha1.f` | lib | runs |
 | `examples/sieve.f` | core | timeout |
 | `examples/smtp.f` | net | timeout |
 | `examples/sockets.f` | net | runs |
 | `examples/special.f` | core | runs |
-| `examples/sqlite.f` | db | fault: stack underflow |
+| `examples/sqlite.f` | db | runs |
 | `examples/sqlite2.f` | db | runs |
 | `examples/sqlite3.f` | db | runs |
 | `examples/stars.f` | core | runs |
@@ -151,4 +151,4 @@ Most common first missing word (top 10):
 | `examples/xmlparse.f` | lib | error: could not load XML_ParserCreate |
 | `examples/xmlrpc.f` | net | missing: `parse-result` |
 | `examples/zemanim.f` | lib | runs |
-| `examples/zipdb.f` | db | fault: stack underflow |
+| `examples/zipdb.f` | db | runs |

@@ -1,0 +1,9 @@
+number = 40
+slug = "local-brand-fork"
+status = "completed"
+description = "At the user's request (2026-11-02): branding. The header of the browser page ..."
+role = "production"
+context_files = []
+created_at = "2026-11-02T07:41:08"
+completed_at = "2026-11-02T10:13:26"
+commits = ["8958e357a9b41fb387a9722c13a1c89e34eff752"]

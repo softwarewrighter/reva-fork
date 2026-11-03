@@ -35,7 +35,11 @@ pub fn os_type(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
     let n = m.upop()?;
     let a = m.upop()?;
     if n != 0 && (n as i32) > 0 {
-        host.write(m.mem.slice(a, n)?);
+        // As the OS's write did for Reva: a buffer it cannot read is an
+        // error the caller ignores, not a crash.
+        if let Ok(bytes) = m.mem.slice(a, n) {
+            host.write(bytes);
+        }
     }
     Ok(Next::Ret)
 }

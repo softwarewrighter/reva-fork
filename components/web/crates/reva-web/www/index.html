@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Reva Forth</title>
+<title>Reva Fork</title>
 <!-- The package this page opens when the URL has no ?package= (set by
      scripts/make-web-zip.sh; empty: plain Reva).  A relative URL. -->
 <meta name="reva-package" content="">
@@ -26,6 +26,8 @@
   main { max-width: 900px; margin: 0 auto; padding: 16px; display:flex; flex-direction:column; height:100vh; }
   header { color: var(--muted); padding-bottom: 8px; border-bottom: 1px solid var(--line); }
   header b { color: var(--accent); }
+  #paused { color: var(--accent); padding: 6px 0; }
+  #logo { width:1.3em; height:1.3em; vertical-align:-0.3em; margin-right:.35em; }
   footer { color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:6px; margin-top:8px; }
   footer a { color:inherit; }
   #out { flex:1; overflow:auto; white-space:pre-wrap; word-break:break-word; margin:8px 0; }
@@ -120,11 +122,14 @@
   <header><button type="button" id="about-btn" title="About this program, its licenses and source">About</button>
     <button type="button" id="upload-btn" title="Put files from this computer into Reva's files (then: include NAME)" hidden>Upload</button>
     <button type="button" id="gfx" title="Show the turtle graphics window" hidden>Graphics</button>
-    <b>Reva Forth</b> <span id="hint">— portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code>
+    <img id="logo" src="favicon.png" alt=""><b>Reva Fork</b> <span id="hint">— portable vx86 core in WebAssembly. Try <code>: sq dup * ; 7 sq .</code>
     or <code>needs turtle/fractals 5 koch-demo</code></span></header>
   <div id="out" aria-live="polite"></div>
   <form id="f"><span id="prompt">ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
     <button type="button" id="stop" title="Stop the running word (Ctrl-C)" disabled>Stop</button></form>
+  <div id="paused" hidden>Still running without waiting for input (paused, using no CPU):
+    <button type="button" id="paused-stop">Stop</button> <button type="button" id="paused-more">5 s more</button>
+    <button type="button" id="paused-go">Keep going</button></div>
   <div id="tui" hidden><div class="tui-root"></div></div>
   <div id="panes"></div>
   <footer id="footer"></footer>
@@ -134,7 +139,7 @@
   // draws: output is appended at most once per animation frame, and the
   // console keeps its last MAX_CHUNKS pieces so a chatty program cannot
   // grow the page without bound.
-  import { start, RUNNING, HALTED } from "./reva.js";
+  import { start, RUNNING, HALTED, PAUSED } from "./reva.js";
   import { hostSetup } from "./host.js";
   import { CanvasChannel } from "./ui.js";
   import { TuiPane } from "./tui.js";
@@ -210,7 +215,8 @@
   // The host (host.js) says where files are kept (the browser: in
   // IndexedDB; the desktop app: in a folder) and what to feed at start.
   // reva.status starts as RUNNING (booting); onStatus reports each change.
-  // ?image=app.img starts from a saved image instead of booting reva.f.
+  // ?image=app.img (or a package's or the host's image) starts from a
+  // saved image instead of booting reva.f.
   const host = await hostSetup();
   const query = new URLSearchParams(location.search);
   // ?package=DIR/ (or the reva-package meta) loads a package from a static
@@ -236,6 +242,11 @@
     document.querySelector("header b").textContent = title;
   }
   if (pkg?.icon) document.querySelector('link[rel="icon"]').href = pkg.icon;
+  // The header's logo is Reva's beside Reva's name; beside a package's
+  // title, its own icon or none.
+  const logo = document.getElementById("logo");
+  if (pkg?.icon) logo.src = pkg.icon;
+  else if (title && (pkg || host.package)) logo.hidden = true;
   // A package's "hint" replaces Reva's in the header (`code` in backticks).
   const hint = pkg?.hint ?? host.package?.hint;
   if (typeof hint === "string") showHint(document.getElementById("hint"), `— ${hint}`);
@@ -249,7 +260,7 @@
   const meta = document.querySelector('meta[name="reva-canvas"]')?.content || undefined;
   const mode = query.get("canvas") ?? pkg?.canvas ?? host.canvas ?? meta ?? "window";
   const split = mode === "split" ? splitView(document.querySelector("main"), document.getElementById("panes")) : null;
-  const image = query.get("image") ?? undefined;
+  const image = query.get("image") ?? pkg?.image ?? host.image ?? undefined;
   const gfx = document.getElementById("gfx");
   let canvas = null;
   const tui = new TuiPane(document.getElementById("tui"));
@@ -275,10 +286,12 @@
     onHostCall: (call) => call.service === "ui" ? tui.answer(call)
       : host.hostCall?.(call) ?? { error: `${call.service} is not available in the browser` },
     onStatus: (s) => {
-      stop.disabled = s !== RUNNING;
+      stop.disabled = s !== RUNNING && s !== PAUSED;
+      // A runaway guard pause (reva.js): the user decides.
+      document.getElementById("paused").hidden = !(s === PAUSED && reva.pauseReason === "time");
       // Back at the REPL or halted: no event loop runs, so the TUI steps
       // aside (it shows again at the next one).
-      if (s !== RUNNING) tui.show(false);
+      if (s !== RUNNING && s !== PAUSED) tui.show(false);
       if (s === HALTED) {
         echo(`\n[exited with status ${reva.exitCode}]\n`);
         line.disabled = true;
@@ -350,6 +363,14 @@
   if (!host.keepsFiles)
     uploadButton(document.getElementById("upload-btn"), { session: reva, storage: host.storage, prefix: filePrefix, echo });
   stop.addEventListener("click", () => reva.stop());
+  // The runaway guard's choices, and a hidden page pausing the VM (unless
+  // ?background asks it to keep running).
+  document.getElementById("paused-stop").addEventListener("click", () => reva.stop());
+  document.getElementById("paused-more").addEventListener("click", () => reva.resume(5000));
+  document.getElementById("paused-go").addEventListener("click", () => reva.resume(0));
+  if (!query.has("background")) {
+    document.addEventListener("visibilitychange", () => reva.setHidden(document.hidden));
+  }
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "c" && !window.getSelection()?.toString()) {
       e.preventDefault();

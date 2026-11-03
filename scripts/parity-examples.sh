@@ -50,14 +50,14 @@ classify() {
     code=$?
     if [[ $code -eq 124 ]]; then echo "timeout"; return; fi
     local fault missing
-    fault=$(grep -m1 -E '^\*\*\* ' <<<"$out" | "$SED_RS" -e 's/^\*\*\* //; s/ [(]in [^()]*, eip [^)]*[)]$//; s/[[:space:]]*$//')
+    fault=$(grep -m1 -E '^\*\*\* ' <<<"$out" | "$SED_RS" -e 's/^\*\*\* //; s/ [(]in [^()]*, eip [^)]*[)].*$//; s/[[:space:]]*$//')
     if [[ -n "$fault" ]]; then echo "fault: $fault"; return; fi
     # reva.f's handler: "ERROR: unknown word:  foo"; the bare core: "foo?"
-    missing=$(grep -m1 -oE '^ERROR: unknown word: +[^[:space:]]+' <<<"$out" | awk '{print $NF}')
+    missing=$(grep -m1 -oE 'ERROR: unknown word: +[^[:space:]]+' <<<"$out" | awk '{print $NF}')
     [[ -n "$missing" ]] || missing=$(grep -m1 -E '^[^[:space:]]+\?$' <<<"$out" | "$SED_RS" -e 's/[?]$//')
     if [[ -n "$missing" ]]; then echo "missing: \`$missing\`"; return; fi
     local err
-    err=$(grep -m1 -oE '^ERROR: .*' <<<"$out" | "$SED_RS" -e 's/^ERROR: //; s/[[:space:]]+/ /g; s/ *$//')
+    err=$(grep -m1 -oE 'ERROR: .*' <<<"$out" | "$SED_RS" -e 's/^ERROR: //; s/[[:space:]]+/ /g; s/ *$//')
     if [[ -n "$err" ]]; then echo "error: $err"; return; fi
     # An uncaught throw: reva.f prints "Caught: N" after the message
     if grep -q -E '^Caught: ' <<<"$out"; then

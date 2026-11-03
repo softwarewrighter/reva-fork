@@ -30,7 +30,7 @@ reva_macros::machine_trait! {
         fn iup_run(&mut self, host: &mut dyn Host, op: Op, n: u32) -> R<Next> {
             let a = self.iup_args(n)?;
             let v = match op {
-                Op::Show | Op::ShowXY | Op::Hide | Op::Popup | Op::MainLoop => return self.iup_show(host, op, &a, n),
+                Op::Show | Op::ShowXY | Op::Hide | Op::Popup | Op::MainLoop | Op::LoopStep => return self.iup_show(host, op, &a, n),
                 Op::Zero => 0,
                 Op::Default => -2i32 as u32,
                 Op::Value(v) => v as u32,
@@ -113,6 +113,10 @@ reva_macros::machine_trait! {
                 Op::KeyName => self.iup_out(0, "KEYNAME", name(ih))?,
                 Op::KeyCode => some(self.iup_zstr(ih)?.and_then(|n| from_name(&n))),
                 Op::Version => self.iup_out(0, "VERSION", Some("3.0 (reva-fork)".into()))?,
+                Op::ExitLoop => {
+                    self.ui.closed = !self.ui.loops.is_empty();
+                    0
+                }
                 _ => 0,
             })
         }

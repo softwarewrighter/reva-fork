@@ -65,4 +65,6 @@ gates! {
     // the virtual library `iup` (reva-vlib-iup): its event loop, and the
     // return from a callback (its C functions are table entries, not gates)
     IupLoop, IupResume,
+    // `(where)`: print FILE:LINE of the file being included (errors)
+    Where,
 }

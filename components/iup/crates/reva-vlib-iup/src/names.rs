@@ -19,6 +19,13 @@ pub const IUP_NAMES: &[&str] = &[
     "libiupcontrols.dylib",
     "libiupgl.dylib",
     "iupall.dll",
+    // Reva 7.0's lib/ui/iup (lib/compat/reva70)
+    "libiup.so",
+    "libiupcontrols.so",
+    "iupgl.so",
+    "iup.dll",
+    "iupcontrols.dll",
+    "iupgl.dll",
 ];
 
 /// Where the functions' addresses start: inside the null guard, so that
@@ -71,6 +78,12 @@ pub enum Op {
     KeyName,
     KeyCode,
     Version,
+    /// `IupLoopStep`: wait for one event and do what it does; `-2`, or `-3`
+    /// (IUP_CLOSE) when the loop is over.
+    LoopStep,
+    /// `IupExitLoop`: the innermost loop ends once the running callback
+    /// returns.
+    ExitLoop,
 }
 
 use Args as A;
@@ -91,7 +104,7 @@ pub const FUNCS: &[(&str, Op)] = &[
     ("IupPopup", Popup),
     ("IupShowXY", ShowXY),
     ("IupMainLoop", MainLoop),
-    ("IupLoopStep", Default),
+    ("IupLoopStep", LoopStep),
     ("IupFlush", Zero),
     ("IupRefresh", Zero),
     ("IupUpdate", Zero),
@@ -154,6 +167,7 @@ pub const FUNCS: &[(&str, Op)] = &[
     ("IupGLIsCurrent", Zero),
     ("IupGLSwapBuffers", Zero),
     ("IupGLPalette", Zero),
+    ("IupExitLoop", ExitLoop),
 ];
 
 /// The address `(func)` gives function `name`.

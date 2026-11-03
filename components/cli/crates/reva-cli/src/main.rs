@@ -36,6 +36,10 @@ use reva_vm::{Machine, Start, embedded};
 use run::Run;
 
 fn main() -> ExitCode {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.first().map(String::as_str) == Some("--port-check") {
+        return reva_port::cli::run(&args[1..]);
+    }
     let opts = match parse_args() {
         Ok(o) => o,
         Err(e) => {
