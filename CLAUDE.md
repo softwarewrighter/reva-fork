@@ -311,10 +311,12 @@ a WebAssembly build for the browser, `reva-serve`, and a Tauri desktop
 app. Version scheme `YYYY.MMDD.N` (see `components/host-base/crates/reva-version/src/version.rs`):
 every merge to `main` bumps it (the user, 2026-11-01): the merge's date
 (Pacific time) and N = 0 for the day's first merge to `main`, +1 for each
-further one that day, with no digit limit (9, 10, ... 99, 100). The bump is
-its own commit on `dev` (every component's version, the Cargo.lock files,
-the goldens that show the banner, a `release` line in CHANGES.md), gated,
-before the merge; nothing reaches `main` without it.
+further one that day, with no digit limit (9, 10, ... 99, 100). The
+version lives in one file, `VERSION` at the root (since 2026-11-03; the
+crates keep a fixed `0.1.0`, and goldens and the web smoke test show
+`VERSION` in its place). The bump is its own commit on `dev` (`VERSION`
+and a `release` line in CHANGES.md), gated, before the merge; nothing
+reaches `main` without it.
 
 Read before working:
 

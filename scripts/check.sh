@@ -44,6 +44,10 @@ fail() { printf '\ncheck: FAILED: %s\n' "$*" >&2; exit 1; }
 # (Tauri, a few hundred crates) is step 3.
 COMPONENTS="macros x86-types x86-decode x86-alu x86-exec x86 host-base vfs host core-parts canvas ui ui-layout ui-grid ui-web core core-run iup vlib words-base words-interp words-dict words-os words vm sqlite cli-edit cli-host cli web serve"
 
+# The release version lives in VERSION (YYYY.MMDD.N, no leading zero in
+# MMDD); the crates all keep one fixed version.
+grep -qE '^[0-9]{4}\.[1-9][0-9]{2,3}\.[0-9]+$' "$root/VERSION" \
+    || fail "VERSION: '$(cat "$root/VERSION")' is not YYYY.MMDD.N"
 version() { awk -F'"' '/^version *=/ { print $2; exit }' "$root/components/$1/Cargo.toml"; }
 for c in $COMPONENTS; do
     step "components/$c: fmt, clippy, tests"

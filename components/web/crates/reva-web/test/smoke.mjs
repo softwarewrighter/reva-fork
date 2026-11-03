@@ -12,11 +12,14 @@ let failed = 0;
 const check = (what, got, want) => {
   const ok = JSON.stringify(got) === JSON.stringify(want);
   if (!ok) failed++;
-  console.log(`${ok ? "ok  " : "FAIL"} ${what}: ${JSON.stringify(got)}`);
+  console.log(`${ok ? "ok  " : "FAIL"} ${what}: ${JSON.stringify(got).replaceAll(RELEASE, "VERSION")}`);
 };
 
 // The boot ends as Reva's saved executable started: banner, then a prompt.
-const BANNER = "reva-fork 2026.1102.0 portable\n\nok> ";
+// The release version (the repository's VERSION file); the transcript (the
+// golden) shows VERSION in its place, so a release does not change it.
+const RELEASE = (await readFile(new URL("../../../../../VERSION", import.meta.url), "utf8")).trim();
+const BANNER = `reva-fork ${RELEASE} portable\n\nok> `;
 check("boot status", reva.status, NEED_INPUT);
 // The footer's facts come from the module (reva_vm::version), as `reva -V`.
 const BUILD_KEYS = ["name", "version", "copyright", "license", "repository", "build_host", "build_commit", "build_time"];

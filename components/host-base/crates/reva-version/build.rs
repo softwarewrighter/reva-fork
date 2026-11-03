@@ -38,6 +38,16 @@ fn build_info() {
     }
 }
 
+/// The release version, from the repository's VERSION file (the one place
+/// a release changes; the crates keep a fixed version).
+fn release_version() {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../../../VERSION");
+    println!("cargo:rerun-if-changed={}", path.display());
+    let v = std::fs::read_to_string(&path).expect("VERSION at the repository root");
+    println!("cargo:rustc-env=REVA_VERSION={}", v.trim());
+}
+
 fn main() {
     build_info();
+    release_version();
 }
