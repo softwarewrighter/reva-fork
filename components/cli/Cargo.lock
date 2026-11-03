@@ -371,6 +371,7 @@ name = "reva-cli"
 version = "2026.1102.0"
 dependencies = [
  "reva-drawings",
+ "reva-port",
  "reva-stdfs",
  "reva-stdhost",
  "reva-term",
@@ -539,6 +540,10 @@ dependencies = [
  "reva-embedded",
  "reva-vfs",
 ]
+
+[[package]]
+name = "reva-port"
+version = "2026.1102.0"
 
 [[package]]
 name = "reva-rawterm"

@@ -43,9 +43,9 @@ marked `| reva-fork:`:
 
 It does not emulate Windows. A program that hard-codes `C:\` paths, splits
 paths at `\`, or runs `del`/`copy` through the shell is migrated to
-portable Forth instead (`pathsep`, relative paths, reva-fork's file words);
-that is the job of a separate migration tool (saga step
-`local-port-migrate`).
+portable Forth instead (`/` paths, relative paths, reva-fork's file words):
+`reva --port-check` finds those lines and fixes the safe ones in a copy
+([porting-from-windows.md](porting-from-windows.md)).
 
 ## CoSy
 
