@@ -50,12 +50,14 @@ export const REVA = {
   ],
 };
 
-/** The `reva-build` meta tag as `{ version, commit, date }`, or null. */
+/** The `reva-build` meta tag as `{ version, commit, date, site }`, or null
+ *  (`site`: a hash of the site's files, which make-web-zip.sh also puts on
+ *  every module URL, so a stale page is easy to tell). */
 export function buildInfo(doc = globalThis.document) {
   const s = doc?.querySelector('meta[name="reva-build"]')?.content?.trim();
   if (!s) return null;
-  const [version, commit, date] = s.split(/\s+/);
-  return { version, commit, date };
+  const [version, commit, date, site] = s.split(/\s+/);
+  return { version, commit, date, site };
 }
 
 /** Only http(s) URLs become links. */
@@ -137,7 +139,7 @@ function entry({ name, version, description, build, credits = [], links = [], li
  */
 export function aboutDialog({ pkg = null, openUrl = null } = {}) {
   const build = buildInfo();
-  const reva = { ...REVA, version: build?.version, build: build ? `reva-fork ${[build.commit, build.date].filter(Boolean).join(" · ")}` : "development build (source tree)" };
+  const reva = { ...REVA, version: build?.version, build: build ? `reva-fork ${[build.commit, build.date, build.site && `site ${build.site}`].filter(Boolean).join(" · ")}` : "development build (source tree)" };
   const close = el("button", { type: "button", textContent: "Close", className: "close" });
   const d = el("dialog", { id: "about" });
   d.setAttribute("aria-label", `About ${pkg?.name ?? "Reva Fork"}`);
