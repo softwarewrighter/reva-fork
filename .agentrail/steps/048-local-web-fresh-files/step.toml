@@ -1,0 +1,8 @@
+number = 48
+slug = "local-web-fresh-files"
+status = "pending"
+description = "CoSy's ask 16 (medium, 2026-11-02): the web page runs stale package files aft..."
+role = "production"
+context_files = []
+created_at = "2026-11-02T12:39:40"
+commits = []
