@@ -60,7 +60,7 @@ fi
 NAME=${NAME:-reva}
 case $NAME in *[!A-Za-z0-9._-]*|'') die "--name $NAME: use letters, digits, . _ -" ;; esac
 if [ -z "$VERSION" ]; then
-    VERSION=$(awk -F'"' '/^version *=/ { print $2; exit }' "$ROOT/components/vm/Cargo.toml")
+    VERSION=$(tr -d ' \n' < "$ROOT/VERSION")
 fi
 
 [ -n "$BUILD" ] && "$HERE/build-web.sh" >/dev/null
@@ -92,7 +92,12 @@ if [ -n "$PKG" ]; then
     done)
     pkgmeta=pkg/
 fi
-build=$("$HERE/build-stamp.sh")
+# A hash of the site's files (package included): a new build is new module
+# URLs below, so browsers never mix stale modules with fresh ones, while an
+# unchanged build stays cached.  The page fetches its other files with
+# no-cache (reva.js FRESH).  POSIX cksum, files in a fixed order.
+site=$(cd "$STAGE" && find . -type f | LC_ALL=C sort | xargs cat | cksum | cut -d' ' -f1)
+build="$("$HERE/build-stamp.sh") $site"
 awk -v pkg="$pkgmeta" -v canvas="$CANVAS" -v build="$build" '
     index($0, "<meta name=\"reva-package\" content=\"\">") { sub(/content=""/, "content=\"" pkg "\"") }
     index($0, "<meta name=\"reva-canvas\" content=\"\">") { sub(/content=""/, "content=\"" canvas "\"") }
@@ -100,6 +105,12 @@ awk -v pkg="$pkgmeta" -v canvas="$CANVAS" -v build="$build" '
     { print }' "$WWW/index.html" > "$STAGE/index.html"
 grep -q "name=\"reva-canvas\" content=\"$CANVAS\"" "$STAGE/index.html" \
     || die "index.html has no reva-canvas meta tag to set"
+# Every module and worker URL ("./x.js"), and the UI's wasm, carry ?v=SITE.
+for f in "$STAGE"/*.js "$STAGE"/ui/*.js "$STAGE/index.html"; do
+    sed-rs -i -e "s#(\"\\./[A-Za-z0-9_./-]+\\.js)\"#\\1?v=$site\"#g" \
+        -e "s#'(reva_ui_web_bg\\.wasm)'#'\\1?v=$site'#g" "$f" || die "$f: could not stamp module URLs"
+done
+grep -q "\"./reva.js?v=$site\"" "$STAGE/index.html" || die "index.html: module URLs not stamped"
 
 cat > "$STAGE/README.txt" <<EOF
 $SITE: Reva Forth in the browser (WebAssembly), as a static site.
@@ -125,9 +136,16 @@ core).$( [ -n "$PKG" ] && printf '\nThe package in pkg/ has its own terms; see i
 EOF
 
 # Reproducible: fixed timestamps (the last commit's, in UTC) and sorted names.
+# A package's newest file wins when it is newer: a package rebuilt at the
+# same reva-fork commit must still get newer times, or a server that answers
+# by Last-Modified (python3 -m http.server) keeps sending the old index.html.
 stamp=$(cd "$ROOT" && TZ=UTC git log -1 --format=%cd --date=format-local:%Y%m%d%H%M 2>/dev/null || true)
 stamp=${stamp:-202601010000}
 find "$STAGE" -exec env TZ=UTC touch -t "$stamp" {} +
+if [ -n "$PKG" ]; then
+    newest=$(find "$PKG" -type f ! -path '*/.*' -newer "$STAGE/index.html" -exec ls -t {} + | head -1)
+    [ -n "$newest" ] && find "$STAGE" -exec touch -r "$newest" {} +
+fi
 (cd "$OUT" && find "$SITE" | LC_ALL=C sort | TZ=UTC zip -qX -@ "$ZIP")
 
 n=$(find "$STAGE" -type f | wc -l | tr -d ' ')

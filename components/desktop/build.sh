@@ -27,7 +27,9 @@ rm -rf "$here/dist/ui" && cp -R "$www/ui" "$here/dist/ui"
 cd "$here"
 case "${1:-}" in
     --install) cargo install --locked --path crates/reva-desktop ;;
-    --bundle)  (cd crates/reva-desktop && cargo tauri build) ;;
+    # installers carry the release version (VERSION), not tauri.conf.json's
+    --bundle)  (cd crates/reva-desktop && cargo tauri build \
+                   --config "{\"version\": \"$(tr -d ' \n' < "$here/../../VERSION")\"}") ;;
     *)         cargo build --release ;;
 esac
 [[ "${1:-}" == --install ]] || echo "built: $(cd "$here/../.." && pwd)/target/release/reva-desktop"

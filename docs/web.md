@@ -209,6 +209,24 @@ python3 -m http.server -d /tmp/site 8000
 #   open http://localhost:8000/a/b/reva-web-VERSION/
 ```
 
+**A rebuilt site is never run stale.** A rebuild unzipped over the old
+folder at the same address used to keep running old files. Static hosts
+often send no `Cache-Control`, so browsers reuse their copies. Now:
+
+- The page fetches its files with `cache: "no-cache"`: the manifest, the
+  package's files, `reva.wasm` and images. An unchanged file costs a 304.
+- The zip stamps every module and worker URL, and the UI's wasm, with a
+  hash of the site's files (`./reva.js?v=HASH`). A new build is new URLs
+  and an unchanged one stays cached.
+- The files' times are the last commit's, or the package's newest file
+  when that is newer. So a package rebuilt at the same reva-fork commit
+  gets newer times, and servers that answer by Last-Modified send the new
+  `index.html`.
+- The About dialog shows the build's commit, date and site hash, so a
+  stale page is easy to tell.
+
+[reva-serve](serve.md) sends `Cache-Control: no-cache` for everything.
+
 `file://` does not work: browsers do not start module workers or fetch
 files from `file://` pages. To run the same tree with no server at all,
 use [reva-serve](serve.md), which embeds it in one binary.
