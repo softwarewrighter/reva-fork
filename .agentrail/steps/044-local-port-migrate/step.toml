@@ -1,6 +1,6 @@
 number = 44
 slug = "local-port-migrate"
-status = "pending"
+status = "in-progress"
 description = "At the user's request (2026-11-02): a migration path for Windows-only Reva pr..."
 role = "production"
 context_files = []
