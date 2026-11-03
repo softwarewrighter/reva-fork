@@ -134,6 +134,16 @@ pub struct DirStream {
     pub next: usize,
 }
 
+/// A file being included: its name, its text in memory, and the parse
+/// position in the text around it when the include began, so an error can
+/// say `FILE:LINE` and the chain of files (reva-words-eval, reva-core-inspect).
+pub struct IncludeFrame {
+    pub name: String,
+    pub start: u32,
+    pub end: u32,
+    pub from: u32,
+}
+
 pub struct Machine {
     /// Runs gateways (see [`Dispatch`]).
     pub dispatch: Dispatch,
@@ -170,6 +180,8 @@ pub struct Machine {
     /// warning once until the stack is back at or above empty.
     pub underflow_fail: bool,
     pub underflow_warned: bool,
+    /// The files being included, outermost first.  Transient.
+    pub includes: Vec<IncludeFrame>,
     /// The turtle and its drawing (canvas.rs, turtle.rs).  Host state, like
     /// open files: not part of an image, and new after `restart`.
     pub canvas: crate::canvas::Canvas,

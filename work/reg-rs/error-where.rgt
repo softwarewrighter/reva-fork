@@ -1,0 +1,3 @@
+command = "${REVA:-target/debug/reva} tests/forth/where-outer.f -e bye < /dev/null"
+exit_code = 0
+desc = "errors in included files say FILE:LINE (and the including file), faults name the word and show the stack, an underflow says where"

@@ -6,6 +6,7 @@ use reva_core::host::Host;
 use reva_core::layout::{RP0, S0};
 use reva_core::x86::{Arith, EAX, ESI, ESP};
 use reva_core::{Flow, Gate, st};
+use reva_core_inspect::source::Source;
 use reva_core_inspect::words::Dictionary;
 
 type R<T = ()> = Result<T, Fault>;
@@ -78,7 +79,10 @@ reva_macros::machine_trait! {
         fn recover(&mut self, host: &mut dyn Host, f: Fault) {
             let eip = self.cpu.eip;
             let at = self.describe_addr(eip);
-            host.write(format!("\n*** {f} (in {at}, eip {eip:#010x})\n").as_bytes());
+            // where in the input (FILE:LINE, the word) and the stack
+            let place = self.where_suffix();
+            let stack = self.stack_line().map(|s| format!("{s}\n")).unwrap_or_default();
+            host.write(format!("\n*** {f} (in {at}, eip {eip:#010x}){place}\n{stack}").as_bytes());
             // A fault inside an IUP callback leaves its event loops.
             self.ui.loops.clear();
             self.ui.calls.clear();
