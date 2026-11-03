@@ -3,7 +3,8 @@
 use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::x86::ESI;
-use reva_core::{Dispatch, Gate, Machine, Next, st};
+use reva_core::{Dispatch, Gate, IncludeFrame, Machine, Next, st};
+use reva_core_inspect::source::Source;
 use reva_words_calls::heap::HeapWords;
 use reva_words_scan::parse::Parse;
 
@@ -16,6 +17,7 @@ pub const ENTRIES: &[(Gate, Dispatch)] = reva_macros::words! {
     Include => include;
     Include2 => include2;
     IncludeDone => include_done;
+    Where => where_;
 };
 
 /// `eval` ( a n -- ): interpret the string, keeping the outer source.
@@ -66,16 +68,43 @@ pub fn include2(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
 /// Slurp the file named on the stack and evaluate it (then
 /// `include_done`); `Next::Ret` with `ioerr` set if it cannot be read.
 pub fn start_include(m: &mut Machine, host: &mut dyn Host) -> R<Next> {
+    let (a, n) = (m.nos()?, m.eax());
+    let name = String::from_utf8_lossy(m.mem.slice(a, n)?).into_owned();
     if !m.slurp(host)? {
         m.drop1()?;
         m.drop1()?;
         m.setv(st::IOR, 1)?;
         return Ok(Next::Ret);
     }
+    // Frames of includes an error abandoned are dropped: the files still
+    // being read are the ones whose text holds where this include began.
+    let from = m.var(st::TIN);
+    let keep = m
+        .includes
+        .iter()
+        .rposition(|f| (f.start..=f.end).contains(&from));
+    m.includes.truncate(keep.map_or(0, |k| k + 1));
+    let (start, len) = (m.nos()?, m.eax());
+    m.includes.push(IncludeFrame {
+        name,
+        start,
+        end: start + len,
+        from,
+    });
     m.rpush(m.nos()?)?;
     m.rpush(m.cpu.r[ESI as usize])?;
     m.rpush(m.eax())?;
     Ok(Next::Call(Gate::Eval.addr(), Gate::IncludeDone))
+}
+
+/// `(where)` ( -- ): print `FILE:LINE: ` (and the including files) while a
+/// file is being included; nothing otherwise.  The boot's `ERROR` calls it,
+/// so errors in files say where, as a compiler's do.
+pub fn where_(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
+    if let Some(at) = m.source_where() {
+        host.write(format!("{at}: ").as_bytes());
+    }
+    Ok(Next::Ret)
 }
 
 /// After the file: the stack as it was, the text freed.
@@ -85,6 +114,9 @@ pub fn include_done(m: &mut Machine, _: Gate, _: &mut dyn Host) -> R<Next> {
     m.set_eax(eax);
     m.drop1()?;
     let ptr = m.rpop()?;
+    if m.includes.last().is_some_and(|f| f.start == ptr) {
+        m.includes.pop();
+    }
     m.heap.free(ptr);
     m.drop1()?;
     m.setv(st::IOR, 0)?;

@@ -196,6 +196,7 @@ name = "reva-words-eval"
 version = "2026.1102.0"
 dependencies = [
  "reva-core",
+ "reva-core-inspect",
  "reva-macros",
  "reva-words-calls",
  "reva-words-code",
