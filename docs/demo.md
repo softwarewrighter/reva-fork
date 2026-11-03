@@ -32,7 +32,7 @@ The binary is self-contained: `reva.f` and `lib/` are compiled in.
 Run `reva` with no arguments. It prints the banner and a prompt:
 
 ```text
-reva-fork 2026.1102.0 portable
+reva-fork YYYY.MMDD.N portable
 ok>
 ```
 

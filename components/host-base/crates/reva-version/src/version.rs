@@ -1,20 +1,22 @@
 //! What this build calls itself: the banner Reva prints at startup, and the
 //! fuller report shared by `reva -V` and the core word `version`.
 //!
-//! The version is the workspace version, `YYYY.MMDD.N`: the release date
-//! and that day's release number, from 0 (`2026.1025.0`).  Cargo forbids
-//! leading zeros, so January 5 is `2026.105.0`.  The build details come
+//! The version is the release version in the repository's `VERSION` file
+//! (read by `build.rs`), `YYYY.MMDD.N`: the release date and that day's
+//! release number, from 0 (`2026.1025.0`).  January 5 is `2026.105.0` (no
+//! leading zero, as when the version was Cargo's).  The crates keep a fixed
+//! version, so a release changes only `VERSION`.  The build details come
 //! from `build.rs`.  `revaver` still answers `2011.2`, the release of
 //! `reva.f` this core runs, since libraries test it.
 
 /// The fork's name.
 pub const NAME: &str = "reva-fork";
 
-/// The workspace version.
-pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+/// The release version (the repository's VERSION file, read by build.rs).
+pub const VERSION: &str = env!("REVA_VERSION");
 
 /// The startup banner, in place of `Reva 2011.2 Linux`.
-pub const BANNER: &str = concat!("reva-fork ", env!("CARGO_PKG_VERSION"), " portable");
+pub const BANNER: &str = concat!("reva-fork ", env!("REVA_VERSION"), " portable");
 
 pub const REPOSITORY: &str = "https://github.com/softwarewrighter/reva-fork";
 pub const COPYRIGHT: &str = "Copyright (c) 2026 Michael A Wright";
@@ -72,6 +74,6 @@ pub fn fields() -> String {
 /// change the size of the dictionary.
 pub const VER_WORD: &str = concat!(
     ": .ver .\" reva-fork ",
-    env!("CARGO_PKG_VERSION"),
+    env!("REVA_VERSION"),
     " portable\" ;\n"
 );
