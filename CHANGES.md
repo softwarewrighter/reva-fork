@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-03
 
+- 14:19 `chore` Release 2026.1103.0: dev merged into main (ef5f3d8, 14:18) and the live demo published, checked in Chrome (Reva Fork header and logo, banner and footer 2026.1103.0 build ef5f3d8, site hash in the build stamp, a tree in the split view); the page loaded the new site without a hard reload.
+- 14:19 `chore` Merge #84 (local-one-version).
 - 14:06 `chore` Step local-one-version complete (saga record).
 - 13:39 `release` 2026.1103.0 (step local-one-version), at the user's request, for today's merge to main: the first bump that is one file, VERSION. Since 2026.1102.0: errors in files say FILE:LINE and the word; runaway loops pause (page) or hit --max-cpu (CLI); docs on what lies under an empty stack (CoSy's ask 18); a rebuilt web site is never run stale; the version in one place.
 - 13:34 `build` The release version in one place, the root `VERSION` file (step local-one-version, at the user's request; with CoSy's ask 9). reva-version's build.rs reads it (the banner, `.ver`, `reva -V`, the web and desktop build facts); the desktop app's `-V` and reva-serve's probe read it too (include_str!); build-stamp.sh, make-web-zip.sh and build-serve.sh read it; `components/desktop/build.sh --bundle` gives it to the installers (`cargo tauri build --config`; not run here: no tauri-cli on this Mac). Every crate stays at `0.1.0`, so a release no longer touches 68 files: the bump is `VERSION` and a CHANGES line. The boot-progress golden and the web smoke transcript show `VERSION` in its place; the docs say `YYYY.MMDD.N`; the gate checks VERSION's form. `build-serve.sh --version V` names the binary after a package's own version (cosy-serve, ask 9). CLAUDE.md's release paragraph.
