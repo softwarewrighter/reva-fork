@@ -60,6 +60,7 @@ Other ways to run code:
 | `reva --save-image app.img -e '...'` | save the state after loading, then exit |
 | `reva --image app.img` | start from a saved image |
 | `reva --underflow fail ...` | stop with an error when a word takes more than the stack holds (default `warn`: say so once and go on, as Reva did) |
+| `reva --port-check [--fix DIR] FILE...` | find Windows-only paths and commands; write portable copies ([porting-from-windows.md](porting-from-windows.md)) |
 | `reva --help` | all options |
 | `reva -V` | version and build information (`--version`) |
 

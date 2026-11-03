@@ -27,6 +27,8 @@ usage: reva [options] [file ...]
                        svg, png, off
       --ui-script FILE answer IUP programs' user interface from FILE (headless; prints
                        what is shown; docs/ui-model.md)
+      --port-check [--fix DIR] FILE...  report Windows-only paths and commands in
+                       Forth sources; --fix writes portable copies to DIR
   -h, --help           this text
   -V, --version        version
 ";
