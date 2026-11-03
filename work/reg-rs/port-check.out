@@ -1,0 +1,23 @@
+windows-only.f:4:16: drive-path: the drive exists only on Windows: a path relative to the program, ./notes.txt
+    fix: C:\apps\notes\notes.txt -> ./notes.txt
+windows-only.f:5:37: path-separator: paths in reva-fork use / on every host (Windows reported them with \)
+    fix: \ -> /
+windows-only.f:6:16: windows-command: `copy` is a Windows shell command; instead: slurp, then creat/write/close (or os/fs)
+    by hand: : backup     " copy notes.txt notes.bak" shell ;
+windows-only.f:7:16: windows-command: `del` is a Windows shell command; instead: delete ( a n -- )
+    by hand: : tidy       " del notes.bak" shell ;
+windows-only.f:8:16: windows-command: `start` is a Windows shell command; instead: the host's opener for a file or URL ((open-url)), not cmd.exe
+    by hand: : launch     " start setup.bat" shell ;
+windows-only.f:8:16: bat-file: a Windows batch file: do its steps in Forth, or document them per OS
+    by hand: : launch     " start setup.bat" shell ;
+port-check: 1 file(s): 2 fixed in the copies, 4 to do by hand
+exit 1
+4,5c4,5
+< : data-file  " C:\apps\notes\notes.txt" ;
+< : notes-dir  ( a n -- a n )  2dup " \" split ;   | splits a path Windows reported
+---
+> : data-file  " ./notes.txt" ;
+> : notes-dir  ( a n -- a n )  2dup " /" split ;   | splits a path Windows reported
+port-report.txt
+windows-only.f
+exit 2
