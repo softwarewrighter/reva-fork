@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-02
 
+- 18:11 `chore` Step local-error-context complete (saga record).
 - 18:00 `feat` Errors that say where and why (step local-error-context; CoSy's ask 15 and the user's underflow report, ask 11): while a file is being included, an `ERROR:` starts with `FILE:LINE:` and the files that include it, as a compiler's do (`inner.f:3 (from outer.f:3): ERROR: unknown word: ...`), through a new gate `(where)` (appended) and an `ERROR` the boot defines right after reva.f's (reva.f unchanged); the machine keeps a stack of the files being included, dropping those an error abandoned. A fault says ``at FILE:LINE after `word` `` (the word just read: `type` for a gate) and shows the stack (`stack (4): 2 7 8 0`); the underflow warning says where too. The old "a C function called without (call)" message for `dir` with too few arguments no longer shows: it is the underflow warning naming `dir`. scripts/parity-examples.sh reads messages past the location (statuses unchanged). Goldens: error-where (new); boot-words, core-errors, core-include-abort, core-underflow, native-traps (reviewed: the location, and eips moved by the new words). Docs: gotchas.md.
 - 18:00 `chore` Merge #79 (local-port-migrate).
 - 17:34 `chore` Step local-port-migrate complete (saga record); the scratch CoSy copies were deleted.
