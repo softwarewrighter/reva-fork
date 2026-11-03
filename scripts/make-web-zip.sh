@@ -60,7 +60,7 @@ fi
 NAME=${NAME:-reva}
 case $NAME in *[!A-Za-z0-9._-]*|'') die "--name $NAME: use letters, digits, . _ -" ;; esac
 if [ -z "$VERSION" ]; then
-    VERSION=$(awk -F'"' '/^version *=/ { print $2; exit }' "$ROOT/components/vm/Cargo.toml")
+    VERSION=$(tr -d ' \n' < "$ROOT/VERSION")
 fi
 
 [ -n "$BUILD" ] && "$HERE/build-web.sh" >/dev/null

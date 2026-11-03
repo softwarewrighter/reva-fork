@@ -8,6 +8,8 @@
 #                   instead of building one
 #   --package DIR   build the site with this package (make-web-zip.sh --package)
 #   --name NAME     app name: binary NAME-serve (default: reva, or the package id)
+#   --version V     version in the names (default: the repository's VERSION;
+#                   a package passes its own, e.g. CoSy's)
 #   --port N        preferred port (default 8421)
 #   --out DIR       where binaries go (default: target/serve)
 #   --no-build      do not rebuild reva.wasm
@@ -24,7 +26,7 @@
 set -eu
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/.." && pwd)
-SITE= PKG= NAME= PORT=8421 OUT=$ROOT/target/serve NOBUILD=
+SITE= PKG= NAME= VERSION= PORT=8421 OUT=$ROOT/target/serve NOBUILD=
 die() { echo "build-serve: $*" >&2; exit 1; }
 while [ $# -gt 0 ]; do
     case $1 in
@@ -32,20 +34,22 @@ while [ $# -gt 0 ]; do
         --package) [ $# -ge 2 ] || die "$1 needs a value"; PKG=$2; shift 2 ;;
         --name) [ $# -ge 2 ] || die "$1 needs a value"; NAME=$2; shift 2 ;;
         --port) [ $# -ge 2 ] || die "$1 needs a value"; PORT=$2; shift 2 ;;
+        --version) [ $# -ge 2 ] || die "$1 needs a value"; VERSION=$2; shift 2 ;;
         --out) [ $# -ge 2 ] || die "$1 needs a value"; OUT=$2; shift 2 ;;
         --no-build) NOBUILD=--no-build; shift ;;
-        -h|--help) sed -n '2,24p' "$0" | cut -c3-; exit 0 ;;
+        -h|--help) sed -n '2,26p' "$0" | cut -c3-; exit 0 ;;
         -*) die "unknown option $1 (try --help)" ;;
         *) break ;;
     esac
 done
-VERSION=$(awk -F'"' '/^version *=/ { print $2; exit }' "$ROOT/components/vm/Cargo.toml")
+VERSION=${VERSION:-$(tr -d ' \n' < "$ROOT/VERSION")}
 
 # The site: given, or built the way the uploadable zip is.
 if [ -z "$SITE" ]; then
     zipargs="--out $ROOT/target/web $NOBUILD"
     [ -n "$PKG" ] && zipargs="$zipargs --package $PKG"
     [ -n "$NAME" ] && zipargs="$zipargs --name $NAME"
+    zipargs="$zipargs --version $VERSION"
     # shellcheck disable=SC2086 # word splitting is wanted (paths without spaces)
     line=$("$HERE/make-web-zip.sh" $zipargs | head -1)
     zip=${line#make-web-zip: }
