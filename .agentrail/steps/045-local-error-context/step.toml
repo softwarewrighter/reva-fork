@@ -1,8 +1,9 @@
 number = 45
 slug = "local-error-context"
-status = "in-progress"
+status = "completed"
 description = "Errors that say where and why: CoSy's ask 15 (high, 2026-11-02) with the user..."
 role = "production"
 context_files = []
 created_at = "2026-10-28T20:12:27"
-commits = []
+completed_at = "2026-11-02T18:11:06"
+commits = ["e75fb4f98a289c7b24102993d08f012298996373"]
