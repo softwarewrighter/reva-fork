@@ -1,0 +1,3 @@
+command = '${REVA:-target/debug/reva} --max-cpu 0.2 -e ": spin repeat again ;" -e spin < /dev/null; echo "exit $?"'
+exit_code = 0
+desc = "reva --max-cpu ends a run that computes without waiting for input: *** time limit, exit 124"

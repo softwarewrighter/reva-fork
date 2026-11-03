@@ -15,6 +15,9 @@
 //                                        saves it to storage itself
 //                   close  {}            end of input
 //                   stop   {}            interrupt the running word
+//                   resume { ms }        go on after "paused": ms more (0: no
+//                                        limit; none: the guard's guardMs)
+//                   hidden { hidden }    the page is hidden: pause; shown: go on
 //                   ui     { channel, resend? }
 //                                        a UI channel: "canvas" + resend
 //                                        asks for the whole drawing again
@@ -25,7 +28,7 @@
 //                                        drawing ops since the last slice
 //                                        (Float32Array, transferred), or
 //                                        reset after `restart`
-//                   status { status, exitCode, boot?, build? }
+//                   status { status, exitCode, boot?, build?, reason? }
 //                                        "running", NEED_INPUT or HALTED;
 //                                        after boot, the build facts
 //                   files  { list }      [{ path, data: bytes | null }]
@@ -39,7 +42,7 @@
 // so `input` and `stop` messages are seen within one slice.  While Forth
 // waits for input the worker is idle: no polling, no CPU.
 
-import { Reva, RUNNING, HALTED, HOST_CALL } from "./reva.js";
+import { Reva, RUNNING, HALTED, HOST_CALL, PAUSED } from "./reva.js";
 
 let reva = null;
 let pumping = false;
@@ -59,18 +62,33 @@ async function answerLocally(call) {
 const post = (m, transfer) => globalThis.postMessage(m, transfer);
 const postUi = (m) => post(m, m.ops ? [m.ops.buffer] : []);
 
+// The runaway guard: a run that goes `guardMs` without waiting for input
+// pauses (no slices, no CPU) until the page says resume or stop; `limit`
+// is this run's (null: the guard's, 0: none).  A hidden page pauses too.
+let guardMs = 5000;
+let limit = null;
+let hidden = false;
+let paused = null; // why the VM is paused: "time" or "hidden"
+
 async function pump() {
   if (pumping || waiting || !reva) return;
   pumping = true;
+  paused = null;
   post({ type: "status", status: RUNNING });
   let s;
   try {
-    s = await reva.run((text) => post({ type: "output", text }), { onUi: postUi });
+    const opts = { onUi: postUi, limitMs: limit ?? guardMs, paused: () => hidden };
+    s = await reva.run((text) => post({ type: "output", text }), opts);
   } catch (e) {
     post({ type: "error", message: String(e?.message ?? e) });
     s = HALTED;
   }
   pumping = false;
+  if (s === PAUSED) {
+    paused = hidden ? "hidden" : "time";
+    return post({ type: "status", status: PAUSED, reason: paused, seconds: (limit ?? guardMs) / 1000 });
+  }
+  limit = null;
   sendFiles();
   // A host call: the page answers (hostreply), and the VM runs on.
   if (s === HOST_CALL) {
@@ -101,6 +119,7 @@ async function handle(m) {
   switch (m.type) {
     case "init":
       local = new Set(m.local ?? []);
+      guardMs = m.guardMs ?? guardMs;
       try {
         reva = await Reva.load(m.wasm, { files: m.files ?? {}, image: m.image });
       } catch (e) {
@@ -113,7 +132,7 @@ async function handle(m) {
       break;
     case "input":
       reva.feed(m.text);
-      pump();
+      if (!paused) pump(); // paused: read once the page says go on
       break;
     case "start":
       reva.feedStart(m.text);
@@ -133,6 +152,21 @@ async function handle(m) {
       break;
     case "stop":
       if (pumping) reva.interrupt();
+      if (paused) {
+        reva.interrupt();
+        limit = null;
+        pump();
+      }
+      break;
+    case "resume":
+      if (paused) {
+        limit = m.ms ?? null;
+        pump();
+      }
+      break;
+    case "hidden":
+      hidden = m.hidden;
+      if (!hidden && paused === "hidden") pump();
       break;
     case "ui":
       reva?.ui(m);

@@ -26,6 +26,7 @@
   main { max-width: 900px; margin: 0 auto; padding: 16px; display:flex; flex-direction:column; height:100vh; }
   header { color: var(--muted); padding-bottom: 8px; border-bottom: 1px solid var(--line); }
   header b { color: var(--accent); }
+  #paused { color: var(--accent); padding: 6px 0; }
   #logo { width:1.3em; height:1.3em; vertical-align:-0.3em; margin-right:.35em; }
   footer { color:var(--muted); font-size:12px; border-top:1px solid var(--line); padding-top:6px; margin-top:8px; }
   footer a { color:inherit; }
@@ -126,6 +127,9 @@
   <div id="out" aria-live="polite"></div>
   <form id="f"><span id="prompt">ok&gt;</span><input id="line" autocomplete="off" spellcheck="false" autofocus>
     <button type="button" id="stop" title="Stop the running word (Ctrl-C)" disabled>Stop</button></form>
+  <div id="paused" hidden>Still running without waiting for input (paused, using no CPU):
+    <button type="button" id="paused-stop">Stop</button> <button type="button" id="paused-more">5 s more</button>
+    <button type="button" id="paused-go">Keep going</button></div>
   <div id="tui" hidden><div class="tui-root"></div></div>
   <div id="panes"></div>
   <footer id="footer"></footer>
@@ -135,7 +139,7 @@
   // draws: output is appended at most once per animation frame, and the
   // console keeps its last MAX_CHUNKS pieces so a chatty program cannot
   // grow the page without bound.
-  import { start, RUNNING, HALTED } from "./reva.js";
+  import { start, RUNNING, HALTED, PAUSED } from "./reva.js";
   import { hostSetup } from "./host.js";
   import { CanvasChannel } from "./ui.js";
   import { TuiPane } from "./tui.js";
@@ -282,10 +286,12 @@
     onHostCall: (call) => call.service === "ui" ? tui.answer(call)
       : host.hostCall?.(call) ?? { error: `${call.service} is not available in the browser` },
     onStatus: (s) => {
-      stop.disabled = s !== RUNNING;
+      stop.disabled = s !== RUNNING && s !== PAUSED;
+      // A runaway guard pause (reva.js): the user decides.
+      document.getElementById("paused").hidden = !(s === PAUSED && reva.pauseReason === "time");
       // Back at the REPL or halted: no event loop runs, so the TUI steps
       // aside (it shows again at the next one).
-      if (s !== RUNNING) tui.show(false);
+      if (s !== RUNNING && s !== PAUSED) tui.show(false);
       if (s === HALTED) {
         echo(`\n[exited with status ${reva.exitCode}]\n`);
         line.disabled = true;
@@ -357,6 +363,14 @@
   if (!host.keepsFiles)
     uploadButton(document.getElementById("upload-btn"), { session: reva, storage: host.storage, prefix: filePrefix, echo });
   stop.addEventListener("click", () => reva.stop());
+  // The runaway guard's choices, and a hidden page pausing the VM (unless
+  // ?background asks it to keep running).
+  document.getElementById("paused-stop").addEventListener("click", () => reva.stop());
+  document.getElementById("paused-more").addEventListener("click", () => reva.resume(5000));
+  document.getElementById("paused-go").addEventListener("click", () => reva.resume(0));
+  if (!query.has("background")) {
+    document.addEventListener("visibilitychange", () => reva.setHidden(document.hidden));
+  }
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "c" && !window.getSelection()?.toString()) {
       e.preventDefault();
