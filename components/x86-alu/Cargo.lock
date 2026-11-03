@@ -4,33 +4,33 @@ version = 4
 
 [[package]]
 name = "reva-macros"
-version = "2026.1102.0"
+version = "0.1.0"
 
 [[package]]
 name = "reva-x86-base"
-version = "2026.1102.0"
+version = "0.1.0"
 
 [[package]]
 name = "reva-x86-float"
-version = "2026.1102.0"
+version = "0.1.0"
 dependencies = [
  "reva-x86-types",
 ]
 
 [[package]]
 name = "reva-x86-fpustate"
-version = "2026.1102.0"
+version = "0.1.0"
 
 [[package]]
 name = "reva-x86-mem"
-version = "2026.1102.0"
+version = "0.1.0"
 dependencies = [
  "reva-x86-base",
 ]
 
 [[package]]
 name = "reva-x86-ops"
-version = "2026.1102.0"
+version = "0.1.0"
 dependencies = [
  "reva-macros",
  "reva-x86-base",
@@ -40,7 +40,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-shift"
-version = "2026.1102.0"
+version = "0.1.0"
 dependencies = [
  "reva-macros",
  "reva-x86-base",
@@ -51,7 +51,7 @@ dependencies = [
 
 [[package]]
 name = "reva-x86-types"
-version = "2026.1102.0"
+version = "0.1.0"
 dependencies = [
  "reva-x86-fpustate",
 ]

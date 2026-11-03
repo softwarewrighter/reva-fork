@@ -4,4 +4,4 @@ version = 4
 
 [[package]]
 name = "reva-macros"
-version = "2026.1102.0"
+version = "0.1.0"
