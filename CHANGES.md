@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-03
 
+- 12:20 `chore` Step local-image-go complete (saga record).
 - 12:19 `docs` CoSy's ask 18 (step local-image-go): from a saved image Bob's `go` faulted (refs@ at 8). Not image-specific and not a reva-fork incompatibility: Tui.f's `>text` (through onvan's swap ref0del) frees the leftover under an empty stack, the cached top (EAX), and reva.f's `reset` sets that to 0 at every start of a saved program and after every error at the prompt, as Reva 7.0's identical `reset` did; from source, an error before `go` faults the same way. With the leftover made harmless first (`nil swap drop`, in the CoSy lane's own loader), go opens its window from the image and after an error (checked from a scratch build, deleted after). docs/gotchas.md: what lies under an empty stack.
 - 08:41 `chore` CHANGES: the release record belongs to 2026-11-03 (Pacific), not under 2026-11-02.
 - 08:39 `chore` Release 2026.1102.0: dev merged into main (0a0474e) and the live demo published, checked in Chrome (Reva Fork header and logo, footer 2026.1102.0 build 0a0474e, a tree in the split view, the runaway bar in the page). Since 2026.1101.1: the Reva Fork branding; saved images everywhere (and --save-image keeping late strings); stack underflow warns and goes on as Reva did; the Reva 7.0 layer (needs compat/reva70); reva --port-check; errors that say FILE:LINE, the word and the stack; runaway loops pause (page) or hit --max-cpu (CLI); images keep their own prompt.
