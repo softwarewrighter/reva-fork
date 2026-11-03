@@ -140,7 +140,7 @@ export function aboutDialog({ pkg = null, openUrl = null } = {}) {
   const reva = { ...REVA, version: build?.version, build: build ? `reva-fork ${[build.commit, build.date].filter(Boolean).join(" · ")}` : "development build (source tree)" };
   const close = el("button", { type: "button", textContent: "Close", className: "close" });
   const d = el("dialog", { id: "about" });
-  d.setAttribute("aria-label", `About ${pkg?.name ?? "Reva Forth"}`);
+  d.setAttribute("aria-label", `About ${pkg?.name ?? "Reva Fork"}`);
   if (pkg) d.append(entry(pkg, openUrl));
   const revaHead = `${pkg ? "on " : ""}reva-fork${reva.version ? ` ${reva.version}` : ""}`;
   d.append(entry(reva, openUrl, revaHead), close);

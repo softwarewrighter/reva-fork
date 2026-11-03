@@ -4,19 +4,19 @@ version = 4
 
 [[package]]
 name = "reva-charset"
-version = "2026.1101.1"
+version = "2026.1102.0"
 
 [[package]]
 name = "reva-embedded"
-version = "2026.1101.1"
+version = "2026.1102.0"
 dependencies = [
  "reva-version",
 ]
 
 [[package]]
 name = "reva-hostcall"
-version = "2026.1101.1"
+version = "2026.1102.0"
 
 [[package]]
 name = "reva-version"
-version = "2026.1101.1"
+version = "2026.1102.0"

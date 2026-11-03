@@ -59,6 +59,9 @@ Other ways to run code:
 | `reva file.f < /dev/null` | run a file as a batch |
 | `reva --save-image app.img -e '...'` | save the state after loading, then exit |
 | `reva --image app.img` | start from a saved image |
+| `reva --max-cpu SECONDS ...` | end a run that computes that long without waiting for input (`*** time limit`, exit 124; default 30 s with `--ui-script`) |
+| `reva --underflow fail ...` | stop with an error when a word takes more than the stack holds (default `warn`: say so once and go on, as Reva did) |
+| `reva --port-check [--fix DIR] FILE...` | find Windows-only paths and commands; write portable copies ([porting-from-windows.md](porting-from-windows.md)) |
 | `reva --help` | all options |
 | `reva -V` | version and build information (`--version`) |
 
@@ -71,7 +74,7 @@ echo '3 ~sys.(bye)' | reva; echo $?      # 3
 ```
 
 When standard input is a terminal, `reva` starts as Reva always did: it
-prints the banner (`reva-fork 2026.1101.1 portable`) and an `ok>` prompt before
+prints the banner (`reva-fork 2026.1102.0 portable`) and an `ok>` prompt before
 each line. Piped or redirected input gets neither, so batch output is just
 what the program prints.
 
@@ -154,7 +157,10 @@ echo hi | reva --image app.img          # from the image
 
 In the browser, pass the image to `start` (`start("reva.wasm", { image:
 "app.img" })` in `reva-web/www/reva.js`), or open the console page as
-`index.html?image=app.img`. A page's start files (`index.html?include=app.f`,
+`index.html?image=app.img`; a package names its image in its manifest
+(`"image": "app.img"`), and the desktop app takes `--image app.img`
+([desktop.md](desktop.md)). `reva --save-image` keeps strings compiled
+after boot as `save` does, so the two images are the same. A page's start files (`index.html?include=app.f`,
 or a desktop package's `start` list) are included again after `restart`, as
 the CLI re-runs its file arguments.
 

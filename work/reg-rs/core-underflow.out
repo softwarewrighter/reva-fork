@@ -1,0 +1,5 @@
+3 
+3 
+3 
+
+*** stack underflow (in core:InterpWord, eip 0x00001064) after `drop`

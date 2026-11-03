@@ -25,6 +25,16 @@ pub fn session(state: tauri::State<'_, Mutex<State>>) -> Start {
     Start { session, files }
 }
 
+/// The saved image to start from, as raw bytes (an ArrayBuffer in the
+/// page), when the session says there is one.
+#[tauri::command]
+pub fn image(state: tauri::State<'_, Mutex<State>>) -> Result<tauri::ipc::Response, String> {
+    let st = state.lock().unwrap();
+    let path = st.image.as_ref().ok_or("no image")?;
+    let bytes = fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?;
+    Ok(tauri::ipc::Response::new(bytes))
+}
+
 /// Write a file the VM wrote (under the folder only).
 #[tauri::command]
 pub fn write_file(

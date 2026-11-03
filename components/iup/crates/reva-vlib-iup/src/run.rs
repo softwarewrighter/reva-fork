@@ -14,7 +14,7 @@ use reva_core::host::Host;
 use reva_core::hostcall::{HostAnswer, HostCall, HostReply};
 use reva_core::x86::{Arith, EAX, ESI, ESP};
 use reva_core::{Gate, Next};
-use reva_ui::ui::{Call, Event, Loop};
+use reva_ui::ui::{CLOSE, Call, DEFAULT, Event, Loop};
 use reva_ui_base::kind::Kind;
 
 use reva_core_ffi::args::CallArgs;
@@ -37,14 +37,18 @@ reva_macros::machine_trait! {
             let (x, y) = (arg(1) as i32, arg(2) as i32);
             match op {
                 Op::Popup if matches!(kind, Some(Kind::FileDlg | Kind::MessageDlg)) => return self.iup_file(host, ih, n),
-                Op::Popup | Op::MainLoop => {
+                Op::Popup | Op::MainLoop | Op::LoopStep => {
                     if op == Op::Popup {
                         self.ui.show(dialog, x, y, true);
                     }
                     for _ in 0..n + 2 {
                         self.ffi_pop()?;
                     }
-                    self.ui.loops.push(if op == Op::Popup { Loop::Popup(dialog) } else { Loop::Main });
+                    self.ui.loops.push(match op {
+                        Op::Popup => Loop::Popup(dialog),
+                        Op::LoopStep => Loop::Step(false),
+                        _ => Loop::Main,
+                    });
                     return Ok(Next::Jump(Gate::IupLoop.addr()));
                 }
                 Op::Show => drop(self.ui.show(dialog, -1, -1, false)),
@@ -58,14 +62,26 @@ reva_macros::machine_trait! {
         /// The gate `IupLoop`: end the innermost loop, or wait for an event
         /// and do what it does.
         fn iup_loop(&mut self, host: &mut dyn Host) -> R<Next> {
-            if !self.ui.running() {
+            let step = match self.ui.loops.last() {
+                Some(Loop::Step(done)) => Some(*done),
+                _ => None,
+            };
+            if !self.ui.running() || step == Some(true) {
+                let ret = match step {
+                    Some(_) if !self.ui.running() => CLOSE,
+                    Some(_) => DEFAULT,
+                    None => 0,
+                };
                 self.ui.end_loop();
-                self.ffi_push(0)?;
+                self.ffi_push(ret as u32)?;
                 return Ok(Next::Ret);
             }
             let Some(event) = self.iup_wait(host)? else {
                 return Ok(Next::HostCall);
             };
+            if let Some(Loop::Step(done)) = self.ui.loops.last_mut() {
+                *done = true;
+            }
             match self.ui.event(event) {
                 Some(call) => self.iup_callback(call),
                 None => Ok(Next::Jump(Gate::IupLoop.addr())),

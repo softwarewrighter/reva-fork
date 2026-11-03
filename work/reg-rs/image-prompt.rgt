@@ -1,0 +1,3 @@
+command = '''scripts/in-tempdir.sh sh -c '"$REVA" -e "with~ ~sys : my-prompt .\" [my] \" ;  '"'"' my-prompt is prompt" --save-image p.img < /dev/null && printf "1 .\\n2 .\\n" | "$REVA" --image p.img; echo; "$REVA" --save-image q.img < /dev/null && printf "3 .\\n" | "$REVA" --image q.img''''
+exit_code = 0
+desc = "an image keeps the prompt its program installed, also with piped input; reva.f's own prompt stays quiet there"

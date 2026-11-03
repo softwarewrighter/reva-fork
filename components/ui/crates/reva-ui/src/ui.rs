@@ -33,11 +33,13 @@ pub struct Ui {
 }
 
 /// An event loop: `IupMainLoop`, or `IupPopup` of a dialog (it ends when
-/// the dialog is hidden).
+/// the dialog is hidden), or `IupLoopStep`: one event, then it ends (Reva
+/// 7.0's `gui-main-loop` calls it in a loop); `true` once it has one.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Loop {
     Main,
     Popup(Handle),
+    Step(bool),
 }
 
 /// Something the user did, as a renderer reports it.

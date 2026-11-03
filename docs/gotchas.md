@@ -76,10 +76,26 @@ Numbers are 32-bit cells. Literals are checked for overflow, so
 Typed at the prompt, an unknown word only skips the rest of its line. In a
 file read with `include` (or given on the command line), the first unknown
 word abandons the *rest of the file*, and the stack is restored to what it
-was before the `include`. Check the first `ERROR:` line in the output.
+was before the `include`. Check the first `ERROR:` line in the output: it
+starts with the file and line, and the files that included it, as a
+compiler's do (`inner.f:3 (from outer.f:7): ERROR: unknown word: ...`).
+A fault says where too, and shows the stack:
+
+```text
+*** bad memory access: 4 byte(s) at 0x00000000 (in bad+0xc, eip ...) at outer.f:7 after `bad`
+stack (4): 2 7 8 0
+```
 
 A file that is not there is reported (`include: nosuch.f: no such file`)
 and `ioerr` is 1; the original Reva said nothing.
+
+## Stack underflow is a warning
+
+A word that takes more than the stack holds (`drop` on an empty stack)
+prints ``warning: stack underflow (depth -1) at FILE:LINE after `drop` `` once, and Forth goes on, as
+Reva did: words run in the slack above the stack, and later pushes bring it
+back. Programs written for Reva rely on it (CoSy's Tui.f, and
+`examples/sqlite.f`). `reva --underflow fail` stops with an error instead.
 
 ## Times are UTC
 
@@ -117,6 +133,18 @@ removed. Code running inside a host callback (a redefined `emit`, `type` or
 `cr`) cannot be interrupted that way; after 2 seconds the page replaces the
 worker with a fresh one. Saved files survive that, but the session's
 definitions are lost.
+
+## A runaway loop pauses
+
+A word that never ends, like `: spin repeat again ; spin` (or a word whose
+last call is itself, which Reva compiles as a jump), would keep a CPU core
+busy. In the browser and the desktop app, after 5 seconds of running
+without waiting for input, the VM pauses: it uses no CPU, and a bar offers
+**Stop**, **5 s more** or **Keep going**. A hidden tab pauses it as well,
+and it goes on when the tab is shown again (`?background` in the URL keeps
+it running). The CLI stops a run with `*** time limit` and exit status 124
+after `reva --max-cpu SECONDS`. That limit defaults to 30 seconds with
+`--ui-script` and is off otherwise (Ctrl-C stops a run at a terminal).
 
 ## `save` writes an image, not an executable
 

@@ -82,6 +82,29 @@ sed-rs --diff -e 's/old/new/' < file      # dry run: only the diff
 
 **Why:** every edit was followed by a separate `diff` to confirm it.
 
+## 6. A script file: `-f FILE`
+
+```bash
+sed-rs -i --expect=2 -f edits.sed docs/desktop.md
+```
+
+**Why (2026-11-02, sed-rs 0.3.0):** two edits whose replacements hold
+`|`, backquotes and quotes were written to a script file to avoid shell
+quoting; `-f` is not accepted (`unexpected argument '-f'`), so the edit
+went to an editor instead. POSIX sed and GNU sed both have `-f`.
+
+## 7. Bytes that are not UTF-8
+
+```bash
+sed-rs -i -F --expect=1 -e 's#0 func: IupLoopStep#...#' lib/ui/iup
+# sed-rs: lib/ui/iup: stream did not contain valid UTF-8
+```
+
+**Why (2026-11-02, sed-rs 0.3.0):** Reva's libraries are Latin-1 (e.g.
+`©` in a copyright line), so sed-rs refuses to edit them at all; the edit
+went to `LC_ALL=C awk`. Reading and writing bytes as they are (as POSIX
+sed in the C locale does), at least with `-F`, would cover it.
+
 ## What already works well
 
 - `\n` in a replacement, to insert a line after a match.

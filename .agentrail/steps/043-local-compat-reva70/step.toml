@@ -1,0 +1,9 @@
+number = 43
+slug = "local-compat-reva70"
+status = "completed"
+description = "At the user's request (2026-11-02): a Reva 7.0 compatibility layer, so CoSy (..."
+role = "production"
+context_files = []
+created_at = "2026-11-02T13:51:01"
+completed_at = "2026-11-02T15:55:19"
+commits = ["32f2b476ee329ed0f989dfcce1bcb59bbf5a4fd6"]

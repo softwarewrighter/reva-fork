@@ -28,7 +28,7 @@ pub fn session(run: &Run, vm: &mut Machine, host: &mut StdHost) -> ExitCode {
         return code;
     }
     if let Some(path) = &run.opts.save_image {
-        return save(vm, path);
+        return save(vm, host, path);
     }
     if !io::stdin().is_terminal() {
         return batch(run, vm, host, &mut d);
@@ -71,8 +71,17 @@ fn finish(status: Result<Status, ExitCode>) -> Option<ExitCode> {
     }
 }
 
-/// `--save-image PATH`: write the image and exit.
-fn save(vm: &Machine, path: &str) -> ExitCode {
+/// `--save-image PATH`: write the image and exit.  First, as Forth's
+/// `save` does, record the compiled-string area (silently), or strings
+/// compiled after boot are cut off when the image starts.
+fn save(vm: &mut Machine, host: &mut StdHost, path: &str) -> ExitCode {
+    host.capture = Some(Vec::new());
+    vm.feed(reva_vm::embedded::SAVE_STRINGS.as_bytes());
+    let status = vm.run_until_blocked(host);
+    host.capture = None;
+    if let Status::Halted(code) = status {
+        return exit_code(code);
+    }
     if let Err(e) = std::fs::write(path, vm.save_image()) {
         eprintln!("reva: {path}: {e}");
         return ExitCode::from(2);

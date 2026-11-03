@@ -7,6 +7,7 @@ use reva_core::host::Host;
 use reva_core::layout::{DSTACK_HI, EOF_KEY, S0, TIB};
 use reva_core::x86::ESI;
 use reva_core::{Dispatch, Gate, Machine, Next, st};
+use reva_core_inspect::source::Source;
 use reva_words_calls::vectors::Vectors;
 use reva_words_scan::parse::Parse;
 use reva_words_scan::strings::Strings;
@@ -68,11 +69,24 @@ pub fn query_key_got(m: &mut Machine, _: Gate, _: &mut dyn Host) -> R<Next> {
 pub fn interp_word(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
     // Only on the data stack: a `callback` word (lib/callbacks) runs on a
     // stack of its own, below the return stack, which this does not police.
-    if (S0 + 1..=DSTACK_HI).contains(&m.cpu.r[ESI as usize]) {
+    let esi = m.cpu.r[ESI as usize];
+    let under = (S0 + 1..=DSTACK_HI).contains(&esi);
+    if under && m.underflow_fail {
         return Err(Fault::StackUnderflow);
+    }
+    if under && !m.underflow_warned {
+        // Reva had no check: words went on in the slack above the stack.
+        m.underflow_warned = true;
+        let depth = (S0 as i64 - esi as i64) / 4;
+        let place = m.where_suffix();
+        host.diag(&format!(
+            "warning: stack underflow (depth {depth}){place}\n"
+        ));
     }
     let (a, n) = m.parsews(host)?;
     if n == 0 {
+        // Warn again only after a line that ends with the stack back.
+        m.underflow_warned &= under;
         return Ok(Next::Jump(Gate::Interpret.addr()));
     }
     m.upsh(a)?;

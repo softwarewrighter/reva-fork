@@ -74,6 +74,7 @@ fn build(state: State, icon: Option<(Vec<u8>, u32, u32)>) -> tauri::Result<tauri
         .manage(Mutex::new(state))
         .invoke_handler(tauri::generate_handler![
             commands::session,
+            commands::image,
             commands::write_file,
             commands::remove_file,
             commands::print,

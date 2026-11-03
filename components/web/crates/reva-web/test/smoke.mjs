@@ -4,7 +4,7 @@
 // reg-rs baseline) and exits non-zero on any mismatch.
 import { readFile } from "node:fs/promises";
 import { Worker } from "node:worker_threads";
-import { Reva, start, YIELDED, NEED_INPUT, HALTED, HOST_CALL } from "../www/reva.js";
+import { Reva, start, YIELDED, NEED_INPUT, HALTED, HOST_CALL, PAUSED } from "../www/reva.js";
 
 const wasm = await readFile(new URL("../www/reva.wasm", import.meta.url));
 const reva = await Reva.load(wasm);
@@ -16,7 +16,7 @@ const check = (what, got, want) => {
 };
 
 // The boot ends as Reva's saved executable started: banner, then a prompt.
-const BANNER = "reva-fork 2026.1101.1 portable\n\nok> ";
+const BANNER = "reva-fork 2026.1102.0 portable\n\nok> ";
 check("boot status", reva.status, NEED_INPUT);
 // The footer's facts come from the module (reva_vm::version), as `reva -V`.
 const BUILD_KEYS = ["name", "version", "copyright", "license", "repository", "build_host", "build_commit", "build_time"];
@@ -28,6 +28,10 @@ check("arith", await (async () => { let o = ""; await reva.run((s) => (o += s));
 reva.feed(": forever forever ; forever\n");
 check("infinite loop yields", reva.step(5000), YIELDED);
 check("still yielding", reva.step(5000), YIELDED);
+// The runaway guard: run stops scheduling slices after its limit, or when
+// asked (a hidden page), and goes on with the next run.
+check("a runaway pauses at its limit", await reva.run(() => {}, { limitMs: 30 }), PAUSED);
+check("and when asked to", await reva.run(() => {}, { paused: () => true }), PAUSED);
 
 const reva2 = await Reva.load(wasm);
 reva2.feed(": k2 key key + . ; k2\n");
@@ -154,6 +158,20 @@ await new Promise((r) => setTimeout(r, 50));
 session.stop();
 check("worker stop", await session.idle(), NEED_INPUT);
 check("worker interrupted", wout.startsWith("\n*** interrupted (in spin"), true);
+// The runaway guard (guardMs, 5 s on the page): a run that never waits for
+// input pauses until the page says go on (for a while, or for good) or stop.
+const guarded = start("reva.wasm", { createWorker: nodeWorker, wasmBytes: wasm, guardMs: 100 });
+await guarded.ready;
+const settle = () => new Promise((r) => setTimeout(r, 400));
+guarded.feed(": spin2 repeat again ; spin2\n");
+await settle();
+check("worker pauses a runaway", [guarded.status, guarded.pauseReason], [PAUSED, "time"]);
+guarded.resume(100);
+await settle();
+check("more time, then paused again", guarded.status, PAUSED);
+guarded.stop();
+check("stop while paused", await guarded.idle(), NEED_INPUT);
+guarded.terminate();
 session.feed("7 ~sys.(bye)\n");
 check("worker halts", [await session.idle(), session.exitCode], [HALTED, 7]);
 session.terminate();

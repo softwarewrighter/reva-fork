@@ -17,14 +17,20 @@ usage: reva [options] [file ...]
       --save-image PATH  after files and -e, save an image and exit
       --show-boot      print what booting printed (progress digits, errors)
       --trace          trace every VM step to stderr (very slow)
+      --underflow WHAT when a word takes more than the stack holds: warn (default:
+                       say so once and go on, as Reva did) or fail (stop with an error)
       --allow-shell    let `shell` (C `system`) run OS commands; off by default
       --no-edit        at a terminal, read plain lines (no history or line editing)
       --color WHEN     colour in `pp`/`hl-type` listings: auto (default), always, never
       --draw WHEN      turtle drawings to new files turtle-NNN.svg/.png (never overwriting):
                        auto (default: at a terminal; PNG shown inline in iTerm2/WezTerm),
                        svg, png, off
+      --max-cpu SECONDS end a run that computes this long without waiting for input
+                       (*** time limit, exit 124; 0: no limit; default 30 with --ui-script)
       --ui-script FILE answer IUP programs' user interface from FILE (headless; prints
                        what is shown; docs/ui-model.md)
+      --port-check [--fix DIR] FILE...  report Windows-only paths and commands in
+                       Forth sources; --fix writes portable copies to DIR
   -h, --help           this text
   -V, --version        version
 ";
@@ -40,6 +46,10 @@ pub struct Options {
     pub save_image: Option<String>,
     pub show_boot: bool,
     pub trace: bool,
+    pub underflow_fail: bool,
+    /// --max-cpu: seconds a run may compute without waiting for input
+    /// (0: no limit; default: none, 30 under --ui-script).
+    pub max_cpu: Option<f64>,
     pub allow_shell: bool,
     pub no_edit: bool,
     pub color: Option<bool>,
@@ -63,15 +73,7 @@ pub fn parse_args() -> Result<Options, String> {
             "--allow-shell" => o.allow_shell = true,
             "--no-edit" => o.no_edit = true,
             "--ui-script" => o.ui_script = Some(value(&a)?),
-            "--draw" => o.draw = parse_mode(&value(&a)?)?,
-            "--color" => {
-                o.color = match value(&a)?.as_str() {
-                    "auto" => None,
-                    "always" => Some(true),
-                    "never" => Some(false),
-                    w => return Err(format!("--color {w}: expected auto, always or never")),
-                }
-            }
+            "--underflow" | "--max-cpu" | "--draw" | "--color" => setting(&mut o, &a, &value(&a)?)?,
             "-h" | "--help" => {
                 print!("{USAGE}");
                 std::process::exit(0);
@@ -85,6 +87,25 @@ pub fn parse_args() -> Result<Options, String> {
         }
     }
     Ok(o)
+}
+
+/// An option whose value is one of a few words or a number.
+fn setting(o: &mut Options, name: &str, v: &str) -> Result<(), String> {
+    match (name, v) {
+        ("--underflow", "warn" | "fail") => o.underflow_fail = v == "fail",
+        ("--underflow", _) => return Err(format!("--underflow {v}: use warn or fail")),
+        ("--max-cpu", _) => {
+            o.max_cpu = Some(
+                v.parse()
+                    .map_err(|_| format!("--max-cpu {v}: seconds, a number"))?,
+            );
+        }
+        ("--draw", _) => o.draw = parse_mode(v)?,
+        (_, "auto") => o.color = None,
+        (_, "always" | "never") => o.color = Some(v == "always"),
+        _ => return Err(format!("--color {v}: expected auto, always or never")),
+    }
+    Ok(())
 }
 
 /// `--color auto`: stdout is a terminal that takes ANSI escapes, and
