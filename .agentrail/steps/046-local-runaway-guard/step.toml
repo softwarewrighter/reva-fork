@@ -1,6 +1,6 @@
 number = 46
 slug = "local-runaway-guard"
-status = "pending"
+status = "in-progress"
 description = "CoSy's ask 12 (high; ba-cosy-zip-fork docs/reva-fork-asks.md, 2026-11-02): a ..."
 role = "production"
 context_files = []

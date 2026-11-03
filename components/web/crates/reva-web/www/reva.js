@@ -31,6 +31,9 @@
 export const YIELDED = 0, NEED_INPUT = 1, HALTED = 2, HOST_CALL = 3;
 const BAD_IMAGE = -2;
 export const RUNNING = "running";
+// `run` stopped by its time limit or its `paused` check (a runaway loop, a
+// hidden tab): the VM is mid-run and goes on with the next `run`.
+export const PAUSED = 4;
 
 // Files are bytes; Web Storage holds strings, so store one char per byte.
 const toLatin1 = (bytes) => {
@@ -301,9 +304,11 @@ export class Reva {
    * milliseconds (checked every `budget` steps), handing output to
    * `onOutput` after each slice and yielding to the event loop between
    * slices.  Saves changed files to `storage` when it stops.  UI messages
-   * (the canvas) go to `onUi` after each slice.
+   * (the canvas) go to `onUi` after each slice.  Returns PAUSED after
+   * `limitMs` (0: no limit) or when `paused()` says so; run again to go on.
    */
-  async run(onOutput = () => {}, { sliceMs = 8, budget = 50000, clock = true, onUi = null } = {}) {
+  async run(onOutput = () => {}, { sliceMs = 8, budget = 50000, clock = true, onUi = null, limitMs = 0, paused = null } = {}) {
+    const started = performance.now();
     for (;;) {
       if (clock) this.setClock();
       const t0 = performance.now();
@@ -317,6 +322,9 @@ export class Reva {
         if (this.storage) this.persist();
         return s;
       }
+      // Running `limitMs` without waiting for input, or asked to pause:
+      // stop scheduling slices (no CPU) until the host runs it again.
+      if (paused?.() || (limitMs > 0 && performance.now() - started > limitMs)) return PAUSED;
       await yieldNow();
     }
   }
@@ -373,7 +381,7 @@ class Session {
     this.status = s;
     this.exitCode = exitCode;
     this.onStatus(s);
-    if (s !== RUNNING) for (const w of this.waiters.splice(0)) w(s);
+    if (s !== RUNNING && s !== PAUSED) for (const w of this.waiters.splice(0)) w(s);
   }
   /** The answer to a host call, from `onHostCall`, or a refusal. */
   async answer(call) {
@@ -391,7 +399,8 @@ class Session {
 
   /** Resolves once the VM is waiting for input or has halted. */
   idle() {
-    return this.status === RUNNING ? new Promise((r) => this.waiters.push(r)) : Promise.resolve(this.status);
+    const busy = this.status === RUNNING || this.status === PAUSED;
+    return busy ? new Promise((r) => this.waiters.push(r)) : Promise.resolve(this.status);
   }
 }
 
@@ -400,6 +409,7 @@ class LocalSession extends Session {
   constructor(o) {
     super(o);
     this.kind = "main";
+    this.o = o;
     this.ready = Reva.load(o.wasmUrl, { files: o.files, image: o.image }).then(async (reva) => {
       this.reva = reva;
       this.build = reva.build;
@@ -415,16 +425,30 @@ class LocalSession extends Session {
     if (this.pumping || !this.reva) return;
     this.pumping = true;
     this.setStatus(RUNNING);
-    let s = await this.reva.run(this.onOutput, { onUi: this.onUi });
+    const opts = () => ({ onUi: this.onUi, limitMs: this.limit ?? this.o.guardMs ?? 5000, paused: () => this.hidden });
+    let s = await this.reva.run(this.onOutput, opts());
     while (s === HOST_CALL) {
       this.reva.resume(await this.answer(this.reva.hostCall()));
-      s = await this.reva.run(this.onOutput, { onUi: this.onUi });
+      s = await this.reva.run(this.onOutput, opts());
     }
     this.pumping = false;
+    if (s === PAUSED) {
+      this.pauseReason = this.hidden ? "hidden" : "time";
+      return this.setStatus(PAUSED);
+    }
+    this.limit = undefined;
     if (this.storage) saveChanges(this.storage, this.reva.changes(), this.prefix);
     this.setStatus(s, s === HALTED ? this.reva.exitCode : 0);
   }
-  feed(text) { this.reva.feed(text); this.pump(); }
+  /** Go on after PAUSED: for `ms` more (0: no limit for this run; none
+   *  given: the usual limit). */
+  resume(ms) { this.limit = ms; this.pump(); }
+  /** The page is hidden (pause) or shown again (go on if it paused for that). */
+  setHidden(hidden) {
+    this.hidden = hidden;
+    if (!hidden && this.status === PAUSED && this.pauseReason === "hidden") this.pump();
+  }
+  feed(text) { this.limit = undefined; this.reva.feed(text); this.pump(); }
   /** Add a file (an upload) to the running VM and to storage. */
   put(path, data) {
     this.reva.put(path, data);
@@ -432,7 +456,10 @@ class LocalSession extends Session {
   }
   feedStart(text) { this.reva.feedStart(text); this.pump(); }
   closeInput() { this.reva.closeInput(); this.pump(); }
-  stop() { if (this.status === RUNNING) this.reva.interrupt(); }
+  stop() {
+    if (this.status === RUNNING) this.reva.interrupt();
+    if (this.status === PAUSED) { this.reva.interrupt(); this.resume(); }
+  }
   ui(m) {
     this.reva?.ui(m);
     if (!this.pumping) this.reva?.flushUi(this.onUi);
@@ -463,6 +490,7 @@ class WorkerSession extends Session {
         case "status":
           clearTimeout(this.stopTimer);
           if (m.build) this.build = m.build;
+          this.pauseReason = m.reason;
           this.setStatus(m.status, m.exitCode);
           if (m.boot) booted();
           break;
@@ -480,7 +508,7 @@ class WorkerSession extends Session {
     // Files restored from storage go in again on a restart.
     const files = o.storage ? { ...o.files, ...storedFiles(o.storage, o.prefix) } : o.files;
     const abs = (u) => (typeof u === "string" || u instanceof URL ? new URL(u, globalThis.location?.href).href : u);
-    this.w.postMessage({ type: "init", wasm: o.wasmBytes ?? abs(o.wasmUrl), image: abs(o.image), files, local: o.localServices ?? [] });
+    this.w.postMessage({ type: "init", wasm: o.wasmBytes ?? abs(o.wasmUrl), image: abs(o.image), files, local: o.localServices ?? [], guardMs: o.guardMs ?? 5000 });
     // A replacement worker (see stop) runs the start input again too.
     if (this.startText) this.w.postMessage({ type: "start", text: this.startText });
   }
@@ -497,13 +525,18 @@ class WorkerSession extends Session {
   }
   closeInput() { this.status = RUNNING; this.w.postMessage({ type: "close" }); }
   ui(m) { this.w.postMessage({ ...m, type: "ui" }); }
+  /** Go on after PAUSED: for `ms` more (0: no limit for this run; none
+   *  given: the usual limit). */
+  resume(ms) { this.w.postMessage({ type: "resume", ms }); }
+  /** The page is hidden (pause) or shown again (go on if it paused for that). */
+  setHidden(hidden) { this.w.postMessage({ type: "hidden", hidden }); }
   /**
    * Interrupt the running word.  If the worker does not answer in
    * `stopTimeoutMs` (a loop inside one VM step), replace it with a fresh
    * one: files already saved survive, the session's definitions do not.
    */
   stop() {
-    if (this.status !== RUNNING) return;
+    if (this.status !== RUNNING && this.status !== PAUSED) return;
     this.w.postMessage({ type: "stop" });
     clearTimeout(this.stopTimer);
     this.stopTimer = setTimeout(() => {
