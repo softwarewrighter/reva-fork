@@ -22,6 +22,7 @@ just web-zip                      # or: scripts/make-web-zip.sh
 | `?include=FILE` | include FILE after start and after each `restart` (repeatable) |
 | `?eval=TEXT` | feed TEXT once after start (repeatable) |
 | `?image=FILE` | start from a saved image instead of booting `reva.f` |
+| `?background` | keep running while the tab is hidden (otherwise a running VM pauses there; see [gotchas.md](gotchas.md#a-runaway-loop-pauses)) |
 
 When the URL does not say, the page falls back to the package's `canvas`,
 then to its own default: the `reva-canvas` meta tag in `index.html`, which

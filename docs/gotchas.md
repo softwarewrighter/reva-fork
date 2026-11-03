@@ -134,6 +134,18 @@ removed. Code running inside a host callback (a redefined `emit`, `type` or
 worker with a fresh one. Saved files survive that, but the session's
 definitions are lost.
 
+## A runaway loop pauses
+
+A word that never ends, like `: spin repeat again ; spin` (or a word whose
+last call is itself, which Reva compiles as a jump), would keep a CPU core
+busy. In the browser and the desktop app, after 5 seconds of running
+without waiting for input, the VM pauses: it uses no CPU, and a bar offers
+**Stop**, **5 s more** or **Keep going**. A hidden tab pauses it as well,
+and it goes on when the tab is shown again (`?background` in the URL keeps
+it running). The CLI stops a run with `*** time limit` and exit status 124
+after `reva --max-cpu SECONDS`. That limit defaults to 30 seconds with
+`--ui-script` and is off otherwise (Ctrl-C stops a run at a terminal).
+
 ## `save` writes an image, not an executable
 
 `save NAME` (and `(save)`, which takes `a n`) writes a vx86 image, about
