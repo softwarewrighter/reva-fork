@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-03
 
+- 13:26 `chore` Step local-web-fresh-files complete (saga record).
 - 13:20 `fix` A rebuilt web site is never run stale (step local-web-fresh-files; CoSy's ask 16; docs/web.md): the page fetches its own files (manifest, package files, reva.wasm, images) with `cache: "no-cache"` (reva.js FRESH; an unchanged file is a 304); make-web-zip.sh hashes the staged site (POSIX cksum) and stamps every module and worker URL and the UI's wasm with `?v=HASH`, so a new build is new URLs and an unchanged one stays cached; the files' times are the last commit's or, when newer, the package's newest file's, so a package rebuilt at the same reva-fork commit gets newer times and a Last-Modified server (python3 -m http.server) sends the new index.html; the build stamp gains the hash and About shows it. Checked in Chrome against a Last-Modified server: a rebuild with a change was picked up on a plain reload.
 - 13:20 `chore` Merge #82 (local-image-go).
 - 12:20 `chore` Step local-image-go complete (saga record).

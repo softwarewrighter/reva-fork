@@ -1,0 +1,1 @@
+Ask 16: page fetches its files with no-cache (FRESH); web zip stamps module/worker URLs and UI wasm with ?v=site-hash (cksum of staged site); file times = max(last commit, package's newest file) so Last-Modified servers serve the new index.html; About shows site hash. Checked in Chrome against a Last-Modified server. Gate green.
