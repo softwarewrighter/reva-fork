@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-02
 
+- 18:33 `chore` Step local-runaway-guard complete (saga record).
 - 18:24 `chore` Merge #80 (local-error-context).
 - 18:24 `feat` A runaway loop no longer pegs a core (step local-runaway-guard; CoSy's ask 12). Browser and desktop: after 5 s running without waiting for input the VM pauses (no slices, no CPU) and a bar offers Stop, 5 s more or Keep going; a hidden tab pauses it too and showing it goes on (`?background` keeps it running). `Reva.run` takes `limitMs` and `paused` and returns the new PAUSED; the worker and the in-page session handle `resume`, `hidden` and Stop while paused; a line typed while paused waits. CLI: `--max-cpu SECONDS` ends such a run with `*** time limit` and exit 124 (as `timeout`), 30 s by default under `--ui-script`, off otherwise. The optional compile-time warning for a last self-call was left out: deliberate loops that wait for input (`: loop key emit loop ;`) would warn too. Checked in Chrome (the bar, Stop). Goldens: cli-max-cpu (new), web-smoke (5 new checks). Docs: gotchas.md, web.md, getting-started.md.
 - 18:11 `chore` Step local-error-context complete (saga record).
