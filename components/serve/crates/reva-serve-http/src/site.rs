@@ -35,7 +35,8 @@ impl Site {
     /// What [`PROBE`] answers: `reva-serve NAME VERSION`, so a second launch
     /// can recognise the first and just open the browser on it.
     pub fn probe(&self) -> String {
-        format!("reva-serve {} {}\n", self.name, env!("CARGO_PKG_VERSION"))
+        let version = include_str!("../../../../../VERSION").trim_ascii();
+        format!("reva-serve {} {version}\n", self.name)
     }
 }
 

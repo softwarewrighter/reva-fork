@@ -19,6 +19,7 @@
 // wins over the package's copy, so edits survive a reload.
 
 import { packageAbout } from "./about.js";
+import { FRESH } from "./reva.js";
 
 /** At most this many fetches at once (browsers queue more anyway). */
 const PARALLEL = 6;
@@ -45,7 +46,7 @@ export function packageId(m) {
 export async function loadPackage(dir, { base = globalThis.location?.href, fetch = globalThis.fetch } = {}) {
   const root = new URL(dir.endsWith("/") ? dir : `${dir}/`, base);
   const murl = new URL("reva-package.json", root);
-  const r = await fetch(murl);
+  const r = await fetch(murl, FRESH);
   if (!r.ok) throw new Error(`${murl}: ${r.status} ${r.statusText}`);
   let m;
   try {
@@ -67,7 +68,7 @@ export async function loadPackage(dir, { base = globalThis.location?.href, fetch
     while (next < wanted.length) {
       const rel = wanted[next++];
       try {
-        const res = await fetch(new URL(rel, root));
+        const res = await fetch(new URL(rel, root), FRESH);
         if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
         files[`/${rel}`] = new Uint8Array(await res.arrayBuffer());
       } catch (e) {

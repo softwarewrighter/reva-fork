@@ -55,7 +55,10 @@ pub fn parse_args() -> Result<Options, String> {
                 std::process::exit(0);
             }
             "-V" | "--version" => {
-                println!("reva-desktop {}", env!("CARGO_PKG_VERSION"));
+                println!(
+                    "reva-desktop {}",
+                    include_str!("../../../../../VERSION").trim_ascii()
+                );
                 std::process::exit(0);
             }
             // macOS passes -psn_... when launched from Finder

@@ -107,9 +107,14 @@ export function yieldNow() {
   });
 }
 
+// The site's own files are asked for again each time (an unchanged one is a
+// cheap 304), so a rebuilt site at the same URL is never run from stale
+// copies (a static host without Cache-Control lets browsers reuse them).
+export const FRESH = { cache: "no-cache" };
+
 const bytesOf = async (source) =>
   typeof source === "string" || source instanceof URL
-    ? await (await fetch(source)).arrayBuffer()
+    ? await (await fetch(source, FRESH)).arrayBuffer()
     : source;
 
 export class Reva {
@@ -154,7 +159,7 @@ export class Reva {
   static async fetchFiles(urls) {
     const files = {};
     for (const [path, url] of Object.entries(urls))
-      files[path] = new Uint8Array(await (await fetch(url)).arrayBuffer());
+      files[path] = new Uint8Array(await (await fetch(url, FRESH)).arrayBuffer());
     return files;
   }
 
