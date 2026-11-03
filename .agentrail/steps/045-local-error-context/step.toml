@@ -1,6 +1,6 @@
 number = 45
 slug = "local-error-context"
-status = "pending"
+status = "in-progress"
 description = "Errors that say where and why: CoSy's ask 15 (high, 2026-11-02) with the user..."
 role = "production"
 context_files = []

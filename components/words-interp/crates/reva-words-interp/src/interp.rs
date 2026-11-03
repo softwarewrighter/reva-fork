@@ -7,6 +7,7 @@ use reva_core::host::Host;
 use reva_core::layout::{DSTACK_HI, EOF_KEY, S0, TIB};
 use reva_core::x86::ESI;
 use reva_core::{Dispatch, Gate, Machine, Next, st};
+use reva_core_inspect::source::Source;
 use reva_words_calls::vectors::Vectors;
 use reva_words_scan::parse::Parse;
 use reva_words_scan::strings::Strings;
@@ -77,7 +78,10 @@ pub fn interp_word(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
         // Reva had no check: words went on in the slack above the stack.
         m.underflow_warned = true;
         let depth = (S0 as i64 - esi as i64) / 4;
-        host.diag(&format!("warning: stack underflow (depth {depth})\n"));
+        let place = m.where_suffix();
+        host.diag(&format!(
+            "warning: stack underflow (depth {depth}){place}\n"
+        ));
     }
     let (a, n) = m.parsews(host)?;
     if n == 0 {
