@@ -33,6 +33,19 @@ export const MAX = 1000;
 
 // ---- pure editing operations on { text, pos } ----
 
+/**
+ * A paste of `pasted` over `text`'s selection `start..end`: the complete
+ * lines to run, as if each were typed and Entered, and what stays in the
+ * box (the last, unfinished line).  CR LF, CR and LF all end a line.  A
+ * single-line input would otherwise turn the newlines into spaces, and the
+ * first `|` comment would hide the rest (CoSy's ask 19).
+ */
+export function pasteLines(text, start, end, pasted) {
+  const parts = (text.slice(0, start) + pasted).split(/\r\n|\r|\n/);
+  const rest = parts.pop() + text.slice(end);
+  return { lines: parts, rest, pos: rest.length - (text.length - end) };
+}
+
 const isWord = (c) => /[\p{L}\p{N}_]/u.test(c);
 
 /** Index of the start of the word before `pos`. */
