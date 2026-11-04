@@ -1,0 +1,57 @@
+ui< created 1 vbox
+ui< created 2 label
+ui< attr 2 TITLE =Ctrl-J\sor\sF6\sevaluates\sthe\sline\s\s-\s\sF1\shelp\s\s-\s\sDone\scloses
+ui< attr 2 EXPAND =HORIZONTAL
+ui< appended 1 2
+ui< created 3 multiline
+ui< attr 3 EXPAND =YES
+ui< appended 1 3
+ui< created 4 multiline
+ui< attr 4 SIZE =x64
+ui< attr 4 EXPAND =HORIZONTAL
+ui< appended 1 4
+ui< created 5 hbox
+ui< created 6 button
+ui< attr 6 TITLE =Done
+ui< appended 5 6
+ui< appended 1 5
+ui< created 7 dialog
+ui< appended 7 1
+ui< attr 7 TOPMOST =YES
+ui< attr 7 SIZE =FULLxFULL
+ui< attr 7 TITLE =Reva\snotebook
+ui< attr 3 VALUE =|\smy\snotebook
+ui< attr 3 CARET =1,14
+ui< attr 3 SELECTION
+ui< attr 3 VALUE =|\smy\snotebook\n1\s2\s+
+ui< attr 3 CARET =2,6
+ui< attr 3 SELECTION
+ui< shown 7 -1 -1 modeless
+ui< focus 3
+ui> key K_F6
+ui< attr 4 VALUE =
+ui< attr 4 CARET =1,1
+ui< attr 4 SELECTION
+ui< attr 3 VALUE =|\smy\snotebook\n1\s2\s+
+ui< attr 3 CARET =2,6
+ui< attr 3 SELECTION =2,1:2,6
+ui< attr 4 VALUE =\n
+ui< attr 4 CARET =2,1
+ui< attr 4 SELECTION
+ui< attr 4 VALUE =\nstack:\s
+ui< attr 4 CARET =2,8
+ui< attr 4 SELECTION
+ui< attr 4 VALUE =\nstack:\s3
+ui< attr 4 CARET =2,9
+ui< attr 4 SELECTION
+ui< attr 4 VALUE =\nstack:\s3\s
+ui< attr 4 CARET =2,10
+ui< attr 4 SELECTION
+ui< attr 4 VALUE =\nstack:\s3\s
+ui< attr 4 CARET =1,1
+ui< attr 4 SELECTION
+ui< attr 2 TITLE =evaluated
+ui> close 7
+saved: | my notebook
+1 2 +
+notebook.txt there: 0 

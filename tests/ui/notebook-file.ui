@@ -1,0 +1,3 @@
+# notebook-file.f: F6 on its own last line (1 2 +), then the close box
+key K_F6
+close 7
