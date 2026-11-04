@@ -65,6 +65,11 @@ input line gets the keys from `www/lineedit.js`.
   a Mac cut is Cmd-X).
 * **Ctrl-C** stops a running word (as before); while searching it ends the
   search instead.
+* **Pasting several lines** runs them one by one, as if each were typed
+  and Entered, each once the VM waits for input again, so the output
+  reads like a session. A last, unfinished line stays in the box. A
+  `|` comment in one line no longer hides the lines after it. Stop
+  (or Ctrl-C) drops the pasted lines not yet run.
 * On macOS, Alt-B/F/D work whatever character Option would type, and
   Cmd-key shortcuts are left to the system.
 
