@@ -181,11 +181,23 @@ ui< attr 4 SELECTION
 ui< attr 4 VALUE =Ctrl-J,\sCtrl-X\sCtrl-E,\sF6\s(fn+F6\son\sa\sMac),\sCmd-Enter:\sevaluate\sthe\n\s\s\s\s\s\s\sline;\swhat\sit\sprints,\sany\serror\sand\sthe\sstack\sshow\shere\nEnter\s\sa\snew\sline;\sarrows,\sHome,\sEnd,\sCtrl-A,\sCtrl-E,\sCtrl-K\sedit\nCmd-V\s\spaste\s(Ctrl-V\selsewhere)\s\s\s\s\sTab\s\sthe\snext\spane\sor\sbutton\nCmd-Z\s\sundo\s(Ctrl-Z\selsewhere)\s\s\s\s\s\sCtrl-Y\s\sredo\n
 ui< attr 4 CARET =6,1
 ui< attr 4 SELECTION
+ui< attr 4 VALUE =Ctrl-J,\sCtrl-X\sCtrl-E,\sF6\s(fn+F6\son\sa\sMac),\sCmd-Enter:\sevaluate\sthe\n\s\s\s\s\s\s\sline;\swhat\sit\sprints,\sany\serror\sand\sthe\sstack\sshow\shere\nEnter\s\sa\snew\sline;\sarrows,\sHome,\sEnd,\sCtrl-A,\sCtrl-E,\sCtrl-K\sedit\nCmd-V\s\spaste\s(Ctrl-V\selsewhere)\s\s\s\s\sTab\s\sthe\snext\spane\sor\sbutton\nCmd-Z\s\sundo\s(Ctrl-Z\selsewhere)\s\s\s\s\s\sCtrl-Y\s\sredo\nDone\s\s\sor\sthe\sx\sin\sthe\stop\sborder:\sclose.\s\sSaved\sin\s
+ui< attr 4 CARET =6,53
+ui< attr 4 SELECTION
+ui< attr 4 VALUE =Ctrl-J,\sCtrl-X\sCtrl-E,\sF6\s(fn+F6\son\sa\sMac),\sCmd-Enter:\sevaluate\sthe\n\s\s\s\s\s\s\sline;\swhat\sit\sprints,\sany\serror\sand\sthe\sstack\sshow\shere\nEnter\s\sa\snew\sline;\sarrows,\sHome,\sEnd,\sCtrl-A,\sCtrl-E,\sCtrl-K\sedit\nCmd-V\s\spaste\s(Ctrl-V\selsewhere)\s\s\s\s\sTab\s\sthe\snext\spane\sor\sbutton\nCmd-Z\s\sundo\s(Ctrl-Z\selsewhere)\s\s\s\s\s\sCtrl-Y\s\sredo\nDone\s\s\sor\sthe\sx\sin\sthe\stop\sborder:\sclose.\s\sSaved\sin\snotebook.txt
+ui< attr 4 CARET =6,65
+ui< attr 4 SELECTION
 ui< attr 4 VALUE =Ctrl-J,\sCtrl-X\sCtrl-E,\sF6\s(fn+F6\son\sa\sMac),\sCmd-Enter:\sevaluate\sthe\n\s\s\s\s\s\s\sline;\swhat\sit\sprints,\sany\serror\sand\sthe\sstack\sshow\shere\nEnter\s\sa\snew\sline;\sarrows,\sHome,\sEnd,\sCtrl-A,\sCtrl-E,\sCtrl-K\sedit\nCmd-V\s\spaste\s(Ctrl-V\selsewhere)\s\s\s\s\sTab\s\sthe\snext\spane\sor\sbutton\nCmd-Z\s\sundo\s(Ctrl-Z\selsewhere)\s\s\s\s\s\sCtrl-Y\s\sredo\nDone\s\s\sor\sthe\sx\sin\sthe\stop\sborder:\sclose.\s\sSaved\sin\snotebook.txt\sat
 ui< attr 4 CARET =6,68
 ui< attr 4 SELECTION
 ui< attr 4 VALUE =Ctrl-J,\sCtrl-X\sCtrl-E,\sF6\s(fn+F6\son\sa\sMac),\sCmd-Enter:\sevaluate\sthe\n\s\s\s\s\s\s\sline;\swhat\sit\sprints,\sany\serror\sand\sthe\sstack\sshow\shere\nEnter\s\sa\snew\sline;\sarrows,\sHome,\sEnd,\sCtrl-A,\sCtrl-E,\sCtrl-K\sedit\nCmd-V\s\spaste\s(Ctrl-V\selsewhere)\s\s\s\s\sTab\s\sthe\snext\spane\sor\sbutton\nCmd-Z\s\sundo\s(Ctrl-Z\selsewhere)\s\s\s\s\s\sCtrl-Y\s\sredo\nDone\s\s\sor\sthe\sx\sin\sthe\stop\sborder:\sclose.\s\sSaved\sin\snotebook.txt\sat\n
 ui< attr 4 CARET =7,1
+ui< attr 4 SELECTION
+ui< attr 4 VALUE =Ctrl-J,\sCtrl-X\sCtrl-E,\sF6\s(fn+F6\son\sa\sMac),\sCmd-Enter:\sevaluate\sthe\n\s\s\s\s\s\s\sline;\swhat\sit\sprints,\sany\serror\sand\sthe\sstack\sshow\shere\nEnter\s\sa\snew\sline;\sarrows,\sHome,\sEnd,\sCtrl-A,\sCtrl-E,\sCtrl-K\sedit\nCmd-V\s\spaste\s(Ctrl-V\selsewhere)\s\s\s\s\sTab\s\sthe\snext\spane\sor\sbutton\nCmd-Z\s\sundo\s(Ctrl-Z\selsewhere)\s\s\s\s\s\sCtrl-Y\s\sredo\nDone\s\s\sor\sthe\sx\sin\sthe\stop\sborder:\sclose.\s\sSaved\sin\snotebook.txt\sat\n\s\s\s\s\s\s\seach\sevaluation\sand\son\sclosing;\s
+ui< attr 4 CARET =7,40
+ui< attr 4 SELECTION
+ui< attr 4 VALUE =Ctrl-J,\sCtrl-X\sCtrl-E,\sF6\s(fn+F6\son\sa\sMac),\sCmd-Enter:\sevaluate\sthe\n\s\s\s\s\s\s\sline;\swhat\sit\sprints,\sany\serror\sand\sthe\sstack\sshow\shere\nEnter\s\sa\snew\sline;\sarrows,\sHome,\sEnd,\sCtrl-A,\sCtrl-E,\sCtrl-K\sedit\nCmd-V\s\spaste\s(Ctrl-V\selsewhere)\s\s\s\s\sTab\s\sthe\snext\spane\sor\sbutton\nCmd-Z\s\sundo\s(Ctrl-Z\selsewhere)\s\s\s\s\s\sCtrl-Y\s\sredo\nDone\s\s\sor\sthe\sx\sin\sthe\stop\sborder:\sclose.\s\sSaved\sin\snotebook.txt\sat\n\s\s\s\s\s\s\seach\sevaluation\sand\son\sclosing;\snotebook.bak
+ui< attr 4 CARET =7,52
 ui< attr 4 SELECTION
 ui< attr 4 VALUE =Ctrl-J,\sCtrl-X\sCtrl-E,\sF6\s(fn+F6\son\sa\sMac),\sCmd-Enter:\sevaluate\sthe\n\s\s\s\s\s\s\sline;\swhat\sit\sprints,\sany\serror\sand\sthe\sstack\sshow\shere\nEnter\s\sa\snew\sline;\sarrows,\sHome,\sEnd,\sCtrl-A,\sCtrl-E,\sCtrl-K\sedit\nCmd-V\s\spaste\s(Ctrl-V\selsewhere)\s\s\s\s\sTab\s\sthe\snext\spane\sor\sbutton\nCmd-Z\s\sundo\s(Ctrl-Z\selsewhere)\s\s\s\s\s\sCtrl-Y\s\sredo\nDone\s\s\sor\sthe\sx\sin\sthe\stop\sborder:\sclose.\s\sSaved\sin\snotebook.txt\sat\n\s\s\s\s\s\s\seach\sevaluation\sand\son\sclosing;\snotebook.bak:\sas\sit\swas\sopened
 ui< attr 4 CARET =7,70
