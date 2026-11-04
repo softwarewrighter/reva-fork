@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-04
 
+- 14:47 `chore` Step local-notebook-file complete (saga record).
+- 14:47 `chore` Merge #85 (local-web-paste).
 - 14:39 `feat` A notebook in a file of its own (step local-notebook-file; CoSy's ask 13): `notebook-file ( a n -- )` names the file (default notebook.txt; the backup takes .bak for .txt), `nb-examples` is deferred (Reva's lines by default) and `notebook-line ( a n -- )` adds a first line, so a package offers its own notebook beside Reva's without writing notebook.txt first; F1 names the file in use. Golden notebook-file (new); tui-notebook-help (two more pane updates while F1 fills it, the text the same; reviewed); docs/ui-model.md.
 - 13:59 `chore` Step local-web-paste complete (saga record).
 - 13:40 `feat` Pasting several lines into the web REPL runs them one by one (step local-web-paste; CoSy's ask 19; browser and desktop app): each complete line as if typed and Entered (history, echo, the VM), each once the VM waits for input again, so the output reads like a session; a last, unfinished line stays in the box; a `|` comment no longer hides the lines after it; Stop, the paused bar's Stop and Ctrl-C drop the lines not yet run. The split is lineedit.js's `pasteLines` (CR LF, CR, LF; at the cursor, over a selection), with 4 node checks. Checked in Chrome: the ask's two lines print 3 and 20, each after its line; Stop during a pasted endless loop drops the rest. Steps local-web-paste and local-notebook-file (CoSy's ask 13, which local-tui-cosy did not reach) inserted. Docs: repl.md.
