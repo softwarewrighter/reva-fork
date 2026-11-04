@@ -2,7 +2,7 @@
 // history (storage, per-key lists, limits) and Ctrl-R search, driven
 // through a fake <input>.  Prints one line per check; exits non-zero on
 // any mismatch.  Run: node components/web/crates/reva-web/test/lineedit.mjs
-import { edit, keyCommand, History, lineEditor, MAX } from "../www/lineedit.js";
+import { edit, keyCommand, History, lineEditor, MAX, pasteLines } from "../www/lineedit.js";
 
 let failed = 0;
 const check = (what, got, want) => {
@@ -10,6 +10,14 @@ const check = (what, got, want) => {
   if (!ok) failed++;
   console.log(`${ok ? "ok  " : "FAIL"} ${what}: ${JSON.stringify(got)}`);
 };
+
+// ---- pasting several lines (CoSy's ask 19): each complete line runs ----
+check("paste two lines", pasteLines("", 0, 0, "1 2 + . | three\n4 5 * . | twenty\n"),
+  { lines: ["1 2 + . | three", "4 5 * . | twenty"], rest: "", pos: 0 });
+check("paste keeps the unfinished line", pasteLines("", 0, 0, "a\r\nb\rc"), { lines: ["a", "b"], rest: "c", pos: 1 });
+check("paste into a line, at the cursor", pasteLines(": x ;", 2, 2, "dup\ndrop"),
+  { lines: [": dup"], rest: "dropx ;", pos: 4 });
+check("paste over a selection", pasteLines("abcd", 1, 3, "X\nY"), { lines: ["aX"], rest: "Yd", pos: 1 });
 
 // ---- pure edits ----
 const s0 = { text: "dup swap drop", pos: 8, kill: "" };
