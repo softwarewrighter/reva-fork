@@ -213,7 +213,12 @@ cells.
   a run of typing as one step. It fills the window (`FULLxFULL`) and
   keeps the top pane's text in `notebook.txt`, saved at each evaluation
   and on closing; what the file held when the notebook opened is copied
-  to `notebook.bak` first. F1 shows the keys.
+  to `notebook.bak` first. F1 shows the keys. A package can keep a
+  notebook of its own beside Reva's: `" cosy.txt" notebook-file` names
+  the file (its backup `cosy.bak`), and `nb-examples`, a deferred word,
+  gives a first notebook's lines (`notebook-line ( a n -- )` adds one):
+  `:: " | CoSy" notebook-line ; is nb-examples` (golden
+  `notebook-file`).
 - **Goldens** compare screens as text (`screen` lines of a
   `--ui-script`).
 - **The terminal** (crate reva-ui-term, in component `iup`; step

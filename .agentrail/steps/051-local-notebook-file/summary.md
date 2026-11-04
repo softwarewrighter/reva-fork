@@ -1,0 +1,1 @@
+Ask 13: notebook-file names the notebook's file (backup .txt->.bak), nb-examples deferred, notebook-line adds first lines; F1 names the file. Golden notebook-file; tui-notebook-help reviewed (two more intermediate pane updates). Gate green after the rebase.
