@@ -1,6 +1,6 @@
 number = 51
 slug = "local-notebook-file"
-status = "pending"
+status = "in-progress"
 description = "CoSy's ask 13 (2026-11-02; was in local-tui-cosy, not done there): lib/ui/not..."
 role = "production"
 context_files = []

@@ -50,7 +50,15 @@ variable nb-d0
 | The top pane's text is kept in notebook.txt: saved at every evaluation
 | and when the notebook closes; what was there when it opened is copied
 | to notebook.bak first, so a bad session can be undone.
-: nb-file ( -- a n )  " notebook.txt" ;
+| notebook-file ( a n -- ) names another file (a package's own notebook
+| beside Reva's); its backup is the same name with .bak for .txt.
+create nb-name 256 allot  " notebook.txt" nb-name place
+create nb-bakname 260 allot
+: nb-file ( -- a n )  nb-name count ;
+: notebook-file ( a n -- )  255 min nb-name place ;
+: nb-bak ( -- a n )
+  nb-file dup 4 >if 2dup + 4 - 4 " .txt" cmp 0if 4 - then then  nb-bakname place
+  " .bak" nb-bakname +place  nb-bakname count ;
 : nb-write ( a n file n2 -- )  creat >r r@ write r> close ;
 : nb-save ( -- )  nb-text @ getval rot drop  nb-file nb-write ;
 
@@ -84,8 +92,8 @@ variable nb-prefix
   ." Enter  a new line; arrows, Home, End, Ctrl-A, Ctrl-E, Ctrl-K edit" cr
   ." Cmd-V  paste (Ctrl-V elsewhere)     Tab  the next pane or button" cr
   ." Cmd-Z  undo (Ctrl-Z elsewhere)      Ctrl-Y  redo" cr
-  ." Done   or the x in the top border: close.  Saved in notebook.txt at" cr
-  ."        each evaluation and on closing; notebook.bak: as it was opened" cr
+  ." Done   or the x in the top border: close.  Saved in " nb-file type ."  at" cr
+  ."        each evaluation and on closing; " nb-bak type ." : as it was opened" cr
   ." Forth needs a space between words: 6 7 *  not  6 7*" ;
 : nb-f1
   nb-res @ " " setval drop
@@ -109,9 +117,11 @@ variable nb-prefix
     hbox[ " Done" button[ { gui-close } action ]w ]w
   ]d " FULLxFULL" size " Reva notebook" title ;
 
-| A first notebook (no notebook.txt yet) starts with lines to try.
+| A first notebook (no file yet) starts with lines to try: nb-examples,
+| deferred, so a package can give its own (each line by notebook-line).
 : nb-line+ ( a n -- )  nb-text @ -rot " APPEND" attr drop ;
-: nb-examples ( -- )
+: notebook-line ( a n -- )  nb-line+ ;
+: nb-reva-examples ( -- )
   " | Put the cursor on a line and press Ctrl-J (or F6).  F1: help." nb-line+
   " 2 3 +" nb-line+
   " 6 7 * dup . 1+" nb-line+
@@ -119,10 +129,11 @@ variable nb-prefix
   " : tens  10 0 do i 10 * . loop ;  tens" nb-line+
   " words" nb-line+
   nb-text @ " 2,1" " CARET" attr drop ;
-| Load notebook.txt (copied to notebook.bak first), or the examples.
+defer nb-examples  ' nb-reva-examples is nb-examples
+| Load the file (copied to its backup first), or the examples.
 : nb-load ( -- )
   nb-file slurp dup 0if 2drop nb-examples ;then
-  2dup " notebook.bak" nb-write  nb-text @ -rot setval drop ;
+  2dup nb-bak nb-write  nb-text @ -rot setval drop ;
 
 | Open the notebook; it returns when the notebook is closed.
 : notebook ( -- )  nb-dialog nb-load show gui-main-loop nb-save destroy ;
