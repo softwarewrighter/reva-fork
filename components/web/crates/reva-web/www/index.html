@@ -146,7 +146,7 @@
   import { loadPackage } from "./package.js";
   import { splitView } from "./split.js";
   import { aboutDialog, packageAbout, showHint } from "./about.js";
-  import { lineEditor } from "./lineedit.js";
+  import { lineEditor, pasteLines } from "./lineedit.js";
   import { packageId } from "./package.js";
   import { Ansi } from "./ansi.js";
   import { uploadButton } from "./upload.js";
@@ -203,13 +203,35 @@
   // known, since each package keeps its own history; until then the line
   // is a plain input.
   let editor = null;
+  // A line, as typed and Entered: history, echo, then the VM's input
+  // (queued there, so Stop and the runaway guard apply between lines).
+  const runLine = (text) => {
+    editor?.accept(text);
+    echo(text + "\n");
+    feedLine(text);
+  };
   document.getElementById("f").addEventListener("submit", (e) => {
     e.preventDefault();
     const text = line.value;
     line.value = "";
-    editor?.accept(text);
-    echo(text + "\n");
-    feedLine(text);
+    runLine(text);
+  });
+  // Pasted lines run one by one, each once the VM waits for input again, so
+  // the output reads like a session; the last, unfinished one stays in the
+  // box.  Stop drops the lines not yet run, as it drops typed-ahead input.
+  let pasting = 0;
+  line.addEventListener("paste", async (e) => {
+    const pasted = e.clipboardData?.getData("text") ?? "";
+    if (!/[\r\n]/.test(pasted)) return;
+    e.preventDefault();
+    const { lines, rest, pos } = pasteLines(line.value, line.selectionStart, line.selectionEnd, pasted);
+    line.value = rest;
+    line.setSelectionRange(pos, pos);
+    const run = ++pasting;
+    for (const text of lines) {
+      if (run !== pasting || (await reva.idle()) === HALTED || run !== pasting) break;
+      runLine(text);
+    }
   });
 
   // The host (host.js) says where files are kept (the browser: in
@@ -362,10 +384,12 @@
   // keeps files itself (the desktop app's folder) has no need of it.
   if (!host.keepsFiles)
     uploadButton(document.getElementById("upload-btn"), { session: reva, storage: host.storage, prefix: filePrefix, echo });
-  stop.addEventListener("click", () => reva.stop());
+  // Stop, from the button, the paused bar or Ctrl-C: also a paste's rest.
+  const stopRun = () => { pasting++; reva.stop(); };
+  stop.addEventListener("click", stopRun);
   // The runaway guard's choices, and a hidden page pausing the VM (unless
   // ?background asks it to keep running).
-  document.getElementById("paused-stop").addEventListener("click", () => reva.stop());
+  document.getElementById("paused-stop").addEventListener("click", stopRun);
   document.getElementById("paused-more").addEventListener("click", () => reva.resume(5000));
   document.getElementById("paused-go").addEventListener("click", () => reva.resume(0));
   if (!query.has("background")) {
@@ -374,7 +398,7 @@
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "c" && !window.getSelection()?.toString()) {
       e.preventDefault();
-      reva.stop();
+      stopRun();
     }
   });
 </script>
