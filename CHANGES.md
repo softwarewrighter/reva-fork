@@ -11,8 +11,22 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-04
+
+- 16:40 `chore` Step local-zip-stamp complete (saga record).
+- 16:37 `release` 2026.1104.0 (step local-zip-stamp), at the user's request: today's first merge to main, chiefly to fix the live demo's TUI (ask 20). Since 2026.1103.0: pasted lines run one by one in the web REPL; a notebook in a file of its own; the web zip's TUI loads again.
+- 15:10 `fix` The web zip's TUI loads again (step local-zip-stamp; CoSy's ask 20, high; my bug from #83, also on the 2026.1103.0 live demo): make-web-zip.sh stamped every quoted "./x.js" with ?v=, including wasm-bindgen's import-object key "./reva_ui_web_bg.js" in ui/reva_ui_web.js, so the TUI's wasm did not instantiate (the notebook and every TUI failed in a zip). Only URLs are stamped now (from "./x.js", import("./x.js"), new URL("./x.js"), the wasm's URL), and the script fails if the import key changes. Checked in Chrome: a built zip opens the notebook.
+- 15:10 `chore` Merge #86 (local-notebook-file).
+- 14:47 `chore` Step local-notebook-file complete (saga record).
+- 14:47 `chore` Merge #85 (local-web-paste).
+- 14:39 `feat` A notebook in a file of its own (step local-notebook-file; CoSy's ask 13): `notebook-file ( a n -- )` names the file (default notebook.txt; the backup takes .bak for .txt), `nb-examples` is deferred (Reva's lines by default) and `notebook-line ( a n -- )` adds a first line, so a package offers its own notebook beside Reva's without writing notebook.txt first; F1 names the file in use. Golden notebook-file (new); tui-notebook-help (two more pane updates while F1 fills it, the text the same; reviewed); docs/ui-model.md.
+- 13:59 `chore` Step local-web-paste complete (saga record).
+- 13:40 `feat` Pasting several lines into the web REPL runs them one by one (step local-web-paste; CoSy's ask 19; browser and desktop app): each complete line as if typed and Entered (history, echo, the VM), each once the VM waits for input again, so the output reads like a session; a last, unfinished line stays in the box; a `|` comment no longer hides the lines after it; Stop, the paused bar's Stop and Ctrl-C drop the lines not yet run. The split is lineedit.js's `pasteLines` (CR LF, CR, LF; at the cursor, over a selection), with 4 node checks. Checked in Chrome: the ask's two lines print 3 and 20, each after its line; Stop during a pasted endless loop drops the rest. Steps local-web-paste and local-notebook-file (CoSy's ask 13, which local-tui-cosy did not reach) inserted. Docs: repl.md.
+
 ## 2026-11-03
 
+- 14:19 `chore` Release 2026.1103.0: dev merged into main (ef5f3d8, 14:18) and the live demo published, checked in Chrome (Reva Fork header and logo, banner and footer 2026.1103.0 build ef5f3d8, site hash in the build stamp, a tree in the split view); the page loaded the new site without a hard reload.
+- 14:19 `chore` Merge #84 (local-one-version).
 - 14:06 `chore` Step local-one-version complete (saga record).
 - 13:39 `release` 2026.1103.0 (step local-one-version), at the user's request, for today's merge to main: the first bump that is one file, VERSION. Since 2026.1102.0: errors in files say FILE:LINE and the word; runaway loops pause (page) or hit --max-cpu (CLI); docs on what lies under an empty stack (CoSy's ask 18); a rebuilt web site is never run stale; the version in one place.
 - 13:34 `build` The release version in one place, the root `VERSION` file (step local-one-version, at the user's request; with CoSy's ask 9). reva-version's build.rs reads it (the banner, `.ver`, `reva -V`, the web and desktop build facts); the desktop app's `-V` and reva-serve's probe read it too (include_str!); build-stamp.sh, make-web-zip.sh and build-serve.sh read it; `components/desktop/build.sh --bundle` gives it to the installers (`cargo tauri build --config`; not run here: no tauri-cli on this Mac). Every crate stays at `0.1.0`, so a release no longer touches 68 files: the bump is `VERSION` and a CHANGES line. The boot-progress golden and the web smoke transcript show `VERSION` in its place; the docs say `YYYY.MMDD.N`; the gate checks VERSION's form. `build-serve.sh --version V` names the binary after a package's own version (cosy-serve, ask 9). CLAUDE.md's release paragraph.

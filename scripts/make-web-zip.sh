@@ -105,12 +105,17 @@ awk -v pkg="$pkgmeta" -v canvas="$CANVAS" -v build="$build" '
     { print }' "$WWW/index.html" > "$STAGE/index.html"
 grep -q "name=\"reva-canvas\" content=\"$CANVAS\"" "$STAGE/index.html" \
     || die "index.html has no reva-canvas meta tag to set"
-# Every module and worker URL ("./x.js"), and the UI's wasm, carry ?v=SITE.
+# Every module and worker URL, and the UI's wasm, carry ?v=SITE: only URLs
+# (from "./x.js", import("./x.js"), new URL("./x.js"), not every quoted
+# "./x.js": wasm-bindgen's glue names the wasm's import module
+# "./reva_ui_web_bg.js", and stamping that key breaks the TUI; CoSy's ask 20).
 for f in "$STAGE"/*.js "$STAGE"/ui/*.js "$STAGE/index.html"; do
-    sed-rs -i -e "s#(\"\\./[A-Za-z0-9_./-]+\\.js)\"#\\1?v=$site\"#g" \
+    sed-rs -i -e "s#((from |import[(]|new URL[(])\"\\./[A-Za-z0-9_./-]+\\.js)\"#\\1?v=$site\"#g" \
         -e "s#'(reva_ui_web_bg\\.wasm)'#'\\1?v=$site'#g" "$f" || die "$f: could not stamp module URLs"
 done
 grep -q "\"./reva.js?v=$site\"" "$STAGE/index.html" || die "index.html: module URLs not stamped"
+grep -q "\"./reva_ui_web_bg.js\": import" "$STAGE/ui/reva_ui_web.js" \
+    || die "ui/reva_ui_web.js: the wasm's import key was changed (it must stay ./reva_ui_web_bg.js)"
 
 cat > "$STAGE/README.txt" <<EOF
 $SITE: Reva Forth in the browser (WebAssembly), as a static site.

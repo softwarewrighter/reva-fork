@@ -1,0 +1,1 @@
+Ask 19: multi-line paste in the web REPL runs each line as typed (history, echo, feed), one at a time after the VM waits for input (session-like output); trailing partial line stays; Stop/paused-bar Stop/Ctrl-C drop the rest. pasteLines in lineedit.js with 4 node checks. Checked in Chrome. Gate green.
