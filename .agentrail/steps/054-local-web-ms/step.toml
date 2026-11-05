@@ -1,6 +1,6 @@
-number = 60
+number = 54
 slug = "local-web-ms"
-status = "pending"
+status = "in-progress"
 description = "Bug: `ms` does nothing in the browser and the desktop app (reva-vm Host::slee..."
 role = "production"
 context_files = []

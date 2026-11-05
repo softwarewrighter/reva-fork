@@ -34,6 +34,9 @@ ok   worker interrupted: true
 ok   worker pauses a runaway: [4,"time"]
 ok   more time, then paused again: 4
 ok   stop while paused: 1
+ok   output before a wait shows during it: [true,false]
+ok   ms takes its time: true
+ok   Stop ends a wait at once: [true,true,false]
 ok   worker halts: [2,7]
 ok   worker starts from an image: "reva-fork VERSION portable\n\nok> from the image\n\nok> "
 ok   hl-type colours: "\u001b[1;33m:\u001b[0m \u001b[1;33msq\u001b[0m \u001b[34mdup\u001b[0m \u001b[34m*\u001b[0m \u001b[1;33m;\u001b[0m\nok> "

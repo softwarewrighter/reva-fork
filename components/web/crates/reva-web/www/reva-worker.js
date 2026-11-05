@@ -69,6 +69,7 @@ let guardMs = 5000;
 let limit = null;
 let hidden = false;
 let paused = null; // why the VM is paused: "time" or "hidden"
+let wake = null; // ends an `ms` wait early (Stop)
 
 async function pump() {
   if (pumping || waiting || !reva) return;
@@ -93,6 +94,19 @@ async function pump() {
   // A host call: the page answers (hostreply), and the VM runs on.
   if (s === HOST_CALL) {
     const call = reva.hostCall();
+    // `ms` (a `clock` `sleep`): wait here, the page drawing meanwhile; it
+    // is not running, so the guard does not count it; Stop ends it early.
+    if (call.service === "clock") {
+      waiting = true; // input meanwhile is queued, as for any host call
+      await new Promise((r) => {
+        const t = setTimeout(r, Number(call.ints[0] ?? 0));
+        wake = () => { clearTimeout(t); r(); };
+      });
+      wake = null;
+      waiting = false;
+      reva.resume({ int: 0 });
+      return pump();
+    }
     if (!local.has(call.service)) {
       waiting = true;
       return post({ type: "hostcall", call });
@@ -152,6 +166,10 @@ async function handle(m) {
       break;
     case "stop":
       if (pumping) reva.interrupt();
+      if (wake) {
+        reva.interrupt();
+        wake();
+      }
       if (paused) {
         reva.interrupt();
         limit = null;
