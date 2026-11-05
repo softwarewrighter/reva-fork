@@ -9,7 +9,7 @@ keeps its own terms.
 | Embedded x86 assembler in `src/reva.f` (adapted from FirmWorks) | As noted in LICENSE | [LICENSE](LICENSE) |
 | IUP libraries in `legacy/bin/` | IUP license | [LICENSE.IUP](LICENSE.IUP) |
 | Other third-party binaries and notices | Each listed with its license | [docs/licenses.md](docs/licenses.md) |
-| **New portions**: the portable core under `components/`, `scripts/`, `README.md`, `LICENSING.md`, `DEPRECATED.md`, `legacy/README.md`, `docs/`, `www/README.md` | MIT, Copyright (c) 2026 Michael A. Wright | [LICENSE-MIT](LICENSE-MIT), [components/LICENSE](components/LICENSE) |
+| **New portions**: the portable core under `components/`, `scripts/`, `README.md`, `original-README.md`, `LICENSING.md`, `DEPRECATED.md`, `legacy/README.md`, `docs/`, `www/README.md` | MIT, Copyright (c) 2026 Michael A. Wright | [LICENSE-MIT](LICENSE-MIT), [components/LICENSE](components/LICENSE) |
 
 Notes:
 

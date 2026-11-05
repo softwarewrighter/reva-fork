@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-04
 
+- 16:57 `chore` Step local-readme-retire complete (saga record).
+- 16:57 `docs` README: its obsolete Status, Roadmap, Quality and Branches sections (stale counts, finished roadmap items, the old gate list) moved verbatim to original-README.md, marked as history and unmaintained (step local-readme-retire, at the user's request); the README points to docs/parity.md and CHANGES.md for what runs today and keeps its copyright, Third-party software and License sections; the layout table tells original-README.md from Reva's orig-README; LICENSING.md lists the new file as MIT.
 - 16:56 `chore` Release 2026.1104.0: dev merged into main (bfc4604, 16:53) and the live demo published, checked in Chrome: footer 2026.1104.0 build bfc4604, and the notebook opens in the TUI again (ask 20). An untracked components/cli/target/ (85 MB of build cache, not made by this session) was set aside for publish-pages and put back.
 - 16:56 `chore` Merge #87 (local-zip-stamp).
 - 16:40 `chore` Step local-zip-stamp complete (saga record).
