@@ -1,0 +1,9 @@
+number = 53
+slug = "local-readme-retire"
+status = "completed"
+description = "At the user's request (2026-11-04): retire the README's obsolete sections (St..."
+role = "production"
+context_files = []
+created_at = "2026-11-04T16:56:40"
+completed_at = "2026-11-04T16:57:08"
+commits = ["ce72a7c3fd3b29c67d6805185ee0e947f367d3dd"]
