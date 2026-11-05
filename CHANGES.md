@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-04
 
+- 16:40 `chore` Step local-zip-stamp complete (saga record).
 - 16:37 `release` 2026.1104.0 (step local-zip-stamp), at the user's request: today's first merge to main, chiefly to fix the live demo's TUI (ask 20). Since 2026.1103.0: pasted lines run one by one in the web REPL; a notebook in a file of its own; the web zip's TUI loads again.
 - 15:10 `fix` The web zip's TUI loads again (step local-zip-stamp; CoSy's ask 20, high; my bug from #83, also on the 2026.1103.0 live demo): make-web-zip.sh stamped every quoted "./x.js" with ?v=, including wasm-bindgen's import-object key "./reva_ui_web_bg.js" in ui/reva_ui_web.js, so the TUI's wasm did not instantiate (the notebook and every TUI failed in a zip). Only URLs are stamped now (from "./x.js", import("./x.js"), new URL("./x.js"), the wasm's URL), and the script fails if the import key changes. Checked in Chrome: a built zip opens the notebook.
 - 15:10 `chore` Merge #86 (local-notebook-file).

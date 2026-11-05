@@ -1,0 +1,1 @@
+Ask 20 fixed: make-web-zip.sh stamps only URLs (from/import()/new URL()), not wasm-bindgen's import key; self-check added; built zip opens the notebook in Chrome. Release 2026.1104.0 bump (VERSION + CHANGES) for the live demo fix; goldens and smoke pass with it.
