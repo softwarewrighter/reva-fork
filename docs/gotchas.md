@@ -148,6 +148,14 @@ removed. Code running inside a host callback (a redefined `emit`, `type` or
 worker with a fresh one. Saved files survive that, but the session's
 definitions are lost.
 
+## `ms` waits everywhere
+
+`1000 ms` waits a second in the browser and the desktop app too, as on the
+CLI: the VM's worker waits and the page goes on drawing, so an animation
+such as `: trees 13 2 do i tree-demo 1000 ms loop ; trees` shows one tree a
+second. Stop ends a wait at once, and a wait is not running time for the
+runaway guard below.
+
 ## A runaway loop pauses
 
 A word that never ends, like `: spin repeat again ; spin` (or a word whose
