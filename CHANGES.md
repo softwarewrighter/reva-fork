@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-06
 
+- 15:01 `chore` Release 2026.1106.0: dev merged into main (f82a584, 15:00) and the live demo published, checked in Chrome: banner and footer 2026.1106.0 build f82a584, and `?diagnose=underflow-at-word` with `: f1 drop drop ; : f2 f1 1 ; 1 f2` stops in `f1+0xa <- f2`. The untracked components/cli/target/ and the notebook files were set aside for publish-pages and put back.
+- 15:01 `chore` Merge #96 (local-release-1106).
 - 14:20 `release` 2026.1106.0, at the user's request: today's first merge to main. Since 2026.1105.0: graphics for IUP programs (CD canvases and timers in the browser and the desktop app: binary-clock, brownian, cd-test); CoSy's ask 22, diagnostics that name the word at fault: faults name their callers (`in a+0xc <- b <- c`), `diagnose underflow-at-word` / `--underflow fail-at-word`, `diagnose execute` / `--check-execute`, `diagnose compile` / `--trace-compile`, and `?diagnose=NAME` on the page; with warn, the stack is empty again at the next prompt.
 - 14:20 `chore` Merge #95 (local-trace-compile).
 - 14:14 `chore` Step local-trace-compile complete (saga record); CoSy's ask 22 done (steps 56-59).
