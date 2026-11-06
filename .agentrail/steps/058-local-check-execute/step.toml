@@ -1,6 +1,6 @@
 number = 58
 slug = "local-check-execute"
-status = "pending"
+status = "in-progress"
 description = "CoSy's ask 22, item 3 (2026-11-06): execute of something that is not a word. ..."
 role = "production"
 context_files = []
