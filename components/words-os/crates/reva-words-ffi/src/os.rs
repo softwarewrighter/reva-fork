@@ -18,7 +18,7 @@ pub const ENTRIES: &[(Gate, Dispatch)] = reva_macros::words! {
     UnloadLib => ret |m, _h| m.ffi_unloadlib();
     OsFunc => ret |m, h| m.ffi_func(h);
     CallFn => call_fn;
-    Syscall => ret |m, h| m.ffi_syscall(h);
+    Syscall => syscall;
     OpenR => ret |m, h| m.word_open(h, reva_core::vfs::Access::Read);
     OpenRw => ret |m, h| m.word_open(h, reva_core::vfs::Access::ReadWrite);
     Creat => ret |m, h| m.word_open(h, reva_core::vfs::Access::Create);
@@ -40,6 +40,16 @@ pub const ENTRIES: &[(Gate, Dispatch)] = reva_macros::words! {
     IupResume => iup_resume;
     MakeExe | LzPack | LzDepack | LzMax => not_implemented;
 };
+
+/// `os_syscall`: a sleep the host answers later stops the VM (the gate
+/// runs again once the answer is in); anything else is done now.
+pub fn syscall(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
+    if m.sleep_waits(host)? {
+        return Ok(Next::HostCall);
+    }
+    m.ffi_syscall(host)?;
+    Ok(Next::Ret)
+}
 
 /// `(call)`.
 pub fn call_fn(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {

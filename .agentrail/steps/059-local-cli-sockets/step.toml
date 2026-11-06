@@ -1,4 +1,4 @@
-number = 58
+number = 59
 slug = "local-cli-sockets"
 status = "pending"
 description = "Parity (the user, 2026-11-02, from the parity review): TCP sockets as a CLI h..."

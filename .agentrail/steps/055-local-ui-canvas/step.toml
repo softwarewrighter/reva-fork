@@ -1,4 +1,4 @@
-number = 54
+number = 55
 slug = "local-ui-canvas"
 status = "pending"
 description = "Graphics for IUP programs, in the browser and the desktop app (not the CLI te..."

@@ -1,0 +1,1 @@
+Ask 21: ms waits in the browser/desktop via a clock sleep host call answered by the worker after a timer (page draws meanwhile, input queued, Stop ends it, guard ignores it); CLI sleeps as before. Smoke +3 checks; Chrome: trees one per second. Desktop not run (windows). Gate green after web-smoke rebase.
