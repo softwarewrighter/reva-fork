@@ -2,9 +2,14 @@
 //! files that include it), the word just read, and the stack, for error,
 //! fault and warning messages (CoSy's ask 15).
 
-use reva_core::layout::S0;
-use reva_core::st;
-use reva_core::x86::{EAX, ESI};
+use reva_core::layout::{RP0, S0};
+use reva_core::x86::{EAX, ESI, ESP};
+use reva_core::{Gate, st};
+
+use crate::words::Dictionary;
+
+/// The most callers a fault report names.
+pub const CALLERS: usize = 8;
 
 reva_macros::machine_trait! {
     /// The interpreter's position, for messages.
@@ -53,6 +58,30 @@ reva_macros::machine_trait! {
             let at = self.source_where().map(|w| format!(" at {w}")).unwrap_or_default();
             let after = self.last_word().map(|w| format!(" after `{w}`")).unwrap_or_default();
             format!("{at}{after}")
+        }
+
+        /// The words that called the code running now, innermost first, by
+        /// name (CoSy's ask 22): the return stack's cells that point just
+        /// after a `call rel32` in a dictionary word, up to the first core
+        /// routine's address (the outer interpreter running a word, a nested
+        /// call's return), at most [`CALLERS`]. Cells `>r` put there rarely
+        /// look like that; a tail call (a jump) leaves no cell, so its word is
+        /// not shown.
+        fn callers(&self) -> Vec<String> {
+            let (esp, here) = (self.cpu.r[ESP as usize], self.var(st::H));
+            let call_at = |v: u32| v > 5 && v <= here && self.mem.read_u8(v - 5).ok() == Some(0xe8);
+            (esp..RP0)
+                .step_by(4)
+                .map_while(|a| self.mem.read_u32(a).ok())
+                .take_while(|v| Gate::from_addr(*v).is_none())
+                .filter(|v| call_at(*v))
+                .filter_map(|v| self.nearest_word(v - 5))
+                .map(|(_, e)| {
+                    let n = self.mem.read_u8(e + 8).unwrap_or(0) as u32;
+                    String::from_utf8_lossy(self.mem.slice(e + 9, n).unwrap_or(b"?")).into_owned()
+                })
+                .take(CALLERS)
+                .collect()
         }
 
         /// The data stack as `.s` shows it: depth, then up to 8 cells, top

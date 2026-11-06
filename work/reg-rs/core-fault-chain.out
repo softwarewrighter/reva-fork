@@ -1,0 +1,19 @@
+
+*** bad memory access: 4 byte(s) at 0x00000000 (in a+0xc <- b <- c, eip 0x00146ce8) after `c`
+stack (1): 0
+
+*** bad memory access: 4 byte(s) at 0x00000000 (in a+0xc <- b <- c, eip 0x00146ce8) after `d`
+stack (1): 0
+
+*** bad memory access: 4 byte(s) at 0x00000000 (in a+0xc <- b <- c <- e, eip 0x00146ce8) after `e`
+stack (1): 0
+
+*** bad memory access: 4 byte(s) at 0x00000000 (in a+0xc <- b <- c <- e <- f1 <- f2 <- f3 <- f4 <- f5, eip 0x00146ce8) after `f6`
+stack (1): 0
+
+*** bad memory access: 4 byte(s) at 0x00000000 (in @+0x2, eip 0x00040c31) after `@`
+stack (1): 0
+
+*** bad memory access: 4 byte(s) at 0x00000000 (in a+0xc <- b <- c, eip 0x00146ce8) after `catch`
+stack (1): 0
+(0) 

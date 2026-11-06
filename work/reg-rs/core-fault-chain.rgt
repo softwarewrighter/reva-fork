@@ -1,0 +1,4 @@
+command = "${REVA:-target/debug/reva} < tests/forth/fault-chain.f"
+timeout = 60
+exit_code = 0
+desc = "a fault names its callers, innermost first, up to the word the interpreter ran, at most 8 (CoSy's ask 22)"

@@ -78,7 +78,8 @@ reva_macros::machine_trait! {
         /// way `interpret`'s failure path does.
         fn recover(&mut self, host: &mut dyn Host, f: Fault) {
             let eip = self.cpu.eip;
-            let at = self.describe_addr(eip);
+            // the word at fault, then its callers (CoSy's ask 22)
+            let at = std::iter::once(self.describe_addr(eip)).chain(self.callers()).collect::<Vec<_>>().join(" <- ");
             // where in the input (FILE:LINE, the word) and the stack
             let place = self.where_suffix();
             let stack = self.stack_line().map(|s| format!("{s}\n")).unwrap_or_default();
