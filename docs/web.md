@@ -20,6 +20,7 @@ just web-zip                      # or: scripts/make-web-zip.sh
 | `?canvas=window` | graphics in a popup window (the default; a pane where popups are blocked) |
 | `?package=DIR/` | load the package in `DIR` (relative to the page) |
 | `?include=FILE` | include FILE after start and after each `restart` (repeatable) |
+| `?diagnose=NAME` | run `diagnose NAME` before those, e.g. `underflow-at-word` ([gotchas.md](gotchas.md#stack-underflow-is-a-warning); repeatable) |
 | `?eval=TEXT` | feed TEXT once after start (repeatable) |
 | `?image=FILE` | start from a saved image instead of booting `reva.f` |
 | `?background` | keep running while the tab is hidden (otherwise a running VM pauses there; see [gotchas.md](gotchas.md#a-runaway-loop-pauses)) |

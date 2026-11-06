@@ -204,6 +204,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "reva-words-diag"
+version = "0.1.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-scan",
+]
+
+[[package]]
 name = "reva-words-eval"
 version = "0.1.0"
 dependencies = [

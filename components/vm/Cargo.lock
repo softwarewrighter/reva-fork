@@ -290,6 +290,7 @@ dependencies = [
  "reva-core",
  "reva-words-classes",
  "reva-words-compile",
+ "reva-words-diag",
  "reva-words-eval",
  "reva-words-ffi",
  "reva-words-interp",
@@ -337,6 +338,15 @@ dependencies = [
  "reva-words-code",
  "reva-words-scan",
  "reva-words-text",
+]
+
+[[package]]
+name = "reva-words-diag"
+version = "0.1.0"
+dependencies = [
+ "reva-core",
+ "reva-macros",
+ "reva-words-scan",
 ]
 
 [[package]]
