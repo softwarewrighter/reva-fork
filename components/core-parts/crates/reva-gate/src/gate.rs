@@ -67,4 +67,6 @@ gates! {
     IupLoop, IupResume,
     // `(where)`: print FILE:LINE of the file being included (errors)
     Where,
+    // `diagnose`: opt-in checks that name the word at fault (CoSy's ask 22)
+    Diagnose,
 }

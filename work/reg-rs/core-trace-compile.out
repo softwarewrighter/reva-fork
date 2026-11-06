@@ -1,0 +1,8 @@
+inline: dup into sq
+inline: * into sq
+inline: + into allocate
+compile: allocate into m
+compile: . into m
+compile: core:Allocate into t by allocate <- m
+1001 -1 inline: dup into sq
+inline: * into sq

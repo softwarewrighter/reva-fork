@@ -3,9 +3,21 @@
 version = 4
 
 [[package]]
+name = "reva-cd"
+version = "0.1.0"
+dependencies = [
+ "reva-cd-list",
+]
+
+[[package]]
+name = "reva-cd-list"
+version = "0.1.0"
+
+[[package]]
 name = "reva-ui"
 version = "0.1.0"
 dependencies = [
+ "reva-cd",
  "reva-ui-base",
  "reva-ui-text",
  "reva-ui-tree",

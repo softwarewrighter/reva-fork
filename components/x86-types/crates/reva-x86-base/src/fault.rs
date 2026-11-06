@@ -42,6 +42,9 @@ pub enum Fault {
     },
     /// A host call this host cannot answer (a service it does not have).
     Unavailable(String),
+    /// `execute` (any indirect call or jump) of a value that is not code,
+    /// with `diagnose execute` on (CoSy's ask 22).
+    NotCode { target: u32 },
 }
 
 /// Where unsupported code is explained.

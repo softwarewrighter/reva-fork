@@ -50,7 +50,9 @@ MAC [IF]
 3 func: cdRegisterCallback     as cd-register-callback
 6 func: cdPlay                 as cd-play
 
-5 func: cdGetCanvasSize        as cd-get-canvas-size
+| reva-fork: 4 arguments (int *w, int *h, double *w_mm, double *h_mm), as in CD;
+| it said 5, which took one cell too many off binary-clock's stack
+4 func: cdGetCanvasSize        as cd-get-canvas-size
 1 vfunc: cdUpdateYAxis          as cd-update-y-axis
 2 vfunc: cdCanvasInvertYAxis
 : cd-canvas-invert-y-axis _dup cdCanvasInvertYAxis  ;

@@ -180,6 +180,16 @@ pub struct Machine {
     /// warning once until the stack is back at or above empty.
     pub underflow_fail: bool,
     pub underflow_warned: bool,
+    /// Check the depth at every `ret` too, so an underflow stops in the
+    /// word that caused it (`--underflow fail-at-word`, `diagnose
+    /// underflow-at-word`; CoSy's ask 22).
+    pub underflow_at_word: bool,
+    /// Stop an indirect call or jump (`execute`, a vector) to a target that
+    /// is not code (`diagnose execute`, `--check-execute`; ask 22).
+    pub check_execute: bool,
+    /// Report each word compiled into a definition, and who compiled it
+    /// (`diagnose compile`, `--trace-compile`; ask 22).
+    pub trace_compile: bool,
     /// The files being included, outermost first.  Transient.
     pub includes: Vec<IncludeFrame>,
     /// The turtle and its drawing (canvas.rs, turtle.rs).  Host state, like

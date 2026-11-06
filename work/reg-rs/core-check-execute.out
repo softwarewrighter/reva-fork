@@ -1,0 +1,14 @@
+
+*** bad memory access: 1 byte(s) at 0x00000000 (in 0x00000000 <- run, eip 0x00000000) after `run`
+stack (0)
+
+*** execute: 0x00000000 is not code (not a word, a quotation or a core routine) (in go+0xd <- run, eip 0x00146ce9) after `run`
+stack (0)
+
+*** execute: 0x00003039 is not code (not a word, a quotation or a core routine) (in q2+0xd, eip 0x00146d09) after `q2`
+stack (0)
+(2) 5 5 6 
+6 
+
+*** execute: 0x00000000 is not code (not a word, a quotation or a core routine) (in go+0xd <- run, eip 0x00146ce9) after `run`
+stack (0)

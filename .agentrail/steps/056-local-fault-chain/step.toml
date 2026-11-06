@@ -1,0 +1,9 @@
+number = 56
+slug = "local-fault-chain"
+status = "completed"
+description = "CoSy's ask 22, item 2 (medium, 2026-11-06; the user ordered ask 22's four ite..."
+role = "production"
+context_files = []
+created_at = "2026-11-06T07:43:10"
+completed_at = "2026-11-06T08:15:31"
+commits = ["f317a0caed9a4155757f994a1a79bda396e3c381"]

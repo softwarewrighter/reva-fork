@@ -7,6 +7,7 @@ use reva_core::x86::{EBX, EDX};
 use reva_core::{Dispatch, Gate, Machine, Next, st};
 use reva_words_code::emit::Emit;
 use reva_words_code::space::Space;
+use reva_words_diag::trace::trace_compile;
 
 type R<T = ()> = Result<T, Fault>;
 
@@ -19,7 +20,7 @@ pub const ENTRIES: &[(Gate, Dispatch)] = reva_macros::words! {
 };
 
 /// `'forth`: compile a call while compiling, else run the word.
-pub fn f_class(m: &mut Machine, g: Gate, _: &mut dyn Host) -> R<Next> {
+pub fn f_class(m: &mut Machine, g: Gate, host: &mut dyn Host) -> R<Next> {
     m.setv(
         st::SSEMI_DO_TAIL,
         if g == Gate::FClass { 0x90 } else { 0xc3 },
@@ -28,6 +29,7 @@ pub fn f_class(m: &mut Machine, g: Gate, _: &mut dyn Host) -> R<Next> {
         return run_word(m);
     }
     let xt = m.upop()?;
+    trace_compile(m, host, xt, "compile");
     m.compile_call(xt)?;
     Ok(Next::Ret)
 }
@@ -44,7 +46,7 @@ pub fn m_class_notail(m: &mut Machine, _: Gate, _: &mut dyn Host) -> R<Next> {
 }
 
 /// `'inline`: copy the word's bytes into the definition.
-pub fn i_class(m: &mut Machine, _: Gate, _: &mut dyn Host) -> R<Next> {
+pub fn i_class(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
     m.setv(st::SSEMI_DO_TAIL, 0xc3)?;
     if !m.compiling() {
         return run_word(m);
@@ -52,6 +54,7 @@ pub fn i_class(m: &mut Machine, _: Gate, _: &mut dyn Host) -> R<Next> {
     let xt = m.upop()?;
     let n = m.mem.read_u8(xt.wrapping_sub(1))? as u32;
     m.cpu.r[EDX as usize] = xt;
+    trace_compile(m, host, xt, "inline");
     m.store_here(xt, n)?;
     Ok(Next::Ret)
 }

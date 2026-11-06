@@ -86,6 +86,33 @@ A fault says where too, and shows the stack:
 stack (4): 2 7 8 0
 ```
 
+When the fault is deep inside other words, the report names the words that
+called the one at fault, innermost first, up to the word the interpreter
+ran (at most 8). With `: a 0 @ ; : b a 1 ; : c b 2 ;`, typing `c` gives
+
+```text
+*** bad memory access: 4 byte(s) at 0x00000000 (in a+0xc <- b <- c, eip ...) after `c`
+```
+
+The chain comes from the return stack, so a word whose last call is a
+jump (Reva compiles a call at the end of a definition as a jump) is not
+in it: with `: d c ;`, typing `d` still shows `a+0xc <- b <- c`. The
+CLI, the browser and the desktop app print the same line.
+
+`execute` of something that is not a word (`0 execute`, a cell of data)
+jumps there, and the fault names only the address: `in 0x00000000 <- run`.
+`diagnose execute` (`reva --check-execute`, `?diagnose=execute` on the
+page) stops it before the jump, in the word that executed:
+
+```text
+*** execute: 0x00000000 is not code (not a word, a quotation or a core routine) (in go+0xd <- run, eip ...) after `run`
+```
+
+It checks every indirect call and jump (`execute`, `@execute`, vectors): the
+target must be a core routine or compiled code. Code in allocated memory
+counts as not code, so a program that runs code it built in the heap needs
+it off. Off by default; `diagnose off` turns it off again.
+
 A file that is not there is reported (`include: nosuch.f: no such file`)
 and `ioerr` is 1; the original Reva said nothing.
 
@@ -96,13 +123,63 @@ prints ``warning: stack underflow (depth -1) at FILE:LINE after `drop` `` once, 
 Reva did: words run in the slack above the stack, and later pushes bring it
 back. Programs written for Reva rely on it (CoSy's Tui.f, and
 `examples/sqlite.f`). `reva --underflow fail` stops with an error instead.
+A line typed at the prompt that leaves the stack below empty does not pass
+that on: the next line starts from an empty stack.
+
+The depth is checked between the words of a line, so an underflow inside a
+definition that a later push hides goes unseen: with `: f1 drop drop ;
+: f2 f1 1 ;`, `1 f2` leaves one item and no warning. To find such a word,
+check at every word's return too, and stop in the first one that leaves
+the stack below empty, with its callers:
+
+```text
+diagnose underflow-at-word      | in any host; diagnose off turns it off
+reva --underflow fail-at-word   | the CLI, from the start
+?diagnose=underflow-at-word     | the web page, from the start
+```
+
+```text
+*** stack underflow (in f1+0xa <- f2, eip ...) after `f2`
+```
+
+`diagnose` alone lists the checks and which are on. The check costs no
+measurable time. Among the examples it stops six: four already warn, and in
+two a later push hid the underflow (`quoth.f`'s `choose` gives `seed4` two
+of its four values).
+
+## `prior` compiles while the compiler is on
+
+`prior WORD` (and `p: WORD`) compile the old word's address and a call to
+its class, and a forth word's class compiles a call when the compiler is
+on and runs the word otherwise. So a redefinition that uses `prior`, run
+from a macro while another definition is being compiled, compiles the old
+word into that definition instead of running it:
+
+```text
+: allocate prior allocate 1 + ;
+macro : m 1000 allocate . ; forth
+: t m ;                         | prints 1001: core allocate went into t
+```
+
+Reva 7.0.8 does the same (its `prior`, `p:` and forth class are the
+same). To run the old word whatever the state, keep its address and
+`execute` it: `' allocate constant (allocate)` before the redefinition,
+then `(allocate) execute`. To see such a compile, `diagnose compile`
+(`reva --trace-compile`, `?diagnose=compile`) says each word compiled into
+a definition, and the words that compiled it when it was not the
+interpreter:
+
+```text
+compile: core:Allocate into t by allocate <- m
+```
 
 ## What lies under an empty stack
 
 Reva keeps the top of the stack in a register (EAX). With the stack empty,
 that register still holds a leftover, the last value that was on top, and a
 word that reaches one item too deep inside a definition (no warning: the
-depth is checked between words) gets that leftover. `reset` sets it to 0, as
+depth is checked between words, unless `diagnose underflow-at-word`) gets
+that leftover. `reset` sets it to 0, as
 in every Reva: at each start of a saved program, so at every image start,
 and after each error at the prompt. Code that frees or follows the leftover
 then fails at a small address: CoSy's Tui.f `go` (its `>text` frees one
