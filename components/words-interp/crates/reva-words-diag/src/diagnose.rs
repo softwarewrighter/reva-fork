@@ -28,6 +28,11 @@ const CHECKS: &[Check] = &[
         "stop an execute (any indirect call or jump) of what is not code",
         |m| &mut m.check_execute,
     ),
+    (
+        "compile",
+        "say what is compiled into a definition, and who compiled it",
+        |m| &mut m.trace_compile,
+    ),
 ];
 
 /// `diagnose` ( "name" -- ).

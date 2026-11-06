@@ -1,6 +1,6 @@
 number = 59
 slug = "local-trace-compile"
-status = "pending"
+status = "in-progress"
 description = "CoSy's ask 22, item 4 (2026-11-06): a word that compiles instead of running. ..."
 role = "production"
 context_files = []

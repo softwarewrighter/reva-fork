@@ -62,6 +62,7 @@ Other ways to run code:
 | `reva --max-cpu SECONDS ...` | end a run that computes that long without waiting for input (`*** time limit`, exit 124; default 30 s with `--ui-script`) |
 | `reva --underflow fail ...` | stop with an error when a word takes more than the stack holds (default `warn`: say so once and go on, as Reva did); `fail-at-word` stops in the word that did it, with its callers ([gotchas.md](gotchas.md#stack-underflow-is-a-warning)) |
 | `reva --check-execute ...` | stop an `execute` of what is not code, naming the word that executed ([gotchas.md](gotchas.md#an-error-in-an-included-file-stops-that-file)) |
+| `reva --trace-compile ...` | say each word compiled into a definition, and who compiled it ([gotchas.md](gotchas.md#prior-compiles-while-the-compiler-is-on)) |
 | `reva --port-check [--fix DIR] FILE...` | find Windows-only paths and commands; write portable copies ([porting-from-windows.md](porting-from-windows.md)) |
 | `reva --help` | all options |
 | `reva -V` | version and build information (`--version`) |

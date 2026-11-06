@@ -187,6 +187,9 @@ pub struct Machine {
     /// Stop an indirect call or jump (`execute`, a vector) to a target that
     /// is not code (`diagnose execute`, `--check-execute`; ask 22).
     pub check_execute: bool,
+    /// Report each word compiled into a definition, and who compiled it
+    /// (`diagnose compile`, `--trace-compile`; ask 22).
+    pub trace_compile: bool,
     /// The files being included, outermost first.  Transient.
     pub includes: Vec<IncludeFrame>,
     /// The turtle and its drawing (canvas.rs, turtle.rs).  Host state, like

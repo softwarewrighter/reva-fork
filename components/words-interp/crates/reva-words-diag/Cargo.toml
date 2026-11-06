@@ -12,3 +12,4 @@ rust-version.workspace = true
 reva-core = { path = "../../../core/crates/reva-core" }
 reva-macros = { path = "../../../macros/crates/reva-macros" }
 reva-words-scan = { path = "../../../words-base/crates/reva-words-scan" }
+reva-core-inspect = { path = "../../../core/crates/reva-core-inspect" }
