@@ -15,6 +15,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "reva-cd"
+version = "0.1.0"
+dependencies = [
+ "reva-cd-list",
+]
+
+[[package]]
+name = "reva-cd-list"
+version = "0.1.0"
+
+[[package]]
 name = "reva-charset"
 version = "0.1.0"
 
@@ -159,6 +170,7 @@ dependencies = [
 name = "reva-ui"
 version = "0.1.0"
 dependencies = [
+ "reva-cd",
  "reva-ui-base",
  "reva-ui-text",
  "reva-ui-tree",
@@ -225,6 +237,7 @@ dependencies = [
 name = "reva-vlib-iup"
 version = "0.1.0"
 dependencies = [
+ "reva-cd",
  "reva-core",
  "reva-core-ffi",
  "reva-macros",
@@ -261,6 +274,7 @@ dependencies = [
  "reva-core",
  "reva-words-classes",
  "reva-words-compile",
+ "reva-words-diag",
  "reva-words-eval",
  "reva-words-ffi",
  "reva-words-interp",
@@ -287,6 +301,7 @@ dependencies = [
  "reva-macros",
  "reva-words-calls",
  "reva-words-code",
+ "reva-words-diag",
  "reva-words-scan",
 ]
 
@@ -308,6 +323,16 @@ dependencies = [
  "reva-words-code",
  "reva-words-scan",
  "reva-words-text",
+]
+
+[[package]]
+name = "reva-words-diag"
+version = "0.1.0"
+dependencies = [
+ "reva-core",
+ "reva-core-inspect",
+ "reva-macros",
+ "reva-words-scan",
 ]
 
 [[package]]

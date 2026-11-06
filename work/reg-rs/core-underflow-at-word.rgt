@@ -1,0 +1,4 @@
+command = '${REVA:-target/debug/reva} < tests/forth/underflow-at-word.f && printf "%s\n" ": f1 drop drop ;" ": f2 f1 1 ;" "1 f2" bye | ${REVA:-target/debug/reva} --underflow fail-at-word'
+timeout = 60
+exit_code = 0
+desc = "underflow inside a definition: hidden from warn, caught at the word by diagnose underflow-at-word and --underflow fail-at-word; the stack is empty again at the next prompt (CoSy's ask 22)"

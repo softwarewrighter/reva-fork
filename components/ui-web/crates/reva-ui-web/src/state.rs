@@ -13,6 +13,8 @@ pub struct State {
     pub size: Size,
     pub on_event: Option<js_sys::Function>,
     pub redraw: Option<Rc<dyn Fn()>>,
+    /// The size (pixels) each IUP canvas was last reported at.
+    pub canvas_sizes: std::collections::BTreeMap<u32, (i32, i32)>,
 }
 
 thread_local! {
@@ -21,6 +23,7 @@ thread_local! {
         size: Size { cols: 80, rows: 24 },
         on_event: None,
         redraw: None,
+        canvas_sizes: std::collections::BTreeMap::new(),
     });
 }
 

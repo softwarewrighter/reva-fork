@@ -4,10 +4,10 @@ use crate::calls::HostCalls;
 use crate::nested::Nested;
 use reva_core::fault::Fault;
 use reva_core::host::Host;
-use reva_core::layout::{GATE_BASE, GATE_END};
+use reva_core::layout::{D0, DSTACK_HI, GATE_BASE, GATE_END, H0, S0};
 use reva_core::mem::PAGE_SIZE;
-use reva_core::x86::{Arith, EAX, ESI, ESP, Exec, decode};
-use reva_core::{Flow, Gate, Next, Status};
+use reva_core::x86::{Arith, EAX, ESI, ESP, Exec, Insn, Op, Operands, Size, decode};
+use reva_core::{Flow, Gate, Next, Status, st};
 use reva_core_inspect::words::Dictionary;
 
 reva_macros::machine_trait! {
@@ -92,8 +92,37 @@ reva_macros::machine_trait! {
                     i
                 }
             };
+            if self.underflow_at_word || self.check_execute {
+                self.diagnose_insn(&insn)?;
+            }
             self.cpu.exec(&mut self.mem, &insn)?;
             Ok(Flow::Continue)
+        }
+
+        /// The opt-in checks before an instruction (`diagnose`; CoSy's ask
+        /// 22): a word returning with the stack below empty caused an
+        /// underflow; an indirect call or jump must reach code. The fault is
+        /// at this instruction, so its report names the word and its callers.
+        fn diagnose_insn(&self, insn: &Insn) -> Result<(), Fault> {
+            match insn.op {
+                Op::Ret(_) if self.underflow_at_word => {
+                    let esi = self.cpu.r[ESI as usize];
+                    if (S0 + 1..=DSTACK_HI).contains(&esi) {
+                        return Err(Fault::StackUnderflow);
+                    }
+                }
+                Op::CallInd(o) | Op::JmpInd(o) if self.check_execute => {
+                    let t = self.cpu.read(&self.mem, o, Size::D)?;
+                    let code = (GATE_BASE..GATE_END).contains(&t)
+                        || (D0..self.var(st::D)).contains(&t)
+                        || (H0..self.var(st::H)).contains(&t);
+                    if !code {
+                        return Err(Fault::NotCode { target: t });
+                    }
+                }
+                _ => {}
+            }
+            Ok(())
         }
 
         /// Drop cached and translated code of pages that were written.

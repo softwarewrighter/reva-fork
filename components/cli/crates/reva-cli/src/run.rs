@@ -46,6 +46,9 @@ impl Run<'_> {
         }
         vm.set_trace(self.opts.trace);
         vm.underflow_fail = self.opts.underflow_fail;
+        vm.underflow_at_word = self.opts.underflow_at_word;
+        vm.check_execute = self.opts.check_execute;
+        vm.trace_compile = self.opts.trace_compile;
         self.queue(vm);
         Ok(())
     }

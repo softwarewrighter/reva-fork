@@ -118,7 +118,9 @@ one direct `IupStoreAttribute`.
    from the canvas's redraw callback. CD becomes a virtual library that
    draws into the turtle's display list (components/canvas), shown by a
    canvas pane; parity: `binary-clock`, `brownian`, `cd-test`. Not CD's
-   PDF/printer contexts, and not OpenGL.
+   PDF/printer contexts, and not OpenGL. Done, with its own display list
+   (component cd) painted on an HTML canvas over the IUP canvas; see
+   [ui-model.md](ui-model.md#canvases-cd).
 7. **The rest of the examples**, in order of how many programs a feature
    unblocks: menus and toolbars, toggles, radios, lists and tabs, timers,
    file and message dialogs, the matrix; then drawing (the CD library on

@@ -37,6 +37,16 @@ impl Ui {
                 self.hide(d);
                 None
             }),
+            // IUP: RESIZE_CB(width, height), then ACTION (posx, posy: 0.0)
+            Event::Size(h, w, ht) => {
+                self.cd.sizes.insert(h, (w, ht));
+                self.call(h, "RESIZE_CB", vec![w, ht], event)
+                    .or_else(|| self.call(h, "ACTION", vec![0, 0], event))
+            }
+            Event::Timer(h) if self.get(h, "RUN").as_deref() == Some("YES") => {
+                self.call(h, "ACTION_CB", vec![], event)
+            }
+            Event::Timer(_) => None,
         }
     }
 
@@ -50,6 +60,9 @@ impl Ui {
         }
         match call.event {
             Event::Key(code) if ret == DEFAULT || ret == CONTINUE => self.default_key(code),
+            Event::Size(h, ..) if call.name == "RESIZE_CB" => {
+                self.call(h, "ACTION", vec![0, 0], call.event)
+            }
             _ => None,
         }
     }

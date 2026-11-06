@@ -7,6 +7,17 @@ name = "reva-canvas"
 version = "0.1.0"
 
 [[package]]
+name = "reva-cd"
+version = "0.1.0"
+dependencies = [
+ "reva-cd-list",
+]
+
+[[package]]
+name = "reva-cd-list"
+version = "0.1.0"
+
+[[package]]
 name = "reva-charset"
 version = "0.1.0"
 
@@ -129,6 +140,7 @@ dependencies = [
 name = "reva-ui"
 version = "0.1.0"
 dependencies = [
+ "reva-cd",
  "reva-ui-base",
  "reva-ui-text",
  "reva-ui-tree",
@@ -179,6 +191,7 @@ dependencies = [
  "reva-macros",
  "reva-words-calls",
  "reva-words-code",
+ "reva-words-diag",
  "reva-words-scan",
 ]
 
@@ -189,6 +202,16 @@ dependencies = [
  "reva-core",
  "reva-core-run",
  "reva-macros",
+]
+
+[[package]]
+name = "reva-words-diag"
+version = "0.1.0"
+dependencies = [
+ "reva-core",
+ "reva-core-inspect",
+ "reva-macros",
+ "reva-words-scan",
 ]
 
 [[package]]

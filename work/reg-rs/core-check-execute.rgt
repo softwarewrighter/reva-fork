@@ -1,0 +1,4 @@
+command = '${REVA:-target/debug/reva} < tests/forth/check-execute.f && printf "%s\n" ": go 0 execute ;" ": run go 1 ;" run bye | ${REVA:-target/debug/reva} --check-execute'
+timeout = 60
+exit_code = 0
+desc = "execute of what is not code: diagnose execute and --check-execute stop it, naming the word that executed and its callers; words, quotations and vectors still run (CoSy's ask 22)"

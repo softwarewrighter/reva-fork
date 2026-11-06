@@ -1,0 +1,25 @@
+ui< created 1 vbox
+ui< created 2 label
+ui< attr 2 TITLE =Below\sis\san\sIupCanvas\sacting\sas\sa\sCD\scanvas...
+ui< appended 1 2
+ui< created 3 canvas
+ui< attr 3 EXPAND =YES
+ui< appended 1 3
+ui< created 4 hbox
+ui< created 5 fill
+ui< appended 4 5
+ui< created 6 button
+ui< attr 6 TITLE =Quit!
+ui< appended 4 6
+ui< created 7 fill
+ui< appended 4 7
+ui< appended 1 4
+ui< created 8 dialog
+ui< appended 8 1
+ui< attr 8 TOPMOST =YES
+ui< shown 8 -1 -1 modeless
+ui< focus 3
+ui< attr 3 DRAW =
+ui> size 3 300 200
+ui< attr 3 DRAW =c\sc0c0c0;l\s0\s0\s30\s30\s0000ff\s2\s1;m\s40\s10\s5\s10\s0000ff;b\s60\s0\s90\s20\s0000ff;i\s70\s70\s32\s32\s8\s8\sffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff000000ff0000ffffff00ffff000000ff0000ffffff00ffff000000ff0000ffffff00ffff000000ff0000ffffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff000000ff0000ffffff00ffff000000ff0000ffffff00ffff000000ff0000ffffff00ffff000000ff0000ffffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00
+ui> close 8

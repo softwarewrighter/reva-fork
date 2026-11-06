@@ -408,11 +408,12 @@ new module, crate or component, never a merge).
 | `host` | reva-host-traits (`Host` as `Console` + `Platform` + `Resources`), reva-host-buffer (`BufferHost`), reva-host (facade: every old path) | host-base, vfs |
 | `core-parts` | reva-gate (the gateway table), reva-heap, reva-translate (translator hooks, the decode cache) | x86 |
 | `canvas` | reva-canvas (the turtle and its display list), reva-canvas-out (op stream, SVG), reva-canvas-png (PNG; the CLI only, not wasm) | macros |
-| `ui` | reva-ui-base (kinds, IUP key codes, the change stream and its text form), reva-ui-text (editable text), reva-ui-tree (elements, attributes, callbacks), reva-ui (the model: text attributes, dialogs, focus, events); docs/ui-model.md | — |
+| `cd` | reva-cd-list (a CD canvas's display list and its text form, the `DRAW` attribute), reva-cd (CD's canvases, attributes and bitmaps; the `cd*` functions); docs/ui-model.md#canvases-cd | — |
+| `ui` | reva-ui-base (kinds, IUP key codes, the change stream and its text form), reva-ui-text (editable text), reva-ui-tree (elements, attributes, callbacks), reva-ui (the model: text attributes, dialogs, focus, events); docs/ui-model.md | cd |
 | `ui-layout` | reva-ui-layout (IUP's layout in character cells) | ui |
 | `ui-grid` | reva-ui-mirror (a renderer's copy of the model from the change stream), reva-ui-grid (character cells with colour roles, the cursor), reva-ui-paint (the TUI's look: dialogs painted into the cells; clicks) | ui, ui-layout |
-| `ui-web` | reva-ui-web (the TUI in the page: a Yew element, built with wasm-bindgen apart from reva.wasm) | ui-grid |
-| `iup` | reva-vlib-iup (the virtual library `iup`: IUP's C functions over the model, its event loop and callbacks), reva-ui-script (a headless host answering from a script; `reva --ui-script`), reva-ui-term (the TUI in the CLI's terminal, with crossterm) | core, ui, ui-grid |
+| `ui-web` | reva-ui-web (the TUI in the page: a Yew element, built with wasm-bindgen apart from reva.wasm), reva-ui-canvas2d (IUP canvases' DRAW lists painted on HTML canvases) | ui-grid, cd |
+| `iup` | reva-vlib-iup (the virtual library `iup`: IUP's C functions over the model, its event loop and callbacks), reva-ui-script (a headless host answering from a script; `reva --ui-script`), reva-ui-term (the TUI in the CLI's terminal, with crossterm) | core, cd, ui, ui-grid |
 | `core` | reva-core (the `Machine` state and the stack and statics helpers every gateway uses), reva-core-ffi (`(call)` arguments, registers), reva-core-inspect (dictionary, state, settings) | x86, host, core-parts, canvas |
 | `core-run` | reva-core-run (the run loop, nested calls, faults, input, host calls), reva-core-boot (new machines: statics and the core dictionary as tables; images) | core |
 | `vlib` | reva-vlib-turtle, reva-vlib-highlight, reva-vlib-iconv, reva-vlib (facade: the old paths; reva-vlib-sqlite lives in `sqlite`, reva-vlib-iup in `iup`) | core, canvas |
@@ -483,6 +484,10 @@ reports no FAILs, and the gate requires that.
    2026-11-02, for CoSy's Tui.f and four examples) it is a warning, once
    per episode, and words go on in the slack above the stack as newcore's
    did; `reva --underflow fail` stops with an error as the port used to.
+   A line typed at the prompt that leaves the stack below empty: the next
+   starts from an empty stack. `--underflow fail-at-word` (`diagnose
+   underflow-at-word` in any host) also checks at every `ret`, stopping in
+   the word that left the stack below empty (CoSy's ask 22).
    `type` of a buffer that cannot be read writes nothing, as the OS's
    `write` failed for Reva, instead of faulting.
 3. Running out of code or dictionary space faults instead of exiting via
