@@ -15,3 +15,4 @@ reva-macros = { path = "../../../macros/crates/reva-macros" }
 reva-core-ffi = { path = "../../../core/crates/reva-core-ffi" }
 reva-ui = { path = "../../../ui/crates/reva-ui" }
 reva-ui-base = { path = "../../../ui/crates/reva-ui-base" }
+reva-cd = { path = "../../../cd/crates/reva-cd" }

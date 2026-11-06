@@ -1,0 +1,5 @@
+# brownian.f: the canvas (3) laid out, two ticks of its timer (9), then the close box
+size 3 300 200
+timer 9
+timer 9
+close 8

@@ -1,0 +1,3 @@
+command = "${REVA:-target/debug/reva} --ui-script tests/ui/cd-test.ui examples/iup/cd-test.f < /dev/null"
+exit_code = 0
+desc = "examples/iup/cd-test.f: CD draws on an IUP canvas (lines, marks, a box, a bitmap) into its DRAW list"

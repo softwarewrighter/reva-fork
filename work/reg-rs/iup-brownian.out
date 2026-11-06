@@ -1,0 +1,33 @@
+ui< created 1 vbox
+ui< created 2 label
+ui< attr 2 TITLE =Below\sis\san\sIupCanvas\sacting\sas\sa\sCD\scanvas...
+ui< appended 1 2
+ui< created 3 canvas
+ui< attr 3 EXPAND =YES
+ui< appended 1 3
+ui< created 4 hbox
+ui< created 5 fill
+ui< appended 4 5
+ui< created 6 button
+ui< attr 6 TITLE =Quit!
+ui< appended 4 6
+ui< created 7 fill
+ui< appended 4 7
+ui< appended 1 4
+ui< created 8 dialog
+ui< appended 8 1
+ui< attr 8 TOPMOST =YES
+ui< created 9 timer
+ui< attr 9 TIME =10
+ui< attr 9 RUN =YES
+ui< shown 8 -1 -1 modeless
+ui< focus 3
+ui< attr 3 DRAW =
+ui> size 3 300 200
+ui< attr 3 DRAW =c\sc0c0c0;m\s40\s20\s5\s10\s010059;m\s40\s20\s5\s10\se00008;m\s40\s20\s5\s10\s080008;m\s40\s20\s5\s10\s000c88;m\s40\s20\s5\s10\s00119e;m\s40\s20\s5\s10\s035808;m\s40\s20\s5\s10\s000008;m\s40\s20\s5\s10\s200128;m\s40\s20\s5\s10\sf00008;m\s40\s20\s5\s10\s982008;m\s40\s20\s5\s10\s000008;m\s40\s20\s5\s10\s000008;m\s40\s20\s5\s10\s856808;m\s40\s20\s5\s10\s020008;m\s40\s20\s5\s10\s15d808;m\s40\s20\s5\s10\s1c8008;m\s40\s20\s5\s10\sf82008;m\s40\s20\s5\s10\s140008;m\s40\s20\s5\s10\s208408;m\s40\s20\s5\s10\s000208;m\s40\s20\s5\s10\s388008;m\s40\s20\s5\s10\s000008;m\s40\s20\s5\s10\s000008;m\s40\s20\s5\s10\s089408;m\s40\s20\s5\s10\s0b8008;m\s40\s20\s5\s10\s00ee08;m\s40\s20\s5\s10\s800008;m\s40\s20\s5\s10\s500008;m\s40\s20\s5\s10\s005d08;m\s40\s20\s5\s10\s000f68;m\s40\s20\s5\s10\s800008;m\s40\s20\s5\s10\s800008;m\s40\s20\s5\s10\s000008;m\s40\s20\s5\s10\s000ce8;m\s40\s20\s5\s10\s000008;m\s40\s20\s5\s10\s002e28;m\s40\s20\s5\s10\s180008;m\s40\s20\s5\s10\s06c008;m\s40\s20\s5\s10\s013448;m\s40\s20\s5\s10\s180008
+ui> timer 9
+ui< attr 3 DRAW =c\sc0c0c0;m\s35\s14\s0\s10\s010059;m\s35\s22\s1\s10\se00008;m\s47\s19\s2\s10\s080008;m\s35\s11\s3\s10\s000c88;m\s31\s15\s4\s10\s00119e;m\s43\s18\s5\s10\s035808;m\s41\s15\s6\s10\s000008;m\s41\s20\s7\s10\s200128;m\s44\s19\s8\s10\sf00008;m\s39\s10\s0\s10\s982008;m\s42\s26\s1\s10\s000008;m\s34\s10\s2\s10\s000008;m\s36\s29\s3\s10\s856808;m\s50\s19\s4\s10\s020008;m\s37\s15\s5\s10\s15d808;m\s31\s16\s6\s10\s1c8008;m\s43\s21\s7\s10\sf82008;m\s32\s20\s8\s10\s140008;m\s48\s29\s0\s10\s208408;m\s49\s21\s1\s10\s000208;m\s45\s22\s2\s10\s388008;m\s34\s25\s3\s10\s000008;m\s31\s15\s4\s10\s000008;m\s33\s28\s5\s10\s089408;m\s37\s14\s6\s10\s0b8008;m\s30\s19\s7\s10\s00ee08;m\s42\s19\s8\s10\s800008;m\s38\s27\s0\s10\s500008;m\s39\s18\s1\s10\s005d08;m\s40\s28\s2\s10\s000f68;m\s42\s10\s3\s10\s800008;m\s43\s12\s4\s10\s800008;m\s30\s24\s5\s10\s000008;m\s32\s11\s6\s10\s000ce8;m\s32\s15\s7\s10\s000008;m\s44\s12\s8\s10\s002e28;m\s35\s28\s0\s10\s180008;m\s37\s15\s1\s10\s06c008;m\s44\s30\s2\s10\s013448;m\s49\s20\s3\s10\s180008
+ui> timer 9
+ui< attr 3 DRAW =c\sc0c0c0;m\s26\s6\s0\s10\s010059;m\s39\s32\s1\s10\se00008;m\s38\s9\s2\s10\s080008;m\s28\s10\s3\s10\s000c88;m\s40\s25\s4\s10\s00119e;m\s46\s19\s5\s10\s035808;m\s42\s10\s6\s10\s000008;m\s35\s26\s7\s10\s200128;m\s51\s11\s8\s10\sf00008;m\s37\s4\s0\s10\s982008;m\s42\s20\s1\s10\s000008;m\s31\s12\s2\s10\s000008;m\s45\s34\s3\s10\s856808;m\s50\s26\s4\s10\s020008;m\s31\s8\s5\s10\s15d808;m\s29\s20\s6\s10\s1c8008;m\s34\s24\s7\s10\sf82008;m\s27\s30\s8\s10\s140008;m\s56\s36\s0\s10\s208408;m\s40\s29\s1\s10\s000208;m\s35\s20\s2\s10\s388008;m\s38\s16\s3\s10\s000008;m\s26\s16\s4\s10\s000008;m\s30\s36\s5\s10\s089408;m\s39\s19\s6\s10\s0b8008;m\s37\s17\s7\s10\s00ee08;m\s39\s14\s8\s10\s800008;m\s41\s33\s0\s10\s500008;m\s42\s25\s1\s10\s005d08;m\s37\s24\s2\s10\s000f68;m\s40\s16\s3\s10\s800008;m\s49\s18\s4\s10\s800008;m\s35\s27\s5\s10\s000008;m\s28\s10\s6\s10\s000ce8;m\s30\s24\s7\s10\s000008;m\s48\s22\s8\s10\s002e28;m\s39\s30\s0\s10\s180008;m\s34\s7\s1\s10\s06c008;m\s50\s32\s2\s10\s013448;m\s45\s15\s3\s10\s180008
+ui> close 8
+done!

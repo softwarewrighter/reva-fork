@@ -16,6 +16,15 @@ use crate::run::IupRun;
 
 type R<T = ()> = Result<T, Fault>;
 
+/// The VM's memory as reva-cd reads it (strings, bitmaps).
+struct View<'a>(&'a reva_core::mem::Memory);
+
+impl reva_cd::calls::Memory for View<'_> {
+    fn bytes(&self, a: u32, n: u32) -> Option<Vec<u8>> {
+        self.0.slice(a, n).ok().map(<[u8]>::to_vec)
+    }
+}
+
 reva_macros::machine_trait! {
     /// The virtual library `iup`.
     pub trait IupLib: IupRun {
@@ -34,6 +43,13 @@ reva_macros::machine_trait! {
                 Op::Zero => 0,
                 Op::Default => -2i32 as u32,
                 Op::Value(v) => v as u32,
+                Op::Cd(f) => {
+                    let done = self.ui.cd.call(f, &a, &View(&self.mem));
+                    for (p, bytes) in done.writes {
+                        self.mem.write_bytes(p, &bytes)?;
+                    }
+                    done.value
+                }
                 Op::New(kind, args) => self.iup_new(kind, args, &a)?,
                 Op::SetAttr | Op::SetAttrId | Op::GetAttr | Op::GetAttrId => self.iup_attr(op, &a)?,
                 _ => self.iup_other(op, &a)?,
