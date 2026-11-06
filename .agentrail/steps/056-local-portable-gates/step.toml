@@ -1,4 +1,4 @@
-number = 55
+number = 56
 slug = "local-portable-gates"
 status = "pending"
 description = "Bugs: the gate is not green on macOS. (a) rust/scripts/parity-examples.sh and..."

@@ -11,6 +11,12 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-05
+
+- 12:15 `chore` Step local-web-ms complete (saga record).
+- 12:04 `fix` `ms` waits in the browser and the desktop app (step local-web-ms; CoSy's ask 21): only the CLI's host slept, so `1000 ms` returned at once and an animation showed only its last frame. The virtual libc's nanosleep (what `ms` calls) now asks the host for a `clock` `sleep` host call; the web worker answers it itself after a timer, so the page goes on drawing during the wait, a line typed meanwhile is queued, Stop ends the wait at once, and the runaway guard does not count it; the page's own-thread fallback waits too. A host without the service (the CLI) sleeps as before. The Syscall gate stops the VM for the call and runs again once it is answered. Web smoke: 3 new checks (output before a wait shows during it; it takes its time; Stop ends it); golden web-smoke gains them (reviewed). Checked in Chrome: `: trees 13 2 do i tree-demo 1000 ms loop ; trees` draws one tree a second. Not checked in the desktop app (it opens windows on the shared Mac; the same page and worker). Saga: local-web-ms moved ahead of local-ui-canvas, whose first part (the reva-cd crate) is set aside. docs/gotchas.md.
+- 12:04 `chore` Merge #88 (local-readme-retire).
+
 ## 2026-11-04
 
 - 16:57 `chore` Step local-readme-retire complete (saga record).

@@ -175,6 +175,22 @@ check("more time, then paused again", guarded.status, PAUSED);
 guarded.stop();
 check("stop while paused", await guarded.idle(), NEED_INPUT);
 guarded.terminate();
+// `ms` waits in the worker (a `clock` host call it answers itself): it
+// takes its time, what was printed before shows during it, Stop ends it.
+wout = "";
+const t0 = Date.now();
+session.feed('." before" cr 300 ms ." after" cr\n');
+await new Promise((r) => setTimeout(r, 150));
+check("output before a wait shows during it", [wout.includes("before"), wout.includes("after")], [true, false]);
+await session.idle();
+check("ms takes its time", Date.now() - t0 >= 300, true);
+wout = "";
+session.feed('5000 ms ." never" cr\n');
+await new Promise((r) => setTimeout(r, 150));
+const t1 = Date.now();
+session.stop();
+await session.idle();
+check("Stop ends a wait at once", [Date.now() - t1 < 1000, wout.includes("interrupted"), wout.includes("never")], [true, true, false]);
 session.feed("7 ~sys.(bye)\n");
 check("worker halts", [await session.idle(), session.exitCode], [HALTED, 7]);
 session.terminate();
