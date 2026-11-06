@@ -1,0 +1,1 @@
+README's obsolete Status/Roadmap/Quality/Branches moved verbatim to original-README.md (marked unmaintained) and linked; README keeps copyright, third-party and license sections; layout row distinguishes it from orig-README; LICENSING.md lists it. Docs-only (doc-check).

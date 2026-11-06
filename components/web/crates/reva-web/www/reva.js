@@ -390,6 +390,12 @@ class Session {
   }
   /** The answer to a host call, from `onHostCall`, or a refusal. */
   async answer(call) {
+    // `ms` on the page's own thread (no worker): wait, then go on.  The
+    // worker answers it itself, so Stop can end the wait there.
+    if (call.service === "clock") {
+      await new Promise((r) => setTimeout(r, Number(call.ints[0] ?? 0)));
+      return { int: 0 };
+    }
     if (this.local?.includes(call.service)) {
       this.sqlite ??= new (await import("./sqlite.js")).SqliteHost();
       return this.sqlite.answer(call);

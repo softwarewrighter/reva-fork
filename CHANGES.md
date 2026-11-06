@@ -11,8 +11,19 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-05
+
+- 12:38 `release` 2026.1105.0, at the user's request, for a merge to main later today. Since 2026.1104.0: `ms` waits in the browser and the desktop app (CoSy's ask 21).
+- 12:15 `chore` Step local-web-ms complete (saga record).
+- 12:04 `fix` `ms` waits in the browser and the desktop app (step local-web-ms; CoSy's ask 21): only the CLI's host slept, so `1000 ms` returned at once and an animation showed only its last frame. The virtual libc's nanosleep (what `ms` calls) now asks the host for a `clock` `sleep` host call; the web worker answers it itself after a timer, so the page goes on drawing during the wait, a line typed meanwhile is queued, Stop ends the wait at once, and the runaway guard does not count it; the page's own-thread fallback waits too. A host without the service (the CLI) sleeps as before. The Syscall gate stops the VM for the call and runs again once it is answered. Web smoke: 3 new checks (output before a wait shows during it; it takes its time; Stop ends it); golden web-smoke gains them (reviewed). Checked in Chrome: `: trees 13 2 do i tree-demo 1000 ms loop ; trees` draws one tree a second. Not checked in the desktop app (it opens windows on the shared Mac; the same page and worker). Saga: local-web-ms moved ahead of local-ui-canvas, whose first part (the reva-cd crate) is set aside. docs/gotchas.md.
+- 12:04 `chore` Merge #88 (local-readme-retire).
+
 ## 2026-11-04
 
+- 16:57 `chore` Step local-readme-retire complete (saga record).
+- 16:57 `docs` README: its obsolete Status, Roadmap, Quality and Branches sections (stale counts, finished roadmap items, the old gate list) moved verbatim to original-README.md, marked as history and unmaintained (step local-readme-retire, at the user's request); the README points to docs/parity.md and CHANGES.md for what runs today and keeps its copyright, Third-party software and License sections; the layout table tells original-README.md from Reva's orig-README; LICENSING.md lists the new file as MIT.
+- 16:56 `chore` Release 2026.1104.0: dev merged into main (bfc4604, 16:53) and the live demo published, checked in Chrome: footer 2026.1104.0 build bfc4604, and the notebook opens in the TUI again (ask 20). An untracked components/cli/target/ (85 MB of build cache, not made by this session) was set aside for publish-pages and put back.
+- 16:56 `chore` Merge #87 (local-zip-stamp).
 - 16:40 `chore` Step local-zip-stamp complete (saga record).
 - 16:37 `release` 2026.1104.0 (step local-zip-stamp), at the user's request: today's first merge to main, chiefly to fix the live demo's TUI (ask 20). Since 2026.1103.0: pasted lines run one by one in the web REPL; a notebook in a file of its own; the web zip's TUI loads again.
 - 15:10 `fix` The web zip's TUI loads again (step local-zip-stamp; CoSy's ask 20, high; my bug from #83, also on the 2026.1103.0 live demo): make-web-zip.sh stamped every quoted "./x.js" with ?v=, including wasm-bindgen's import-object key "./reva_ui_web_bg.js" in ui/reva_ui_web.js, so the TUI's wasm did not instantiate (the notebook and every TUI failed in a zip). Only URLs are stamped now (from "./x.js", import("./x.js"), new URL("./x.js"), the wasm's URL), and the script fails if the import key changes. Checked in Chrome: a built zip opens the notebook.
