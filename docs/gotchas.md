@@ -86,6 +86,19 @@ A fault says where too, and shows the stack:
 stack (4): 2 7 8 0
 ```
 
+When the fault is deep inside other words, the report names the words that
+called the one at fault, innermost first, up to the word the interpreter
+ran (at most 8). With `: a 0 @ ; : b a 1 ; : c b 2 ;`, typing `c` gives
+
+```text
+*** bad memory access: 4 byte(s) at 0x00000000 (in a+0xc <- b <- c, eip ...) after `c`
+```
+
+The chain comes from the return stack, so a word whose last call is a
+jump (Reva compiles a call at the end of a definition as a jump) is not
+in it: with `: d c ;`, typing `d` still shows `a+0xc <- b <- c`. The
+CLI, the browser and the desktop app print the same line.
+
 A file that is not there is reported (`include: nosuch.f: no such file`)
 and `ioerr` is 1; the original Reva said nothing.
 
