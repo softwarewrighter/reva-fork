@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-06
 
+- 07:53 `plan` Saga: CoSy's ask 22 as four steps, in the user's order: 56 local-fault-chain (callers by name on a fault), 57 local-underflow-at-word, 58 local-check-execute, 59 local-trace-compile; later steps move up four.
 - 06:24 `chore` CHANGES: the saga record of local-ui-canvas under its own day (2026-11-06), and the feature line at its commit time (19:00).
 - 06:24 `chore` Step local-ui-canvas complete (saga record).
 
