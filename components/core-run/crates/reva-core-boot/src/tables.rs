@@ -185,6 +185,7 @@ const CORE_WORDS: &[(&str, Xt, Gate)] = &[
     ("restart", Xt::G(Restart), FClass),
     ("version", Xt::G(Version), FClass),
     ("(where)", Xt::G(Where), FClass),
+    ("diagnose", Xt::G(Diagnose), FClass),
 ];
 
 /// The dispatch of a machine built without one: every gateway faults.

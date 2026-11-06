@@ -4,9 +4,9 @@ use crate::calls::HostCalls;
 use crate::nested::Nested;
 use reva_core::fault::Fault;
 use reva_core::host::Host;
-use reva_core::layout::{GATE_BASE, GATE_END};
+use reva_core::layout::{DSTACK_HI, GATE_BASE, GATE_END, S0};
 use reva_core::mem::PAGE_SIZE;
-use reva_core::x86::{Arith, EAX, ESI, ESP, Exec, decode};
+use reva_core::x86::{Arith, EAX, ESI, ESP, Exec, Op, decode};
 use reva_core::{Flow, Gate, Next, Status};
 use reva_core_inspect::words::Dictionary;
 
@@ -92,6 +92,14 @@ reva_macros::machine_trait! {
                     i
                 }
             };
+            if self.underflow_at_word && matches!(insn.op, Op::Ret(_)) {
+                // A word returning with the stack below empty caused it;
+                // the fault names it, with its callers (CoSy's ask 22).
+                let esi = self.cpu.r[ESI as usize];
+                if (S0 + 1..=DSTACK_HI).contains(&esi) {
+                    return Err(Fault::StackUnderflow);
+                }
+            }
             self.cpu.exec(&mut self.mem, &insn)?;
             Ok(Flow::Continue)
         }

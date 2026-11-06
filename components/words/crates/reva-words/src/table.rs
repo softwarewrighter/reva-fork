@@ -5,6 +5,7 @@ use reva_core::host::Host;
 use reva_core::{Dispatch, Gate, Machine, Next};
 use reva_words_classes::{classes, data, defers, lookup};
 use reva_words_compile::{compiling, numbers};
+use reva_words_diag::diagnose;
 use reva_words_eval::{catch, define, eval, variables};
 use reva_words_ffi::os;
 use reva_words_interp::{interp, outer, startup};
@@ -27,6 +28,7 @@ const FAMILIES: &[&[(Gate, Dispatch)]] = &[
     catch::ENTRIES,
     define::ENTRIES,
     variables::ENTRIES,
+    diagnose::ENTRIES,
     compiling::ENTRIES,
     numbers::ENTRIES,
     memory::ENTRIES,
