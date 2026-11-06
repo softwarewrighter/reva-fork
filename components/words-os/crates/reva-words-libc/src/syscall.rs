@@ -3,6 +3,7 @@
 use crate::clock::Clock;
 use reva_core::fault::Fault;
 use reva_core::host::Host;
+use reva_core::hostcall::{HostAnswer, HostCall};
 use reva_core::x86::{EAX, ESI};
 use reva_core_ffi::regs::MachineRegs;
 use reva_words_files::sysfile::SysFile;
@@ -47,6 +48,35 @@ reva_macros::machine_trait! {
                 *slot = self.mem.read_u32(sp + 4 + 4 * i as u32)?;
             }
             Ok(a)
+        }
+
+        /// `nanosleep` (what `ms` calls) on a host that waits elsewhere: the
+        /// web worker cannot block, so it is asked for a `clock` `sleep`
+        /// host call and answers when the time is up, the page drawing
+        /// meanwhile.  True while that answer is to come: the gate stops
+        /// the VM, and is run again (the sleep done) once it is in.  A host
+        /// without the service (the CLI) sleeps in `sleep_ms` as before.
+        fn sleep_waits(&mut self, host: &mut dyn Host) -> R<bool> {
+            if self.reg(EAX) != SYS_NANOSLEEP {
+                return Ok(false);
+            }
+            if self.host_reply.take().is_some() {
+                return Ok(false);
+            }
+            let sp = self.reg(ESI);
+            let req = self.mem.read_u32(sp + 4)?;
+            let ms = match req {
+                0 => 0,
+                _ => self.mem.read_u32(req)? as i64 * 1000 + self.mem.read_u32(req + 4)? as i64 / 1_000_000,
+            };
+            let call = HostCall { service: "clock", op: "sleep", ints: vec![ms], bytes: vec![] };
+            match host.host_call(&call) {
+                HostAnswer::Later => {
+                    self.pending_call = Some(call);
+                    Ok(true)
+                }
+                _ => Ok(false),
+            }
         }
 
         /// The calls other than file calls: the clock, sleep, pid, ioctl.
