@@ -1,6 +1,6 @@
 number = 56
 slug = "local-fault-chain"
-status = "pending"
+status = "in-progress"
 description = "CoSy's ask 22, item 2 (medium, 2026-11-06; the user ordered ask 22's four ite..."
 role = "production"
 context_files = []
