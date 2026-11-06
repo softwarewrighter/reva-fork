@@ -13,6 +13,9 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-05
 
+- 18:46 `chore` Release 2026.1105.0: dev merged into main (8219fd1, 18:45) and the live demo published, checked in Chrome: banner and footer 2026.1105.0 build 8219fd1, and `: t 3 0 do i . 500 ms loop ; t` prints 0 1 2. The untracked components/cli/target/ and the notebook files were set aside for publish-pages and put back.
+- 18:46 `chore` Merge #90 (local-release-1105).
+- 18:46 `chore` Merge #89 (local-web-ms).
 - 12:38 `release` 2026.1105.0, at the user's request, for a merge to main later today. Since 2026.1104.0: `ms` waits in the browser and the desktop app (CoSy's ask 21).
 - 12:15 `chore` Step local-web-ms complete (saga record).
 - 12:04 `fix` `ms` waits in the browser and the desktop app (step local-web-ms; CoSy's ask 21): only the CLI's host slept, so `1000 ms` returned at once and an animation showed only its last frame. The virtual libc's nanosleep (what `ms` calls) now asks the host for a `clock` `sleep` host call; the web worker answers it itself after a timer, so the page goes on drawing during the wait, a line typed meanwhile is queued, Stop ends the wait at once, and the runaway guard does not count it; the page's own-thread fallback waits too. A host without the service (the CLI) sleeps as before. The Syscall gate stops the VM for the call and runs again once it is answered. Web smoke: 3 new checks (output before a wait shows during it; it takes its time; Stop ends it); golden web-smoke gains them (reviewed). Checked in Chrome: `: trees 13 2 do i tree-demo 1000 ms loop ; trees` draws one tree a second. Not checked in the desktop app (it opens windows on the shared Mac; the same page and worker). Saga: local-web-ms moved ahead of local-ui-canvas, whose first part (the reva-cd crate) is set aside. docs/gotchas.md.
