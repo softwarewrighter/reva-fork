@@ -22,6 +22,7 @@ usage: reva [options] [file ...]
                        next prompt), fail (stop with an error), or fail-at-word (stop in
                        the word that took too much, with its callers; slower)
       --check-execute  stop an `execute` of what is not code, naming who executed it
+      --trace-compile  say each word compiled into a definition, and who compiled it
       --allow-shell    let `shell` (C `system`) run OS commands; off by default
       --no-edit        at a terminal, read plain lines (no history or line editing)
       --color WHEN     colour in `pp`/`hl-type` listings: auto (default), always, never
@@ -54,6 +55,8 @@ pub struct Options {
     pub underflow_at_word: bool,
     /// --check-execute: stop an execute of what is not code.
     pub check_execute: bool,
+    /// --trace-compile: say what is compiled, and who compiled it.
+    pub trace_compile: bool,
     /// --max-cpu: seconds a run may compute without waiting for input
     /// (0: no limit; default: none, 30 under --ui-script).
     pub max_cpu: Option<f64>,
@@ -79,6 +82,7 @@ pub fn parse_args() -> Result<Options, String> {
             "--trace" => o.trace = true,
             "--allow-shell" => o.allow_shell = true,
             "--check-execute" => o.check_execute = true,
+            "--trace-compile" => o.trace_compile = true,
             "--no-edit" => o.no_edit = true,
             "--ui-script" => o.ui_script = Some(value(&a)?),
             "--underflow" | "--max-cpu" | "--draw" | "--color" => setting(&mut o, &a, &value(&a)?)?,

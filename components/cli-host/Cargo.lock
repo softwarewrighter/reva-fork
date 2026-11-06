@@ -691,6 +691,7 @@ dependencies = [
  "reva-macros",
  "reva-words-calls",
  "reva-words-code",
+ "reva-words-diag",
  "reva-words-scan",
 ]
 
@@ -719,6 +720,7 @@ name = "reva-words-diag"
 version = "0.1.0"
 dependencies = [
  "reva-core",
+ "reva-core-inspect",
  "reva-macros",
  "reva-words-scan",
 ]
