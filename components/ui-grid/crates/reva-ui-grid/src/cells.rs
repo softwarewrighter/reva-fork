@@ -12,6 +12,7 @@ impl Grid {
             cols: size.cols,
             rows: size.rows,
             cells: vec![Cell { ch: ' ', role }; n],
+            canvases: Vec::new(),
             cursor: None,
         }
     }

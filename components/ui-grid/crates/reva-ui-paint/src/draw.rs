@@ -75,7 +75,11 @@ pub fn draw(g: &mut Grid, m: &Mirror, h: Handle, r: Rect) {
             );
         }
         Kind::MultiLine | Kind::List => pane(g, m, h, kind, r),
-        Kind::Canvas | Kind::Matrix => g.frame(r, Role::Field, None),
+        Kind::Canvas => {
+            g.frame(r, Role::Field, None);
+            g.canvases.push((h, r));
+        }
+        Kind::Matrix => g.frame(r, Role::Field, None),
         _ => {}
     }
 }

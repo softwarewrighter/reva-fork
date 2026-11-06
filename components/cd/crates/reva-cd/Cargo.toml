@@ -1,0 +1,12 @@
+[package]
+name = "reva-cd"
+description = "CD (CanvasDraw) for IUP canvases: the canvases' state and display lists, and their text encoding"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reva-cd-list = { path = "../reva-cd-list" }

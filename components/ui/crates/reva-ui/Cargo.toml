@@ -12,3 +12,4 @@ rust-version.workspace = true
 reva-ui-base = { path = "../reva-ui-base" }
 reva-ui-text = { path = "../reva-ui-text" }
 reva-ui-tree = { path = "../reva-ui-tree" }
+reva-cd = { path = "../../../cd/crates/reva-cd" }

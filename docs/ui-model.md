@@ -163,6 +163,8 @@ close 1           a dialog's close box
 file /tmp/a.txt   the answer to a file dialog
 cancel            a file dialog cancelled
 screen 100x30     print the screen as the TUI draws it (80x24 by default)
+size 3 300 200    a canvas's size in pixels: RESIZE_CB, then ACTION
+timer 9           a timer's tick: ACTION_CB, if RUN=YES
 ```
 
 The goldens `iup-hello-world`, `iup-simple-button`, `iup-notebook` (a
@@ -236,11 +238,41 @@ cells.
   Checked in a real terminal (tmux): `needs ui/notebook notebook`, F6,
   Ctrl-C, the REPL again.
 
+## Canvases (CD)
+
+Step `local-ui-canvas`: IUP programs draw on a canvas with Tecgraf's CD
+library (`lib/ui/cd`), which on Linux binds its functions against IUP's
+library, so the virtual library `iup` answers them too (appended to the
+table in `names.rs`). Component `cd`, crate reva-cd, keeps each CD canvas
+(`cdCreateCanvas` of `cdContextIup` and an IUP canvas) with its colours,
+line style and width, interior, mark and text size, and records what is
+drawn into a display list: clear, line, box, mark, text, image (from
+`cdInitBitmap`/`cdPutBitmap`, RGB or a colour map), polygon
+(`cdBegin`/`cdVertex`/`cdEnd`). At each wait a canvas drawn on since the
+last one sends its list as the IUP canvas's `DRAW` attribute (a change
+line like any other: `;`-separated items, `l x0 y0 x1 y1 color style
+width`, ...; `reva_cd::draw::encode`/`decode`).
+
+The renderer lays a drawing surface over the canvas's cells and paints
+`DRAW` on it, CD's y up; the browser and the desktop app use an HTML
+`<canvas>` (crate reva-ui-canvas2d). When the surface's size changes it
+sends `size H W H` (pixels), which `cdGetCanvasSize` answers from, and
+calls the canvas's RESIZE_CB, then its ACTION, where programs redraw. A
+timer's ticks are `timer H` events: the page keeps an interval per
+timer with RUN=YES (every TIME ms, at most one waiting), and the model
+calls its ACTION_CB. `binary-clock`, `brownian` and `cd-test` run
+unchanged in the browser (the desktop app shows the same page); the
+goldens `iup-cd-test` and `iup-brownian` check their lists with
+`--ui-script`. The terminal draws no canvases (their frame only). Not
+CD's other contexts (PDF, printer, images to files), clipping, arcs or
+fonts beyond a size; `cdVectorText` draws nothing yet. On the page the
+VM's clock is UTC, so `binary-clock` shows UTC.
+
 ## Not yet
 
 Left to the steps that need them: drawing a menu bar (a dialog's MENU
 reserves its row), switching tabs and zbox children, lists' selection
-and editing, the matrix and its `IupMat*` functions, timers firing,
-`IupLoopStep` waiting for an event (it returns `DEFAULT`), canvases
-(`local-ui-canvas`). IUP calls `K_ANY` before the key's own callback;
+and editing, the matrix and its `IupMat*` functions, timers at a
+terminal, `IupLoopStep` waiting for an event (it returns `DEFAULT`).
+IUP calls `K_ANY` before the key's own callback;
 the model calls one or the other, which is what the programs do.
