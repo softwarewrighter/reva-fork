@@ -1,0 +1,4 @@
+command = '${REVA:-target/debug/reva} < tests/forth/trace-compile.f 2>&1 && printf "%s\n" ": sq dup * ;" bye | ${REVA:-target/debug/reva} --trace-compile 2>&1'
+timeout = 60
+exit_code = 0
+desc = "diagnose compile and --trace-compile: each word compiled into a definition, and the words that compiled it (prior in a macro compiles where it should run, as in Reva 7.0.8; CoSy's ask 22)"

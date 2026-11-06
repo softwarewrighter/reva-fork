@@ -147,6 +147,32 @@ measurable time. Among the examples it stops six: four already warn, and in
 two a later push hid the underflow (`quoth.f`'s `choose` gives `seed4` two
 of its four values).
 
+## `prior` compiles while the compiler is on
+
+`prior WORD` (and `p: WORD`) compile the old word's address and a call to
+its class, and a forth word's class compiles a call when the compiler is
+on and runs the word otherwise. So a redefinition that uses `prior`, run
+from a macro while another definition is being compiled, compiles the old
+word into that definition instead of running it:
+
+```text
+: allocate prior allocate 1 + ;
+macro : m 1000 allocate . ; forth
+: t m ;                         | prints 1001: core allocate went into t
+```
+
+Reva 7.0.8 does the same (its `prior`, `p:` and forth class are the
+same). To run the old word whatever the state, keep its address and
+`execute` it: `' allocate constant (allocate)` before the redefinition,
+then `(allocate) execute`. To see such a compile, `diagnose compile`
+(`reva --trace-compile`, `?diagnose=compile`) says each word compiled into
+a definition, and the words that compiled it when it was not the
+interpreter:
+
+```text
+compile: core:Allocate into t by allocate <- m
+```
+
 ## What lies under an empty stack
 
 Reva keeps the top of the stack in a register (EAX). With the stack empty,
