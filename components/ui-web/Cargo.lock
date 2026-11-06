@@ -534,8 +534,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "reva-cd"
+version = "0.1.0"
+dependencies = [
+ "reva-cd-list",
+]
+
+[[package]]
+name = "reva-cd-list"
+version = "0.1.0"
+
+[[package]]
 name = "reva-ui-base"
 version = "0.1.0"
+
+[[package]]
+name = "reva-ui-canvas2d"
+version = "0.1.0"
+dependencies = [
+ "reva-cd",
+ "wasm-bindgen",
+ "web-sys",
+]
 
 [[package]]
 name = "reva-ui-grid"
@@ -583,6 +603,7 @@ version = "0.1.0"
 dependencies = [
  "js-sys",
  "reva-ui-base",
+ "reva-ui-canvas2d",
  "reva-ui-grid",
  "reva-ui-layout",
  "reva-ui-mirror",

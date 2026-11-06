@@ -1,0 +1,3 @@
+# cd-test.f: the canvas (3) laid out at 300x200, so it redraws; then the close box
+size 3 300 200
+close 8

@@ -1,0 +1,11 @@
+[package]
+name = "reva-cd-list"
+description = "The display list of CD canvases (lines, boxes, marks, text, bitmaps, polygons) and its text form, the IUP canvas's DRAW attribute"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+rust-version.workspace = true
+
+[dependencies]

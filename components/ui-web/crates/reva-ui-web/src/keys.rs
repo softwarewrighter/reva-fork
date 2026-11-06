@@ -1,6 +1,11 @@
-//! Browser keys (`KeyboardEvent.key`) as IUP key codes.
+//! Browser keys (`KeyboardEvent.key`) as IUP key codes, and the element's
+//! key and paste handlers.
 
 use reva_ui_base::keys::{code, from_name};
+use wasm_bindgen::JsCast;
+use yew::prelude::*;
+
+use crate::state::send;
 
 /// The browser's names of keys IUP names otherwise.
 const NAMES: &[(&str, &str)] = &[
@@ -49,3 +54,32 @@ pub fn clipboard_key(key: &str, ctrl: bool, meta: bool) -> bool {
 
 /// Pasted text as event lines: reva-ui-base's, shared with the terminal.
 pub use reva_ui_base::keys::pasted;
+
+/// A key: its IUP code to the VM, the browser's own use of it prevented.
+pub(crate) fn on_key(e: KeyboardEvent) {
+    if clipboard_key(&e.key(), e.ctrl_key(), e.meta_key()) {
+        return;
+    }
+    if let Some(code) = key_code(
+        &e.key(),
+        e.shift_key(),
+        e.ctrl_key() || e.meta_key(),
+        e.alt_key(),
+    ) {
+        e.prevent_default();
+        send(vec![format!("key {code}")]);
+    }
+}
+
+/// A paste: the clipboard's text typed into the focused element.
+pub(crate) fn on_paste(e: Event) {
+    let Some(text) = e
+        .dyn_ref::<web_sys::ClipboardEvent>()
+        .and_then(|c| c.clipboard_data())
+        .and_then(|d| d.get_data("text/plain").ok())
+    else {
+        return;
+    };
+    e.prevent_default();
+    send(pasted(&text));
+}

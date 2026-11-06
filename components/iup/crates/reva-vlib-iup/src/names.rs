@@ -6,6 +6,7 @@
 //! looks them up here.  An image stores the addresses, so the table is
 //! append-only, like the gates.
 
+use reva_cd::calls::CdFn;
 use reva_ui_base::kind::Kind;
 
 /// Handle `(lib)` returns for the library ("IUP").
@@ -84,9 +85,13 @@ pub enum Op {
     /// `IupExitLoop`: the innermost loop ends once the running callback
     /// returns.
     ExitLoop,
+    /// A CD function (Linux's libiupall holds CD, so `lib/ui/cd` binds
+    /// them against IUP's library): reva-cd draws into the canvas's list.
+    Cd(CdFn),
 }
 
 use Args as A;
+use CdFn as F;
 use Kind as K;
 use Op::*;
 
@@ -168,6 +173,39 @@ pub const FUNCS: &[(&str, Op)] = &[
     ("IupGLSwapBuffers", Zero),
     ("IupGLPalette", Zero),
     ("IupExitLoop", ExitLoop),
+    // CD (reva-cd), appended: the addresses are in images
+    ("cdContextIup", Cd(F::ContextIup)),
+    ("cdCreateCanvas", Cd(F::CreateCanvas)),
+    ("cdKillCanvas", Cd(F::KillCanvas)),
+    ("cdActivate", Cd(F::Activate)),
+    ("cdActiveCanvas", Cd(F::ActiveCanvas)),
+    ("cdClear", Cd(F::Clear)),
+    ("cdFlush", Cd(F::Zero)),
+    ("cdForeground", Cd(F::Foreground)),
+    ("cdBackground", Cd(F::Background)),
+    ("cdLineStyle", Cd(F::LineStyle)),
+    ("cdLineWidth", Cd(F::LineWidth)),
+    ("cdInteriorStyle", Cd(F::InteriorStyle)),
+    ("cdMarkType", Cd(F::MarkType)),
+    ("cdMarkSize", Cd(F::MarkSize)),
+    ("cdFont", Cd(F::Font)),
+    ("cdLine", Cd(F::Line)),
+    ("cdBox", Cd(F::Box)),
+    ("cdRect", Cd(F::Rect)),
+    ("cdMark", Cd(F::Mark)),
+    ("cdPixel", Cd(F::Pixel)),
+    ("cdBegin", Cd(F::Begin)),
+    ("cdVertex", Cd(F::Vertex)),
+    ("cdEnd", Cd(F::End)),
+    ("cdText", Cd(F::Text)),
+    ("cdVectorText", Cd(F::VectorText)),
+    ("cdCanvasVectorText", Cd(F::CanvasVectorText)),
+    ("cdVectorTextDirection", Cd(F::Zero)),
+    ("cdEncodeColor", Cd(F::EncodeColor)),
+    ("cdGetCanvasSize", Cd(F::GetCanvasSize)),
+    ("cdInitBitmap", Cd(F::InitBitmap)),
+    ("cdPutBitmap", Cd(F::PutBitmap)),
+    ("cdKillBitmap", Cd(F::KillBitmap)),
 ];
 
 /// The address `(func)` gives function `name`.

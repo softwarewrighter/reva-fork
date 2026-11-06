@@ -1,4 +1,4 @@
-133 examples: error 24, fault 16, missing 9, runs 72, timeout 12
+133 examples: error 21, fault 19, missing 9, runs 72, timeout 12
 
 Most common first missing word (top 10):
 
@@ -71,10 +71,10 @@ Most common first missing word (top 10):
 | `examples/http.f` | net | error: uncaught throw |
 | `examples/ignorecase.f` | core | missing: `Foo` |
 | `examples/iskey.f` | core | timeout |
-| `examples/iup/binary-clock.f` | gui | error: could not load cdContextIup |
-| `examples/iup/brownian.f` | gui | error: could not load cdContextIup |
+| `examples/iup/binary-clock.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
+| `examples/iup/brownian.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/callback-test.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
-| `examples/iup/cd-test.f` | gui | error: could not load cdContextIup |
+| `examples/iup/cd-test.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/console.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/db-test.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |
 | `examples/iup/file-dlg.f` | gui | fault: the CLI shows a user interface only at a terminal (--ui-script FILE scripts one) (see docs/portability.md) |

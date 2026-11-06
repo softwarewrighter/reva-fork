@@ -30,6 +30,9 @@ pub struct Ui {
     /// The callbacks running, innermost last, each with what the host
     /// restores when it returns (for Reva, the data stack: ESI and EAX).
     pub calls: Vec<(Call, [u32; 2])>,
+    /// CD's canvases on the IUP canvases (reva-cd); their drawings reach
+    /// the renderer as the canvases' DRAW attribute.
+    pub cd: reva_cd::state::Cd,
 }
 
 /// An event loop: `IupMainLoop`, or `IupPopup` of a dialog (it ends when
@@ -53,6 +56,11 @@ pub enum Event {
     Focus(Handle),
     /// A dialog's close box.
     Close(Handle),
+    /// The renderer laid a canvas out at a width and height (pixels):
+    /// RESIZE_CB, then ACTION (the redraw).
+    Size(Handle, i32, i32),
+    /// A running timer's TIME passed: its ACTION_CB.
+    Timer(Handle),
 }
 
 /// A callback the host runs for an event: function `func` (for Reva, a
