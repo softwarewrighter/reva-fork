@@ -13,6 +13,9 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-06
 
+- 08:15 `chore` Step local-fault-chain complete (saga record).
+- 08:07 `feat` A fault names the words that called the one at fault (step local-fault-chain; CoSy's ask 22, item 2): `(in a+0xc <- b <- c, eip ...)`, innermost first, read from the return stack (cells just after a `call rel32` in a dictionary word), up to the first core routine's address (the outer interpreter running the word, a nested call's return), at most 8. The same in the CLI, the browser and the desktop app (one fault report). A word whose last call is a jump leaves no frame and is not named. New golden core-fault-chain (tests/forth/fault-chain.f); no other golden changed. docs/gotchas.md.
+- 07:53 `plan` Saga: CoSy's ask 22 as four steps, in the user's order: 56 local-fault-chain (callers by name on a fault), 57 local-underflow-at-word, 58 local-check-execute, 59 local-trace-compile; later steps move up four.
 - 06:24 `chore` CHANGES: the saga record of local-ui-canvas under its own day (2026-11-06), and the feature line at its commit time (19:00).
 - 06:24 `chore` Step local-ui-canvas complete (saga record).
 
