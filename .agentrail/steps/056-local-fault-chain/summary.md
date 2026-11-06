@@ -1,0 +1,1 @@
+Faults name their callers, innermost first (in a+0xc <- b <- c), from the return stack up to the first gate address (outer interpreter, nested-call return), at most 8; same in CLI, browser, desktop. Tail-called words leave no frame. Golden core-fault-chain; no other golden changed; docs/gotchas.md. Stacked on PR #91.
