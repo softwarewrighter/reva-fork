@@ -1,6 +1,6 @@
 number = 57
 slug = "local-underflow-at-word"
-status = "pending"
+status = "in-progress"
 description = "CoSy's ask 22, item 1 (medium, 2026-11-06): underflow inside a definition. To..."
 role = "production"
 context_files = []

@@ -13,6 +13,7 @@ reva-core = { path = "../../../core/crates/reva-core" }
 reva-words-classes = { path = "../../../words-interp/crates/reva-words-classes" }
 reva-words-interp = { path = "../../../words-interp/crates/reva-words-interp" }
 reva-words-eval = { path = "../../../words-interp/crates/reva-words-eval" }
+reva-words-diag = { path = "../../../words-interp/crates/reva-words-diag" }
 reva-words-compile = { path = "../../../words-dict/crates/reva-words-compile" }
 reva-words-memory = { path = "../../../words-dict/crates/reva-words-memory" }
 reva-words-system = { path = "../../../words-dict/crates/reva-words-system" }

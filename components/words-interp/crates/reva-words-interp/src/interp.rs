@@ -34,6 +34,14 @@ pub fn interpret(m: &mut Machine, _: Gate, host: &mut dyn Host) -> R<Next> {
         m.setv(st::TP, src)?;
         return Ok(Next::Jump(Gate::InterpWord.addr()));
     }
+    // A line that left the stack below empty does not leave the next one
+    // working a cell off (CoSy's ask 22): the stack is empty again.
+    let esi = m.cpu.r[ESI as usize];
+    if (S0 + 1..=DSTACK_HI).contains(&esi) {
+        m.cpu.r[ESI as usize] = S0;
+        m.set_eax(0);
+        m.underflow_warned = false;
+    }
     m.call_vector(host, st::PROMPT)?;
     m.setv(st::TP, TIB)?;
     m.setv(st::TIN, TIB)?;
