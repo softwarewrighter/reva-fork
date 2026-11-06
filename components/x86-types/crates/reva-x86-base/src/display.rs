@@ -65,6 +65,9 @@ impl Fault {
             Fault::NotPermitted { what, hint } => {
                 format!("{what} is not allowed here: {hint} (see {PORTABILITY_DOC})")
             }
+            Fault::NotCode { target } => format!(
+                "execute: {target:#010x} is not code (not a word, a quotation or a core routine)"
+            ),
             // the machine's faults (machine_message) and BadOpcode (fmt)
             _ => String::new(),
         }

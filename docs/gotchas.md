@@ -99,6 +99,20 @@ jump (Reva compiles a call at the end of a definition as a jump) is not
 in it: with `: d c ;`, typing `d` still shows `a+0xc <- b <- c`. The
 CLI, the browser and the desktop app print the same line.
 
+`execute` of something that is not a word (`0 execute`, a cell of data)
+jumps there, and the fault names only the address: `in 0x00000000 <- run`.
+`diagnose execute` (`reva --check-execute`, `?diagnose=execute` on the
+page) stops it before the jump, in the word that executed:
+
+```text
+*** execute: 0x00000000 is not code (not a word, a quotation or a core routine) (in go+0xd <- run, eip ...) after `run`
+```
+
+It checks every indirect call and jump (`execute`, `@execute`, vectors): the
+target must be a core routine or compiled code. Code in allocated memory
+counts as not code, so a program that runs code it built in the heap needs
+it off. Off by default; `diagnose off` turns it off again.
+
 A file that is not there is reported (`include: nosuch.f: no such file`)
 and `ioerr` is 1; the original Reva said nothing.
 

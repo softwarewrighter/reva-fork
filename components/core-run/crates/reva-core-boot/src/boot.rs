@@ -54,6 +54,7 @@ reva_macros::machine_trait! {
                 underflow_fail: false,
                 underflow_warned: false,
                 underflow_at_word: false,
+                check_execute: false,
                 includes: Vec::new(),
                 canvas: Canvas::new(),
                 pending_call: None,
