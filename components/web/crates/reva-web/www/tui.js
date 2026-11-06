@@ -53,8 +53,33 @@ export class TuiPane {
     this.mod.resize(Math.max(cols, 20), Math.max(rows, 5));
   }
 
+  /**
+   * IUP timers: the change lines say which elements are timers and their
+   * TIME (ms) and RUN; a running one sends `timer H` every TIME ms (its
+   * ACTION_CB), at most one waiting at a time, so a busy VM is not flooded.
+   */
+  timers(text) {
+    this.timer ??= new Map();
+    for (const line of text.split("\n")) {
+      const [verb, h, name, value] = line.split(" ");
+      const t = this.timer.get(h);
+      if (verb === "created" && name === "timer") this.timer.set(h, { time: 1000, run: false, id: null });
+      else if (verb === "destroyed" && t) { clearInterval(t.id); this.timer.delete(h); }
+      else if (verb === "attr" && t && (name === "TIME" || name === "RUN")) {
+        const v = (value ?? "").replace(/^=/, "");
+        if (name === "TIME") t.time = Math.max(1, Number(v) || 1000);
+        else t.run = v === "YES";
+        clearInterval(t.id);
+        t.id = t.run ? setInterval(() => {
+          if (!this.queue.includes(`timer ${h}`)) this.event(`timer ${h}`);
+        }, t.time) : null;
+      }
+    }
+  }
+
   /** Apply change lines; show the pane while a dialog is shown. */
   apply(text) {
+    this.timers(text);
     this.chain = this.chain.then(async () => {
       const mod = await this.load();
       this.show(mod.changes(text));
@@ -78,6 +103,8 @@ export class TuiPane {
   /** A message on the "tui" UI channel: changes, or a reset after `restart`. */
   handle(m) {
     if (m.reset) {
+      for (const t of this.timer?.values() ?? []) clearInterval(t.id);
+      this.timer = new Map();
       this.chain = this.chain.then(() => { this.mod?.reset(); this.queue = []; this.show(false); });
     } else if (m.text) {
       this.apply(m.text).catch((e) => console.warn("reva: TUI:", e));

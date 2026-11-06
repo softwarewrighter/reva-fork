@@ -13,21 +13,32 @@ use reva_ui_base::keys::from_name;
 type R<T = ()> = Result<T, Fault>;
 
 /// The changes not yet sent, one line each.
+/// Each CD canvas drawn since the last time goes out first, as its IUP
+/// canvas's DRAW attribute (one change per canvas, however much it drew).
 pub fn changes(ui: &mut Ui) -> Vec<u8> {
+    for (element, draw) in ui.cd.flush() {
+        ui.tree.set(element, "DRAW", Some(&draw));
+    }
     let lines: Vec<String> = ui.tree.take_changes().iter().map(encode).collect();
     lines.join("\n").into_bytes()
 }
 
-/// The event a host's line names.
+/// The event a host's line names: `size H W H` and `timer H` too.
 pub fn decode_event(line: &str) -> Option<Event> {
     let (verb, arg) = line.trim().split_once(' ')?;
     let arg = arg.trim();
     let num = || arg.parse::<u32>().ok();
-    match verb {
-        "key" => from_name(arg).or_else(num).map(Event::Key),
-        "click" => num().map(Event::Click),
-        "focus" => num().map(Event::Focus),
-        "close" => num().map(Event::Close),
+    let nums: Vec<i32> = arg
+        .split_whitespace()
+        .filter_map(|n| n.parse().ok())
+        .collect();
+    match (verb, nums.as_slice()) {
+        ("key", _) => from_name(arg).or_else(num).map(Event::Key),
+        ("click", _) => num().map(Event::Click),
+        ("focus", _) => num().map(Event::Focus),
+        ("close", _) => num().map(Event::Close),
+        ("size", [h, w, ht]) => Some(Event::Size(*h as u32, *w, *ht)),
+        ("timer", _) => num().map(Event::Timer),
         _ => None,
     }
 }
@@ -39,6 +50,8 @@ pub fn encode_event(event: &Event) -> String {
         Event::Click(h) => format!("click {h}"),
         Event::Focus(h) => format!("focus {h}"),
         Event::Close(h) => format!("close {h}"),
+        Event::Size(h, w, ht) => format!("size {h} {w} {ht}"),
+        Event::Timer(h) => format!("timer {h}"),
     }
 }
 

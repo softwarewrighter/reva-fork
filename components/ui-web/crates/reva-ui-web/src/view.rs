@@ -5,11 +5,12 @@
 use std::rc::Rc;
 
 use reva_ui_grid::grid::{Grid, Role};
+use reva_ui_layout::geom::Rect;
 use reva_ui_paint::paint::{click, paint};
 use wasm_bindgen::JsCast;
 use yew::prelude::*;
 
-use crate::keys::{clipboard_key, key_code, pasted};
+use crate::keys::{on_key, on_paste};
 use crate::state::{send, with};
 
 /// The stylesheet class of a role.
@@ -50,35 +51,6 @@ fn row(g: &Grid, r: u16) -> Html {
     html! { <div class="tui-row">{ for spans }</div> }
 }
 
-/// A key: its IUP code to the VM, the browser's own use of it prevented.
-fn on_key(e: KeyboardEvent) {
-    if clipboard_key(&e.key(), e.ctrl_key(), e.meta_key()) {
-        return;
-    }
-    if let Some(code) = key_code(
-        &e.key(),
-        e.shift_key(),
-        e.ctrl_key() || e.meta_key(),
-        e.alt_key(),
-    ) {
-        e.prevent_default();
-        send(vec![format!("key {code}")]);
-    }
-}
-
-/// A paste: the clipboard's text typed into the focused element.
-fn on_paste(e: Event) {
-    let Some(text) = e
-        .dyn_ref::<web_sys::ClipboardEvent>()
-        .and_then(|c| c.clipboard_data())
-        .and_then(|d| d.get_data("text/plain").ok())
-    else {
-        return;
-    };
-    e.prevent_default();
-    send(pasted(&text));
-}
-
 /// A click: the cell under it, from the element's size in cells.
 fn on_click(e: MouseEvent) {
     let Some(el) = e
@@ -99,6 +71,56 @@ fn on_click(e: MouseEvent) {
     send(lines);
 }
 
+/// An HTML canvas over an IUP canvas's cells (inside its frame), placed in
+/// percent of the grid so it follows the element's size.
+fn overlay(g: &Grid, h: u32, r: Rect) -> Html {
+    let pct = |a: u16, of: u16| f64::from(a) * 100.0 / f64::from(of.max(1));
+    let (cols, rows) = (
+        r.cols.saturating_sub(2).max(1),
+        r.rows.saturating_sub(2).max(1),
+    );
+    let style = format!(
+        "left:{}%;top:{}%;width:{}%;height:{}%",
+        pct(r.col + 1, g.cols),
+        pct(r.row + 1, g.rows),
+        pct(cols, g.cols),
+        pct(rows, g.rows)
+    );
+    html! { <canvas class="tui-canvas" data-h={h.to_string()} style={style} /> }
+}
+
+/// Paint every IUP canvas's DRAW list; a canvas whose size changed is
+/// reported to the VM (`size H W H`: RESIZE_CB, then its redraw).
+fn paint_canvases() {
+    let Some(doc) = web_sys::window().and_then(|w| w.document()) else {
+        return;
+    };
+    let Ok(list) = doc.query_selector_all(".tui-canvas") else {
+        return;
+    };
+    let mut events = Vec::new();
+    for i in 0..list.length() {
+        let Some(el) = list
+            .item(i)
+            .and_then(|n| n.dyn_into::<web_sys::HtmlCanvasElement>().ok())
+        else {
+            continue;
+        };
+        let Some(h) = el
+            .get_attribute("data-h")
+            .and_then(|v| v.parse::<u32>().ok())
+        else {
+            continue;
+        };
+        let draw = with(|s| s.mirror.tree.attr(h, "DRAW")).unwrap_or_default();
+        let size = reva_ui_canvas2d::paint::paint(&el, &draw);
+        if with(|s| s.canvas_sizes.insert(h, size)) != Some(size) {
+            events.push(format!("size {h} {} {}", size.0, size.1));
+        }
+    }
+    send(events);
+}
+
 /// The TUI element.
 #[function_component]
 pub fn Tui() -> Html {
@@ -106,10 +128,12 @@ pub fn Tui() -> Html {
     use_effect_with((), move |_| {
         with(|s| s.redraw = Some(Rc::new(move || update.force_update())));
     });
+    use_effect(paint_canvases);
     let g = with(|s| paint(&s.mirror, s.size));
     html! {
         <div class="tui" tabindex="0" onkeydown={Callback::from(on_key)} onmousedown={Callback::from(on_click)} onpaste={Callback::from(on_paste)}>
             { for (0..g.rows).map(|r| row(&g, r)) }
+            { for g.canvases.iter().map(|(h, r)| overlay(&g, *h, *r)) }
         </div>
     }
 }

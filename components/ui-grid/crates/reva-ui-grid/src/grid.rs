@@ -1,5 +1,7 @@
 //! The grid of cells.
 
+use reva_ui_layout::geom::Rect;
+
 /// What a cell is part of; a backend gives each role its theme's colours.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub enum Role {
@@ -43,4 +45,7 @@ pub struct Grid {
     pub rows: u16,
     pub cells: Vec<Cell>,
     pub cursor: Option<(u16, u16)>,
+    /// The IUP canvases painted, with their rectangles: a renderer that
+    /// can draw lays a drawing surface over each (their DRAW lists).
+    pub canvases: Vec<(u32, Rect)>,
 }
