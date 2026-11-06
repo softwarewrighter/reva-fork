@@ -1,5 +1,6 @@
 (0) diagnose NAME (or off); * is on:
     underflow-at-word    stop at the word that leaves the stack below empty, with its callers
+    execute              stop an execute (any indirect call or jump) of what is not code
 
 *** stack underflow (in f1+0xa <- f2, eip 0x00146ce6) after `f2`
 (0) (0) (2) 1 2 

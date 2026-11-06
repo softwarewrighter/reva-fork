@@ -21,6 +21,7 @@ usage: reva [options] [file ...]
                        say so once and go on, as Reva did; the stack is empty again at the
                        next prompt), fail (stop with an error), or fail-at-word (stop in
                        the word that took too much, with its callers; slower)
+      --check-execute  stop an `execute` of what is not code, naming who executed it
       --allow-shell    let `shell` (C `system`) run OS commands; off by default
       --no-edit        at a terminal, read plain lines (no history or line editing)
       --color WHEN     colour in `pp`/`hl-type` listings: auto (default), always, never
@@ -51,6 +52,8 @@ pub struct Options {
     pub underflow_fail: bool,
     /// --underflow fail-at-word: check at every word's return too.
     pub underflow_at_word: bool,
+    /// --check-execute: stop an execute of what is not code.
+    pub check_execute: bool,
     /// --max-cpu: seconds a run may compute without waiting for input
     /// (0: no limit; default: none, 30 under --ui-script).
     pub max_cpu: Option<f64>,
@@ -75,6 +78,7 @@ pub fn parse_args() -> Result<Options, String> {
             "--show-boot" => o.show_boot = true,
             "--trace" => o.trace = true,
             "--allow-shell" => o.allow_shell = true,
+            "--check-execute" => o.check_execute = true,
             "--no-edit" => o.no_edit = true,
             "--ui-script" => o.ui_script = Some(value(&a)?),
             "--underflow" | "--max-cpu" | "--draw" | "--color" => setting(&mut o, &a, &value(&a)?)?,

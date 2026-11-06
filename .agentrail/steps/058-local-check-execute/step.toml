@@ -1,8 +1,9 @@
 number = 58
 slug = "local-check-execute"
-status = "pending"
+status = "completed"
 description = "CoSy's ask 22, item 3 (2026-11-06): execute of something that is not a word. ..."
 role = "production"
 context_files = []
 created_at = "2026-11-06T07:43:10"
-commits = []
+completed_at = "2026-11-06T12:22:01"
+commits = ["d94f9b7aee06873ebd12ea5c149e56742eb8039d"]

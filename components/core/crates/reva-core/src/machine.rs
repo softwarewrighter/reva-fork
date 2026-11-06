@@ -184,6 +184,9 @@ pub struct Machine {
     /// word that caused it (`--underflow fail-at-word`, `diagnose
     /// underflow-at-word`; CoSy's ask 22).
     pub underflow_at_word: bool,
+    /// Stop an indirect call or jump (`execute`, a vector) to a target that
+    /// is not code (`diagnose execute`, `--check-execute`; ask 22).
+    pub check_execute: bool,
     /// The files being included, outermost first.  Transient.
     pub includes: Vec<IncludeFrame>,
     /// The turtle and its drawing (canvas.rs, turtle.rs).  Host state, like

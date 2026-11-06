@@ -1,0 +1,1 @@
+Opt-in execute check (diagnose execute, --check-execute, ?diagnose=execute): indirect calls/jumps must reach core or compiled code, else fault NotCode naming the executing word and callers. No false positives in tests or examples. Golden core-check-execute. Stacked on PR #93.
