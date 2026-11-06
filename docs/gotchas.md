@@ -109,13 +109,37 @@ prints ``warning: stack underflow (depth -1) at FILE:LINE after `drop` `` once, 
 Reva did: words run in the slack above the stack, and later pushes bring it
 back. Programs written for Reva rely on it (CoSy's Tui.f, and
 `examples/sqlite.f`). `reva --underflow fail` stops with an error instead.
+A line typed at the prompt that leaves the stack below empty does not pass
+that on: the next line starts from an empty stack.
+
+The depth is checked between the words of a line, so an underflow inside a
+definition that a later push hides goes unseen: with `: f1 drop drop ;
+: f2 f1 1 ;`, `1 f2` leaves one item and no warning. To find such a word,
+check at every word's return too, and stop in the first one that leaves
+the stack below empty, with its callers:
+
+```text
+diagnose underflow-at-word      | in any host; diagnose off turns it off
+reva --underflow fail-at-word   | the CLI, from the start
+?diagnose=underflow-at-word     | the web page, from the start
+```
+
+```text
+*** stack underflow (in f1+0xa <- f2, eip ...) after `f2`
+```
+
+`diagnose` alone lists the checks and which are on. The check costs no
+measurable time. Among the examples it stops six: four already warn, and in
+two a later push hid the underflow (`quoth.f`'s `choose` gives `seed4` two
+of its four values).
 
 ## What lies under an empty stack
 
 Reva keeps the top of the stack in a register (EAX). With the stack empty,
 that register still holds a leftover, the last value that was on top, and a
 word that reaches one item too deep inside a definition (no warning: the
-depth is checked between words) gets that leftover. `reset` sets it to 0, as
+depth is checked between words, unless `diagnose underflow-at-word`) gets
+that leftover. `reset` sets it to 0, as
 in every Reva: at each start of a saved program, so at every image start,
 and after each error at the prompt. Code that frees or follows the leftover
 then fails at a small address: CoSy's Tui.f `go` (its `>text` frees one

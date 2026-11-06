@@ -53,6 +53,7 @@ reva_macros::machine_trait! {
                 reported_libs: Vec::new(),
                 underflow_fail: false,
                 underflow_warned: false,
+                underflow_at_word: false,
                 includes: Vec::new(),
                 canvas: Canvas::new(),
                 pending_call: None,

@@ -18,7 +18,9 @@ usage: reva [options] [file ...]
       --show-boot      print what booting printed (progress digits, errors)
       --trace          trace every VM step to stderr (very slow)
       --underflow WHAT when a word takes more than the stack holds: warn (default:
-                       say so once and go on, as Reva did) or fail (stop with an error)
+                       say so once and go on, as Reva did; the stack is empty again at the
+                       next prompt), fail (stop with an error), or fail-at-word (stop in
+                       the word that took too much, with its callers; slower)
       --allow-shell    let `shell` (C `system`) run OS commands; off by default
       --no-edit        at a terminal, read plain lines (no history or line editing)
       --color WHEN     colour in `pp`/`hl-type` listings: auto (default), always, never
@@ -47,6 +49,8 @@ pub struct Options {
     pub show_boot: bool,
     pub trace: bool,
     pub underflow_fail: bool,
+    /// --underflow fail-at-word: check at every word's return too.
+    pub underflow_at_word: bool,
     /// --max-cpu: seconds a run may compute without waiting for input
     /// (0: no limit; default: none, 30 under --ui-script).
     pub max_cpu: Option<f64>,
@@ -92,8 +96,13 @@ pub fn parse_args() -> Result<Options, String> {
 /// An option whose value is one of a few words or a number.
 fn setting(o: &mut Options, name: &str, v: &str) -> Result<(), String> {
     match (name, v) {
-        ("--underflow", "warn" | "fail") => o.underflow_fail = v == "fail",
-        ("--underflow", _) => return Err(format!("--underflow {v}: use warn or fail")),
+        ("--underflow", "warn" | "fail" | "fail-at-word") => {
+            o.underflow_fail = v != "warn";
+            o.underflow_at_word = v == "fail-at-word";
+        }
+        ("--underflow", _) => {
+            return Err(format!("--underflow {v}: use warn, fail or fail-at-word"));
+        }
         ("--max-cpu", _) => {
             o.max_cpu = Some(
                 v.parse()

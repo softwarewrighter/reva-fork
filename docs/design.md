@@ -484,6 +484,10 @@ reports no FAILs, and the gate requires that.
    2026-11-02, for CoSy's Tui.f and four examples) it is a warning, once
    per episode, and words go on in the slack above the stack as newcore's
    did; `reva --underflow fail` stops with an error as the port used to.
+   A line typed at the prompt that leaves the stack below empty: the next
+   starts from an empty stack. `--underflow fail-at-word` (`diagnose
+   underflow-at-word` in any host) also checks at every `ret`, stopping in
+   the word that left the stack below empty (CoSy's ask 22).
    `type` of a buffer that cannot be read writes nothing, as the OS's
    `write` failed for Reva, instead of faulting.
 3. Running out of code or dictionary space faults instead of exiting via
