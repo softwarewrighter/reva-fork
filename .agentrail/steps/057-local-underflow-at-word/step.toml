@@ -1,8 +1,9 @@
 number = 57
 slug = "local-underflow-at-word"
-status = "in-progress"
+status = "completed"
 description = "CoSy's ask 22, item 1 (medium, 2026-11-06): underflow inside a definition. To..."
 role = "production"
 context_files = []
 created_at = "2026-11-06T07:43:10"
-commits = []
+completed_at = "2026-11-06T10:43:24"
+commits = ["7b5f974cf766831c3a59ee66e75011d27829f07d"]
