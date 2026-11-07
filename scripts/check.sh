@@ -10,6 +10,9 @@
 #      and every component on the same version
 #   2. the WebAssembly build and its node tests
 #   3. components/desktop: cargo fmt --check, clippy -D warnings, tests
+#   *. release-check.sh: the CLI, the web page, reva-serve and (without
+#      --fast) the desktop app, built through the just recipes, show VERSION
+#      and this commit
 #   4. the reg-rs goldens on the release CLI; a failure is accepted only
 #      if KNOWN_FAILURES lists it for this OS
 #   5. the license check
@@ -82,6 +85,13 @@ for t in $(echo "$out" | sed -n 's/^ *FAIL: *//p'); do
     esac
 done
 [[ -z "$unexpected" ]] || fail "goldens:$unexpected (details: REVA=target/release/reva scripts/regress.sh -v -p NAME)"
+
+step "release-check: every deliverable shows VERSION and this commit"
+if [[ $fast -eq 0 ]]; then
+    "$root/scripts/release-check.sh" || fail "release-check.sh (just release-check)"
+else
+    "$root/scripts/release-check.sh" --no-desktop || fail "release-check.sh --no-desktop"
+fi
 
 step "licenses"
 "$root/scripts/license-check.sh" || fail "license-check.sh"

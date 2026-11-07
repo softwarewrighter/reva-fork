@@ -49,3 +49,17 @@ fn image_option_wins_and_a_missing_image_is_a_note() {
     assert_eq!(build_state(o).unwrap().image, Some(own));
     fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn about_reads_the_page_and_the_vm() {
+    use reva_desktop_state::about::about;
+    let page =
+        b"<head><meta name=\"reva-build\" content=\"2026.1106.2 abc1234-dirty 2026-11-06\"></head>";
+    let wasm = b"\0\0reva-fork 2026.1106.2 portable\0abc1234\0";
+    assert_eq!(
+        about("2026.1106.2", page, wasm),
+        "app: reva-desktop 2026.1106.2\npage: 2026.1106.2 abc1234-dirty 2026-11-06\n\
+         vm: reva-fork 2026.1106.2 portable\nvm build: abc1234 (in reva.wasm)\n"
+    );
+    assert!(about("1", b"", b"").contains("page: (none)"));
+}

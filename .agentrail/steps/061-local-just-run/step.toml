@@ -1,0 +1,8 @@
+number = 61
+slug = "local-just-run"
+status = "in-progress"
+description = "At the user's request (2026-11-06), for a 2026.1106.2 release: 'just desktop'..."
+role = "production"
+context_files = []
+created_at = "2026-11-06T19:57:03"
+commits = []
