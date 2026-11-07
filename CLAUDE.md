@@ -318,6 +318,17 @@ crates keep a fixed `0.1.0`, and goldens and the web smoke test show
 and a `release` line in CHANGES.md), gated, before the merge; nothing
 reaches `main` without it.
 
+**A release works everywhere before it ships** (the user, 2026-11-06).
+In order: bump `VERSION`; rebuild every deliverable through the `just`
+recipes; `just release-check` (the gate runs it too), which checks that
+the CLI's `--version`, the web page's VM (banner, footer), reva-serve and
+the page inside it, and the desktop app (its version, and the page and VM
+built into it, `reva-desktop --about`) all show the new `VERSION` and
+HEAD; then the PR; when it merges, `dev` into `main` and publish. Never
+release while any of them shows another version. The CHANGES release
+line says what was checked for each deliverable. Every build passes
+`VERSION` to its part (the desktop's `build.rs` gives it to Tauri).
+
 Read before working:
 
 - `README.md`, `docs/README.md` -- what exists and the doc index
