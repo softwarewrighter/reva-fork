@@ -16,6 +16,8 @@ usage: reva-desktop [options]
                    instead of booting reva.f; overrides the manifest
   -e, --eval TEXT  feed TEXT as a line after start (repeatable)
   --print-output   copy everything Reva prints to stdout (for scripts and tests)
+  --about          print the version and build of the page built into this app
+                   (its footer and banner), without opening a window, and exit
   -h, --help       this text
   -V, --version    version
 ";
@@ -28,6 +30,7 @@ pub struct Options {
     pub image: Option<PathBuf>,
     pub evals: Vec<String>,
     pub print_output: bool,
+    pub about: bool,
     pub canvas: Option<String>,
 }
 
@@ -50,6 +53,7 @@ pub fn parse_args() -> Result<Options, String> {
             }
             "-e" | "--eval" => o.evals.push(value(&a)?),
             "--print-output" => o.print_output = true,
+            "--about" => o.about = true,
             "-h" | "--help" => {
                 print!("{USAGE}");
                 std::process::exit(0);
