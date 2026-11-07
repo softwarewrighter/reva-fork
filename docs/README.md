@@ -9,6 +9,7 @@ what has been carried over and what has not, yet).
 |---|---|
 | [Getting started](getting-started.md) | building, the `reva` command, the browser build |
 | [Gotchas](gotchas.md) | pitfalls, old and new |
+| [Diagnostics](diagnostics.md) | where errors and faults happened, and the opt-in checks (`diagnose`): underflow at the word, `execute` of what is not code, what is compiled and by whom |
 | [Parity](parity.md) | old wiki topics and example programs vs. the portable core |
 | [Example parity](parity-examples.md) | generated status of every program in `examples/` |
 | [Demo script](demo.md) | step by step: what to type in the CLI, the browser and the desktop app, and what you see |
@@ -21,7 +22,7 @@ what has been carried over and what has not, yet).
 | [Running Reva's x86](x86-plan.md) | how vx86 runs Reva's machine code and floats, `see`, what legacy programs can expect, what breaks and how it gets ported |
 | [Plan: IUP programs](iup-plan.md) | high-level plan for running Reva's IUP GUI programs and CoSy's TUI, reimplemented in Rust with a Yew renderer |
 | [The UI model](ui-model.md) | IUP's elements, attributes, callbacks, keys and layout (in character cells) as the Rust model the iup library and the TUI build on: scope and rules |
-| [SQLite](sqlite.md) | `needs db/sqlite`: databases through the `~db` words; built into the CLI, desktop and browser next |
+| [SQLite](sqlite.md) | `needs db/sqlite`: databases through the `~db` words, in the CLI, the desktop app and the browser |
 | [Porting from Windows](porting-from-windows.md) | `reva --port-check`: find Windows-only paths and shell commands in Forth sources, and write portable copies |
 | [Reva 7.0 compatibility](compat-reva70.md) | `needs compat/reva70`: Reva 7.0's ui/gui, ui/iup and words for programs written for 7.0 (CoSy), opt-in |
 | [CoSy in reva-fork](cosy-in-reva.md) | the ways to run CoSy (built in ba-cosy-zip-fork; no CoSy code here): what works today, what is planned |
