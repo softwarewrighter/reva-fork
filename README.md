@@ -16,6 +16,8 @@ Ctrl-E, Cmd-Enter or F6; F1 lists the keys).
 
 [![The TUI notebook (`needs ui/notebook notebook`) beside the graphics pane: the line `6 7 * dup . 1+` evaluated, its output 42 and the stack 43 in the lower pane, and the tree its `10 tree-demo` line drew](images/notebook.png)](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=10%20tree-demo&eval=needs%20ui/notebook%20notebook)
 
+[![An IUP dialog with a CD canvas (`needs ui/cd-demo cd-demo`): coloured marks joined by lines bounce off the canvas walls, redrawn by an IUP timer](images/cd-demo.png)](https://softwarewrighter.github.io/reva-fork/?eval=needs%20ui/cd-demo%20cd-demo)
+
 Reva is a compact, native-code Forth for 32-bit x86 by Ron Aaron and the Reva
 development team. Its original README is kept, unchanged, as
 [orig-README](orig-README).
@@ -24,6 +26,48 @@ This fork carries Reva forward to machines and places 32-bit x86 no longer
 reaches: x86-64 and ARM64 on Linux, macOS and Windows, and the web browser
 through WebAssembly. It does that with a **portable core** written in Rust
 that runs Reva's own Forth system, `src/reva.f` (release 2011.2), unchanged.
+
+## What it can do
+
+- **Three hosts, one core.** The `reva` command, the browser
+  ([live demo](https://softwarewrighter.github.io/reva-fork/); offline as
+  [reva-serve](docs/serve.md) or a [zip](docs/web.md)), and a
+  [desktop app](docs/desktop.md). Files persist in each: on disk, or in
+  the browser's IndexedDB, with an Upload button.
+- **Reva's libraries.** `needs` loads `lib/` as in Reva:
+  [turtle graphics](docs/turtle.md) with fractal demos (SVG or PNG files
+  from the CLI), [SQLite](docs/sqlite.md) in all three hosts, iconv,
+  [colour listings](docs/highlight.md) (`pp FILE`).
+- **IUP programs** run unchanged on a model of IUP
+  ([ui-model.md](docs/ui-model.md)): a text UI in the terminal, the browser
+  and the desktop app, with CD canvases and timers in the browser and the
+  desktop app (`examples/iup/brownian.f`, `binary-clock.f`, `cd-test.f`;
+  [try it](https://softwarewrighter.github.io/reva-fork/?eval=needs%20ui/cd-demo%20cd-demo)).
+  The [notebook](https://softwarewrighter.github.io/reva-fork/?eval=needs%20ui/notebook%20notebook)
+  (`needs ui/notebook notebook`) evaluates Forth lines in place and keeps
+  them in a file.
+- **Saved images.** `save` and `reva --save-image` write the system's state;
+  every host starts from an image, prompt and all.
+- **Errors that say where.** `FILE:LINE`, the word, the stack, and the
+  words that called the one at fault; opt-in checks find a hidden underflow,
+  an `execute` of what is not code, or a word that compiles where it should
+  run ([diagnostics.md](docs/diagnostics.md)).
+- **Programs that never end** pause in the browser, with a bar to go on or
+  stop, and `reva --max-cpu` limits them in the CLI; `ms` waits without
+  freezing the page.
+- **Older programs.** `needs compat/reva70` gives Reva 7.0's behaviour
+  ([compat-reva70.md](docs/compat-reva70.md)) for programs such as
+  [CoSy](docs/cosy-in-reva.md); `reva --port-check` finds Windows-only paths
+  and commands and writes portable copies
+  ([porting-from-windows.md](docs/porting-from-windows.md)).
+- **A REPL that edits.** History, Ctrl-R search and Emacs keys in every
+  host; pasted lines run one by one ([repl.md](docs/repl.md)).
+- **Packages.** A folder with start files and an icon opens as its own app
+  in the desktop app and the browser ([desktop.md](docs/desktop.md)).
+
+What runs and what does not, program by program, is in
+[docs/parity.md](docs/parity.md); the pitfalls are in
+[docs/gotchas.md](docs/gotchas.md).
 
 ## How it works
 
@@ -52,8 +96,9 @@ requirements and the deliberate deviations from the original core are in
 
 ## Quick start
 
-Requires a Rust toolchain (stable, 1.85 or newer). For the browser build, also the
-`wasm32-unknown-unknown` target.
+Requires a Rust toolchain (stable, 1.89 or newer). For the browser build, also the
+`wasm32-unknown-unknown` target and `wasm-bindgen` (the version
+`components/ui-web` pins).
 
 ```bash
 cargo build --release --manifest-path components/cli/Cargo.toml   # or: just cli
@@ -61,9 +106,11 @@ echo ': sq dup * ; 7 sq .' | target/release/reva    # prints 49
 target/release/reva                                # interactive REPL
 target/release/reva --help
 
-scripts/build-web.sh                               # components/web/crates/reva-web/www/reva.wasm
-python3 -m http.server -d components/web/crates/reva-web/www             # open http://localhost:8000
+just serve                                         # the browser REPL as one binary: http://127.0.0.1:8421/
 ```
+
+`just serve` builds the web site and [reva-serve](docs/serve.md), a small
+server with the site inside, and opens it in your browser.
 
 Desktop app (Linux, macOS; see [docs/desktop.md](docs/desktop.md)):
 
@@ -80,7 +127,7 @@ through the virtual install prefix `/reva/`.
 
 | Path | What it is |
 |---|---|
-| [`components/`](components/README.md) | the portable core, one Cargo workspace per component: `vm` (the VM library and the components under it), `cli` (the `reva` command), `web` (WebAssembly module and web console), `serve`, `sqlite`, `desktop` (the Tauri app) |
+| [`components/`](components/README.md) | the portable core, one Cargo workspace per component (about 35): the x86 subset (`x86-*`), the machine and its words (`core*`, `words*`, `vlib`, `vm`), the UI model and its renderers (`ui*`, `iup`, `cd`, `canvas`), and the hosts: `cli` (the `reva` command), `web` (WebAssembly module and web console), `serve`, `desktop` (the Tauri app); [docs/design.md](docs/design.md) lists them all |
 | `scripts/`, `tests/forth/`, `work/reg-rs/` | build and gate scripts, the regression suite's Forth scripts and goldens |
 | `src/reva.f`, `src/help.txt`, `lib/`, `examples/`, `tests/`, `bench/` | the Reva Forth system itself, as imported; the portable core runs it |
 | [`docs/`](docs/README.md) | new documentation, written from the portable core; every Forth sample in it is executed by the test suite |

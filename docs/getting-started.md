@@ -60,10 +60,16 @@ Other ways to run code:
 | `reva --save-image app.img -e '...'` | save the state after loading, then exit |
 | `reva --image app.img` | start from a saved image |
 | `reva --max-cpu SECONDS ...` | end a run that computes that long without waiting for input (`*** time limit`, exit 124; default 30 s with `--ui-script`) |
-| `reva --underflow fail ...` | stop with an error when a word takes more than the stack holds (default `warn`: say so once and go on, as Reva did); `fail-at-word` stops in the word that did it, with its callers ([gotchas.md](gotchas.md#stack-underflow-is-a-warning)) |
-| `reva --check-execute ...` | stop an `execute` of what is not code, naming the word that executed ([gotchas.md](gotchas.md#an-error-in-an-included-file-stops-that-file)) |
-| `reva --trace-compile ...` | say each word compiled into a definition, and who compiled it ([gotchas.md](gotchas.md#prior-compiles-while-the-compiler-is-on)) |
+| `reva --underflow fail ...` | stop with an error when a word takes more than the stack holds (default `warn`: say so once and go on, as Reva did); `fail-at-word` stops in the word that did it, with its callers ([diagnostics.md](diagnostics.md#underflow-inside-a-definition)) |
+| `reva --check-execute ...` | stop an `execute` of what is not code, naming the word that executed ([diagnostics.md](diagnostics.md#execute-of-what-is-not-code)) |
+| `reva --trace-compile ...` | say each word compiled into a definition, and who compiled it ([diagnostics.md](diagnostics.md#what-is-compiled-and-by-whom)) |
 | `reva --port-check [--fix DIR] FILE...` | find Windows-only paths and commands; write portable copies ([porting-from-windows.md](porting-from-windows.md)) |
+| `reva --ui-script FILE prog.f` | run an IUP program headless, its events from FILE ([ui-model.md](ui-model.md#the-virtual-library-iup)) |
+| `reva --allow-shell ...` | let `shell` run OS commands (off by default; [portability.md](portability.md)) |
+| `reva --draw svg\|png\|off ...` | turtle drawings to new files `turtle-NNN.svg`/`.png` (default: at a terminal) ([turtle.md](turtle.md)) |
+| `reva --color always\|never ...` | colour in `pp` listings (default: auto) ([highlight.md](highlight.md)) |
+| `reva --no-edit` | at a terminal, plain lines: no history or line editing ([repl.md](repl.md)) |
+| `reva --boot PATH`, `--no-boot`, `--show-boot`, `--trace` | for work on the core: another `reva.f`, none, what booting printed, every VM step |
 | `reva --help` | all options |
 | `reva -V` | version and build information (`--version`) |
 
