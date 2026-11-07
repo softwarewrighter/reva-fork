@@ -263,7 +263,9 @@ timer with RUN=YES (every TIME ms, at most one waiting), and the model
 calls its ACTION_CB. `binary-clock`, `brownian` and `cd-test` run
 unchanged in the browser (the desktop app shows the same page); the
 goldens `iup-cd-test` and `iup-brownian` check their lists with
-`--ui-script`. The terminal draws no canvases (their frame only). Not
+`--ui-script`. `needs ui/cd-demo cd-demo` (`lib/ui/cd-demo`) shows one on
+the page, live demo included. The terminal draws no canvases (their frame
+only). Not
 CD's other contexts (PDF, printer, images to files), clipping, arcs or
 fonts beyond a size; `cdVectorText` draws nothing yet. On the page the
 VM's clock is UTC, so `binary-clock` shows UTC.
