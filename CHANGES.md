@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-06
 
+- 19:54 `chore` Release 2026.1106.1: dev merged into main (c3fdcf6, 19:13) and the live demo published, checked in Chrome: banner and footer 2026.1106.1 build c3fdcf6; the README's links: `needs ui/cd-demo cd-demo` draws its bouncing marks, and the tree with the notebook draws at first load. The untracked components/cli/target/ and the notebook files were set aside for publish-pages and put back.
+- 19:54 `chore` Merge #98 (local-release-1106-1).
 - 18:23 `release` 2026.1106.1, at the user's request: today's second merge to main, the README and docs brought up to date. Since 2026.1106.0: README screenshots retaken and a CD canvas one, `needs ui/cd-demo cd-demo` on the live site, a What it can do section, docs/diagnostics.md, every CLI option in getting-started; the TUI no longer comes up blank when the VM's first screen arrives before its redraw is installed.
 - 18:29 `chore` Merge #97 (local-docs-refresh).
 - 18:19 `chore` Step local-docs-refresh complete (saga record).
