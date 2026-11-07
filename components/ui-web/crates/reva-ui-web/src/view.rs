@@ -11,7 +11,7 @@ use wasm_bindgen::JsCast;
 use yew::prelude::*;
 
 use crate::keys::{on_key, on_paste};
-use crate::state::{send, with};
+use crate::state::{redraw, send, with};
 
 /// The stylesheet class of a role.
 fn class(role: Role) -> &'static str {
@@ -127,6 +127,9 @@ pub fn Tui() -> Html {
     let update = use_force_update();
     use_effect_with((), move |_| {
         with(|s| s.redraw = Some(Rc::new(move || update.force_update())));
+        // changes that came after the first render but before this effect
+        // found no redraw to call: draw them now
+        redraw();
     });
     use_effect(paint_canvases);
     let g = with(|s| paint(&s.mirror, s.size));

@@ -20,7 +20,7 @@ usage: reva [options] [file ...]
       --underflow WHAT when a word takes more than the stack holds: warn (default:
                        say so once and go on, as Reva did; the stack is empty again at the
                        next prompt), fail (stop with an error), or fail-at-word (stop in
-                       the word that took too much, with its callers; slower)
+                       the word that took too much, with its callers)
       --check-execute  stop an `execute` of what is not code, naming who executed it
       --trace-compile  say each word compiled into a definition, and who compiled it
       --allow-shell    let `shell` (C `system`) run OS commands; off by default

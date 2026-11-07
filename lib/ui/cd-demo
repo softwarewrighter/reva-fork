@@ -1,0 +1,91 @@
+| vim: ft=reva :
+|
+| ui/cd-demo -- an IUP canvas drawn with CD (reva-fork; docs/ui-model.md)
+|
+|   needs ui/cd-demo  cd-demo
+|
+| A dialog with a canvas where coloured marks bounce off the walls, joined
+| by lines, redrawn by a timer (every 50 ms): IUP's canvas and timer, and CD's lines,
+| boxes, marks and text, as examples/iup/brownian.f uses them.  It runs in
+| the browser and the desktop app, which draw canvases; Quit or the x in
+| the top border closes it.
+
+push~
+
+needs ui/gui
+needs ui/cd
+needs random/simple
+
+context: ~cd-demo
+~cd-demo
+with~ ~ui
+with~ ~iup
+with~ ~cd
+
+16 constant #balls
+| per ball: x y dx dy
+create balls  #balls 4 * cells allot
+create colors  CD_RED , CD_DARK_GREEN , CD_BLUE , CD_MAGENTA , CD_DARK_YELLOW , CD_CYAN ,
+create kinds  CD_CIRCLE , CD_BOX , CD_DIAMOND , CD_STAR , CD_HOLLOW_CIRCLE ,
+variable canvas  variable cdc
+variable width  variable height
+480 width !  240 height !
+
+: ball ( n -- a )  4 * cells balls + ;
+: speed ( -- n )  -4 4 choose[] 1 or ;
+: init-ball ( n -- )
+    ball >r
+    20 width @ 20 - choose[] r@ !
+    20 height @ 20 - choose[] r@ cell+ !
+    speed r@ 2 cells + !
+    speed r> 3 cells + ! ;
+| move along one axis: position += velocity, turning back at the walls
+: axis ( pos-a vel-a limit -- )
+    >r 2dup @ swap +!
+    over @ dup 8 < swap r> 8 - > or
+    if dup @ negate swap ! drop else 2drop then ;
+: move-ball ( n -- )
+    ball dup dup 2 cells + width @ axis
+    dup cell+ swap 3 cells + height @ axis ;
+: xy ( n -- x y )  ball dup @ swap cell+ @ ;
+
+: draw-links  ( -- )
+    CD_GRAY cd-foreground drop
+    #balls 1- 0do  i xy  i 1+ xy  cd-line drop  loop ;
+: draw-ball ( n -- )
+    dup 6 mod cells colors + @ cd-foreground drop
+    dup 5 mod cells kinds + @ cd-mark-type drop
+    xy cd-mark drop ;
+: draw ( -- )
+    cdc @ 0; drop
+    cdc @ cd-activate drop
+    CD_WHITE cd-background drop  cd-clear drop
+    CD_DARK_GRAY cd-foreground drop
+    2 width @ 3 - 2 height @ 3 - cd-rect drop
+    draw-links
+    14 cd-mark-size drop
+    #balls 0do i draw-ball loop
+    CD_BLACK cd-foreground drop
+    12 height @ 20 - z" reva-fork: IUP + CD" cd-text drop ;
+
+: redraw callback  draw  gui-default ;
+: resize callback  2 cb-param height !  1 cb-param width !  gui-default ;
+: tick callback  #balls 0do i move-ball loop  draw  gui-default ;
+: quit callback  gui-close ;
+
+: cd-demo ( -- )
+    #balls 0do i init-ball loop
+    dialog[
+      " IUP canvas drawn with CD; the marks bounce off the walls" label[ ]w
+      canvas[  " 480x240" attr: RASTERSIZE  dup canvas !  ]w
+      hboxs[  " Quit" button[ action: quit ]w  ]c
+    ]d  " reva-fork CD demo" title
+    timer action-cb: tick  50 set-time  start-timer drop
+    gui-map
+    cd-context-iup  canvas @ action: redraw resize-cb: resize  cd-create-canvas cdc !
+    show gui-main-loop
+    cdc @ cd-kill-canvas  0 cdc ! ;
+to~ ~ cd-demo
+
+exit~
+pop~
