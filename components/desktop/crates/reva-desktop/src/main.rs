@@ -33,6 +33,7 @@
 use std::process::ExitCode;
 use std::sync::Mutex;
 
+use reva_desktop_state::about::about as about_text;
 use reva_desktop_state::options::{USAGE, parse_args};
 use reva_desktop_state::state::{State, build_state};
 
@@ -41,12 +42,17 @@ mod sql;
 mod windows;
 
 fn main() -> ExitCode {
-    let mut state = match parse_args().and_then(build_state) {
+    let context = tauri::generate_context!();
+    let options = match parse_args() {
+        Ok(o) => o,
+        Err(e) => return usage_error(&e),
+    };
+    if options.about {
+        return about(&context);
+    }
+    let mut state = match build_state(options) {
         Ok(s) => s,
-        Err(e) => {
-            eprintln!("reva-desktop: {e}\n{USAGE}");
-            return ExitCode::from(2);
-        }
+        Err(e) => return usage_error(&e),
     };
     // Before GTK starts (Builder::build), or it keeps "reva-desktop".
     #[cfg(target_os = "linux")]
@@ -56,7 +62,7 @@ fn main() -> ExitCode {
     }
     let icon = state.brand.icon.take();
     let dock_png = state.brand.icon_png.take();
-    match build(state, icon) {
+    match build(state, icon, context) {
         Ok(app) => run(app, dock_png),
         Err(e) => {
             eprintln!("reva-desktop: {e}");
@@ -68,7 +74,11 @@ fn main() -> ExitCode {
 /// The app: the commands, the window events, and the main window, made
 /// here (not in tauri.conf.json) so it opens with the package's title and
 /// icon instead of showing Reva's first.
-fn build(state: State, icon: Option<(Vec<u8>, u32, u32)>) -> tauri::Result<tauri::App> {
+fn build(
+    state: State,
+    icon: Option<(Vec<u8>, u32, u32)>,
+    context: tauri::Context,
+) -> tauri::Result<tauri::App> {
     let title = state.brand.title.clone();
     tauri::Builder::default()
         .manage(Mutex::new(state))
@@ -103,7 +113,7 @@ fn build(state: State, icon: Option<(Vec<u8>, u32, u32)>) -> tauri::Result<tauri
             w.build()?;
             Ok(())
         })
-        .build(tauri::generate_context!())
+        .build(context)
 }
 
 /// Run until the last window closes or `bye`; the exit code.
@@ -121,4 +131,29 @@ fn run(
         let _ = &ev;
     });
     ExitCode::from(code.clamp(0, 255) as u8)
+}
+
+/// A bad command line: the reason and the usage, exit status 2.
+fn usage_error(e: &str) -> ExitCode {
+    eprintln!("reva-desktop: {e}\n{USAGE}");
+    ExitCode::from(2)
+}
+
+/// `--about`: the version and build of the page built into this app (what
+/// its footer and banner show), without opening a window.
+fn about(context: &tauri::Context) -> ExitCode {
+    let asset = |name: &str| {
+        let key = tauri::utils::assets::AssetKey::from(name);
+        context
+            .assets()
+            .get(&key)
+            .map(|b| b.into_owned())
+            .unwrap_or_default()
+    };
+    let version = context.package_info().version.to_string();
+    print!(
+        "{}",
+        about_text(&version, &asset("index.html"), &asset("reva.wasm"))
+    );
+    ExitCode::SUCCESS
 }
