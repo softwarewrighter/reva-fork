@@ -39,7 +39,7 @@ that runs Reva's own Forth system, `src/reva.f` (release 2011.2), unchanged.
   from the CLI), [SQLite](docs/sqlite.md) in all three hosts, iconv,
   [colour listings](docs/highlight.md) (`pp FILE`).
 - **IUP programs** run unchanged on a model of IUP
-  ([ui-model.md](docs/ui-model.md)): a text UI in the terminal, the browser
+  ([iup.md](docs/iup.md)): a text UI in the terminal, the browser
   and the desktop app, with CD canvases and timers in the browser and the
   desktop app (`examples/iup/brownian.f`, `binary-clock.f`, `cd-test.f`;
   [try it](https://softwarewrighter.github.io/reva-fork/?eval=needs%20ui/cd-demo%20cd-demo)).
@@ -138,7 +138,9 @@ through the virtual install prefix `/reva/`.
 
 ## Documentation
 
-New documentation lives in [docs/](docs/README.md):
+New documentation lives in [docs/](docs/README.md). Start with
+[the tour](docs/tour.md): starting and leaving each front end, finding
+words and libraries, files, the notebook, graphics. Then
 [getting started](docs/getting-started.md), [gotchas](docs/gotchas.md),
 and the [parity tracker](docs/parity.md), which records, topic by topic and
 program by program, how much of the old wiki and of `examples/` the portable

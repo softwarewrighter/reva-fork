@@ -1,0 +1,18 @@
+0
+ui< created 1 vbox
+ui< created 2 canvas
+ui< attr 2 RASTERSIZE =300x150
+ui< appended 1 2
+ui< created 3 button
+ui< attr 3 TITLE =Quit
+ui< appended 1 3
+ui< created 4 dialog
+ui< appended 4 1
+ui< attr 4 TOPMOST =YES
+ui< attr 4 TITLE =A\spicture
+ui< shown 4 -1 -1 modeless
+ui< focus 2
+ui< attr 2 DRAW =
+ui> size 2 300 150
+ui< attr 2 DRAW =c\sffffff;l\s20\s20\s280\s130\s0000ff\s0\s1;b\s40\s30\s120\s90\sff0000;t\s150\s20\s000000\s12\shello,\sCD
+ui> click 3

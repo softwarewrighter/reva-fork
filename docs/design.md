@@ -555,6 +555,10 @@ block translation should land within ~2× of the original x86 Reva.
    clear stops for native libraries, `shell` (CLI `--allow-shell`) and
    unsupported instruction families ([portability.md](../docs/portability.md)).
    No generic native FFI: Forth passes 32-bit VM pointers, so C libraries
-   come as virtual libraries (Rust bindings in the VM). Next: SQLite, then a
-   UI service for the browser and the desktop app.
-5. Translators: x86-64, then ARM64, then wasm.
+   come as virtual libraries (Rust bindings in the VM). ✅ iconv; ✅ SQLite
+   through host calls (§3.11); ✅ the UI service in the browser, the desktop
+   app and the terminal: turtle graphics, IUP and CD
+   ([iup.md](iup.md), [ui-model.md](ui-model.md)). Next: XML and big
+   integers, sockets on the CLI, panes.
+5. Translators: x86-64, then ARM64, then wasm. Not started; the
+   benchmarks behind them come first (step `local-perf-baseline`).

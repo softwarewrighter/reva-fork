@@ -1,0 +1,8 @@
+number = 62
+slug = "local-docs-tour"
+status = "in-progress"
+description = "Docs (the user, 2026-11-07): 'the documentation seems out-of-date. A lot of p..."
+role = "production"
+context_files = []
+created_at = "2026-11-07T08:14:36"
+commits = []

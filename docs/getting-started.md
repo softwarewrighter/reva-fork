@@ -7,15 +7,18 @@ per-OS `bin/` directory.
 
 ## Build
 
-You need a Rust toolchain (`rustup`, Rust 1.85 or newer: the code is edition 2024).
+You need a Rust toolchain (`rustup`, Rust 1.89 or newer: the code is edition 2024)
+and [just](https://just.systems) for the recipes (each is a thin wrapper
+over a script, so it is optional).
 
 ```bash
 git clone https://github.com/softwarewrighter/reva-fork
-cd reva-fork/rust
-cargo build --release
+cd reva-fork
+just cli          # build the CLI and start the REPL (or: just cli-build)
 ```
 
-The binary is `target/release/reva`. It runs on Linux, macOS and
+The binary is `target/release/reva`. [tour.md](tour.md) shows how to get
+around once it runs. It runs on Linux, macOS and
 Windows, on x86-64 and ARM64 alike. `reva.f` is compiled into it; nothing
 else needs to be installed.
 
@@ -115,9 +118,11 @@ that fails half way is removed.
 ## In the browser
 
 ```bash
-scripts/build-web.sh                        # builds components/web/crates/reva-web/www/reva.wasm
-python3 -m http.server -d components/web/crates/reva-web/www      # then open http://localhost:8000
+just web-dev      # builds www/reva.wasm (scripts/build-web.sh), serves http://localhost:8000
+just serve        # or: the page inside reva-serve, one binary, opened in your browser
 ```
+
+The live demo is the same page: <https://softwarewrighter.github.io/reva-fork/>.
 
 The page is a small console running the same core. The VM runs in a Web
 Worker, so booting, long computations and endless loops never freeze the
@@ -215,8 +220,11 @@ The portable core boots all of `src/reva.f`: the core words, control
 structures and loops, `create`/`does>`, `catch`/`throw`, strings and `."`,
 the embedded assembler, contexts, `include`, `needs` with the libraries
 in `lib/`, the file words (`open/r`, `read`, …), saved images with `save`
-and `restart`, and floating point (`needs math/floats`). Native C
-libraries are not available yet.
+and `restart`, floating point (`needs math/floats`), turtle graphics
+([turtle.md](turtle.md)), IUP dialogs and CD drawing ([iup.md](iup.md)),
+and SQLite ([sqlite.md](sqlite.md)). Native C libraries cannot be called;
+iconv, SQLite, IUP and CD are served by Rust in their place
+([portability.md](portability.md)).
 [parity.md](parity.md) tracks this in detail, and
 [parity-examples.md](parity-examples.md) lists every example program's
 status.
