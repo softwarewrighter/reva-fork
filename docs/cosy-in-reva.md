@@ -44,7 +44,7 @@ script stored there.
 | Bob's `Tui.f` windows (IUP) | **opens** with `needs compat/reva70` in place of compat708.f ([compat-reva70.md](compat-reva70.md)) and `reva --port-check --fix` ([porting-from-windows.md](porting-from-windows.md)); `save`'s del/copy backup to rewrite by hand | CoSy lane |
 | Upload a file into the page | works | the header's Upload button ([web.md](web.md)) |
 | One saved image (`--image`) | **works** (checked 2026-11-02) | below |
-| A published site (e.g. cosy.softwarewrighter.com) | planned, Bob's call | step 52 `local-publish-package` |
+| A published site (e.g. cosy.softwarewrighter.com) | planned, Bob's call | step `local-publish-package` |
 
 ## The CLI
 
@@ -109,14 +109,14 @@ reva-fork's components restructuring these are `scripts/` and `target/` at
 the root, with the same options. Until the CoSy lane updates its paths, run
 reva-fork's scripts directly as above.
 
-## Planned
+## Done since the first plan
 
-- **Bob's windows, `Tui.f` and `Job.f`** (step 47 `local-tui-cosy`): the
-  IUP dialogs CoSy's TUI is made of, through reva-fork's virtual IUP
-  library ([iup-plan.md](iup-plan.md), [ui-model.md](ui-model.md)), in the
-  terminal, the browser and the desktop app. ba-cosy's `tui-text.f` covers
-  the text side today.
-- **One file to ship** (step 41 `local-image-everywhere`, done): a saved
+- **Bob's windows, `Tui.f` and `Job.f`** (step `local-tui-cosy`, done):
+  the IUP dialogs CoSy's TUI is made of, through reva-fork's virtual IUP
+  library ([iup.md](iup.md), [ui-model.md](ui-model.md)), in the
+  terminal, the browser and the desktop app; the table above says what
+  CoSy's side still does by hand.
+- **One file to ship** (step `local-image-everywhere`, done): a saved
   image starts in the CLI (`--image`), the page (`?image=`, or the
   package's `"image"`) and the desktop app (`--image`, or the package's
   `"image"`). From the package folder:
@@ -126,7 +126,10 @@ reva-fork's scripts directly as above.
   10 ms, where loading CoSy from source takes 0.7 s; results match the
   loaded system. Earlier, `--save-image` cut off strings compiled after
   boot (CoSy's `i(` then failed); it now records them as `save` does.
-- **A published site** (step 52 `local-publish-package`): a package or
+
+## Planned
+
+- **A published site** (step `local-publish-package`): a package or
   image behind its own domain, such as cosy.softwarewrighter.com, only if
   Bob wants CoSy published that way. Otherwise reva-fork is hosted alone,
   and CoSy is hosted by Bob.

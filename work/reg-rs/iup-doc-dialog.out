@@ -1,0 +1,43 @@
+0
+ui< created 1 vbox
+ui< created 2 vbox
+ui< created 3 fill
+ui< appended 2 3
+ui< created 4 label
+ui< attr 4 TITLE =0
+ui< appended 2 4
+ui< created 5 hbox
+ui< created 6 fill
+ui< appended 5 6
+ui< created 7 button
+ui< attr 7 TITLE =Count
+ui< appended 5 7
+ui< created 8 button
+ui< attr 8 TITLE =Quit
+ui< appended 5 8
+ui< created 9 fill
+ui< appended 5 9
+ui< appended 2 5
+ui< created 10 fill
+ui< appended 2 10
+ui< appended 1 2
+ui< created 11 dialog
+ui< appended 11 1
+ui< attr 11 TOPMOST =YES
+ui< attr 11 TITLE =Counter
+ui< shown 11 -1 -1 modeless
+ui< focus 7
+ui> click 7
+ui< attr 4 TITLE =1
+ui> click 7
+ui< attr 4 TITLE =2
+ui> click 7
+ui< attr 4 TITLE =3
+ui| screen 40x6
+ui| 
+ui|           ┌ Counter ───────×┐
+ui|           │3                │
+ui|           │[ Count ][ Quit ]│
+ui|           └─────────────────┘
+ui| 
+ui> click 8

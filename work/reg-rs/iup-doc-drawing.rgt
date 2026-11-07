@@ -1,0 +1,3 @@
+command = "grep -v '^$' tests/forth/iup-doc-drawing.f | grep -c -v -x -F -f docs/iup.md; ${REVA:-target/debug/reva} --ui-script tests/ui/doc-drawing.ui tests/forth/iup-doc-drawing.f < /dev/null"
+exit_code = 0
+desc = "docs/iup.md's drawing sample: 0 of its lines missing from the page, then it runs with scripted events"

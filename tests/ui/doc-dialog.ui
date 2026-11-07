@@ -1,0 +1,6 @@
+# docs/iup.md's dialog: Count (7) three times, the screen, then Quit (8)
+click 7
+click 7
+click 7
+screen 40x6
+click 8
