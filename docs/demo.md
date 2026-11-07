@@ -70,7 +70,8 @@ nosuchword 2 .
 
 ERROR: unknown word:  nosuchword
 ...
-*** bad memory access: 4 byte(s) at 0x00000000 (in @+0x2, eip 0x00040c1d)
+*** bad memory access: 4 byte(s) at 0x00000000 (in @+0x2, eip 0x00040c49) after `@`
+stack (1): 0
 3
 ```
 

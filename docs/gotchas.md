@@ -118,6 +118,8 @@ and `ioerr` is 1; the original Reva said nothing.
 
 ## Stack underflow is a warning
 
+(All the checks that name the word at fault: [diagnostics.md](diagnostics.md).)
+
 A word that takes more than the stack holds (`drop` on an empty stack)
 prints ``warning: stack underflow (depth -1) at FILE:LINE after `drop` `` once, and Forth goes on, as
 Reva did: words run in the slack above the stack, and later pushes bring it
