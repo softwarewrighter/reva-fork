@@ -37,8 +37,10 @@ Served today: libc's `getenv`, `putenv`, `localtime`, `gmtime`, `opendir`,
 converted inside the VM with iconv's own results and errno codes); and
 SQLite for `lib/db/sqlite` through *host calls*, which the host answers
 (the CLI, the desktop app and the browser; see [sqlite.md](sqlite.md) and
-docs/design.md 3.11). Planned: a UI service in place of IUP and GTK, then
-regex, zlib and HTTP as programs need them. Every planned library is permissively
+docs/design.md 3.11); and IUP and CD for `lib/ui/gui` and `lib/ui/cd`,
+drawn by the page, the desktop app and the terminal ([iup.md](iup.md)).
+Next: XML and big integers, then regex, zlib and HTTP as programs need
+them; GTK and OpenGL are not planned. Every planned library is permissively
 licensed ([licenses.md](licenses.md)).
 
 A library that is not served resolves to 0, as a failed `dlopen` did, so
