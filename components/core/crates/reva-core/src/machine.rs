@@ -166,6 +166,10 @@ pub struct Machine {
     /// `nop`s; `;;` uses it to avoid reading padding as a `call` (see
     /// `Machine::ssemi`).  Transient: not part of an image.
     pub last_pad: (u32, u32),
+    /// Where the `call rel32` most recently compiled by `compile` ends;
+    /// `;;` makes a tail call only of that call (see `Machine::ssemi`).
+    /// Transient: not part of an image.
+    pub last_call_end: u32,
     /// Directories open through the virtual libc's `opendir` (see
     /// `fileio.rs`).  Host state, like open files: not part of an image.
     pub dirs: Vec<Option<DirStream>>,

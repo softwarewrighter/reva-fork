@@ -304,7 +304,7 @@ await nb.ready;
 nb.feed("needs ui/notebook notebook\n");
 await nb.idle();
 const kept = nbStore.getItem("reva:fs:/notebook.txt") ?? "";
-check("notebook text kept in storage", [kept.startsWith("| Put the cursor"), kept.includes("\n22 3 +\n")], [true, true]);
+check("notebook text kept in storage", [kept.startsWith("| Cursor on a line"), kept.includes("\n22 3 +\n")], [true, true]);
 nb.terminate();
 
 process.exit(failed ? 1 : 0);

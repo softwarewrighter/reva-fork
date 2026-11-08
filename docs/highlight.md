@@ -1,6 +1,8 @@
 # Colour source listings: `pp` and `hl-type`
 
-`needs highlight/core` adds two words that list Forth source in colour:
+Two built-in words list Forth source in colour, `pp` and `hl-type`. Their
+first use loads `highlight/core`, which also has `hl-table` and
+`hl-color?` (after `needs highlight/core`):
 
 | Word | Stack | Does |
 |---|---|---|
@@ -9,10 +11,11 @@
 | `hl-table` | ( a n -- ) | adds a token table file (later tables win); `lib/highlight/forth.tbl` is loaded already |
 | `hl-color?` | ( -- f ) | true when this output shows colour |
 
-`slurp type` and `type` are unchanged: they always print plain text.
+`slurp type` and `type` are unchanged: they always print plain text. Where
+`type` is sent elsewhere (the notebook's results pane), `pp` and `hl-type`
+print through it, plain.
 
 ```forth
-needs highlight/core
 " : sq ( n -- n*n ) dup * ; | square" hl-type cr
 ```
 
