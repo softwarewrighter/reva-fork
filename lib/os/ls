@@ -1,0 +1,80 @@
+| vim: ft=reva :
+|
+| os/ls -- list a folder (reva-fork; docs/tour.md)
+|
+|   ls             the current folder
+|   ls DIR         a folder (the rest of the line): ls /reva/lib, ls ..
+|   " DIR" (ls)    the same, for programs
+|
+| Names are sorted, folders end in /, hidden names (.git) are left out.  `ls` is
+| built in: its first use loads this library.  It works on the real files
+| (the CLI, the desktop app's folder) and on the browser's saved files.
+
+push~
+needs os/dir
+needs string/trim
+~strings ~sys ~priv
+~os
+~priv
+1024 constant ls-max
+create ls-names ls-max cells allot
+variable #ls   variable ls-buf   variable ls-at
+
+: ls-cell ( n -- a )  cells ls-names + ;
+| keep a name (a counted string in ls-buf), if there is room; hidden
+| names (., .., .git) are left out, as ls does
+: ls-add? ( a n -- a n flag )  over c@ '. <>  #ls @ ls-max <  and ;
+: ls-add ( a n -- )
+  ls-at @ dup #ls @ ls-cell !  1 #ls +!
+  place  ls-at @ count + ls-at ! ;
+: ls-file ( a n -- )  ls-add? if ls-add else 2drop then ;
+: ls-dir ( a n -- )
+  ls-add? 0if 2drop ;then
+  ls-add  '/ #ls @ 1- ls-cell @ c+place  1 ls-at +! ;
+
+| insertion sort of the names
+: ls-gt? ( j -- flag )  dup 1- ls-cell @ count rot ls-cell @ count cmp 0 > ;
+: ls-xchg ( j -- )  ls-cell dup @ over cell- @ 2 pick ! swap cell- ! ;
+: ls-sink ( j -- )
+  repeat
+    dup 0if drop ;then
+    dup ls-gt? 0if drop ;then
+    dup ls-xchg 1-
+  true while ;
+: ls-sort ( -- )  #ls @ 1 ?do i ls-sink loop ;
+| the names, in lines of up to 72 columns
+variable ls-col
+: ls-name ( a n -- )
+  dup ls-col @ + 72 > ls-col @ and if cr 0 ls-col ! then
+  dup 1+ ls-col +!  type space ;
+: ls-show ( -- )  0 ls-col !  #ls @ 0 ?do i ls-cell @ count ls-name loop cr ;
+exit~
+
+: (ls) ( a n -- )
+  2dup isdir? 0if ." ls: no such folder: " type cr ;then
+  0 #ls !  ls-max 257 * allocate dup ls-buf ! ls-at !
+  ['] ls-file ['] ls-dir 2swap dir
+  ls-sort ls-show  ls-buf @ free ;
+| the rest of the line, if `ls` did not end it (parsews takes the line end
+| after a word at the end of a line in a file)
+: ls-arg ( -- a n )  >in @ 1- c@ dup 10 = swap 13 = or if 0 0 ;then parseln trim ;
+: ls ( <dir> -- )  ls-arg dup 0if 2drop " ." then (ls) ;
+pop~
+
+|||
+
+def: ls
+ctx: ~os
+stack: <dir> --
+desc: =
+Lists the folder named by the rest of the line, or the current folder: the
+names sorted, folders ending in /, hidden names (.git) left out, in lines
+of up to 72 columns.  `ls /reva/lib` lists the built-in libraries.  Built in: the first use loads os/ls.
+=
+
+def: (ls)
+ctx: ~os
+stack: a n --
+desc: =
+Lists the folder named by the string, as `ls` does.
+=

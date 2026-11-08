@@ -20,64 +20,94 @@ ui< appended 7 1
 ui< attr 7 TOPMOST =YES
 ui< attr 7 SIZE =FULLxFULL
 ui< attr 7 TITLE =Reva\snotebook
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.
-ui< attr 3 CARET =1,64
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.
+ui< attr 3 CARET =1,66
 ui< attr 3 SELECTION
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+
 ui< attr 3 CARET =2,6
 ui< attr 3 SELECTION
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+
 ui< attr 3 CARET =3,15
 ui< attr 3 SELECTION
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq
 ui< attr 3 CARET =4,19
 ui< attr 3 SELECTION
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens
 ui< attr 3 CARET =5,38
 ui< attr 3 SELECTION
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords
-ui< attr 3 CARET =6,6
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone
+ui< attr 3 CARET =6,61
 ui< attr 3 SELECTION
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup
+ui< attr 3 CARET =7,10
+ui< attr 3 SELECTION
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup
+ui< attr 3 CARET =8,9
+ui< attr 3 SELECTION
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)
+ui< attr 3 CARET =9,63
+ui< attr 3 SELECTION
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls
+ui< attr 3 CARET =10,3
+ui< attr 3 SELECTION
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib
+ui< attr 3 CARET =11,13
+ui< attr 3 SELECTION
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt
+ui< attr 3 CARET =12,16
+ui< attr 3 SELECTION
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit
+ui< attr 3 CARET =13,63
+ui< attr 3 SELECTION
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals
+ui< attr 3 CARET =14,19
+ui< attr 3 SELECTION
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo
+ui< attr 3 CARET =15,35
+ui< attr 3 SELECTION
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork
+ui< attr 3 CARET =16,62
+ui< attr 3 SELECTION
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork
 ui< attr 3 CARET =2,1
 ui< attr 3 SELECTION
 ui< shown 7 -1 -1 modeless
 ui< focus 3
 ui> key K_cEND
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords
-ui< attr 3 CARET =6,6
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork
+ui< attr 3 CARET =16,62
 ui< attr 3 SELECTION
 ui> key K_CR
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n
-ui< attr 3 CARET =7,1
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n
+ui< attr 3 CARET =17,1
 ui< attr 3 SELECTION
 ui> key 54
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6
-ui< attr 3 CARET =7,2
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6
+ui< attr 3 CARET =17,2
 ui< attr 3 SELECTION
 ui> key 32
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s
-ui< attr 3 CARET =7,3
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s
+ui< attr 3 CARET =17,3
 ui< attr 3 SELECTION
 ui> key 55
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7
-ui< attr 3 CARET =7,4
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7
+ui< attr 3 CARET =17,4
 ui< attr 3 SELECTION
 ui> key 42
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*
-ui< attr 3 CARET =7,5
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*
+ui< attr 3 CARET =17,5
 ui< attr 3 SELECTION
 ui> key 46
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.
-ui< attr 3 CARET =7,6
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.
+ui< attr 3 CARET =17,6
 ui< attr 3 SELECTION
 ui> key K_F6
 ui< attr 4 VALUE =
 ui< attr 4 CARET =1,1
 ui< attr 4 SELECTION
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.
-ui< attr 3 CARET =7,6
-ui< attr 3 SELECTION =7,1:7,6
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.
+ui< attr 3 CARET =17,6
+ui< attr 3 SELECTION =17,1:17,6
 ui< attr 4 VALUE =\n
 ui< attr 4 CARET =2,1
 ui< attr 4 SELECTION
@@ -119,76 +149,76 @@ ui< attr 4 CARET =1,1
 ui< attr 4 SELECTION
 ui< attr 2 TITLE =evaluated
 ui> key K_END
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.
-ui< attr 3 CARET =7,6
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.
+ui< attr 3 CARET =17,6
 ui< attr 3 SELECTION
 ui> key K_CR
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n
-ui< attr 3 CARET =8,1
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n
+ui< attr 3 CARET =18,1
 ui< attr 3 SELECTION
 ui> key 54
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6
-ui< attr 3 CARET =8,2
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6
+ui< attr 3 CARET =18,2
 ui< attr 3 SELECTION
 ui> key 32
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s
-ui< attr 3 CARET =8,3
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s
+ui< attr 3 CARET =18,3
 ui< attr 3 SELECTION
 ui> key 55
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7
-ui< attr 3 CARET =8,4
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7
+ui< attr 3 CARET =18,4
 ui< attr 3 SELECTION
 ui> key 32
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s
-ui< attr 3 CARET =8,5
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s
+ui< attr 3 CARET =18,5
 ui< attr 3 SELECTION
 ui> key 42
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s*
-ui< attr 3 CARET =8,6
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s*
+ui< attr 3 CARET =18,6
 ui< attr 3 SELECTION
 ui> key 32
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s*\s
-ui< attr 3 CARET =8,7
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s*\s
+ui< attr 3 CARET =18,7
 ui< attr 3 SELECTION
 ui> key 100
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s*\sd
-ui< attr 3 CARET =8,8
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s*\sd
+ui< attr 3 CARET =18,8
 ui< attr 3 SELECTION
 ui> key 117
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s*\sdu
-ui< attr 3 CARET =8,9
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s*\sdu
+ui< attr 3 CARET =18,9
 ui< attr 3 SELECTION
 ui> key 112
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s*\sdup
-ui< attr 3 CARET =8,10
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s*\sdup
+ui< attr 3 CARET =18,10
 ui< attr 3 SELECTION
 ui> key 32
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s*\sdup\s
-ui< attr 3 CARET =8,11
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s*\sdup\s
+ui< attr 3 CARET =18,11
 ui< attr 3 SELECTION
 ui> key 46
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s*\sdup\s.
-ui< attr 3 CARET =8,12
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s*\sdup\s.
+ui< attr 3 CARET =18,12
 ui< attr 3 SELECTION
 ui> key 32
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s*\sdup\s.\s
-ui< attr 3 CARET =8,13
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s*\sdup\s.\s
+ui< attr 3 CARET =18,13
 ui< attr 3 SELECTION
 ui> key 49
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s*\sdup\s.\s1
-ui< attr 3 CARET =8,14
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s*\sdup\s.\s1
+ui< attr 3 CARET =18,14
 ui< attr 3 SELECTION
 ui> key 43
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s*\sdup\s.\s1+
-ui< attr 3 CARET =8,15
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s*\sdup\s.\s1+
+ui< attr 3 CARET =18,15
 ui< attr 3 SELECTION
 ui> key K_F6
 ui< attr 4 VALUE =
 ui< attr 4 CARET =1,1
 ui< attr 4 SELECTION
-ui< attr 3 VALUE =|\sPut\sthe\scursor\son\sa\sline\sand\spress\sCtrl-J\s(or\sF6).\s\sF1:\shelp.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\nwords\n6\s7*.\n6\s7\s*\sdup\s.\s1+
-ui< attr 3 CARET =8,15
-ui< attr 3 SELECTION =8,1:8,15
+ui< attr 3 VALUE =|\sCursor\son\sa\sline,\sthen\sCtrl-J\s(or\sF6).\s\sF1:\skeys.\s\sDone:\sclose.\n2\s3\s+\n6\s7\s*\sdup\s.\s1+\n:\ssq\sdup\s*\s;\s\s7\ssq\n:\stens\s\s10\s0\sdo\si\s10\s*\s.\sloop\s;\s\stens\n|\sWords:\sthose\swhose\snames\scontain\sdup,\sthen\sthe\shelp\son\sone\nwords\sdup\nhelp\sdup\n|\sFiles:\sthis\sfolder,\sthe\slibraries,\sa\sfile\sshown\s(not\sloaded)\nls\nls\s/reva/lib\npp\snotebook.txt\n|\sA\slibrary:\spp\sshows\sits\ssource\s(usage\sfirst);\sneeds\sloads\sit\npp\sturtle/fractals\nneeds\sturtle/fractals\s\s4\skoch-demo\n|\sMore:\sdocs/tour.md\sat\sgithub.com/softwarewrighter/reva-fork\n6\s7*.\n6\s7\s*\sdup\s.\s1+
+ui< attr 3 CARET =18,15
+ui< attr 3 SELECTION =18,1:18,15
 ui< attr 4 VALUE =42
 ui< attr 4 CARET =1,3
 ui< attr 4 SELECTION
@@ -215,12 +245,12 @@ ui| screen 72x24
 ui| ┌ Reva notebook ──────────────────────────────────────────────────────×┐
 ui| │evaluated                                                             │
 ui| │┌────────────────────────────────────────────────────────────────────┐│
-ui| ││| Put the cursor on a line and press Ctrl-J (or F6).  F1: help.     ││
-ui| ││2 3 +                                                               ││
-ui| ││6 7 * dup . 1+                                                      ││
-ui| ││: sq dup * ;  7 sq                                                  ││
-ui| ││: tens  10 0 do i 10 * . loop ;  tens                               ││
-ui| ││words                                                               ││
+ui| ││ls /reva/lib                                                        ││
+ui| ││pp notebook.txt                                                     ││
+ui| ││| A library: pp shows its source (usage first); needs loads it      ││
+ui| ││pp turtle/fractals                                                  ││
+ui| ││needs turtle/fractals  4 koch-demo                                  ││
+ui| ││| More: docs/tour.md at github.com/softwarewrighter/reva-fork       ││
 ui| ││6 7*.                                                               ││
 ui| ││6 7 * dup . 1+                                                      ││
 ui| │└────────────────────────────────────────────────────────────────────┘│

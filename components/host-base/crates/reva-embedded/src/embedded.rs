@@ -65,6 +65,24 @@ pub const STRINGS_MARKER: &str = "hide (compstrend)";
 pub const STRINGS_SAVE: &str =
     ": (save-strings) (compstr) @ (compstrend) @ over - setextra ; (save-strings)\n";
 
+/// Inserted with [`STRINGS_SAVE`]: words that are built in by loading
+/// their library on first use, as `reva.f`'s `help` does.  Each stub runs
+/// `needs`, then the library's word by its full name (a `~` stub shadows
+/// the library's word for `find`), so it reads the rest of the line as
+/// typed; once loaded, `needs` costs a lookup.  Nothing loads at boot.
+/// `console-type?` says whether `type` still goes to the console (the
+/// notebook sends it to a pane), so `pp` colours only there.
+pub const AUTOLOAD: &str = "\
+variable (type0)  : (type0!) ['] type @ (type0) ! ; (type0!)
+: console-type? ( -- flag ) ['] type @ (type0) @ = ;
+: (autoload) ( needs-a n word-a n -- ) 2swap eval find ?dup if execute else 2drop then ;
+: pp ( <file> -- ) \" needs highlight/core\" \" ~highlight.pp\" (autoload) ;
+: hl-type ( a n -- ) \" needs highlight/core\" \" ~highlight.hl-type\" (autoload) ;
+: ls ( <dir> -- ) \" needs os/ls\" \" ~os.ls\" (autoload) ;
+: (ls) ( a n -- ) \" needs os/ls\" \" ~os.(ls)\" (autoload) ;
+hide (autoload) hide (type0!) hide (type0)
+";
+
 /// The input a host feeds before it saves an image itself.
 pub const SAVE_STRINGS: &str = "(save-strings)\n";
 
@@ -80,8 +98,8 @@ pub const ERROR_MARKER: &str = ": ERROR ( a' n' a n  -- )";
 /// error in a file says where; every later use (`word?`, `needs`) gets it.
 pub const ERROR_WORD: &str = ": ERROR ( a' n' a n -- ) cr (where) .\" ERROR: \" type_ type cr ;\n";
 
-/// The boot source: `reva.f` up to [`BOOT_MARKER`] with [`STRINGS_SAVE`]
-/// inserted before [`STRINGS_MARKER`], the fork's `.ver` after the
+/// The boot source: `reva.f` up to [`BOOT_MARKER`] with [`AUTOLOAD`] and
+/// [`STRINGS_SAVE`] inserted before [`STRINGS_MARKER`], the fork's `.ver` after the
 /// [`VER_MARKER`] line, [`ERROR_WORD`] after the [`ERROR_MARKER`] line,
 /// then [`BOOT_TAIL`].  `STRINGS_SAVE` and `BOOT_TAIL`
 /// together stand in for "save an executable, then run it".
@@ -93,7 +111,7 @@ pub fn boot_source() -> &'static str {
             None => REVA_F,
         };
         let mut src = match head.find(STRINGS_MARKER) {
-            Some(j) => format!("{}{STRINGS_SAVE}{}", &head[..j], &head[j..]),
+            Some(j) => format!("{}{AUTOLOAD}{STRINGS_SAVE}{}", &head[..j], &head[j..]),
             None => head.to_string(),
         };
         for (marker, text) in [

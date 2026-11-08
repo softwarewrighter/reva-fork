@@ -1,0 +1,24 @@
+
+a.f b.txt one.f 
+os/ls string/trim string/misc os/dir 
+4 words
+Adir/ a.f b.txt one.f zdir/ 
+inner.f 
+inner.f 
+ls: no such folder: nosuch
+core forth.tbl 
+: sq dup * ;
+plain
+highlight/core os/ls string/trim string/misc os/dir 
+5 words
+-1 ls  ( <dir> -- )
+  context: ~os   source: lib/os/ls
+  Lists the folder named by the rest of the line, or the current folder: the
+  names sorted, folders ending in /, hidden names (.git) left out, in lines
+  of up to 72 columns.  `ls /reva/lib` lists the built-in libraries.  Built in: the first use loads os/ls.
+pp  ( <file> -- )
+  context: ~highlight   source: lib/highlight/core
+  Lists FILE in colour (plain when the output is not a terminal); a name
+  that is not a file is looked up under lib/, so `pp turtle/fractals` lists
+  that library.  Built in: the first use loads highlight/core.
+(0) 
