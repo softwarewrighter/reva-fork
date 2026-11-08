@@ -7,6 +7,7 @@ what has been carried over and what has not, yet).
 
 | Page | Covers |
 |---|---|
+| [A tour](tour.md) | **start here**: the four front ends (start, leave), finding words and libraries, `pp`, files and listing them (the browser's too), the notebook, graphics |
 | [Getting started](getting-started.md) | building, the `reva` command, the browser build |
 | [Gotchas](gotchas.md) | pitfalls, old and new |
 | [Diagnostics](diagnostics.md) | where errors and faults happened, and the opt-in checks (`diagnose`): underflow at the word, `execute` of what is not code, what is compiled and by whom |
@@ -20,7 +21,8 @@ what has been carried over and what has not, yet).
 | [Desktop app](desktop.md) | `reva-desktop`: build, run, files on disk, packages |
 | [Colour listings](highlight.md) | `pp FILE`, `hl-type`: syntax-highlighted Forth source in every REPL; the token table shared with the blog script |
 | [Running Reva's x86](x86-plan.md) | how vx86 runs Reva's machine code and floats, `see`, what legacy programs can expect, what breaks and how it gets ported |
-| [Plan: IUP programs](iup-plan.md) | high-level plan for running Reva's IUP GUI programs and CoSy's TUI, reimplemented in Rust with a Yew renderer |
+| [IUP dialogs and CD graphics](iup.md) | `needs ui/gui`, `ui/cd`: Reva's GUI programs, where they run, a dialog and a drawing, Reva's examples, limits |
+| [Plan: IUP programs](iup-plan.md) | the plan for running Reva's IUP GUI programs and CoSy's TUI (stage 1 done) |
 | [The UI model](ui-model.md) | IUP's elements, attributes, callbacks, keys and layout (in character cells) as the Rust model the iup library and the TUI build on: scope and rules |
 | [SQLite](sqlite.md) | `needs db/sqlite`: databases through the `~db` words, in the CLI, the desktop app and the browser |
 | [Porting from Windows](porting-from-windows.md) | `reva --port-check`: find Windows-only paths and shell commands in Forth sources, and write portable copies |

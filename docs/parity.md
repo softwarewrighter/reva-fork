@@ -35,7 +35,7 @@ covers the same ground.
 |---|---|---|
 | Installation, Command-line parameters | done | [getting-started.md](getting-started.md); a walk-through in [demo.md](demo.md) |
 | Distribution (the old `bin/` per OS, `tools/build.f`) | superseded | [packaging.md](packaging.md): one self-contained binary per target, a static web zip with an optional package ([web.md](web.md), `just web-zip`), the same as one local binary ([serve.md](serve.md)), desktop installers; Windows status and test plan |
-| Glossary, Built-in help system | blocked | `src/help.txt` (6,000 lines, in the repository) is the source: generate a glossary page from it, with a note per word on whether it works yet; `help` will read a text index built from it instead of the SQLite `help.db` (see Decisions) |
+| Glossary, Built-in help system | partial | the help system is done: `help WORD` and `help/ TEXT` read a text index built from `src/help.txt` and the libraries ([repl.md](repl.md#help-help-word-help-text)); a glossary page generated from it, saying per word whether it works, is not written |
 | Turnkey (standalone applications) | ready | `save NAME` (and `(save)`) write a vx86 image instead of an executable; start it with `reva --image NAME`, in the browser (`?image=`, `start(..., { image })`) or the desktop app (`--image`), or name it in a package (`"image"`); `reva --save-image` writes the same image. `restart` starts over from the same image or boot |
 | Cells and Stacks, Words and the dictionary, Numbers, Strings | partial | material exists across [gotchas.md](gotchas.md) and [design.md](design.md); `reva.f` now boots fully, so topic pages can be written |
 | Deferred words, Contexts, Libraries | ready | `defer`/`is`, `context:`/`with~`/`~ctx.word`, `needs` all work |
@@ -76,7 +76,7 @@ with `argc` = 2, as on the original)
 
 | Cause | Programs | Roadmap |
 |---|---|---|
-| a native C library (GTK, OpenGL, CD, pthreads, expat, ...; iconv, SQLite and IUP itself are served now) | 31 | 4 (virtual libraries, [portability.md](portability.md)), or the GUI decision below |
+| a native C library (GTK, OpenGL, pthreads, expat, ...; iconv, SQLite, IUP and CD are served now) | 31 | 4 (virtual libraries, [portability.md](portability.md)), or the GUI decision below |
 | interactive or endless (time limit) | 12 | none: expected with stdin closed |
 | other faults and missing words (one is `lib/asm`, which ran the external FASM assembler) | 16 | investigate per program |
 
@@ -86,8 +86,8 @@ with `argc` = 2, as on the original)
 | lib | 37 | yes | `needs` + the libraries in `lib/` |
 | os | 9 | yes, through the host | files: done (CLI and browser); processes, threads: CLI host first; browser where meaningful |
 | net | 7 | CLI yes; browser decide | sockets, HTTP, CGI |
-| db | 5 | SQLite: CLI done, desktop and browser next | [sqlite.md](sqlite.md): `lib/db/sqlite` over host calls (rusqlite on the CLI and desktop, SQLite's wasm build in the browser); sqlite2, sqlite3 run; sqlite and zipdb stop on `value` (2011.2 takes an initial value), db-report on `0L println` (an older Reva idiom); MySQL dropped (GPL client) |
-| gui | 29 | new UI library | decided: a host UI service (browser first, then the [desktop app](desktop.md), which exists now as a REPL window that packages can brand with their own title and icon); IUP/GTK/OpenGL/Win32 programs stay in `examples/` for reference. IUP: the model and the virtual library `iup` run the examples up to their event loop ([ui-model.md](ui-model.md)); `reva --ui-script` scripts their events; the browser, the desktop app and a terminal draw them as a TUI, and the browser and the desktop app draw CD canvases too (`binary-clock`, `brownian`, `cd-test`). First channel done: 2D [turtle graphics](turtle.md) in a separate window, a pane, or a [split view](web.md#the-split-view) beside the REPL (desktop, browser), or as SVG (CLI) |
+| db | 5 | SQLite: done in the CLI, the desktop app and the browser | [sqlite.md](sqlite.md): `lib/db/sqlite` over host calls (rusqlite on the CLI and desktop, SQLite's wasm build in the browser); sqlite2, sqlite3 run; sqlite and zipdb stop on `value` (2011.2 takes an initial value), db-report on `0L println` (an older Reva idiom); MySQL dropped (GPL client) |
+| gui | 29 | IUP and CD: yes; GTK, OpenGL, Win32: no | IUP programs run unchanged: 15 of the 20 in `examples/iup/` ([iup.md](iup.md)), drawn as a TUI in the browser, the [desktop app](desktop.md) and a terminal, with CD canvases in the browser and the desktop app (`binary-clock`, `brownian`, `cd-test`); `reva --ui-script` scripts their events. The parity report runs them with neither a terminal nor a script, so it lists them as stopping. GTK/OpenGL/Win32 programs stay in `examples/` for reference. First channel done: 2D [turtle graphics](turtle.md) in a separate window, a pane, or a [split view](web.md#the-split-view) beside the REPL (desktop, browser), or as SVG (CLI) |
 
 ## New in the portable core
 
@@ -106,12 +106,13 @@ in [licenses.md](licenses.md); item 3 is still open.
 1. **GUI programs (29).** No native GUI libraries: the core reaches C
    libraries only through virtual libraries (Rust bindings inside the VM),
    because Forth passes 32-bit VM addresses that native 64-bit code cannot
-   use. A small UI service (panes, text, key bindings, an SVG surface) will
-   be served by the browser page and, for Linux and macOS (Windows later), by
-   a Tauri desktop shell that reuses the same page. Selected demos get ported
-   to it; the IUP/GTK/OpenGL/Win32 programs are not counted toward parity.
-2. **Database and network.** Help (`help`) will read a text index built
-   from `src/help.txt` instead of `help.db`. SQLite is served through host
+   use. A small UI service (panes, text, key bindings, an SVG surface) is
+   served by the browser page and by a Tauri desktop app that reuses the same
+   page (Linux and macOS; Windows builds, untested). Later (2026-10-28) IUP itself was added as
+   a virtual library, so IUP programs run unchanged ([iup.md](iup.md));
+   GTK/OpenGL/Win32 programs are not counted toward parity.
+2. **Database and network.** Help (`help`) reads a text index built
+   from `src/help.txt` instead of `help.db` ([repl.md](repl.md)). SQLite is served through host
    calls (rusqlite on the CLI and the desktop, SQLite's wasm build in the
    browser; docs/design.md 3.11), so `lib/db/sqlite` programs run unchanged
    on all three ([sqlite.md](sqlite.md)). `lib/db/mysql` is dropped (its
