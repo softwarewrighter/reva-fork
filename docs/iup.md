@@ -37,7 +37,7 @@ comes back, with everything the program defined.
 | `ui/cd-demo` | `~` | the demo above; `pp ui/cd-demo` shows its source |
 | `compat/reva70` | | Reva 7.0's `ui/gui`, for programs written for 7.0 ([compat-reva70.md](compat-reva70.md)) |
 
-Read a library with `pp` (after `needs highlight/core`), e.g.
+Read a library with `pp` (built in), e.g.
 `pp ui/gui`; [lib/ui/](../lib/ui/) on GitHub has them all.
 
 ## A dialog

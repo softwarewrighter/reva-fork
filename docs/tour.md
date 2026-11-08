@@ -64,11 +64,11 @@ Most put their words in a context of their own; `with~ ~turtle` (or
 | `math/`, `string/`, `date/`, `random/`, `data/`, `alg/`, `crypt/`, `os/` | Reva's general libraries |
 | `compat/` | Reva 7.0's behaviour for older programs ([compat-reva70.md](compat-reva70.md)) |
 
-**Reading a library's source** is `pp`, from `highlight/core`: it lists a
-file in colour, and a name that is not a file is looked up under `lib/`:
+**Reading a library's source** is `pp`, built in (its first use loads
+`highlight/core`): it lists a file in colour, and a name that is not a
+file is looked up under `lib/`:
 
 ```text
-needs highlight/core
 pp ui/cd-demo          | the CD demo's source
 pp turtle/fractals     | the fractals
 pp notes.f             | a file of your own
@@ -84,27 +84,31 @@ folder: the CLI's own, the desktop app's `~/Reva`, the browser's `/`.
 
 | Word | Does |
 |---|---|
+| `ls`, `ls DIR` | list the current folder, or DIR (built in) |
+| `pp NAME` | show a file, in colour, without loading it (built in) |
+| `" NAME" slurp type` | show a file, plain (`slurp` gives its text) |
 | `include NAME` | load a Forth file |
-| `" NAME" slurp type` | show a file (`slurp` gives its text) |
 | `" NAME" delete` | delete it; `" OLD" " NEW" rename` renames |
-| `needs os/dir` | `dir`, `mkdir`, `rmdir`, `isdir?` |
+| `needs os/dir` | `mkdir`, `rmdir`, `isdir?`, and `dir`, which calls a word per file |
 
-**Listing a folder.** `dir ( xt-file xt-dir a n -- )` calls one word for
-each file and another for each folder, with the name:
+**Listing a folder** is `ls`: the names sorted, folders ending in `/`,
+hidden names (`.git`) left out. The folder is the rest of the line, so
+`ls` alone is the current folder:
 
-```text
-needs os/dir
-: .file  ( a n -- ) type space ;
-: .dir   ( a n -- ) ." [" type ." ] " ;
-' .file ' .dir " ." dir cr                 | the current folder
-' .file ' .dir " /reva/lib/ui" dir cr      | the built-in ui libraries
+```forth
+ls /reva/lib/highlight
+```
+```output
+core forth.tbl
 ```
 
-In the browser the first line lists what you have saved, for example
-`[.] [..] notebook.txt [reva]`; `/reva` is the built-in library, which
-is read-only. The CLI and the desktop app list the folder on disk.
-(Folders are not sorted in the CLI: it lists them in the order the
-system returns them.)
+In the browser `ls` lists what you have saved, for example
+`notebook.txt reva/`; `/reva` is the built-in library, which is
+read-only (`ls /reva/lib`). The CLI and the desktop app list the folder
+on disk. A program uses `" DIR" (ls)`.
+
+**Showing a file without loading it:** `pp notebook.txt` (in colour), or
+`" notebook.txt" slurp type` (plain).
 
 **Files in the browser.** Files that Forth writes are kept in the
 browser's IndexedDB for this site, so they are still there after a
@@ -136,6 +140,13 @@ it opens where you left off; the text it had when it opened is kept in
 `notebook.bak`. It works in the CLI at a terminal, the browser, the
 desktop app and `reva-serve`. A line that draws (`needs turtle/fractals
 4 koch-demo`) draws beside it in the browser's split view.
+
+A new notebook starts with lines to try: arithmetic and definitions,
+finding words (`words dup`, `help dup`), files (`ls`, `ls /reva/lib`,
+`pp notebook.txt`), reading and loading a library. A notebook that has a
+`notebook.txt` already opens on that instead. To see the starting lines,
+rename it first (`" notebook.txt" " notebook.old" rename`), then
+`notebook`.
 
 ## Graphics
 

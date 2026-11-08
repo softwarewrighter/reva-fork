@@ -22,7 +22,7 @@ docs/repl.md: 0 sample(s) ok
 docs/sed-rs-asks.md: 0 sample(s) ok
 docs/serve.md: 0 sample(s) ok
 docs/sqlite.md: 1 sample(s) ok
-docs/tour.md: 1 sample(s) ok
+docs/tour.md: 2 sample(s) ok
 docs/turtle.md: 6 sample(s) ok
 docs/ui-model.md: 0 sample(s) ok
 docs/web.md: 0 sample(s) ok

@@ -30,7 +30,9 @@ reva_macros::machine_trait! {
             let rel = xt.wrapping_sub(self.here().wrapping_add(5));
             let mut b = [0xe8, 0, 0, 0, 0];
             b[1..].copy_from_slice(&rel.to_le_bytes());
-            self.emit_code(&b)
+            self.emit_code(&b)?;
+            self.last_call_end = self.here();
+            Ok(())
         }
 
         /// `PROC literal`: `lea esi,[esi-4]; mov [esi],eax; mov eax,imm32`.
