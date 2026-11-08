@@ -1,8 +1,9 @@
 number = 63
 slug = "local-ls-pp"
-status = "in-progress"
+status = "completed"
 description = "Feature (the user, 2026-11-07): 'add ls, also pp is hard to use requires a ne..."
 role = "production"
 context_files = []
 created_at = "2026-11-07T08:58:34"
-commits = []
+completed_at = "2026-11-07T16:04:52"
+commits = ["6433ad931c404150ca811f4a4b8e91700f687ca9"]
