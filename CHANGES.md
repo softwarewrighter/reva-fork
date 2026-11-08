@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-07
 
+- 18:24 `chore` Release 2026.1107.0: dev merged into main (2080152) and the live demo published. Checked: before the PR, every deliverable built through the just recipes at the release commit bfd0bab (just release-check: reva --version, the web page's VM, reva-serve and its page, the desktop app with its page and VM); dev's tree identical to it after the merge (no second gate); live in Chrome: banner and footer reva-fork 2026.1107.0 build 2080152, `ls /reva/lib/highlight` lists `core forth.tbl`. The PATH's ~/.cargo/bin reva and reva-desktop are still 2026.1106.2. The untracked components/cli/target/ and the notebook files were set aside for publish-pages and put back.
+- 18:24 `chore` Merge #102 (local-release-1107, release 2026.1107.0).
 - 18:01 `release` 2026.1107.0, at the user's request: today's first merge to main. Since 2026.1106.2: `ls` and `pp` built in (no `needs`), the default notebook shows more (words, help, files, libraries), a tour (docs/tour.md) and an IUP/CD guide (docs/iup.md), plans in the present tense; `fix`: a tail-call miscompile (1 in 256 quotations ending in a call jumped a byte into its word). Checked before the PR, built through the recipes at the release commit (just release-check): reva --version; the web page's VM (banner, footer); reva-serve --version and the page inside it; the desktop app (reva-desktop --about: its version, page and VM).
 - 18:01 `chore` Merge #100 (local-docs-tour), #101 (local-ls-pp).
 - 16:04 `chore` Step local-ls-pp complete (saga record).
