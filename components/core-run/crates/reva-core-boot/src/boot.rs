@@ -47,6 +47,7 @@ reva_macros::machine_trait! {
                 steps: 0,
                 trace: false,
                 last_pad: (0, 0),
+                last_call_end: 0,
                 dirs: Vec::new(),
                 interrupt: false,
                 missing_lib: None,

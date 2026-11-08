@@ -39,7 +39,10 @@ variable ntables  0 ntables !
 : hl-table ( a n -- )
     2dup (slurp) dup 0if 2drop ." hl-table: cannot read " type cr ;then
     2swap 2drop table, ;
-: hl-type ( a n -- ) tables ntables @ hl_type drop ;
+| in colour at the console; where `type` goes elsewhere (the notebook's
+| pane), through `type`, plain
+: hl-type ( a n -- )
+    console-type? 0if type ;then  tables ntables @ hl_type drop ;
 : pp ( <file> -- )
     parsews 2dup (slurp) dup 0if 2drop ." pp: cannot read " type cr ;then
     2swap 2drop over >r hl-type r> free ;
@@ -48,3 +51,35 @@ variable ntables  0 ntables !
 
 pop~
 with~ ~highlight
+
+|||
+
+def: pp
+ctx: ~highlight
+stack: <file> --
+desc: =
+Lists FILE in colour (plain when the output is not a terminal); a name
+that is not a file is looked up under lib/, so `pp turtle/fractals` lists
+that library.  Built in: the first use loads highlight/core.
+=
+
+def: hl-type
+ctx: ~highlight
+stack: a n --
+desc: =
+Like type, in colour.  Built in: the first use loads highlight/core.
+=
+
+def: hl-table
+ctx: ~highlight
+stack: a n --
+desc: =
+Adds the token table in the file named a,n; later tables win.
+=
+
+def: hl-color?
+ctx: ~highlight
+stack: -- flag
+desc: =
+True when this output shows colour.
+=
