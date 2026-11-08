@@ -76,7 +76,7 @@ input line in the REPL column; the graphics pane stays beside it in the
 split view (`?canvas=split`, the live demo's default), so a notebook line
 like `needs turtle/fractals 4 koch-demo` draws next to the notebook. The
 notebook's text is kept in `notebook.txt`, which the page saves with its
-other files in local storage (`reva:fs:/notebook.txt`), so it is there
+other files in IndexedDB (`reva:fs:/notebook.txt`), so it is there
 again after a reload. Try it:
 <http://localhost:8000/?canvas=split&eval=needs%20ui/notebook%20notebook>.
 

@@ -1,0 +1,1 @@
+Feature: `reva -V` / `version` show a dirty working tree at build time (Commit: abc1234-dirty), and build.rs reruns when the tree changes state. Goldens and tests updated. (Its other half, pp and hl-type without needs, was done in step local-ls-pp.)

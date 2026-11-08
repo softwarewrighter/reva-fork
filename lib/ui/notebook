@@ -122,12 +122,22 @@ variable nb-prefix
 : nb-line+ ( a n -- )  nb-text @ -rot " APPEND" attr drop ;
 : notebook-line ( a n -- )  nb-line+ ;
 : nb-reva-examples ( -- )
-  " | Put the cursor on a line and press Ctrl-J (or F6).  F1: help." nb-line+
+  " | Cursor on a line, then Ctrl-J (or F6).  F1: keys.  Done: close." nb-line+
   " 2 3 +" nb-line+
   " 6 7 * dup . 1+" nb-line+
   " : sq dup * ;  7 sq" nb-line+
   " : tens  10 0 do i 10 * . loop ;  tens" nb-line+
-  " words" nb-line+
+  " | Words: those whose names contain dup, then the help on one" nb-line+
+  " words dup" nb-line+
+  " help dup" nb-line+
+  " | Files: this folder, the libraries, a file shown (not loaded)" nb-line+
+  " ls" nb-line+
+  " ls /reva/lib" nb-line+
+  " pp notebook.txt" nb-line+
+  " | A library: pp shows its source (usage first); needs loads it" nb-line+
+  " pp turtle/fractals" nb-line+
+  " needs turtle/fractals  4 koch-demo" nb-line+
+  " | More: docs/tour.md at github.com/softwarewrighter/reva-fork" nb-line+
   nb-text @ " 2,1" " CARET" attr drop ;
 defer nb-examples  ' nb-reva-examples is nb-examples
 | Load the file (copied to its backup first), or the examples.

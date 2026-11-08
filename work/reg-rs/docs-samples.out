@@ -11,6 +11,7 @@ docs/getting-started.md: 6 sample(s) ok
 docs/gotchas.md: 5 sample(s) ok
 docs/highlight.md: 1 sample(s) ok
 docs/iup-plan.md: 0 sample(s) ok
+docs/iup.md: 0 sample(s) ok
 docs/licenses.md: 0 sample(s) ok
 docs/packaging.md: 0 sample(s) ok
 docs/parity-examples.md: 0 sample(s) ok
@@ -21,6 +22,7 @@ docs/repl.md: 0 sample(s) ok
 docs/sed-rs-asks.md: 0 sample(s) ok
 docs/serve.md: 0 sample(s) ok
 docs/sqlite.md: 1 sample(s) ok
+docs/tour.md: 2 sample(s) ok
 docs/turtle.md: 6 sample(s) ok
 docs/ui-model.md: 0 sample(s) ok
 docs/web.md: 0 sample(s) ok
