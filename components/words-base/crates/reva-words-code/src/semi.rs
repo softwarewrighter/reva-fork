@@ -24,6 +24,13 @@ reva_macros::machine_trait! {
         /// instruction and the original would patch whatever byte happens to be
         /// there — harmless only when that byte is not `E8`/`FF`.  Layout here
         /// differs from the x86 build, so that coincidence must not be relied on.
+        ///
+        /// Second difference, the same kind: an `E8` five bytes back is a call
+        /// only if `compile` put a call there (`last_call_end`).  `}` compiles
+        /// its own `ret` before `;then`, so the original tested a byte inside
+        /// the previous call's offset and, when that byte was `E8` (1 in 256),
+        /// made it `E9`: the call then lands a byte into its word
+        /// (examples/data/parray.f's `{ . cr }` faulted so).
         fn ssemi(&mut self) -> R {
             let h = self.reserve_code(1)?;
             self.mem.write_u8(h, 0xc3)?;
@@ -35,7 +42,7 @@ reva_macros::machine_trait! {
             }
             match self.mem.read_u8(b)? {
                 0xe8 => {
-                    if self.var(st::SSEMI_DO_TAIL) == 0x90 {
+                    if self.var(st::SSEMI_DO_TAIL) == 0x90 && self.last_call_end == h {
                         self.mem.write_u8(b, 0xe9)?;
                         self.setv(st::H, h)?;
                     }

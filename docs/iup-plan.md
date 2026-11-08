@@ -1,14 +1,12 @@
 # Plan: IUP programs (and CoSy's TUI) on reva-fork
 
-High-level plan for running Reva's IUP GUI programs on the portable core,
-CoSy's "Textual User Interface" (`Tui.f`) first among them. What needs to
-be done, in what order, and how we will know it works. The low-level
-design (components, crates, modules, files) comes later, after the
-sw-checklist work, within the rules in CLAUDE.md. Saga steps:
-`local-ui-model`, `local-iup`, `local-ui-grid`, `local-ui-terminal`,
-`local-tui-cosy`, `local-ui-canvas` (stage 1; the terminal backend before
-`Tui.f`, so the first TUI demo runs in all three hosts); `local-ui-panes`
-(stage 2).
+The plan for running Reva's IUP GUI programs on the portable core,
+CoSy's "Textual User Interface" (`Tui.f`) first among them: what was to
+be done, in what order, and how it is checked. **Status (2026-11-07):
+stage 1 is done** (saga steps `local-ui-model`, `local-iup`,
+`local-ui-grid`, `local-ui-terminal`, `local-tui-cosy`,
+`local-ui-canvas`); stage 2 (`local-ui-panes`) has not started. How to
+use it: [iup.md](iup.md). How it works: [ui-model.md](ui-model.md).
 
 ## Goal
 
@@ -27,7 +25,8 @@ programs) is not edited.
    insert dates or save the text into CoSy's dictionary). Reva's own
    `examples/iup` are single dialogs of widgets. Stage 1 runs both in the
    browser, the desktop app, and (without graphics) the CLI's terminal.
-2. **Panes: a longer-term goal** that builds on stage 1, not the other
+   Done.
+2. **Panes: a longer-term goal**, not started, that builds on stage 1, not the other
    way round. A tmux/Emacs-inspired layout: split horizontally and
    vertically, zoom one pane to the full window and back; an editor pane
    (load, save, evaluate a line into a REPL), a tail pane (follow a file
@@ -107,7 +106,8 @@ one direct `IupStoreAttribute`.
    [ui-model.md](ui-model.md#the-tui).
 4. **CoSy's TUI end to end** (`local-tui-cosy`). `Tui.f` running
    unchanged in the desktop app and the browser; whatever it still needs
-   fixed here; the CoSy lane told what to drop.
+   fixed here; the CoSy lane told what to drop. Done; see
+   [cosy-in-reva.md](cosy-in-reva.md).
 5. **The terminal backend** (`local-ui-terminal`): the grid in the CLI
    through crossterm (raw mode, keys, mouse, resize, redrawing changed
    cells): `Tui.f` and the simple examples in a terminal. Done: crate
@@ -115,18 +115,20 @@ one direct `IupStoreAttribute`.
 6. **Graphics** (`local-ui-canvas`; browser and desktop only). Reva drew
    through IUP's `canvas[` and Tecgraf's CD library (`lib/ui/cd`: lines,
    boxes, arcs, polygons, text, colours, clipping, images), repainting
-   from the canvas's redraw callback. CD becomes a virtual library that
-   draws into the turtle's display list (components/canvas), shown by a
-   canvas pane; parity: `binary-clock`, `brownian`, `cd-test`. Not CD's
-   PDF/printer contexts, and not OpenGL. Done, with its own display list
-   (component cd) painted on an HTML canvas over the IUP canvas; see
+   from the canvas's redraw callback. The plan was a virtual library
+   drawing into the turtle's display list; done instead with CD's own
+   display list (component cd), painted on an HTML canvas over the IUP
+   canvas; `binary-clock`, `brownian` and `cd-test` run. Not CD's
+   PDF/printer contexts, and not OpenGL. See
    [ui-model.md](ui-model.md#canvases-cd).
 7. **The rest of the examples**, in order of how many programs a feature
    unblocks: menus and toolbars, toggles, radios, lists and tabs, timers,
-   file and message dialogs, the matrix; then drawing (the CD library on
-   the turtle canvas's drawing surface), images; OpenGL last, if at all.
+   file and message dialogs, the matrix; images; OpenGL last, if at all.
+   Partly done: 15 of the 20 examples run ([iup.md](iup.md#revas-examples));
+   timers run in the page; menu bars, tabs, lists, the matrix, file
+   dialogs and images do not yet ([iup.md](iup.md#what-is-not-there)).
 
-## How we will know it works
+## How it is checked
 
 - Goldens (CLI, headless host): building and querying dialogs, attribute
   values, callbacks fired by scripted events, for `examples/iup/`'s
@@ -147,10 +149,11 @@ one direct `IupStoreAttribute`.
   windows, or separate native windows in the desktop app (as the turtle
   graphics window)?
 - **Drawing (CD) and images.** Decided: the turtle's display list, in a
-  canvas pane (step 6).
+  canvas pane (step 6); built with CD's own display list over the IUP
+  canvas instead. Images are still open.
 - **Licensing of names.** IUP's API names and behaviour are reimplemented
-  from its documentation (MIT); nothing of its code. To record in
-  docs/licenses.md when the work starts.
+  from its documentation (MIT); nothing of its code. Recorded in
+  [licenses.md](licenses.md).
 
 ## Risks
 
