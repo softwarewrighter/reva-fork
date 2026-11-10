@@ -1,0 +1,1 @@
+notebook built in (autoload stub, needs ui/notebook then ~.notebook); docs, smoke test and tui-notebook-help use the bare word; goldens rebased after review (boot-words, addresses, parity sha1.f timeout explained: broken (argv) makes revafind.f save a file sha1.f hashes at ~5.75s vs 5s). local-cli-args moved to 65 with the (argv) bug.

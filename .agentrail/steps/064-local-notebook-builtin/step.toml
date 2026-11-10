@@ -1,8 +1,9 @@
 number = 64
 slug = "local-notebook-builtin"
-status = "in-progress"
+status = "completed"
 description = "At the user's request (2026-11-07, after the 2026.1107.0 release: 'ok> notebo..."
 role = "production"
 context_files = []
 created_at = "2026-11-07T18:25:08"
-commits = []
+completed_at = "2026-11-10T12:26:27"
+commits = ["c4850e56e4018339cb20d99c454ae6bb835066ee"]
