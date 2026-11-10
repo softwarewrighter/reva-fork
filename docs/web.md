@@ -69,7 +69,7 @@ system browser.
 
 ## The notebook and IUP dialogs
 
-`needs ui/notebook notebook` opens the TUI notebook on the page
+`notebook` opens the TUI notebook on the page
 ([ui-model.md](ui-model.md#the-tui)), as do other IUP programs' dialogs.
 While a dialog is shown, the TUI takes the place of the REPL's output and
 input line in the REPL column; the graphics pane stays beside it in the

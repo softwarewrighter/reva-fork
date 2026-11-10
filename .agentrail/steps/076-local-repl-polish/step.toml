@@ -1,8 +1,0 @@
-number = 76
-slug = "local-repl-polish"
-status = "pending"
-description = "Feature: `reva -V` / `version` show a dirty working tree at build time (Commi..."
-role = "production"
-context_files = []
-created_at = "2026-10-26T12:49:22"
-commits = []

@@ -4,5 +4,5 @@ in the inner file
 ...back in where-outer.f
 after the underflow
 
-*** bad memory access: 4 byte(s) at 0x00000000 (in bad+0xc, eip 0x00146df0) at tests/forth/where-outer.f:7 after `bad`
+*** bad memory access: 4 byte(s) at 0x00000000 (in bad+0xc, eip 0x00146e14) at tests/forth/where-outer.f:7 after `bad`
 stack (4): 2 7 8 0

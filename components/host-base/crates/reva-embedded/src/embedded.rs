@@ -80,6 +80,7 @@ variable (type0)  : (type0!) ['] type @ (type0) ! ; (type0!)
 : hl-type ( a n -- ) \" needs highlight/core\" \" ~highlight.hl-type\" (autoload) ;
 : ls ( <dir> -- ) \" needs os/ls\" \" ~os.ls\" (autoload) ;
 : (ls) ( a n -- ) \" needs os/ls\" \" ~os.(ls)\" (autoload) ;
+: notebook ( -- ) \" needs ui/notebook\" \" ~.notebook\" (autoload) ;
 hide (autoload) hide (type0!) hide (type0)
 ";
 
