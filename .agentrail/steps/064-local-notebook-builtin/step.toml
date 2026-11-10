@@ -1,0 +1,8 @@
+number = 64
+slug = "local-notebook-builtin"
+status = "in-progress"
+description = "At the user's request (2026-11-07, after the 2026.1107.0 release: 'ok> notebo..."
+role = "production"
+context_files = []
+created_at = "2026-11-07T18:25:08"
+commits = []

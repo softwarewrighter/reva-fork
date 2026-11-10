@@ -206,7 +206,7 @@ cells.
   arrive after each run slice (the `reva_ui_take` export, the "tui" UI
   channel). The desktop app shows the same page, so the same TUI. File
   dialogs are answered "cancelled" there for now.
-- **A demo**: `needs ui/notebook notebook` (lib/ui/notebook, built in
+- **A demo**: `notebook` (lib/ui/notebook, built in
   everywhere; examples/tui/notebook.f), a small notebook: Ctrl-J,
   Ctrl-X Ctrl-E, F6 or (in the page) Cmd-Enter evaluates the line under
   the cursor; what it prints, any error and the stack it leaves show in
