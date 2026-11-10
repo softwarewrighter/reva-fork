@@ -121,7 +121,7 @@ has the details, and how a package brings its own files.
 ## The notebook
 
 ```text
-needs ui/notebook notebook
+notebook
 ```
 
 opens a notebook: a full-window text pane above a results pane. Type a
