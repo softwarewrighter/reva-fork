@@ -25,10 +25,19 @@ SED_RS="${SED_RS:-$(command -v sed-rs || true)}"
 [[ -n "$SED_RS" ]] || { echo "parity-examples: sed-rs not found; install it or set SED_RS" >&2; exit 2; }
 root=.
 abs_root=$(cd "$root" && pwd)
-# Programs that `save` write an image to the working directory, so each
-# runs in a scratch directory, not in the checkout.
+# Programs that `save` write an image to the working directory or beside
+# themselves (revafind.f: `1 argv`, its own name), so each runs from a copy
+# of examples/ in a scratch directory, by a relative path, as typed.
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
+cp -R "$root/examples" "$work/"
+
+# What a program is given after `--` (argv 2...), for those that need it.
+args_for() {
+    case "$1" in
+        examples/sha1.f) echo "examples/sha1.f" ;;
+    esac
+}
 
 area() {
     local n
@@ -46,7 +55,10 @@ area() {
 classify() {
     local out code
     # tr: reva.f's REPL emits a NUL when it ends after an error
-    out=$(cd "$work" && timeout "$LIMIT" "$abs_root/$REVA" "$abs_root/$1" < /dev/null 2>&1 | tr -d '\0'; exit "${PIPESTATUS[0]}")
+    local args
+    args=$(args_for "$1")
+    # shellcheck disable=SC2086  # args: words, split as on a command line
+    out=$(cd "$work" && timeout "$LIMIT" "$abs_root/$REVA" "$1" ${args:+-- $args} < /dev/null 2>&1 | tr -d '\0'; exit "${PIPESTATUS[0]}")
     code=$?
     if [[ $code -eq 124 ]]; then echo "timeout"; return; fi
     local fault missing

@@ -1,0 +1,3 @@
+command = '${REVA:-target/debug/reva} tests/forth/cli-argv.f -- one "two words" < /dev/null'
+exit_code = 0
+desc = "argc and argv as in Reva: reva, the first file, the words after --; an index past the end gives the last"

@@ -80,7 +80,10 @@ reva_macros::machine_trait! {
             self.cpu.eip = Gate::Cold.addr();
         }
 
-        /// Write `argc`/`(argv)`: a pointer array followed by the strings.
+        /// Write `argc`/`(argv)`: a pointer array followed by the strings,
+        /// one after another, each ending in 0.  `(argv)` is the first
+        /// string, as in the original (`_hello` and reva.f's `argv` walk the
+        /// strings from there); the pointer array is C's `argv`.
         fn set_args(&mut self, args: &[&str]) {
             let mut strings = ARGV_BASE + 4 * (args.len() as u32 + 1);
             for (i, a) in args.iter().enumerate() {
@@ -98,7 +101,8 @@ reva_macros::machine_trait! {
                 .write_u32(ARGV_BASE + 4 * args.len() as u32, 0)
                 .expect("argv");
             self.mem.write_u32(st::ARGC, args.len() as u32).expect("argc");
-            self.mem.write_u32(st::ARGV, ARGV_BASE).expect("argv");
+            let first = ARGV_BASE + 4 * (args.len() as u32 + 1);
+            self.mem.write_u32(st::ARGV, first).expect("argv");
         }
     }
 }

@@ -25,6 +25,12 @@ impl Machine {
         reva_core::Machine::load_image(bytes, args).map(Machine::wired)
     }
 
+    /// Replace `argc`/`(argv)`, e.g. once booting is done, with the program
+    /// and the arguments a host was given for it.
+    pub fn set_args(&mut self, args: &[&str]) {
+        Boot::set_args(&mut self.0, args)
+    }
+
     fn wired(mut m: reva_core::Machine) -> Machine {
         m.dispatch = reva_words::dispatch::dispatch;
         Machine(m)

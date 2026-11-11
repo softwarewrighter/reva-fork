@@ -1,0 +1,9 @@
+number = 65
+slug = "local-cli-args"
+status = "completed"
+description = "Bug and feature, moved up (2026-11-09) because parity-examples' sha1.f row fl..."
+role = "production"
+context_files = []
+created_at = "2026-10-30T11:41:19"
+completed_at = "2026-11-10T17:19:05"
+commits = ["1946205f8029680b62d527601ce8a08e7aad0d50"]

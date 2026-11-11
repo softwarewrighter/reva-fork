@@ -288,7 +288,7 @@ await ls.idle();
 check("worker answers sqlite itself", [lsout.includes("SQLite could not be loaded"), lsout.includes("99")], [true, false]);
 ls.terminate();
 
-// The notebook (needs ui/notebook) in the browser build, its ui waits
+// The notebook (built in: `notebook` loads ui/notebook) in the browser build, its ui waits
 // answered with scripted events as the page's TUI would: type "2" at the
 // caret (the start of line 2), then the close box (dialog 7).  Closing it
 // keeps its text in notebook.txt, which the page keeps in its storage.
@@ -301,7 +301,7 @@ const nb = start("reva.wasm", {
     : { error: `${call.op} not scripted` },
 });
 await nb.ready;
-nb.feed("needs ui/notebook notebook\n");
+nb.feed("notebook\n");
 await nb.idle();
 const kept = nbStore.getItem("reva:fs:/notebook.txt") ?? "";
 check("notebook text kept in storage", [kept.startsWith("| Cursor on a line"), kept.includes("\n22 3 +\n")], [true, true]);
