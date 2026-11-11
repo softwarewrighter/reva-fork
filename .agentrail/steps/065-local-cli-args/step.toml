@@ -1,6 +1,6 @@
 number = 65
 slug = "local-cli-args"
-status = "pending"
+status = "in-progress"
 description = "Bug and feature, moved up (2026-11-09) because parity-examples' sha1.f row fl..."
 role = "production"
 context_files = []

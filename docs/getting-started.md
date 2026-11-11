@@ -60,6 +60,7 @@ Other ways to run code:
 | `reva file.f` | include `file.f`, then read stdin |
 | `reva -e 'text'` | evaluate `text` (after any files), then read stdin |
 | `reva file.f < /dev/null` | run a file as a batch |
+| `reva prog.f -- a b` | run a program with arguments: `argc` is 4; `0 argv` is `reva`, `1 argv` `prog.f`, `2 argv` `a`, `3 argv` `b` (as in Reva; e.g. `reva examples/sha1.f -- FILE ...`) |
 | `reva --save-image app.img -e '...'` | save the state after loading, then exit |
 | `reva --image app.img` | start from a saved image |
 | `reva --max-cpu SECONDS ...` | end a run that computes that long without waiting for input (`*** time limit`, exit 124; default 30 s with `--ui-script`) |

@@ -287,7 +287,9 @@ create sha1buf 40 allot
 			sha-update
 			true
 		else
-			false
+			| reva-fork: drop the 0, so the buffer is freed, not left on the
+			| stack (Reva 2011.2 freed the 0)
+			drop false
 		then
 	while
 	| buf
