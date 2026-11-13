@@ -1,0 +1,6 @@
+# Bad (4) faults twice, Ok (5) counts between, then the close box (7)
+click 4
+click 5
+click 4
+click 5
+close 7

@@ -28,8 +28,10 @@ pub struct Ui {
     /// `IupPopup` inside ...).
     pub loops: Vec<Loop>,
     /// The callbacks running, innermost last, each with what the host
-    /// restores when it returns (for Reva, the data stack: ESI and EAX).
-    pub calls: Vec<(Call, [u32; 2])>,
+    /// restores when it returns (for Reva, the data stack: ESI and EAX),
+    /// or after a fault in it (the return stack at its entry, and the
+    /// catch handler then).
+    pub calls: Vec<(Call, [u32; 4])>,
     /// CD's canvases on the IUP canvases (reva-cd); their drawings reach
     /// the renderer as the canvases' DRAW attribute.
     pub cd: reva_cd::state::Cd,

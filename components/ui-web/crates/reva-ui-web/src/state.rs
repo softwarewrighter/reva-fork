@@ -15,6 +15,8 @@ pub struct State {
     pub redraw: Option<Rc<dyn Fn()>>,
     /// The size (pixels) each IUP canvas was last reported at.
     pub canvas_sizes: std::collections::BTreeMap<u32, (i32, i32)>,
+    /// The dialog the last Ctrl-C asked to close (keys.rs `quit`).
+    pub quit: Option<u32>,
 }
 
 thread_local! {
@@ -24,6 +26,7 @@ thread_local! {
         on_event: None,
         redraw: None,
         canvas_sizes: std::collections::BTreeMap::new(),
+        quit: None,
     });
 }
 

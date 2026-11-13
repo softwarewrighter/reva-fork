@@ -1,8 +1,0 @@
-number = 67
-slug = "local-rename-stack"
-status = "pending"
-description = 'Bug (found 2026-11-07 in local-ls-pp): `" a" " b" rename` renames the file bu...'
-role = "production"
-context_files = []
-created_at = "2026-11-07T09:38:23"
-commits = []

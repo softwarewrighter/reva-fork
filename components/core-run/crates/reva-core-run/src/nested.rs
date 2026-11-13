@@ -11,6 +11,9 @@ use reva_core_inspect::words::Dictionary;
 
 type R<T = ()> = Result<T, Fault>;
 
+/// What an IUP callback returns to let IUP go on (reva-ui's `DEFAULT`).
+const IUP_DEFAULT: u32 = -2i32 as u32;
+
 reva_macros::machine_trait! {
     /// Forth called from Rust, and faults.
     pub trait Nested {
@@ -84,7 +87,22 @@ reva_macros::machine_trait! {
             let place = self.where_suffix();
             let stack = self.stack_line().map(|s| format!("{s}\n")).unwrap_or_default();
             host.write(format!("\n*** {f} (in {at}, eip {eip:#010x}){place}\n{stack}").as_bytes());
-            // A fault inside an IUP callback leaves its event loops.
+            // A fault in an IUP callback's own code: the callback is taken
+            // as returning IUP_DEFAULT and its loop goes on, as in IUP,
+            // where a callback cannot end the main loop (CoSy's ask 24).
+            // The return stack and catch handler are put back as they were
+            // when it was called; `IupResume` restores the data stack.
+            let own = !matches!(f, Fault::Interrupted | Fault::Unavailable(_) | Fault::InputInNestedCall | Fault::UnwoundThroughHost);
+            if let Some(&(_, [_, _, esp, handler])) = self.ui.calls.last().filter(|_| own) {
+                host.write(b"(the dialog goes on: the callback is taken as returning IUP_DEFAULT)\n");
+                self.cpu.r[ESP as usize] = esp.wrapping_add(4);
+                self.cpu.r[EAX as usize] = IUP_DEFAULT;
+                self.cpu.df = false;
+                let _ = self.mem.write_u32(st::HANDLER, handler);
+                self.cpu.eip = Gate::IupResume.addr();
+                return;
+            }
+            // Anything else leaves its event loops.
             self.ui.loops.clear();
             self.ui.calls.clear();
             let _ = self.rollback_definition();
