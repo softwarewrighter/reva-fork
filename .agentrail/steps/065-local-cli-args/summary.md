@@ -1,0 +1,1 @@
+(argv) points at the first string as in newcore.asm (core hello fixed to match); CLI 'reva prog.f -- args' sets argv after boot; Reva's sha1file buffer leak fixed; parity runs examples from a copy by relative path and gives sha1.f a file (row timing-independent, back to runs); golden cli-argv; docs.

@@ -6,7 +6,7 @@ use std::rc::Rc;
 
 use reva_ui_grid::grid::{Grid, Role};
 use reva_ui_layout::geom::Rect;
-use reva_ui_paint::paint::{click, paint};
+use reva_ui_paint::paint::{click, paint, room};
 use wasm_bindgen::JsCast;
 use yew::prelude::*;
 
@@ -51,17 +51,17 @@ fn row(g: &Grid, r: u16) -> Html {
     html! { <div class="tui-row">{ for spans }</div> }
 }
 
-/// A click: the cell under it, from the element's size in cells.
-fn on_click(e: MouseEvent) {
-    let Some(el) = e
-        .current_target()
-        .and_then(|t| t.dyn_into::<web_sys::Element>().ok())
-    else {
+/// A click: the cell under it, from the grid element's size in cells.
+/// The grid is measured itself: Yew delegates events, so the event's
+/// current target is the mount root, a little larger than the grid, and
+/// scaling by it put clicks a cell off (the close box missed).
+fn on_click(grid: &NodeRef, e: &MouseEvent) {
+    let Some(el) = grid.cast::<web_sys::Element>() else {
         return;
     };
     let r = el.get_bounding_client_rect();
     let lines = with(|s| {
-        let size = s.size;
+        let size = room(&s.mirror, s.size);
         let col = ((f64::from(e.client_x()) - r.left()) * f64::from(size.cols) / r.width().max(1.0))
             as u16;
         let row = ((f64::from(e.client_y()) - r.top()) * f64::from(size.rows) / r.height().max(1.0))
@@ -132,9 +132,14 @@ pub fn Tui() -> Html {
         redraw();
     });
     use_effect(paint_canvases);
-    let g = with(|s| paint(&s.mirror, s.size));
+    let g = with(|s| paint(&s.mirror, room(&s.mirror, s.size)));
+    let grid = use_node_ref();
+    let onmousedown = {
+        let grid = grid.clone();
+        Callback::from(move |e: MouseEvent| on_click(&grid, &e))
+    };
     html! {
-        <div class="tui" tabindex="0" onkeydown={Callback::from(on_key)} onmousedown={Callback::from(on_click)} onpaste={Callback::from(on_paste)}>
+        <div class="tui" ref={grid} tabindex="0" onkeydown={Callback::from(on_key)} {onmousedown} onpaste={Callback::from(on_paste)}>
             { for (0..g.rows).map(|r| row(&g, r)) }
             { for g.canvases.iter().map(|(h, r)| overlay(&g, *h, *r)) }
         </div>

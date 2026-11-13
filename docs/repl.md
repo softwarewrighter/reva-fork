@@ -22,7 +22,7 @@ the key table both front ends follow.
 | Ctrl-T | transpose characters |
 | Ctrl-X Ctrl-E | run the line, as Enter does (Emacs's chord; it evaluates a line in the notebook too); any other key after Ctrl-X is itself |
 | Ctrl-L | clear the screen (CLI only) |
-| Ctrl-C | CLI: drop the line, new prompt (while a word runs: ends `reva`, as before); web: stop the running word |
+| Ctrl-C | CLI: drop the line, new prompt (while a word runs: ends `reva`, as before); web: stop the running word (while an IUP dialog shows: close it; again: stop) |
 | Ctrl-D on an empty line | CLI: end of input (`reva` exits 0) |
 
 ## Command line: `reva`

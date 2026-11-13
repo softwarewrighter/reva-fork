@@ -18,7 +18,12 @@ pub fn mount(root: web_sys::Element, on_event: js_sys::Function) {
 /// shown (the page shows the TUI only then).
 #[wasm_bindgen]
 pub fn changes(lines: &str) -> bool {
-    with(|s| s.mirror.apply_lines(lines));
+    with(|s| {
+        s.mirror.apply_lines(lines);
+        if s.mirror.top() != s.quit {
+            s.quit = None;
+        }
+    });
     redraw();
     shown()
 }
@@ -44,7 +49,10 @@ pub fn shown() -> bool {
 /// Forget the UI (the VM restarted).
 #[wasm_bindgen]
 pub fn reset() {
-    with(|s| s.mirror = Mirror::default());
+    with(|s| {
+        s.mirror = Mirror::default();
+        s.quit = None;
+    });
     redraw();
 }
 

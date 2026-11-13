@@ -14,7 +14,7 @@ Ctrl-E, Cmd-Enter or F6; F1 lists the keys).
 
 [![The live demo after `needs turtle/fractals 12 tree-demo`: the REPL on the left, the fractal tree in the graphics pane on the right](images/live-demo.png)](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=12%20tree-demo)
 
-[![The TUI notebook (`needs ui/notebook notebook`) beside the graphics pane: the line `6 7 * dup . 1+` evaluated, its output 42 and the stack 43 in the lower pane, and the tree its `10 tree-demo` line drew](images/notebook.png)](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=10%20tree-demo&eval=needs%20ui/notebook%20notebook)
+[![The TUI notebook (`notebook`) beside the graphics pane: the line `6 7 * dup . 1+` evaluated, its output 42 and the stack 43 in the lower pane, and the tree its `10 tree-demo` line drew](images/notebook.png)](https://softwarewrighter.github.io/reva-fork/?eval=needs%20turtle/fractals&eval=10%20tree-demo&eval=notebook)
 
 [![An IUP dialog with a CD canvas (`needs ui/cd-demo cd-demo`): coloured marks joined by lines bounce off the canvas walls, redrawn by an IUP timer](images/cd-demo.png)](https://softwarewrighter.github.io/reva-fork/?eval=needs%20ui/cd-demo%20cd-demo)
 
@@ -43,8 +43,8 @@ that runs Reva's own Forth system, `src/reva.f` (release 2011.2), unchanged.
   and the desktop app, with CD canvases and timers in the browser and the
   desktop app (`examples/iup/brownian.f`, `binary-clock.f`, `cd-test.f`;
   [try it](https://softwarewrighter.github.io/reva-fork/?eval=needs%20ui/cd-demo%20cd-demo)).
-  The [notebook](https://softwarewrighter.github.io/reva-fork/?eval=needs%20ui/notebook%20notebook)
-  (`needs ui/notebook notebook`) evaluates Forth lines in place and keeps
+  The [notebook](https://softwarewrighter.github.io/reva-fork/?eval=notebook)
+  (`notebook`) evaluates Forth lines in place and keeps
   them in a file.
 - **Saved images.** `save` and `reva --save-image` write the system's state;
   every host starts from an image, prompt and all.

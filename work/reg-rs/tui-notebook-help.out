@@ -74,7 +74,7 @@ ui< attr 3 SELECTION
 ui< shown 7 -1 -1 modeless
 ui< focus 3
 ui| screen 76x22
-ui| ┌ Reva notebook ──────────────────────────────────────────────────────────×┐
+ui| ┌ Reva notebook ────────────────────────────────────────────────────────[×]┐
 ui| │Ctrl-J or F6 evaluates the line  -  F1 help  -  Done closes               │
 ui| │┌────────────────────────────────────────────────────────────────────────┐│
 ui| ││| Cursor on a line, then Ctrl-J (or F6).  F1: keys.  Done: close.       ││
@@ -154,7 +154,7 @@ ui< attr 4 CARET =1,1
 ui< attr 4 SELECTION
 ui< attr 2 TITLE =evaluated
 ui| screen 76x22
-ui| ┌ Reva notebook ──────────────────────────────────────────────────────────×┐
+ui| ┌ Reva notebook ────────────────────────────────────────────────────────[×]┐
 ui| │evaluated                                                                 │
 ui| │┌────────────────────────────────────────────────────────────────────────┐│
 ui| ││| Cursor on a line, then Ctrl-J (or F6).  F1: keys.  Done: close.       ││
@@ -242,7 +242,7 @@ ui< attr 4 VALUE =Ctrl-J,\sCtrl-X\sCtrl-E,\sF6\s(fn+F6\son\sa\sMac),\sCmd-Enter:
 ui< attr 4 CARET =1,1
 ui< attr 4 SELECTION
 ui| screen 76x22
-ui| ┌ Reva notebook ──────────────────────────────────────────────────────────×┐
+ui| ┌ Reva notebook ────────────────────────────────────────────────────────[×]┐
 ui| │evaluated                                                                 │
 ui| │┌────────────────────────────────────────────────────────────────────────┐│
 ui| ││| Cursor on a line, then Ctrl-J (or F6).  F1: keys.  Done: close.       ││

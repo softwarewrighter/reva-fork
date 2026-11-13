@@ -21,12 +21,9 @@ use crate::units::{screen_size, user_size};
 /// `QUARTER` are fractions of `avail`), else its natural size, at most
 /// `avail`.
 pub fn layout(tree: &Tree, dialog: Handle, avail: Size) -> Vec<Placed> {
-    let n = natural(tree, dialog);
-    let (cols, rows) = user_size(tree, dialog);
-    let (full_cols, full_rows) = screen_size(tree, dialog, avail);
-    let (cols, rows) = (full_cols.or(cols), full_rows.or(rows));
-    let cols = cols.unwrap_or(n.cols).min(avail.cols);
-    let rows = rows.unwrap_or(n.rows).min(avail.rows);
+    let want = wanted(tree, dialog, avail);
+    let cols = want.cols.min(avail.cols);
+    let rows = want.rows.min(avail.rows);
     let mut out = Vec::new();
     place(
         tree,
@@ -40,6 +37,19 @@ pub fn layout(tree: &Tree, dialog: Handle, avail: Size) -> Vec<Placed> {
         &mut out,
     );
     out
+}
+
+/// The size `dialog` asks for in a window of `avail` cells, before
+/// [`layout`] keeps it to `avail`: its SIZE, else its natural size.  A
+/// host whose pane scrolls makes room for this much.
+pub fn wanted(tree: &Tree, dialog: Handle, avail: Size) -> Size {
+    let n = natural(tree, dialog);
+    let (cols, rows) = user_size(tree, dialog);
+    let (full_cols, full_rows) = screen_size(tree, dialog, avail);
+    Size {
+        cols: full_cols.or(cols).unwrap_or(n.cols),
+        rows: full_rows.or(rows).unwrap_or(n.rows),
+    }
 }
 
 /// Place `h` at `rect`, and what is in it.

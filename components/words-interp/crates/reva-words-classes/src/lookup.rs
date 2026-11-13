@@ -47,7 +47,8 @@ pub fn hello(m: &mut Machine, _: Gate, _: &mut dyn Host) -> R<Next> {
     if m.var(st::ARGC) <= 1 {
         return Ok(Next::Jump(Gate::Repl.addr()));
     }
-    let p = m.mem.read_u32(m.var(st::ARGV) + 4)?;
+    let argv0 = m.var(st::ARGV);
+    let p = argv0 + m.zlen(argv0)? + 1;
     let n = m.zlen(p)?;
     m.upsh(p)?;
     m.upsh(n)?;

@@ -49,8 +49,18 @@ impl Run<'_> {
         vm.underflow_at_word = self.opts.underflow_at_word;
         vm.check_execute = self.opts.check_execute;
         vm.trace_compile = self.opts.trace_compile;
+        vm.set_args(&self.argv());
         self.queue(vm);
         Ok(())
+    }
+
+    /// What the program sees as `argv`: reva, the first file, the words
+    /// after `--` (set once booting is done, so reva.f's own start does
+    /// not take them for files and options).
+    fn argv(&self) -> Vec<&str> {
+        let first = self.opts.files.first().map(String::as_str);
+        let args = self.opts.args.iter().map(String::as_str);
+        std::iter::once("reva").chain(first).chain(args).collect()
     }
 
     /// Boot with the output captured: what booting printed, or the exit
