@@ -1,6 +1,6 @@
 number = 66
 slug = "local-ask24-tui-way-out"
-status = "pending"
+status = "in-progress"
 description = "CoSy's ask 24 (high; ba-cosy-zip-fork docs/reva-fork-asks.md, seen at 2026.11..."
 role = "production"
 context_files = []

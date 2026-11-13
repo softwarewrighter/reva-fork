@@ -242,7 +242,7 @@ ui< attr 4 CARET =1,1
 ui< attr 4 SELECTION
 ui< attr 2 TITLE =evaluated
 ui| screen 72x24
-ui| ┌ Reva notebook ──────────────────────────────────────────────────────×┐
+ui| ┌ Reva notebook ────────────────────────────────────────────────────[×]┐
 ui| │evaluated                                                             │
 ui| │┌────────────────────────────────────────────────────────────────────┐│
 ui| ││ls /reva/lib                                                        ││

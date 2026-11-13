@@ -4,10 +4,10 @@
 use reva_ui_base::change::Handle;
 use reva_ui_base::kind::{Kind, takes_focus};
 use reva_ui_layout::geom::{Placed, Rect, Size};
-use reva_ui_layout::place::layout;
+use reva_ui_layout::place::{layout, wanted};
 use reva_ui_mirror::mirror::{Mirror, Shown};
 
-use crate::draw::draw;
+use crate::draw::{close_cols, draw};
 use reva_ui_grid::grid::{Grid, Role};
 
 /// Where dialog `s`, `size` cells big, goes on a `screen`: at its IUP
@@ -55,6 +55,19 @@ pub fn placements(m: &Mirror, screen: Size) -> Vec<Placed> {
     out
 }
 
+/// The grid a host whose pane scrolls paints on: `screen`, grown to hold
+/// every shown dialog at the size it asks for (a dialog larger than the
+/// pane is scrolled to, not cut off).
+pub fn room(m: &Mirror, screen: Size) -> Size {
+    m.shown
+        .iter()
+        .map(|s| wanted(&m.tree, s.handle, screen))
+        .fold(screen, |a, w| Size {
+            cols: a.cols.max(w.cols),
+            rows: a.rows.max(w.rows),
+        })
+}
+
 /// The screen: `m`'s shown dialogs painted on a grid of `screen` cells.
 pub fn paint(m: &Mirror, screen: Size) -> Grid {
     let mut g = Grid::new(screen, Role::Screen);
@@ -73,9 +86,7 @@ pub fn click(m: &Mirror, screen: Size, col: u16, row: u16) -> Vec<String> {
         |r: &Rect| (r.col..r.col + r.cols).contains(&col) && (r.row..r.row + r.rows).contains(&row);
     let placed = placements(m, screen);
     let top = m.top().and_then(|d| placed.iter().find(|p| p.handle == d));
-    if let Some(d) =
-        top.filter(|d| d.rect.cols >= 4 && (col, row) == (d.rect.col + d.rect.cols - 2, d.rect.row))
-    {
+    if let Some(d) = top.filter(|d| row == d.rect.row && close_cols(d.rect).contains(&col)) {
         return vec![format!("close {}", d.handle)];
     }
     let hit: Option<Handle> = placed

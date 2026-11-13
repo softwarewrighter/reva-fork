@@ -35,7 +35,7 @@ ui> click 7
 ui< attr 4 TITLE =3
 ui| screen 40x6
 ui| 
-ui|           ┌ Counter ───────×┐
+ui|           ┌ Counter ─────[×]┐
 ui|           │3                │
 ui|           │[ Count ][ Quit ]│
 ui|           └─────────────────┘

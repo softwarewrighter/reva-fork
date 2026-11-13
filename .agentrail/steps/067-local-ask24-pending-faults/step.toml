@@ -1,0 +1,8 @@
+number = 67
+slug = "local-ask24-pending-faults"
+status = "pending"
+description = "Rest of CoSy's ask 24 (e), needs the user's decision first: Bob's Tui.f butto..."
+role = "production"
+context_files = []
+created_at = "2026-11-12T12:54:55"
+commits = []

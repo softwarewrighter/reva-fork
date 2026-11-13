@@ -49,7 +49,7 @@ fn a_form_on_the_grid() {
     mirror(&mut ui, &mut m);
     assert_eq!(m.focus, Some(t));
     let g = paint(&m, Size { cols: 24, rows: 10 });
-    let want = "    ┌ Form ───────×┐\n    │Name          │\n    │[          ]  │\n    │┌────────────┐│\n    ││two         ││\n    ││three       ││\n    │└────────────┘│\n    │[ OK ][ No ]  │\n    └──────────────┘\n\ncursor 6,2\n";
+    let want = "    ┌ Form ─────[×]┐\n    │Name          │\n    │[          ]  │\n    │┌────────────┐│\n    ││two         ││\n    ││three       ││\n    │└────────────┘│\n    │[ OK ][ No ]  │\n    └──────────────┘\n\ncursor 6,2\n";
     assert_eq!(
         g.to_text(),
         want,
@@ -98,11 +98,14 @@ fn selection_focus_and_clicks() {
     assert_eq!(click(&m, screen, 3, 2), [format!("focus {t}")]);
     assert!(click(&m, screen, 3, 1).is_empty(), "a label takes no click");
     assert!(click(&m, screen, 19, 9).is_empty(), "nor the screen");
-    assert_eq!(
-        click(&m, screen, 14, 0),
-        [format!("close {d}")],
-        "the close box"
-    );
+    for col in 12..16 {
+        assert_eq!(
+            click(&m, screen, col, 0),
+            [format!("close {d}")],
+            "the close box [×] and its corner, at column {col}"
+        );
+    }
+    assert!(click(&m, screen, 11, 0).is_empty(), "the border before it");
 }
 
 #[test]
