@@ -1,0 +1,1 @@
+Ask 24: close box fixed on the page (Yew delegation measured the mount root, a cell off) and drawn [x] with a 4-cell target; Ctrl-C closes the top dialog, again stops; big dialogs scroll (wanted/room), graphics pane steps aside while empty; faults in IUP callbacks keep the loop (IUP_DEFAULT). Not covered: reva70 add-callback faults (step 067 for the user's decision).

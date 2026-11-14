@@ -1,0 +1,3 @@
+command = "${REVA:-target/debug/reva} < tests/forth/catch-fault.f"
+exit_code = 0
+desc = "a fault in code a program's own catch runs: catch returns the standard throw code (CoSy ask 24)"

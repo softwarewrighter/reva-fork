@@ -33,6 +33,25 @@ fn title(m: &Mirror, h: Handle) -> String {
         .replace('\u{0}', "&")
 }
 
+/// The columns of the top border of a dialog at `r` that close it: `[×]`
+/// and the corner after it, or the `×` alone on a narrow dialog.
+pub fn close_cols(r: Rect) -> std::ops::Range<u16> {
+    match r.cols {
+        0..4 => 0..0,
+        4..10 => r.col + r.cols - 2..r.col + r.cols - 1,
+        _ => r.col + r.cols - 4..r.col + r.cols,
+    }
+}
+
+/// A dialog's close box on its top border.
+fn close_box(g: &mut Grid, r: Rect) {
+    let cols = close_cols(r);
+    let marks = if cols.len() > 1 { "[×]" } else { "×" };
+    for (c, ch) in cols.zip(marks.chars()) {
+        g.put(c, r.row, ch, Role::Title);
+    }
+}
+
 /// Draw element `h` of `m` at `r`.
 pub fn draw(g: &mut Grid, m: &Mirror, h: Handle, r: Rect) {
     let Some(kind) = m.tree.node(h).map(|n| n.kind) else {
@@ -42,8 +61,8 @@ pub fn draw(g: &mut Grid, m: &Mirror, h: Handle, r: Rect) {
     match kind {
         Kind::Dialog | Kind::Frame | Kind::Tabs => {
             g.frame(r, Role::Dialog, Some((Role::Border, &title, Role::Title)));
-            if kind == Kind::Dialog && r.cols >= 4 {
-                g.put(r.col + r.cols - 2, r.row, '×', Role::Title);
+            if kind == Kind::Dialog {
+                close_box(g, r);
             }
         }
         Kind::Label => {

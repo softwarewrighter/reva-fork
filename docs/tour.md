@@ -121,7 +121,7 @@ has the details, and how a package brings its own files.
 ## The notebook
 
 ```text
-needs ui/notebook notebook
+notebook
 ```
 
 opens a notebook: a full-window text pane above a results pane. Type a
@@ -130,8 +130,8 @@ line under the cursor is evaluated, and what it prints, any error and the
 stack show in the lower pane. Enter starts a new line, Tab moves between
 the panes and the Done button, and F1 lists every key.
 
-**Leaving it:** the **Done** button or the `×` in the top border, in the
-page and the desktop app; **Ctrl-C** in a terminal. You are back at the
+**Leaving it:** the **Done** button, the `[×]` at the right of the top
+border, or **Ctrl-C** (in the page with no text selected). You are back at the
 `ok>` prompt with everything the notebook defined.
 
 Its text is kept in `notebook.txt` in the current folder (in the browser,
