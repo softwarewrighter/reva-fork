@@ -1,0 +1,5 @@
+# Bad (handle 2) twice: its queued xt faults each time; Done (handle 3):
+# its queued xt returns gui-close, which ends the main loop.
+click 2
+click 2
+click 3

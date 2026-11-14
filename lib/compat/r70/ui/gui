@@ -292,7 +292,10 @@ forth
 : handle-pending-events
   pending-callbacks stack-empty?  if  gui-default ;; then
 
-  pending-callbacks pop execute  gui-close =if gui-close ;; then
+  | reva-fork: a fault or throw in the callback is reported, and the loop
+  | goes on as if it returned gui-default (CoSy's ask 24)
+  pending-callbacks pop catch ?dup if drop gui-default then
+  gui-close =if gui-close ;; then
 
   handle-pending-events
 ;

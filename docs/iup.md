@@ -90,6 +90,10 @@ drawn.
 **A fault in a callback** is reported as usual but does not end the
 dialog: the callback is taken as returning `gui-default` and the loop
 goes on, as in IUP, where a callback cannot take the main loop down.
+Reva 7.0's `gui-main-loop` (`needs compat/reva70`) does the same for the
+work a callback queued with `add-callback`: it runs each under `catch`,
+and a fault or `throw` there counts as `gui-default`. A fault under a
+program's own `catch` is caught there instead ([gotchas.md](gotchas.md)).
 
 ## A drawing
 

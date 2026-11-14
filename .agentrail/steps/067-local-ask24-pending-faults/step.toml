@@ -1,6 +1,6 @@
 number = 67
 slug = "local-ask24-pending-faults"
-status = "pending"
+status = "in-progress"
 description = "Rest of CoSy's ask 24 (e), needs the user's decision first: Bob's Tui.f butto..."
 role = "production"
 context_files = []
