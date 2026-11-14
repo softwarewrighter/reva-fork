@@ -1,8 +1,9 @@
 number = 67
 slug = "local-ask24-pending-faults"
-status = "in-progress"
+status = "completed"
 description = "Rest of CoSy's ask 24 (e), needs the user's decision first: Bob's Tui.f butto..."
 role = "production"
 context_files = []
 created_at = "2026-11-12T12:54:55"
-commits = []
+completed_at = "2026-11-13T18:15:49"
+commits = ["897cd0a4d5915ac7f1f8774a8b864447e7af5b49"]
