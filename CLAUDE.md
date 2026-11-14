@@ -403,6 +403,16 @@ Tools it needs on PATH: `reg-rs`, `sed-rs`, `sw-checklist`, `node`,
 
 ## Workflow
 
+- **Session logs are not committed** (the user, 2026-11-13; this
+  overrides the briefing above for `.agentrail/sessions/`): one passed
+  GitHub's 100 MiB limit, and they quote everything read, CoSy's files
+  among them, in a public repository. `.gitignore` leaves them out;
+  after each saga-record commit run `scripts/agentrail-shadow.sh`, which
+  pushes them, xz-compressed, to the private
+  `softwarewrighter/reva-fork-agentrail` (cloned at
+  `../reva-fork-agentrail`). Saga steps recorded before 2026-11-13 name
+  commits from before that day's history rewrite; that repository's
+  bundle and commit map resolve them (docs/agentrail-asks.md).
 - One PR to `dev` per saga step, from `feat/<slug>`, renamed to
   `pr/<slug>` at handoff. `main` is updated from `dev` by the user.
 - Commit messages: a subject line, a blank line, then what changed and

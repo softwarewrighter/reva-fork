@@ -11,6 +11,10 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-14
+
+- 08:25 `build` agentrail session logs leave the repository (step local-agentrail-shadow, at the user's request: this session's log, `.agentrail/sessions/7ee1e336-....jsonl`, reached 105 MB and GitHub refused PR #106's push at its 100 MiB file limit). History rewritten with git filter-repo (run with uv's Python) to drop `.agentrail/sessions/` from every commit (it held 67 versions of the one log, 3.16 GB; `.git` 992 MB to 27 MB); every branch checked against the backup: the same files apart from the log, the same commit counts; the user force-pushes. Commit hashes all changed (filter-repo also drops GitHub's signatures on merge commits), so CHANGES and saga steps name the old ones; the new private repository softwarewrighter/reva-fork-agentrail keeps the log (xz, 13.9 MB), a bundle of every branch before the rewrite and the old-to-new commit map. `.agentrail/sessions/` is ignored; new scripts/agentrail-shadow.sh pushes the logs there, compressed, after each saga record (CLAUDE.md). The logs also quoted CoSy files in this public repository, which reva-fork must not redistribute. New docs/agentrail-asks.md: a feature request to agentrail, with where the space went (the log: 99.99% of `.agentrail/` in history; in the log, tool results 28 MB and metadata, the conversation itself 0.67 MB) and how much can be avoided.
+
 ## 2026-11-13
 
 - 16:50 `chore` Step local-ask24-pending-faults complete (saga record); `plan`: local-ask23-25-package-footer moved up from 70 to 68 (the user asked when CoSy's asks will be addressed; 23 and 25 are the open ones), local-rename-stack and local-tui-click-caret shift to 69 and 70.
