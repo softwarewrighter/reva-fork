@@ -16,4 +16,5 @@ stack (1): 0
 
 *** bad memory access: 4 byte(s) at 0x00000000 (in a+0xc <- b <- c, eip 0x00146e14) after `catch`
 stack (1): 0
-(0) 
+(caught: catch returns -9)
+-9 (0) 

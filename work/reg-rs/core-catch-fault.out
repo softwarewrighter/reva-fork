@@ -1,0 +1,20 @@
+
+*** bad memory access: 4 byte(s) at 0x00000000 (in bad+0xc, eip 0x00146e14) after `catch`
+stack (3): 1 2 0
+(caught: catch returns -9)
+-9 (2) 1 2 
+
+*** divide error at 0x00146e26 (in div+0x10, eip 0x00146e28) after `catch`
+stack (2): 7 0
+(caught: catch returns -10)
+-10 (2) 7 0 
+
+*** bad memory access: 4 byte(s) at 0x00000000 (in bad+0xc, eip 0x00146e14) after `catch`
+stack (1): 0
+(caught: catch returns -9)
+inner -9 outer 0 
+5 
+
+*** bad memory access: 4 byte(s) at 0x00000000 (in bad+0xc, eip 0x00146e14) after `bad`
+stack (1): 0
+(0) 

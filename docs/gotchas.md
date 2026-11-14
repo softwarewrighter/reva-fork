@@ -113,6 +113,25 @@ target must be a core routine or compiled code. Code in allocated memory
 counts as not code, so a program that runs code it built in the heap needs
 it off. Off by default; `diagnose off` turns it off again.
 
+A fault in code that a program's own `catch` runs is reported the same
+way, and then `catch` returns the standard throw code, as in most Forths:
+-9 for a bad address or `execute` of something that is not code, -10 for a
+division by zero, -4 and -5 for the stacks, -8 for a full region, -21 for
+the rest. The data stack is as it was at `catch`, as for `throw`:
+
+```text
+1 2 ' bad catch . .s
+*** bad memory access: 4 byte(s) at 0x00000000 (in bad+0xc, eip ...) after `catch`
+stack (3): 1 2 0
+(caught: catch returns -9)
+-9 (2) 1 2
+```
+
+The original Reva's fault handler printed `Exception:` and ended `reva`,
+`catch` or not. The interpreter's own `catch` (around each line typed or
+read) is not a program's: a fault outside any other `catch` goes back to
+`ok>` as above. Stop (Ctrl-C) is never caught.
+
 A file that is not there is reported (`include: nosuch.f: no such file`)
 and `ioerr` is 1; the original Reva said nothing.
 

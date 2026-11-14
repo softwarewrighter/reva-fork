@@ -49,3 +49,18 @@ pub enum Fault {
 
 /// Where unsupported code is explained.
 pub const PORTABILITY_DOC: &str = "docs/portability.md";
+
+/// The code `catch` returns for a fault in the code it ran: the
+/// standard Forth throw codes (-4 stack underflow, -5 return stack
+/// overflow, -8 dictionary overflow, -9 invalid memory address, -10
+/// division by zero, -21 unsupported operation).
+pub fn throw_code(f: &Fault) -> i32 {
+    match f {
+        Fault::StackUnderflow => -4,
+        Fault::ReturnStackOverflow => -5,
+        Fault::OutOfSpace(_) => -8,
+        Fault::BadAddress { .. } | Fault::NotCode { .. } | Fault::BadGate { .. } => -9,
+        Fault::DivideError { .. } => -10,
+        _ => -21,
+    }
+}

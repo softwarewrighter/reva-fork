@@ -1,7 +1,7 @@
 //! Nested calls into Forth, and recovering from faults.
 
 use crate::run::Run;
-use reva_core::fault::Fault;
+use reva_core::fault::{Fault, throw_code};
 use reva_core::host::Host;
 use reva_core::layout::{RP0, S0};
 use reva_core::x86::{Arith, EAX, ESI, ESP};
@@ -87,12 +87,15 @@ reva_macros::machine_trait! {
             let place = self.where_suffix();
             let stack = self.stack_line().map(|s| format!("{s}\n")).unwrap_or_default();
             host.write(format!("\n*** {f} (in {at}, eip {eip:#010x}){place}\n{stack}").as_bytes());
+            let own = !matches!(f, Fault::Interrupted | Fault::Unavailable(_) | Fault::InputInNestedCall | Fault::UnwoundThroughHost);
+            if own && self.throw_to_catch(host, &f) {
+                return;
+            }
             // A fault in an IUP callback's own code: the callback is taken
             // as returning IUP_DEFAULT and its loop goes on, as in IUP,
             // where a callback cannot end the main loop (CoSy's ask 24).
             // The return stack and catch handler are put back as they were
             // when it was called; `IupResume` restores the data stack.
-            let own = !matches!(f, Fault::Interrupted | Fault::Unavailable(_) | Fault::InputInNestedCall | Fault::UnwoundThroughHost);
             if let Some(&(_, [_, _, esp, handler])) = self.ui.calls.last().filter(|_| own) {
                 host.write(b"(the dialog goes on: the callback is taken as returning IUP_DEFAULT)\n");
                 self.cpu.r[ESP as usize] = esp.wrapping_add(4);
@@ -108,6 +111,25 @@ reva_macros::machine_trait! {
             let _ = self.rollback_definition();
             self.reset_after_fault();
             self.cpu.eip = self.repl_entry();
+        }
+
+        /// A fault in code that a program's own `catch` runs: `catch`
+        /// returns the fault's throw code, as in most Forths (CoSy's ask
+        /// 24: Bob's Tui.f catches around `lst`). Not the interpreter's
+        /// own `catch`, the outermost (no handler before it), and not a
+        /// `catch` older than the IUP callback running, whose loop goes on.
+        fn throw_to_catch(&mut self, host: &mut dyn Host, f: &Fault) -> bool {
+            let h = self.var(st::HANDLER);
+            let newer = self.ui.calls.last().is_none_or(|&(_, [_, _, esp, _])| h < esp);
+            if h == 0 || self.var(h) == 0 || !newer {
+                return false;
+            }
+            let code = throw_code(f);
+            host.write(format!("(caught: catch returns {code})\n").as_bytes());
+            self.cpu.r[EAX as usize] = code as u32;
+            self.cpu.df = false;
+            self.cpu.eip = Gate::Throw.addr();
+            true
         }
 
         /// The interpreter's state and the registers after a fault.

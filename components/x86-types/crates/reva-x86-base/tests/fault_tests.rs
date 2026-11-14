@@ -43,3 +43,12 @@ fn messages() {
         "'x' is not implemented in this port yet"
     );
 }
+
+#[test]
+fn throw_codes_are_the_standard_ones() {
+    use reva_x86_base::fault::throw_code;
+    assert_eq!(throw_code(&Fault::BadAddress { addr: 0, len: 4 }), -9);
+    assert_eq!(throw_code(&Fault::DivideError { eip: 0 }), -10);
+    assert_eq!(throw_code(&Fault::StackUnderflow), -4);
+    assert_eq!(throw_code(&Fault::NotImplemented("x")), -21);
+}

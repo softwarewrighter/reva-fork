@@ -1,0 +1,26 @@
+ui< created 1 vbox
+ui< created 2 button
+ui< attr 2 TITLE =Bad
+ui< appended 1 2
+ui< created 3 button
+ui< attr 3 TITLE =Done
+ui< appended 1 3
+ui< created 4 dialog
+ui< appended 4 1
+ui< attr 4 TOPMOST =YES
+ui< attr 4 TITLE =reva70
+ui< shown 4 -1 -1 modeless
+ui< focus 2
+ui> click 2
+
+*** bad memory access: 4 byte(s) at 0x00000000 (in runs+0x2f, eip 0x00148e13) at tests/forth/compat-reva70-fault.f:12 after `gui-main-loop`
+stack (2): 4 0
+(caught: catch returns -9)
+ui> click 2
+
+*** bad memory access: 4 byte(s) at 0x00000000 (in runs+0x2f, eip 0x00148e13) at tests/forth/compat-reva70-fault.f:12 after `gui-main-loop`
+stack (2): 4 0
+(caught: catch returns -9)
+ui> click 3
+queued closes
+loop ended after 2 faults, depth 1 
