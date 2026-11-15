@@ -1,0 +1,9 @@
+number = 70
+slug = "local-gitignore"
+status = "completed"
+description = "At the user's request (2026-11-14): git status listed components/cli/target/ ..."
+role = "production"
+context_files = []
+created_at = "2026-11-14T17:43:11"
+completed_at = "2026-11-14T17:50:31"
+commits = ["8a55c813634d69c9698f52498e5f5dcfa1af7456"]

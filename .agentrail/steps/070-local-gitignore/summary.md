@@ -1,0 +1,1 @@
+gitignore: target/ anywhere and /notebook.txt, /notebook.bak; deleted stale components/cli/target (107 MB); merge lines for #103-#108. Gate --fast ok.
