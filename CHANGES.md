@@ -13,6 +13,13 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-14
 
+- 17:45 `build` `.gitignore`: `target/` anywhere, not only the root's (step local-gitignore, at the user's request: `git status` listed `components/cli/target/`, 107 MB of build output from 2026-11-04, from a build that missed `.cargo/config.toml`'s root target-dir; deleted), and the notebook's save file and backup at the root (`notebook.txt`, `notebook.bak`: `lib/ui/notebook` writes them in the current folder when the notebook runs from the repository root; kept, now ignored).
+- 17:08 `chore` Merge #108 (local-ask23-25-package-footer: a package's version leads the footer; `sourceLinks`).
+- 17:07 `chore` Merge #107 (local-agentrail-shadow: session logs leave the repository; agentrail asks), after the force push of the rewritten history (8 branches, each lease checked against the backup).
+- 17:07 `chore` Merge #106 (local-ask24-pending-faults: faults under catch are caught; reva70's queued callbacks keep the loop).
+- 17:07 `chore` Merge #105 (local-ask24-tui-way-out: ways out of a TUI dialog).
+- 17:06 `chore` Merge #104 (local-cli-args: `argv`, `reva prog.f -- args`).
+- 17:06 `chore` Merge #103 (local-notebook-builtin: `notebook` built in).
 - 16:36 `chore` Step local-ask23-25-package-footer complete (saga record).
 - 15:45 `feat` A package's footer and links (step local-ask23-25-package-footer, CoSy's asks 23 and 25, low). 23: when `reva-package.json` sets `about.version`, the footer leads with it, `CoSy 2026.1106.2 on reva-fork 2026.1106.2 · build ...` (`about.name`, else `title`, as About does); without it, the footer is as before. 25: `"sourceLinks": false` drops the footer's `source` link and About's Source (GitHub) and Documentation links; reva-fork's credits and license links stay, as its MIT notice needs. One pure function builds the footer (www/about.js `footerParts`), so the page, the desktop app and the web zip (the same page) agree; the desktop app passes `sourceLinks` on to the page with the rest of the manifest. Checked in Chrome with a package (`CoSy 2026.1106.2 on reva-fork 2026.1107.0 · build ...`, no source link, About without Source and Documentation) and without (unchanged). New node test test/about.mjs (in the gate and `just test`); the smoke test builds a package footer from the module's real build facts; a desktop state test. Docs: web (footer, manifest table), desktop.
 - 08:40 `chore` Step local-agentrail-shadow complete (saga record).

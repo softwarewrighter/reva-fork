@@ -1,6 +1,12 @@
-/target
+# build output: the root target/ (.cargo/config.toml), and any other a
+# build that missed that config makes (components/cli/target/ once did)
+target/
 /components/web/crates/reva-web/www/reva.wasm
 /components/web/crates/reva-web/www/ui/
+# the notebook's save file and its backup, when it runs from the root
+# (lib/ui/notebook)
+/notebook.txt
+/notebook.bak
 # agentrail session logs: too large and too private for this public
 # repository; scripts/agentrail-shadow.sh keeps them, compressed, in the
 # private shadow repository (docs/agentrail-asks.md)
