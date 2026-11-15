@@ -97,7 +97,11 @@ source, and which build of the VM is running: version, commit, build host
 and build time (hover for the license in full and the exact time). These
 come from the WebAssembly module (`reva_build_info_ptr`/`_len`, from
 `reva_vm::version`), so they are what `reva -V` and `version` print for
-the same build. `components/web/crates/reva-web/index.html` and `favicon.ico` are symlinks
+the same build. A package that sets `about.version` leads the line with
+its own name and version, `CoSy 2026.1106.2 on reva-fork 2026.1106.2 ·
+build ...` (`about.name`, else `title`), and `"sourceLinks": false`
+drops the source link (both in the manifest, below; www/about.js
+`footerParts`). `components/web/crates/reva-web/index.html` and `favicon.ico` are symlinks
 into `www/` for sw-checklist, which looks for them in the crate folder.
 
 ## Packages from a static directory: `?package=DIR/`
@@ -127,7 +131,8 @@ a folder:
 | `icon` | the page's icon (favicon) and the logo beside the title in the header (none: no logo) |
 | `id` | names the storage prefix, `reva:<id>:fs:` (default from `name`), so two packages on one site keep their files apart |
 | `canvas` | where graphics go, unless the URL says |
-| `about` | the package's entry in the About dialog: `{ "name", "version", "description", "build", "credits": [text], "links": [{ "label", "url" }] }`, all optional (`name` defaults to `title`; `build` is the package's own commit and date, so a bug report names both layers); only http(s) links become links |
+| `about` | the package's entry in the About dialog: `{ "name", "version", "description", "build", "credits": [text], "links": [{ "label", "url" }] }`, all optional (`name` defaults to `title`; `build` is the package's own commit and date, so a bug report names both layers); only http(s) links become links; `version` also leads the footer |
+| `sourceLinks` | `false`: no links to reva-fork's source, neither the footer's `source` nor About's Source and Documentation (reva-fork's credits and license links stay, as its MIT notice needs); for a package whose window should not read as reva-fork's |
 | `hint` | replaces Reva's hint in the page header; `` `code` `` in backticks |
 
 Paths must be plain relative paths (no `..`, no leading `/`); others are

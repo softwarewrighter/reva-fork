@@ -1,6 +1,6 @@
 number = 69
 slug = "local-ask23-25-package-footer"
-status = "pending"
+status = "in-progress"
 description = "CoSy's asks 23 and 25 (low; ba-cosy-zip-fork docs/reva-fork-asks.md). 23: whe..."
 role = "production"
 context_files = []

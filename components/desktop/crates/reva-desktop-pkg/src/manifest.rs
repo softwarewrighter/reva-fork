@@ -25,6 +25,10 @@ pub struct Manifest {
     /// A saved image in the package (`save NAME`, `reva --save-image`):
     /// the VM starts from it instead of booting reva.f.
     pub image: Option<String>,
+    /// `false`: no links to reva-fork's source in the footer and About
+    /// (www/about.js; the credits and licenses stay).
+    #[serde(rename = "sourceLinks")]
+    pub source_links: Option<bool>,
 }
 
 /// The `canvas` values the page knows.
