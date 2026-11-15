@@ -1,4 +1,4 @@
-number = 68
+number = 69
 slug = "local-rename-stack"
 status = "pending"
 description = 'Bug (found 2026-11-07 in local-ls-pp): `" a" " b" rename` renames the file bu...'
