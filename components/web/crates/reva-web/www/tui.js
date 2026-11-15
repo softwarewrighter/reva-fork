@@ -111,8 +111,21 @@ export class TuiPane {
     }
   }
 
-  /** An event line from the element: answers the wait, or waits its turn. */
+  /**
+   * An event line from the element: answers the wait, or waits its turn.
+   * `interrupt` (a second Ctrl-C) stops the run instead: a waiting loop's
+   * wait fails, which ends it with a message; a busy VM is stopped by the
+   * page (`onInterrupt`).
+   */
   event(line) {
+    if (line === "interrupt") {
+      this.queue = [];
+      const w = this.waiter;
+      this.waiter = null;
+      if (w) w({ error: "stopped (Ctrl-C)" });
+      else this.onInterrupt?.();
+      return;
+    }
     const w = this.waiter;
     if (w) {
       this.waiter = null;
@@ -131,6 +144,7 @@ export class TuiPane {
     const was = !this.pane.hidden;
     this.pane.hidden = !on;
     document.body.classList.toggle("tui-on", on);
+    if (on !== was) this.onShow?.(on);
     if (on && !was) {
       this.fit();
       this.pane.querySelector(".tui")?.focus();

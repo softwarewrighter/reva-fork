@@ -90,13 +90,22 @@ fn the_vm_waits_for_events_and_runs_callbacks() {
 }
 
 #[test]
-fn a_fault_in_a_callback_leaves_the_loop() {
+fn a_fault_in_a_callback_keeps_the_loop() {
     let (mut vm, mut host) = booted();
     vm.feed(b"needs ui/gui with~ ~ui\ndialog[ \" Bad\" button[ { 0 @ } action ]w ]d show gui-main-loop\n");
     wait(&mut vm, &mut host);
     answer(&mut vm, "click 2");
+    // reported, then the loop waits for the next event (CoSy's ask 24)
+    assert_eq!(vm.run_until_blocked(&mut host), Status::HostCall);
+    let out = host.inner.take_output();
+    assert!(
+        out.contains("***") && out.contains("the dialog goes on"),
+        "{out}"
+    );
+    assert!(vm.ui.calls.is_empty() && vm.ui.loops.len() == 1);
+    let top = *vm.ui.shown.last().expect("still shown");
+    answer(&mut vm, &format!("close {top}"));
     assert_eq!(vm.run_until_blocked(&mut host), Status::NeedInput);
-    assert!(host.inner.take_output().contains("***"));
     assert!(vm.ui.loops.is_empty() && vm.ui.calls.is_empty());
     vm.feed(b"1 2 + .\n");
     vm.run_until_blocked(&mut host);

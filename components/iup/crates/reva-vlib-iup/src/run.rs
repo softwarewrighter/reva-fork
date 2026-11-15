@@ -13,7 +13,7 @@ use reva_core::fault::Fault;
 use reva_core::host::Host;
 use reva_core::hostcall::{HostAnswer, HostCall, HostReply};
 use reva_core::x86::{Arith, EAX, ESI, ESP};
-use reva_core::{Gate, Next};
+use reva_core::{Gate, Next, st};
 use reva_ui::ui::{CLOSE, Call, DEFAULT, Event, Loop};
 use reva_ui_base::kind::Kind;
 
@@ -115,11 +115,12 @@ reva_macros::machine_trait! {
 
         /// Run `call`'s Forth word as IUP calls a callback.
         fn iup_callback(&mut self, call: Call) -> R<Next> {
-            let saved = [self.cpu.r[ESI as usize], self.cpu.r[EAX as usize]];
+            let (esi, eax) = (self.cpu.r[ESI as usize], self.cpu.r[EAX as usize]);
             for v in call.args.iter().rev().map(|a| *a as u32).chain([call.handle, Gate::IupResume.addr()]) {
                 self.cpu.push32(&mut self.mem, v)?;
             }
             let func = call.func;
+            let saved = [esi, eax, self.cpu.r[ESP as usize], self.var(st::HANDLER)];
             self.ui.calls.push((call, saved));
             Ok(Next::Jump(func))
         }
@@ -127,7 +128,7 @@ reva_macros::machine_trait! {
         /// The gate `IupResume`: a callback returned its result in EAX.
         fn iup_resume(&mut self) -> R<Next> {
             let ret = self.cpu.r[EAX as usize] as i32;
-            let (call, [esi, eax]) = self.ui.calls.pop().ok_or(Fault::NotImplemented("iup: a return with no callback running"))?;
+            let (call, [esi, eax, ..]) = self.ui.calls.pop().ok_or(Fault::NotImplemented("iup: a return with no callback running"))?;
             let esp = &mut self.cpu.r[ESP as usize];
             *esp = esp.wrapping_add(4 * (1 + call.args.len() as u32));
             self.cpu.r[ESI as usize] = esi;

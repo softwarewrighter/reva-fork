@@ -83,6 +83,9 @@
   body.split.collapsed #side { flex:none; width:34px; }
   body.split.collapsed #side .strip { display:block; height:100%; width:100%; border:0; border-left:1px solid var(--line);
                                       border-radius:0; writing-mode:vertical-rl; padding:16px 0; color:var(--muted); }
+  /* A TUI dialog while nothing is drawn: the dialog gets the whole width. */
+  body.split.tui-wide main { flex:1; width:auto; }
+  body.split.tui-wide #divider, body.split.tui-wide #side { display:none; }
   /* Narrow screens: stack the panes instead (the divider is not needed). */
   @media (max-width: 640px) {
     body.split { flex-direction:column; overflow:auto; height:auto; }
@@ -96,7 +99,7 @@
      in place of the output and the input line while a dialog is shown, so
      the graphics pane (beside it in the split view, below it otherwise)
      stays in sight. */
-  #tui { flex:1; min-height:0; overflow:hidden; margin:8px 0; }
+  #tui { flex:1; min-height:0; overflow:auto; margin:8px 0; } /* a dialog larger than the pane scrolls */
   #tui[hidden] { display:none; }
   body.tui-on #out, body.tui-on #f { display:none; }
   .tui, .tui-probe { font:14px/normal ui-monospace, Menlo, Consolas, monospace; white-space:pre; }
@@ -287,6 +290,9 @@
   const gfx = document.getElementById("gfx");
   let canvas = null;
   const tui = new TuiPane(document.getElementById("tui"));
+  // In the split view, a dialog shown while nothing is drawn takes the
+  // graphics pane's width too (Bob's go window is about 100 columns).
+  tui.onShow = (on) => document.body.classList.toggle("tui-wide", on && !!split && !canvas?.lines);
   // A package keeps its files apart (reva:<id>:fs:), unless the host keeps
   // files itself (the desktop app's folder).
   const filePrefix = pkg && !host.keepsFiles ? pkg.prefix : undefined;
@@ -297,7 +303,7 @@
     prefix: filePrefix,
     onOutput: (s) => { write(s); host.output?.(s); },
     onUi: (m) => {
-      if (m.channel === "canvas") canvas.handle(m);
+      if (m.channel === "canvas") { canvas.handle(m); if (canvas.lines) document.body.classList.remove("tui-wide"); }
       else if (m.channel === "tui") tui.handle(m);
     },
     // Host calls (SQLite, docs/design.md 3.11): a host that serves them
@@ -387,6 +393,7 @@
     uploadButton(document.getElementById("upload-btn"), { session: reva, storage: host.storage, prefix: filePrefix, echo });
   // Stop, from the button, the paused bar or Ctrl-C: also a paste's rest.
   const stopRun = () => { pasting++; reva.stop(); };
+  tui.onInterrupt = stopRun;
   stop.addEventListener("click", stopRun);
   // The runaway guard's choices, and a hidden page pausing the VM (unless
   // ?background asks it to keep running).
