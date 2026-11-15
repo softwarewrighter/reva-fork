@@ -8,7 +8,11 @@ use reva_vm::version;
 
 /// What `--help` prints.
 pub const USAGE: &str = "\
-usage: reva [options] [file ...]
+usage: reva [options] [file ...] [-- arg ...]
+
+  Each file is included in turn.  The program sees `argc` and `n argv`
+  as in Reva: argv 0 is reva, argv 1 the first file, argv 2... the words
+  after --.
 
   -e, --eval TEXT      evaluate TEXT after the files (repeatable)
       --boot PATH      boot from PATH instead of the embedded reva.f
@@ -43,6 +47,8 @@ usage: reva [options] [file ...]
 #[derive(Default)]
 pub struct Options {
     pub files: Vec<String>,
+    /// The words after `--`: the program's arguments (argv 2...).
+    pub args: Vec<String>,
     pub evals: Vec<String>,
     pub boot: Option<String>,
     pub no_boot: bool,
@@ -71,6 +77,10 @@ pub fn parse_args() -> Result<Options, String> {
     let mut o = Options::default();
     let mut args = std::env::args().skip(1);
     while let Some(a) = args.next() {
+        if a == "--" {
+            o.args.extend(args);
+            break;
+        }
         let mut value = |name: &str| args.next().ok_or(format!("{name} needs a value"));
         match a.as_str() {
             "-e" | "--eval" => o.evals.push(value(&a)?),

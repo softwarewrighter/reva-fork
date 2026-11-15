@@ -1,4 +1,4 @@
-133 examples: error 21, fault 19, missing 9, runs 71, timeout 13
+133 examples: error 21, fault 19, missing 9, runs 72, timeout 12
 
 Most common first missing word (top 10):
 
@@ -112,7 +112,7 @@ Most common first missing word (top 10):
 | `examples/revafind.f` | os | runs |
 | `examples/robotron.f` | core | runs |
 | `examples/see2.f` | lib | runs |
-| `examples/sha1.f` | lib | timeout |
+| `examples/sha1.f` | lib | runs |
 | `examples/sieve.f` | core | timeout |
 | `examples/smtp.f` | net | timeout |
 | `examples/sockets.f` | net | runs |
