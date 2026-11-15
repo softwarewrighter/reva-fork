@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-14
 
+- 17:50 `chore` Step local-gitignore complete (saga record).
 - 17:45 `build` `.gitignore`: `target/` anywhere, not only the root's (step local-gitignore, at the user's request: `git status` listed `components/cli/target/`, 107 MB of build output from 2026-11-04, from a build that missed `.cargo/config.toml`'s root target-dir; deleted), and the notebook's save file and backup at the root (`notebook.txt`, `notebook.bak`: `lib/ui/notebook` writes them in the current folder when the notebook runs from the repository root; kept, now ignored).
 - 17:08 `chore` Merge #108 (local-ask23-25-package-footer: a package's version leads the footer; `sourceLinks`).
 - 17:07 `chore` Merge #107 (local-agentrail-shadow: session logs leave the repository; agentrail asks), after the force push of the rewritten history (8 branches, each lease checked against the backup).
