@@ -1,3 +1,7 @@
 /target
 /components/web/crates/reva-web/www/reva.wasm
 /components/web/crates/reva-web/www/ui/
+# agentrail session logs: too large and too private for this public
+# repository; scripts/agentrail-shadow.sh keeps them, compressed, in the
+# private shadow repository (docs/agentrail-asks.md)
+/.agentrail/sessions/

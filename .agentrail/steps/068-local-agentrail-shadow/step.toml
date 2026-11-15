@@ -1,0 +1,9 @@
+number = 68
+slug = "local-agentrail-shadow"
+status = "completed"
+description = "At the user's request (2026-11-13): this session's agentrail log (.agentrail/..."
+role = "production"
+context_files = []
+created_at = "2026-11-13T19:55:00"
+completed_at = "2026-11-14T11:15:00"
+commits = ["a6cbb90453ebaf41d8b600991b2dd99329fc7cee"]
