@@ -132,7 +132,10 @@ What run time cannot change, so a package needs its own entry or bundle:
 The window's **About** button shows the package's `about` entry (see
 [web.md](web.md#the-about-dialog)) above reva-fork's version, build,
 credits, licenses and links. Links open in the system browser through the
-`open_url` command (http and https only).
+`open_url` command (http and https only). The footer and the manifest's
+`sourceLinks` behave as in the browser ([web.md](web.md#the-footer)): a
+package's `about.version` leads the footer, and `"sourceLinks": false`
+drops reva-fork's source links.
 
 ### Where graphics go: `canvas`
 

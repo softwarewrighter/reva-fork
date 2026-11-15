@@ -77,3 +77,4 @@ test: wasm
     node components/web/crates/reva-web/test/smoke.mjs
     node components/web/crates/reva-web/test/lineedit.mjs
     node components/web/crates/reva-web/test/ansi.mjs
+    node components/web/crates/reva-web/test/about.mjs

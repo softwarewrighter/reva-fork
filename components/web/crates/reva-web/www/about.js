@@ -94,7 +94,29 @@ export function packageAbout(m) {
     links: Array.isArray(a.links)
       ? a.links.filter((l) => str(l?.label) && str(l?.url)).slice(0, 20)
       : [],
+    // the manifest's top-level "sourceLinks": false (CoSy's ask 25)
+    sourceLinks: m?.sourceLinks !== false,
   };
+}
+
+/** reva-fork's links to its own source, which `sourceLinks: false` drops. */
+const SOURCE_LINKS = ["Source (GitHub)", "Documentation"];
+
+/**
+ * The page footer, in order: text, and `{ link }` for the source link
+ * (`b`: the wasm module's build facts; `pkg`: a package's about or null).
+ * A package that sets `about.version` leads it, "CoSy 2026.1106.2 on
+ * reva-fork 2026.1106.2" (CoSy's ask 23); `sourceLinks: false` drops the
+ * link (ask 25).  The copyright and license stay, as the MIT notice needs.
+ */
+export function footerParts(b, pkg = null) {
+  const who = pkg?.version ? `${pkg.name} ${pkg.version} on ` : "";
+  const when = b.build_time.replace("T", " ").slice(0, 16);
+  return [
+    `${b.copyright.replace("(c)", "©")} · MIT License · `,
+    ...(pkg?.sourceLinks === false ? [] : [{ link: b.repository }, " · "]),
+    `${who}${b.name} ${b.version} · build ${b.build_commit} on ${b.build_host}, ${when}`,
+  ];
 }
 
 const el = (tag, props = {}, ...kids) => {
@@ -139,7 +161,8 @@ function entry({ name, version, description, build, credits = [], links = [], li
  */
 export function aboutDialog({ pkg = null, openUrl = null } = {}) {
   const build = buildInfo();
-  const reva = { ...REVA, version: build?.version, build: build ? `reva-fork ${[build.commit, build.date, build.site && `site ${build.site}`].filter(Boolean).join(" · ")}` : "development build (source tree)" };
+  const links = pkg?.sourceLinks === false ? REVA.links.filter((l) => !SOURCE_LINKS.includes(l.label)) : REVA.links;
+  const reva = { ...REVA, links, version: build?.version, build: build ? `reva-fork ${[build.commit, build.date, build.site && `site ${build.site}`].filter(Boolean).join(" · ")}` : "development build (source tree)" };
   const close = el("button", { type: "button", textContent: "Close", className: "close" });
   const d = el("dialog", { id: "about" });
   d.setAttribute("aria-label", `About ${pkg?.name ?? "Reva Fork"}`);
