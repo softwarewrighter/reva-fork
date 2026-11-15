@@ -13,6 +13,8 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-14
 
+- 18:48 `release` 2026.1114.0, at the user's request: today's first merge to main. Since 2026.1107.0: `notebook` built in (#103); `argv` works and programs get arguments, `reva prog.f -- a b` (#104); ways out of a TUI dialog, a `[×]` that hits, Ctrl-C, scrolling, and a fault in a callback keeps the dialog (#105, CoSy's ask 24); faults under a program's own `catch` return a throw code, and Reva 7.0's queued callbacks keep `gui-main-loop` going (#106, ask 24: Bob's `go`); a package's version leads the footer and `sourceLinks: false` (#108, asks 23, 25); agentrail session logs out of the repository, history rewritten (#107); `.gitignore` (#109). Checked before the PR, built through the recipes at the release commit (just release-check): reva --version; the web page's VM (banner, footer); reva-serve --version and the page inside it; the desktop app (reva-desktop --about: its version, page and VM).
+- 17:55 `chore` Merge #109 (local-gitignore: `target/` anywhere, the notebook's save files).
 - 17:50 `chore` Step local-gitignore complete (saga record).
 - 17:45 `build` `.gitignore`: `target/` anywhere, not only the root's (step local-gitignore, at the user's request: `git status` listed `components/cli/target/`, 107 MB of build output from 2026-11-04, from a build that missed `.cargo/config.toml`'s root target-dir; deleted), and the notebook's save file and backup at the root (`notebook.txt`, `notebook.bak`: `lib/ui/notebook` writes them in the current folder when the notebook runs from the repository root; kept, now ignored).
 - 17:08 `chore` Merge #108 (local-ask23-25-package-footer: a package's version leads the footer; `sourceLinks`).
