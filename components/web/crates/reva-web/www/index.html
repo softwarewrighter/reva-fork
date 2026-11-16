@@ -83,6 +83,9 @@
   body.split.collapsed #side { flex:none; width:34px; }
   body.split.collapsed #side .strip { display:block; height:100%; width:100%; border:0; border-left:1px solid var(--line);
                                       border-radius:0; writing-mode:vertical-rl; padding:16px 0; color:var(--muted); }
+  /* A TUI dialog while nothing is drawn: the dialog gets the whole width. */
+  body.split.tui-wide main { flex:1; width:auto; }
+  body.split.tui-wide #divider, body.split.tui-wide #side { display:none; }
   /* Narrow screens: stack the panes instead (the divider is not needed). */
   @media (max-width: 640px) {
     body.split { flex-direction:column; overflow:auto; height:auto; }
@@ -96,7 +99,7 @@
      in place of the output and the input line while a dialog is shown, so
      the graphics pane (beside it in the split view, below it otherwise)
      stays in sight. */
-  #tui { flex:1; min-height:0; overflow:hidden; margin:8px 0; }
+  #tui { flex:1; min-height:0; overflow:auto; margin:8px 0; } /* a dialog larger than the pane scrolls */
   #tui[hidden] { display:none; }
   body.tui-on #out, body.tui-on #f { display:none; }
   .tui, .tui-probe { font:14px/normal ui-monospace, Menlo, Consolas, monospace; white-space:pre; }
@@ -146,7 +149,7 @@
   import { TuiPane } from "./tui.js";
   import { loadPackage } from "./package.js";
   import { splitView } from "./split.js";
-  import { aboutDialog, packageAbout, showHint } from "./about.js";
+  import { aboutDialog, footerParts, packageAbout, showHint } from "./about.js";
   import { lineEditor, pasteLines } from "./lineedit.js";
   import { packageId } from "./package.js";
   import { Ansi } from "./ansi.js";
@@ -275,7 +278,8 @@
   if (typeof hint === "string") showHint(document.getElementById("hint"), `— ${hint}`);
   // About: the package's entry (from the page's ?package= or the desktop
   // host), then reva-fork's.
-  const about = aboutDialog({ pkg: pkg?.about ?? packageAbout(host.package), openUrl: host.openUrl });
+  const pkgAbout = pkg?.about ?? packageAbout(host.package);
+  const about = aboutDialog({ pkg: pkgAbout, openUrl: host.openUrl });
   document.getElementById("about-btn").addEventListener("click", () => about.open());
   // Where graphics go: ?canvas=window|pane|split, else the package's or
   // the host's choice, else the page's default (the reva-canvas meta),
@@ -287,6 +291,9 @@
   const gfx = document.getElementById("gfx");
   let canvas = null;
   const tui = new TuiPane(document.getElementById("tui"));
+  // In the split view, a dialog shown while nothing is drawn takes the
+  // graphics pane's width too (Bob's go window is about 100 columns).
+  tui.onShow = (on) => document.body.classList.toggle("tui-wide", on && !!split && !canvas?.lines);
   // A package keeps its files apart (reva:<id>:fs:), unless the host keeps
   // files itself (the desktop app's folder).
   const filePrefix = pkg && !host.keepsFiles ? pkg.prefix : undefined;
@@ -297,7 +304,7 @@
     prefix: filePrefix,
     onOutput: (s) => { write(s); host.output?.(s); },
     onUi: (m) => {
-      if (m.channel === "canvas") canvas.handle(m);
+      if (m.channel === "canvas") { canvas.handle(m); if (canvas.lines) document.body.classList.remove("tui-wide"); }
       else if (m.channel === "tui") tui.handle(m);
     },
     // Host calls (SQLite, docs/design.md 3.11): a host that serves them
@@ -340,16 +347,19 @@
   });
   // The footer: copyright, license, source, and which build this is
   // (build host, commit and time, from the wasm module: what `reva -V`
-  // prints).  Text goes in with textContent.
-  function footer(el, b, openUrl) {
+  // prints), led by a package's own version (about.js footerParts).
+  // Text goes in with textContent.
+  function footer(el, b, pkg, openUrl) {
     if (!b) return;
-    const link = document.createElement("a");
-    link.href = b.repository;
-    link.textContent = "source";
-    if (openUrl) link.addEventListener("click", (e) => { e.preventDefault(); openUrl(b.repository); });
-    else link.target = "_blank";
-    el.append(`${b.copyright.replace("(c)", "©")} · MIT License · `, link,
-      ` · ${b.name} ${b.version} · build ${b.build_commit} on ${b.build_host}, ${b.build_time.replace("T", " ").slice(0, 16)}`);
+    el.append(...footerParts(b, pkg).map((p) => {
+      if (typeof p === "string") return p;
+      const link = document.createElement("a");
+      link.href = p.link;
+      link.textContent = "source";
+      if (openUrl) link.addEventListener("click", (e) => { e.preventDefault(); openUrl(p.link); });
+      else link.target = "_blank";
+      return link;
+    }));
     el.title = `License: ${b.license}\nBuilt ${b.build_time}`;
   }
   // Batch runs (the desktop's --print-output) report what the graphics
@@ -365,7 +375,7 @@
   for (const n of notes) append(`note: ${n}\n`, "echo");
   await reva.ready;
   starting.remove();
-  footer(document.getElementById("footer"), reva.build, host.openUrl);
+  footer(document.getElementById("footer"), reva.build, pkgAbout, host.openUrl);
   // Start lines (a package's start files) are read again after `restart`;
   // input lines only once.
   for (const text of [...(pkg?.start ?? []), ...(host.start ?? [])]) {
@@ -387,6 +397,7 @@
     uploadButton(document.getElementById("upload-btn"), { session: reva, storage: host.storage, prefix: filePrefix, echo });
   // Stop, from the button, the paused bar or Ctrl-C: also a paste's rest.
   const stopRun = () => { pasting++; reva.stop(); };
+  tui.onInterrupt = stopRun;
   stop.addEventListener("click", stopRun);
   // The runaway guard's choices, and a hidden page pausing the VM (unless
   // ?background asks it to keep running).

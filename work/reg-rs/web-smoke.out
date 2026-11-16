@@ -1,5 +1,6 @@
 ok   boot status: 1
 ok   build facts: [["name","version","copyright","license","repository","build_host","build_commit","build_time"],"reva-fork","VERSION"]
+ok   package footer: [2,true]
 ok   arith: "reva-fork VERSION portable\n\nok> 5 49 \nok> "
 ok   infinite loop yields: 0
 ok   still yielding: 0

@@ -33,6 +33,7 @@ what has been carried over and what has not, yet).
 | [Licenses](licenses.md) | third-party files, their licenses, and the no-copyleft check |
 | [Design](design.md) | how the portable core works and why |
 | [sed-rs asks](sed-rs-asks.md) | what this repository needs from an updated sed-rs (in-place editing, ranges, literal patterns), from using it here |
+| [agentrail asks](agentrail-asks.md) | what this repository needs from agentrail: session logs that do not outgrow the repository (where the space went, how much can be avoided) |
 | [Future features](future-features.md) | ideas discussed and not scheduled, with why they wait (host paths in the desktop app) |
 | [Code metrics](code-metrics.md) | how the Rust code is shaped: components, limits, rules, and what to do when a part is full |
 

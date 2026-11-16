@@ -5,6 +5,7 @@
 import { readFile } from "node:fs/promises";
 import { Worker } from "node:worker_threads";
 import { Reva, start, YIELDED, NEED_INPUT, HALTED, HOST_CALL, PAUSED } from "../www/reva.js";
+import { footerParts, packageAbout } from "../www/about.js";
 
 const wasm = await readFile(new URL("../www/reva.wasm", import.meta.url));
 const reva = await Reva.load(wasm);
@@ -25,6 +26,10 @@ check("boot status", reva.status, NEED_INPUT);
 const BUILD_KEYS = ["name", "version", "copyright", "license", "repository", "build_host", "build_commit", "build_time"];
 const build = reva.build;
 check("build facts", [Object.keys(build), build.name, build.version], [BUILD_KEYS, "reva-fork", BANNER.split(" ")[1]]);
+// A package's manifest leads the footer with its version and can drop the
+// source link (CoSy's asks 23, 25; test/about.mjs has the rest).
+const pkgFooter = footerParts(build, packageAbout({ title: "CoSy", about: { version: "9.9" }, sourceLinks: false }));
+check("package footer", [pkgFooter.length, pkgFooter[1].startsWith(`CoSy 9.9 on reva-fork ${build.version} · build `)], [2, true]);
 reva.feed("2 3 + . : sq dup * ; 7 sq .\n");
 check("arith", await (async () => { let o = ""; await reva.run((s) => (o += s)); return o; })(), BANNER + "5 49 \nok> ");
 
@@ -288,7 +293,7 @@ await ls.idle();
 check("worker answers sqlite itself", [lsout.includes("SQLite could not be loaded"), lsout.includes("99")], [true, false]);
 ls.terminate();
 
-// The notebook (needs ui/notebook) in the browser build, its ui waits
+// The notebook (built in: `notebook` loads ui/notebook) in the browser build, its ui waits
 // answered with scripted events as the page's TUI would: type "2" at the
 // caret (the start of line 2), then the close box (dialog 7).  Closing it
 // keeps its text in notebook.txt, which the page keeps in its storage.
@@ -301,7 +306,7 @@ const nb = start("reva.wasm", {
     : { error: `${call.op} not scripted` },
 });
 await nb.ready;
-nb.feed("needs ui/notebook notebook\n");
+nb.feed("notebook\n");
 await nb.idle();
 const kept = nbStore.getItem("reva:fs:/notebook.txt") ?? "";
 check("notebook text kept in storage", [kept.startsWith("| Cursor on a line"), kept.includes("\n22 3 +\n")], [true, true]);

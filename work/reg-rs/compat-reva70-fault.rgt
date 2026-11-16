@@ -1,0 +1,3 @@
+command = "${REVA:-target/debug/reva} --ui-script tests/ui/add-callback-fault.ui tests/forth/compat-reva70-fault.f < /dev/null"
+exit_code = 0
+desc = "compat/reva70: a fault in a queued callback is reported and gui-main-loop goes on (CoSy ask 24)"

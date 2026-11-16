@@ -17,7 +17,7 @@ Try it: `needs ui/cd-demo cd-demo`
 
 | Front end | Dialogs | CD canvases | Timers |
 |---|---|---|---|
-| browser, live demo, `reva-serve` | yes, in place of the REPL while shown | yes | yes |
+| browser, live demo, `reva-serve` | yes, in place of the REPL while shown (Ctrl-C or `[×]` closes the top dialog) | yes | yes |
 | desktop app | yes (the same page) | yes | yes |
 | CLI at a terminal | yes, full screen (Ctrl-C closes the top dialog) | the frame only | no |
 | CLI with `--ui-script FILE` | printed, events from FILE (tests) | the drawing as a list | scripted (`timer H`) |
@@ -67,7 +67,7 @@ counter
 ```
 
 ```text
-          ┌ Counter ───────×┐
+          ┌ Counter ─────[×]┐
           │3                │
           │[ Count ][ Quit ]│
           └─────────────────┘
@@ -76,7 +76,24 @@ counter
 A callback is a word marked `callback`, returning `gui-default` to go
 on, or `gui-close` to end `gui-main-loop`. `attr:` sets an IUP
 attribute on the element on the stack. Tab moves between the buttons,
-Enter or a click presses one, and the `×` closes the dialog.
+Enter or a click presses one, and the `[×]` closes the dialog.
+
+**Ways out.** The close box `[×]` (its corner counts too), or Ctrl-C
+with no text selected, closes the dialog on top, as IUP's close box
+does: a `CLOSE_CB` callback, if the dialog has one, may keep it open;
+otherwise the dialog hides and its loop ends. In the page, a second
+Ctrl-C while the same dialog is still there stops the run (`*** stopped
+(Ctrl-C)`). A dialog larger than the pane scrolls; in the split view, the
+graphics pane steps aside while a dialog is shown and nothing has been
+drawn.
+
+**A fault in a callback** is reported as usual but does not end the
+dialog: the callback is taken as returning `gui-default` and the loop
+goes on, as in IUP, where a callback cannot take the main loop down.
+Reva 7.0's `gui-main-loop` (`needs compat/reva70`) does the same for the
+work a callback queued with `add-callback`: it runs each under `catch`,
+and a fault or `throw` there counts as `gui-default`. A fault under a
+program's own `catch` is caught there instead ([gotchas.md](gotchas.md)).
 
 ## A drawing
 

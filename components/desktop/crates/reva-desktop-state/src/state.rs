@@ -20,7 +20,7 @@ pub struct Session {
     pub print_output: bool,
     /// Where graphics go (`--canvas`, else the manifest's `canvas`).
     pub canvas: Option<String>,
-    /// With `--package`: `{ name, title, about, hint }` from the manifest,
+    /// With `--package`: `{ name, title, about, hint, sourceLinks }` from the manifest,
     /// for the About dialog and the header.
     pub package: Option<serde_json::Value>,
     /// Start from a saved image (the `image` command sends it).
@@ -145,5 +145,6 @@ fn package_json(m: &Manifest) -> serde_json::Value {
         "title": m.title,
         "about": m.about,
         "hint": m.hint,
+        "sourceLinks": m.source_links,
     })
 }

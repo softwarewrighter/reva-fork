@@ -1,0 +1,31 @@
+ui< created 1 vbox
+ui< created 2 hbox
+ui< created 3 fill
+ui< appended 2 3
+ui< created 4 button
+ui< attr 4 TITLE =Bad
+ui< appended 2 4
+ui< created 5 button
+ui< attr 5 TITLE =Ok
+ui< appended 2 5
+ui< created 6 fill
+ui< appended 2 6
+ui< appended 1 2
+ui< created 7 dialog
+ui< appended 7 1
+ui< attr 7 TOPMOST =YES
+ui< attr 7 TITLE =F
+ui< shown 7 -1 -1 modeless
+ui< focus 4
+ui> click 4
+
+*** bad memory access: 4 byte(s) at 0xffffffff (in bad+0x3b <- context?? <- context?? <-  <- 2! <- |||, eip 0x001490b7) at tests/forth/iup-callback-fault.f:10 after `d`
+(the dialog goes on: the callback is taken as returning IUP_DEFAULT)
+ui> click 5
+ui> click 4
+
+*** bad memory access: 4 byte(s) at 0xffffffff (in bad+0x3b <- context?? <- context?? <-  <- 2! <- |||, eip 0x001490b7) at tests/forth/iup-callback-fault.f:10 after `d`
+(the dialog goes on: the callback is taken as returning IUP_DEFAULT)
+ui> click 5
+ui> close 7
+22 1 

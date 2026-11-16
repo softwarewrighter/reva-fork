@@ -5,7 +5,7 @@ use reva_ui_base::keys::{code, from_name};
 use wasm_bindgen::JsCast;
 use yew::prelude::*;
 
-use crate::state::send;
+use crate::state::{send, with};
 
 /// The browser's names of keys IUP names otherwise.
 const NAMES: &[(&str, &str)] = &[
@@ -55,8 +55,38 @@ pub fn clipboard_key(key: &str, ctrl: bool, meta: bool) -> bool {
 /// Pasted text as event lines: reva-ui-base's, shared with the terminal.
 pub use reva_ui_base::keys::pasted;
 
+/// Whether text on the page is selected (Ctrl-C then copies it).
+fn selecting() -> bool {
+    web_sys::window()
+        .and_then(|w| w.get_selection().ok().flatten())
+        .is_some_and(|s| !s.is_collapsed())
+}
+
+/// Ctrl-C with nothing selected, as in the terminal: the dialog on top is
+/// closed as by its close box; pressed again while that dialog is still on
+/// top (its CLOSE_CB kept it), `interrupt`: the page stops the run.
+fn quit() {
+    let line = with(|s| {
+        let top = s.mirror.top()?;
+        let again = s.quit == Some(top);
+        s.quit = Some(top);
+        Some(if again {
+            "interrupt".to_string()
+        } else {
+            format!("close {top}")
+        })
+    });
+    send(line.into_iter().collect());
+}
+
 /// A key: its IUP code to the VM, the browser's own use of it prevented.
 pub(crate) fn on_key(e: KeyboardEvent) {
+    if e.ctrl_key() && !e.meta_key() && e.key().eq_ignore_ascii_case("c") && !selecting() {
+        e.prevent_default();
+        e.stop_propagation();
+        quit();
+        return;
+    }
     if clipboard_key(&e.key(), e.ctrl_key(), e.meta_key()) {
         return;
     }

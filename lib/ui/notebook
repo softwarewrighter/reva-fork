@@ -2,7 +2,7 @@
 |
 | ui/notebook -- a small notebook in the TUI (reva-fork; docs/ui-model.md)
 |
-|   needs ui/notebook  notebook
+|   notebook        (built in: it loads this library the first time)
 |
 | Type a Forth line in the top pane and press Ctrl-J or F6 (fn+F6 on a
 | Mac keyboard): the line under the cursor is evaluated, and what it prints,

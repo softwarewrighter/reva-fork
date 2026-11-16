@@ -63,3 +63,21 @@ fn about_reads_the_page_and_the_vm() {
     );
     assert!(about("1", b"", b"").contains("page: (none)"));
 }
+
+#[test]
+fn the_page_gets_the_footer_settings() {
+    // CoSy's asks 23 and 25: about.version leads the footer, sourceLinks
+    // drops reva-fork's source links (www/about.js)
+    let dir = package(
+        "footer",
+        r#"{"name": "cosy", "about": {"name": "CoSy", "version": "2026.1106.2"}, "sourceLinks": false}"#,
+    );
+    let o = Options {
+        package: Some(dir.clone()),
+        ..Default::default()
+    };
+    let p = build_state(o).unwrap().session.package.unwrap();
+    assert_eq!(p["about"]["version"], "2026.1106.2");
+    assert_eq!(p["sourceLinks"], false);
+    fs::remove_dir_all(dir).unwrap();
+}
