@@ -11,6 +11,11 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-16
+
+- 08:55 `chore` Release 2026.1114.0: dev merged into main (1cee68e) and the live demo published. Checked: before the PR, every deliverable built through the just recipes at the release commit b2b4945 (just release-check: reva --version, the web page's VM, reva-serve and its page, the desktop app with its page and VM); dev's tree identical to it after the merge (no second gate); live in Chrome: footer reva-fork 2026.1114.0 build 1cee68e, `?eval=notebook` opens the built-in notebook. The PATH's ~/.cargo/bin reva and reva-desktop are still 2026.1106.2. Nothing set aside for publish-pages this time: `.gitignore` now covers the files it once tripped on (#109).
+- 08:50 `chore` Merge #110 (local-release-1114: 2026.1114.0).
+
 ## 2026-11-14
 
 - 18:48 `release` 2026.1114.0, at the user's request: today's first merge to main. Since 2026.1107.0: `notebook` built in (#103); `argv` works and programs get arguments, `reva prog.f -- a b` (#104); ways out of a TUI dialog, a `[×]` that hits, Ctrl-C, scrolling, and a fault in a callback keeps the dialog (#105, CoSy's ask 24); faults under a program's own `catch` return a throw code, and Reva 7.0's queued callbacks keep `gui-main-loop` going (#106, ask 24: Bob's `go`); a package's version leads the footer and `sourceLinks: false` (#108, asks 23, 25); agentrail session logs out of the repository, history rewritten (#107); `.gitignore` (#109). Checked before the PR, built through the recipes at the release commit (just release-check): reva --version; the web page's VM (banner, footer); reva-serve --version and the page inside it; the desktop app (reva-desktop --about: its version, page and VM).
