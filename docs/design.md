@@ -514,6 +514,10 @@ reports no FAILs, and the gate requires that.
     `ioerr`, so a typo or an upload under another name did nothing,
     silently. `(include)`, which `needs` uses to try several folders,
     stays silent; `needs` reports a library it cannot find itself.
+11. `rename` takes `a1 n1 a2 n2` and nothing more. `reva.f`'s Linux
+    `rename` passes three arguments to the two-argument system call and
+    took a cell from under the names (its Mac and Windows `rename` do
+    not); the boot source replaces that line (`embedded.rs`, `RENAME_WORD`).
 
 ## 6. The road to native speed
 

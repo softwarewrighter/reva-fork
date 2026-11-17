@@ -13,6 +13,9 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-17
 
+- 11:29 `chore` Step local-rename-stack complete (saga record).
+- 11:21 `fix` `rename` takes its two names and nothing more (step local-rename-stack, the user's choice: fix it). `" a" " b" rename` renamed the file and then underflowed: `src/reva.f`'s Linux `rename` passes three arguments to the two-argument rename system call (Reva's Mac and Windows `rename` take exactly two, and its other Linux system calls pass the right counts). The boot source replaces that one line (embedded.rs `RENAME_WORD`; `src/reva.f` unchanged; a test fails if the line moves). tests/forth/files.f drops its spare cell and checks `depth` after `rename` (golden lib-files: `0 0`). docs/gotchas.md and design.md (deviation 11). Nothing in CoSy calls `rename`.
+- 11:15 `chore` Merge #111 (local-agentrail-adopt: agentrail's session-log store, shadow and remap).
 - 10:43 `chore` Step local-agentrail-adopt complete (saga record; the first step with agentrail's `transcript.md`, prompts and replies only, checked for CoSy quotes).
 - 10:35 `build` agentrail's answer to our ask 1 adopted (step local-agentrail-adopt, inserted before local-rename-stack: `agentrail next` reported the briefing stale and a session log inside the repository). `agentrail instructions apply` (CLAUDE.md's briefing: session logs stay out, the step transcript, the shadow store); `agentrail sessions migrate` moved the log to `~/.agentrail/sessions/`; `agentrail shadow set ../reva-fork-agentrail` and `shadow push` replace scripts/agentrail-shadow.sh (removed; CLAUDE.md, `.gitignore`); `agentrail remap` with the 2026-11-13 commit map fixed 65 recorded commits the history rewrite had left dangling, and two that were amended away before it (local-runaway-guard: 7cbe0a6, local-notebook-file: 11c67c8, matched by commit time); 0 dangling now. docs/agentrail-asks.md: ask 1 answered, each part with the command that answers it.
 
