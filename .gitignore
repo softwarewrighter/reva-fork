@@ -8,6 +8,7 @@ target/
 /notebook.txt
 /notebook.bak
 # agentrail session logs: too large and too private for this public
-# repository; scripts/agentrail-shadow.sh keeps them, compressed, in the
-# private shadow repository (docs/agentrail-asks.md)
+# repository. agentrail keeps them outside it now, and `agentrail shadow
+# push` copies them to the private shadow repository; this stays in case
+# an older agentrail writes them here again (docs/agentrail-asks.md)
 /.agentrail/sessions/

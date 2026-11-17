@@ -1,0 +1,1 @@
+Adopted agentrail's answer to ask 1: instructions apply, sessions migrate (log to ~/.agentrail/sessions), shadow set ../reva-fork-agentrail + shadow push (scripts/agentrail-shadow.sh removed), remap with the 2026-11-13 commit map (65) plus 2 by commit time; 0 dangling. CLAUDE.md, .gitignore, docs/agentrail-asks.md updated. Full gate ok.
