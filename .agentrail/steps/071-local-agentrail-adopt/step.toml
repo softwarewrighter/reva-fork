@@ -1,8 +1,9 @@
 number = 71
 slug = "local-agentrail-adopt"
-status = "in-progress"
+status = "completed"
 description = "agentrail (2026-11-15) answers docs/agentrail-asks.md ask 1: logs kept outsid..."
 role = "production"
 context_files = []
 created_at = "2026-11-17T08:51:52"
-commits = []
+completed_at = "2026-11-17T10:43:28"
+commits = ["cef702781f94147d8340cb7510fae15eeeb741e6"]
