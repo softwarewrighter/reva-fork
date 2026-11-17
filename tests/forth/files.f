@@ -6,7 +6,7 @@
 " files-test.tmp" stat $f000 and $8000 = .  " files-test.tmp" mtime 0 > .  cr
 " files-test.tmp" open/rw value w  5 w seek  " ONE" w write  w tell .  w close
 " files-test.tmp" slurp type
-0 " files-test.tmp" " files-test.ren" rename ioerr @ .
+" files-test.tmp" " files-test.ren" rename ioerr @ . depth .
 " files-test.tmp" open/r . ioerr @ .  cr
 needs os/dir
 " files-test.dir" mkdir ioerr @ .  " files-test.dir" chdir ioerr @ .
