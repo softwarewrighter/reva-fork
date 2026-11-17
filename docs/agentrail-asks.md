@@ -3,7 +3,21 @@
 Feature requests from reva-fork to agentrail, the saga tool its sessions
 follow (`.agentrail/`, CLAUDE.md). The first is about space.
 
-## 1. Session logs outgrow the repository (high)
+## 1. Session logs outgrow the repository (answered)
+
+**Answered (agentrail of 2026-11-15, adopted 2026-11-17).** Each ask
+below became a command:
+
+| Ask | agentrail now |
+|-----|---------------|
+| 1. Do not commit logs | kept in `~/.agentrail/sessions/<repo>/` (`agentrail sessions path`); `agentrail sessions migrate` moved this repository's out |
+| 2. A shadow store | `agentrail shadow set ../reva-fork-agentrail`, `push`, `pull`, `status`; it replaces `scripts/agentrail-shadow.sh` (removed) |
+| 3. A text digest per step | `steps/NNN-slug/transcript.md`: the prompts and replies, with the log's hash |
+| 4. A size guard | `agentrail check-size`, and `complete` leaves out a file over the limit |
+| 5. Survive history rewrites | `agentrail remap`: reva-fork's steps were remapped with the 2026-11-13 commit map; two steps had recorded commits amended away before the rewrite, matched by time (`--from`/`--to`) |
+| 6. A privacy note | in the briefing (CLAUDE.md) |
+
+What follows is the ask as filed.
 
 **What happened (2026-11-13).** agentrail keeps each agent session's log
 in `.agentrail/sessions/ID.jsonl`, and the saga-record commits commit it.

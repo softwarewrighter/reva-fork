@@ -1,0 +1,8 @@
+number = 71
+slug = "local-agentrail-adopt"
+status = "in-progress"
+description = "agentrail (2026-11-15) answers docs/agentrail-asks.md ask 1: logs kept outsid..."
+role = "production"
+context_files = []
+created_at = "2026-11-17T08:51:52"
+commits = []

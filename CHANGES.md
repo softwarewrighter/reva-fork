@@ -11,6 +11,10 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-17
+
+- 10:35 `build` agentrail's answer to our ask 1 adopted (step local-agentrail-adopt, inserted before local-rename-stack: `agentrail next` reported the briefing stale and a session log inside the repository). `agentrail instructions apply` (CLAUDE.md's briefing: session logs stay out, the step transcript, the shadow store); `agentrail sessions migrate` moved the log to `~/.agentrail/sessions/`; `agentrail shadow set ../reva-fork-agentrail` and `shadow push` replace scripts/agentrail-shadow.sh (removed; CLAUDE.md, `.gitignore`); `agentrail remap` with the 2026-11-13 commit map fixed 65 recorded commits the history rewrite had left dangling, and two that were amended away before it (local-runaway-guard: 7cbe0a6, local-notebook-file: 11c67c8, matched by commit time); 0 dangling now. docs/agentrail-asks.md: ask 1 answered, each part with the command that answers it.
+
 ## 2026-11-16
 
 - 08:55 `chore` Release 2026.1114.0: dev merged into main (1cee68e) and the live demo published. Checked: before the PR, every deliverable built through the just recipes at the release commit b2b4945 (just release-check: reva --version, the web page's VM, reva-serve and its page, the desktop app with its page and VM); dev's tree identical to it after the merge (no second gate); live in Chrome: footer reva-fork 2026.1114.0 build 1cee68e, `?eval=notebook` opens the built-in notebook. The PATH's ~/.cargo/bin reva and reva-desktop are still 2026.1106.2. Nothing set aside for publish-pages this time: `.gitignore` now covers the files it once tripped on (#109).
