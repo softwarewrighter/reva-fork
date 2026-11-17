@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-17
 
+- 11:29 `chore` Step local-rename-stack complete (saga record).
 - 11:21 `fix` `rename` takes its two names and nothing more (step local-rename-stack, the user's choice: fix it). `" a" " b" rename` renamed the file and then underflowed: `src/reva.f`'s Linux `rename` passes three arguments to the two-argument rename system call (Reva's Mac and Windows `rename` take exactly two, and its other Linux system calls pass the right counts). The boot source replaces that one line (embedded.rs `RENAME_WORD`; `src/reva.f` unchanged; a test fails if the line moves). tests/forth/files.f drops its spare cell and checks `depth` after `rename` (golden lib-files: `0 0`). docs/gotchas.md and design.md (deviation 11). Nothing in CoSy calls `rename`.
 - 11:15 `chore` Merge #111 (local-agentrail-adopt: agentrail's session-log store, shadow and remap).
 - 10:43 `chore` Step local-agentrail-adopt complete (saga record; the first step with agentrail's `transcript.md`, prompts and replies only, checked for CoSy quotes).

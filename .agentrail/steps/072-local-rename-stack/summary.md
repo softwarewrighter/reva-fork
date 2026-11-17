@@ -1,0 +1,1 @@
+rename fixed at boot: embedded.rs replaces reva.f's Linux rename (3 args to the 2-arg syscall) with a 2-arg one; other Linux syscall counts checked, all right; unit test, files.f depth check (golden lib-files), gotchas.md, design.md deviation 11. Full gate ok.
