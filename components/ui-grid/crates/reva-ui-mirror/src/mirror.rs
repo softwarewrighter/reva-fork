@@ -1,5 +1,7 @@
 //! The copy.
 
+use std::collections::HashMap;
+
 use reva_ui_base::change::Handle;
 use reva_ui_tree::tree::Tree;
 
@@ -10,6 +12,11 @@ pub struct Mirror {
     /// The dialogs shown, the one on top last.
     pub shown: Vec<Shown>,
     pub focus: Option<Handle>,
+    /// The renderer's own: the first line and column each text element
+    /// was last drawn from (the model has no scroll position), so the view
+    /// stays put while the caret is in it, and a click finds the character
+    /// it was drawn over.
+    pub scroll: HashMap<Handle, (usize, usize)>,
 }
 
 /// A dialog shown, where (IUP's position; negative: centred) and whether

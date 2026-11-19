@@ -132,7 +132,10 @@ pub fn Tui() -> Html {
         redraw();
     });
     use_effect(paint_canvases);
-    let g = with(|s| paint(&s.mirror, room(&s.mirror, s.size)));
+    let g = with(|s| {
+        let size = room(&s.mirror, s.size);
+        paint(&mut s.mirror, size)
+    });
     let grid = use_node_ref();
     let onmousedown = {
         let grid = grid.clone();

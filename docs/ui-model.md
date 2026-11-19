@@ -132,7 +132,7 @@ and the programs run unchanged.
   the gate `IupLoop`, which sends the host the changes since the last time
   and asks for an event: the host call `ui` `wait`, bytes = the change
   lines, answered with one event line (`key K_F6`, `key 65`, `click 5`,
-  `focus 3`, `close 1`). A host that answers later (the desktop's page)
+  `focus 3`, `caret 3 2 5`, `close 1`). A host that answers later (the desktop's page)
   pauses the VM there, as SQLite calls do. The loop ends when no dialog is
   shown (a popup's: when it is hidden) or a callback returns `CLOSE`; the
   `(call)` then returns 0.
@@ -159,6 +159,9 @@ key K_F6          a key, by IUP's name or code
 type 2 3 +        the characters, one key each
 click 5           a button, toggle or menu item (by handle)
 focus 3
+caret 3 2 5       text element 3's caret on line 2, column 5 (from 1)
+tap 12 6          a click at column 12, row 6 of the 80x24 screen (from
+                  0): the events it gives in the page or the terminal
 close 1           a dialog's close box
 file /tmp/a.txt   the answer to a file dialog
 cancel            a file dialog cancelled
@@ -168,8 +171,9 @@ timer 9           a timer's tick: ACTION_CB, if RUN=YES
 ```
 
 The goldens `iup-hello-world`, `iup-simple-button`, `iup-notebook` (a
-Tui.f-shaped notebook, `tests/forth/iup-notebook.f`) and
-`iup-notebook-screen` (its screens) run this way. The browser and the
+Tui.f-shaped notebook, `tests/forth/iup-notebook.f`),
+`iup-notebook-screen` (its screens) and `tui-notebook-click` (taps in
+the notebook's text) run this way. The browser and the
 desktop app draw the TUI (below).
 
 ## The TUI
@@ -187,10 +191,15 @@ cells.
   text cursor at the focused element's caret. Dialogs and frames are
   boxes titled in their top border, a dialog with its close box `×`;
   buttons `[ OK ]`, toggles `[x] Bold`, text fields between brackets,
-  multilines and lists in a box, scrolled to the caret, the selection
-  marked. Dialogs go where they were shown (pixels at 8 by 16 to a
+  multilines and lists in a box, the selection marked. A text scrolls
+  only as far as it must to show the caret, and stays put while the caret
+  is in view (the mirror keeps where each was drawn from; the model has no
+  scroll). Dialogs go where they were shown (pixels at 8 by 16 to a
   cell), centred for IUP's named positions, the top one last. `click`
-  turns a cell into event lines (`focus 5`, `click 5`, `close 1`).
+  turns a cell into event lines (`focus 5`, `click 5`, `close 1`); in a
+  text or multiline, `focus 3` and `caret 3 L C`, the character under
+  the click (past the end of a line: its end), so a click moves the caret
+  in the page, the desktop app and the terminal alike.
 - **The page** (component `ui-web`, crate reva-ui-web): a Yew element
   that draws the cells as spans, a class per role, coloured by the page's
   light and dark themes, and sends keys (function keys too) and clicks

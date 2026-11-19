@@ -8,6 +8,7 @@ use reva_ui_layout::place::{layout, wanted};
 use reva_ui_mirror::mirror::{Mirror, Shown};
 
 use crate::draw::{close_cols, draw};
+use crate::hit::{caret_at, content_area};
 use reva_ui_grid::grid::{Grid, Role};
 
 /// Where dialog `s`, `size` cells big, goes on a `screen`: at its IUP
@@ -68,8 +69,9 @@ pub fn room(m: &Mirror, screen: Size) -> Size {
         })
 }
 
-/// The screen: `m`'s shown dialogs painted on a grid of `screen` cells.
-pub fn paint(m: &Mirror, screen: Size) -> Grid {
+/// The screen: `m`'s shown dialogs painted on a grid of `screen` cells
+/// (noting in `m` where each text element is scrolled to).
+pub fn paint(m: &mut Mirror, screen: Size) -> Grid {
     let mut g = Grid::new(screen, Role::Screen);
     for p in placements(m, screen) {
         draw(&mut g, m, p.handle, p.rect);
@@ -78,7 +80,8 @@ pub fn paint(m: &Mirror, screen: Size) -> Grid {
 }
 
 /// What a click at `col`, `row` does, as event lines for the VM: a
-/// button, toggle or menu item is focused and clicked, another element
+/// button, toggle or menu item is focused and clicked, a text element is
+/// focused and its caret put on the character clicked, another element
 /// that takes the focus is focused, the top dialog's close box `×` closes
 /// it; nothing on a modal dialog's backdrop.
 pub fn click(m: &Mirror, screen: Size, col: u16, row: u16) -> Vec<String> {
@@ -89,21 +92,27 @@ pub fn click(m: &Mirror, screen: Size, col: u16, row: u16) -> Vec<String> {
     if let Some(d) = top.filter(|d| row == d.rect.row && close_cols(d.rect).contains(&col)) {
         return vec![format!("close {}", d.handle)];
     }
-    let hit: Option<Handle> = placed
-        .into_iter()
+    let kind = |h: Handle| m.tree.node(h).map(|n| n.kind);
+    let hit: Option<&Placed> = placed
+        .iter()
         .filter(|p| inside(&p.rect))
-        .map(|p| p.handle)
-        .rfind(|h| m.tree.node(*h).is_some_and(|n| takes_focus(n.kind)));
-    let Some(h) = hit.filter(|h| {
+        .rfind(|p| kind(p.handle).is_some_and(takes_focus));
+    let Some(p) = hit.filter(|p| {
         !m.shown
             .last()
-            .is_some_and(|s| s.modal && !m.tree.contains(s.handle, *h))
+            .is_some_and(|s| s.modal && !m.tree.contains(s.handle, p.handle))
     }) else {
         return Vec::new();
     };
-    match m.tree.node(h).map(|n| n.kind) {
+    let h = p.handle;
+    match kind(h) {
         Some(Kind::Button | Kind::Toggle | Kind::Item) => {
             vec![format!("focus {h}"), format!("click {h}")]
+        }
+        Some(k @ (Kind::Text | Kind::MultiLine)) => {
+            let area = content_area(k, p.rect).unwrap_or(p.rect);
+            let (lin, c) = caret_at(m, h, area, col, row);
+            vec![format!("focus {h}"), format!("caret {h} {lin} {c}")]
         }
         _ => vec![format!("focus {h}")],
     }

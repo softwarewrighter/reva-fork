@@ -1,6 +1,6 @@
 number = 73
 slug = "local-tui-click-caret"
-status = "pending"
+status = "in-progress"
 description = "Bug (found 2026-11-07 in local-ls-pp, in Chrome): a click in a TUI text eleme..."
 role = "production"
 context_files = []
