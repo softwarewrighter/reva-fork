@@ -1,8 +1,9 @@
 number = 73
 slug = "local-tui-click-caret"
-status = "in-progress"
+status = "completed"
 description = "Bug (found 2026-11-07 in local-ls-pp, in Chrome): a click in a TUI text eleme..."
 role = "production"
 context_files = []
 created_at = "2026-11-07T09:38:23"
-commits = []
+completed_at = "2026-11-18T19:21:34"
+commits = ["cc74ea6b97a3bff0fc3f49a83a9d12e93030785e"]

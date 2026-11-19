@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-18
 
+- 19:40 `chore` Step local-tui-click-caret complete (saga record).
 - 19:30 `fix` A click in a TUI text moves the caret there (step local-tui-click-caret, found 2026-11-07: in the notebook a line had to be reached with the arrow keys). `paint::click` on a text or multiline gives `focus H` and a new event, `caret H L C` (IUP's CARET, from 1): the character under the click, past a line's end its end; the page, the desktop app (the same page) and the terminal all use it. New `reva-ui-paint::hit` (the cells a text is drawn in, its scroll, the character in a cell), shared by drawing and clicking. A text no longer jumps to keep the caret on its bottom row: it scrolls only as far as it must and stays put while the caret is in view (`Mirror::scroll`, where each text was last drawn from; `paint` takes `&mut Mirror`), so a click lands where it was drawn; no golden changed. `--ui-script` gains `caret H L C` and `tap COL ROW` (a click on the 80x24 screen, through the same `click`). New golden tui-notebook-click (taps on a line and past a line's end, F6 runs it: 42 and stack 43, then stack 5); paint tests for a scrolled multiline; checked in Chrome on the local page (a click after `6 7`, F6: 42, stack: 43). docs/ui-model.md.
 
 ## 2026-11-17
