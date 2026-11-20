@@ -7,13 +7,15 @@
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 app="${REVA_DESKTOP:-$here/../../target/release/reva-desktop}"
+# GNU timeout, gtimeout or a portable fallback (a stock Mac has none)
+limit="$here/../../scripts/run-limit.sh"
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 run() {
     if [[ -z "${DISPLAY:-}" && "$(uname)" == Linux ]]; then
-        timeout 60 xvfb-run -a "$app" "$@" 2>/dev/null
+        "$limit" 60 xvfb-run -a "$app" "$@" 2>/dev/null
     else
-        timeout 60 "$app" "$@" 2>/dev/null
+        "$limit" 60 "$app" "$@" 2>/dev/null
     fi
 }
 fail=0
@@ -62,8 +64,8 @@ done
 kill $pid
 SH
     chmod +x "$work/probe"
-    if [[ -z "${DISPLAY:-}" ]]; then probe_run() { timeout 60 xvfb-run -a "$work/probe" "$@" 2>/dev/null; }
-    else probe_run() { timeout 60 "$work/probe" "$@" 2>/dev/null; }; fi
+    if [[ -z "${DISPLAY:-}" ]]; then probe_run() { "$limit" 60 xvfb-run -a "$work/probe" "$@" 2>/dev/null; }
+    else probe_run() { "$limit" 60 "$work/probe" "$@" 2>/dev/null; }; fi
     out=$(probe_run "$app" --package "$work/brand")
     check "the manifest names the window" 'WM_NAME(STRING) = "Smoke Pkg"' "$out"
     check "the manifest sets the app id" 'WM_CLASS(STRING) = "reva-smoke"' "$out"

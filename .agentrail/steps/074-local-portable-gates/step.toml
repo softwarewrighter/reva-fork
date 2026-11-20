@@ -1,6 +1,6 @@
 number = 74
 slug = "local-portable-gates"
-status = "pending"
+status = "in-progress"
 description = "Bugs: the gate is not green on macOS. (a) rust/scripts/parity-examples.sh and..."
 role = "production"
 context_files = []

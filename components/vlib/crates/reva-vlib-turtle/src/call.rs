@@ -54,8 +54,10 @@ reva_macros::machine_trait! {
         fn tt_path(&mut self, host: &mut dyn Host, p: u32, n: u32) -> R<u32> {
             let bytes = self.mem.slice(p, n.saturating_mul(4))?;
             let hs: Vec<f64> = bytes
-                .chunks_exact(4)
-                .map(|b| f64::from(i32::from_le_bytes([b[0], b[1], b[2], b[3]])))
+                .as_chunks::<4>()
+                .0
+                .iter()
+                .map(|b| f64::from(i32::from_le_bytes(*b)))
                 .collect();
             let ok = self.canvas.path(hs);
             self.tt_drew(host, ok);

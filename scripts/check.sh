@@ -13,21 +13,14 @@
 #   *. release-check.sh: the CLI, the web page, reva-serve and (without
 #      --fast) the desktop app, built through the just recipes, show VERSION
 #      and this commit
-#   4. the reg-rs goldens on the release CLI; a failure is accepted only
-#      if KNOWN_FAILURES lists it for this OS
+#   4. the reg-rs goldens on the release CLI, every one passing on macOS
+#      and Linux alike
 #   5. the license check
 #   6. sw-checklist: its FAIL count may not exceed SW_CHECKLIST_MAX_FAILS
 #
 # Bash 3.2 compatible (macOS /bin/bash).
 set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
-
-# Goldens known to fail, per OS, until the step that fixes them
-# (.agentrail: local-portable-gates).  The list may only shrink.
-case "$(uname)" in
-    Darwin) KNOWN_FAILURES="docs-samples" ;;
-    *)      KNOWN_FAILURES="" ;;
-esac
 
 # sw-checklist FAILs: 51 on 2026-10-26, 49 after edition 2024, 47 after
 # the web checks, 46 after the split of reva-vm, 40 after the word
@@ -77,14 +70,8 @@ fi
 step "goldens (reg-rs, release CLI)"
 out=$(cd "$root" && REVA=target/release/reva scripts/regress.sh 2>&1) || true
 echo "$out" | grep -E 'passed|FAIL' || fail "goldens: no summary from regress.sh"
-unexpected=""
-for t in $(echo "$out" | sed -n 's/^ *FAIL: *//p'); do
-    case " $KNOWN_FAILURES " in
-        *" $t "*) echo "   (known failure on $(uname): $t)" ;;
-        *)        unexpected="$unexpected $t" ;;
-    esac
-done
-[[ -z "$unexpected" ]] || fail "goldens:$unexpected (details: REVA=target/release/reva scripts/regress.sh -v -p NAME)"
+failed=$(echo "$out" | sed -n 's/^ *FAIL: *//p' | tr '\n' ' ')
+[[ -z "$failed" ]] || fail "goldens: $failed(details: REVA=target/release/reva scripts/regress.sh -v -p NAME)"
 
 step "release-check: every deliverable shows VERSION and this commit"
 if [[ $fast -eq 0 ]]; then

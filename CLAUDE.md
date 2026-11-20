@@ -451,9 +451,11 @@ runs `scripts/doc-check.sh` on the Markdown files it changes instead of
 Anything else in the commit (code, `lib/`, scripts, goldens) means the
 full gate.
 
-The script lists goldens known to fail per OS; the list may only
-shrink: lower it in the commit that fixes something, never raise it.
-sw-checklist must report 0 FAILs (its warnings are not gated).
+Every golden passes on macOS and Linux alike (no known-failure list,
+since local-portable-gates). Scripts get a time limit through
+`scripts/run-limit.sh` (GNU `timeout`, `gtimeout` or a fallback), and
+parity-examples limits programs by VM steps (`reva --max-steps`), not
+by time. sw-checklist must report 0 FAILs (its warnings are not gated).
 
 Tools it needs on PATH: `reg-rs`, `sed-rs`, `sw-checklist`, `node`,
 `just`, `wasm-bindgen` (the version components/ui-web pins); the
