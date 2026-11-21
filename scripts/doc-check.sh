@@ -19,7 +19,12 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 norm() { "$SED_RS" -e 's/[[:space:]]*$//' | "$SED_RS" -e ':a' -e '/^\n*$/{$d;N;ba' -e '}'; }
 status=0
-for md in "$@"; do
+# The files in C (byte) order, whatever order the shell's glob gave them in
+# (macOS's locale puts docs/README.md last, Linux's C locale first).
+[[ $# -gt 0 ]] || exit 0
+files=()
+while IFS= read -r f; do files+=("$f"); done < <(printf '%s\n' "$@" | LC_ALL=C sort)
+for md in "${files[@]}"; do
     rm -f "$work"/*
     # Split into numbered sample files: N.f (source), N.out (expected), N.line
     awk -v dir="$work" '

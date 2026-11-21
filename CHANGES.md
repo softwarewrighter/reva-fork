@@ -11,6 +11,11 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-20
+
+- 12:15 `chore` Step local-portable-gates complete (saga record); `plan` step local-cd-pixel-test inserted after it (the user: a pixel test for CD drawing, in the browser's Canvas2D, through headless Chrome).
+- 11:30 `build` The gate is green on macOS with no known-failure list (step local-portable-gates). New `scripts/run-limit.sh SECONDS CMD`: GNU `timeout`, else `gtimeout`, else a portable fallback (exit 124 as `timeout`; `RUN_LIMIT_PORTABLE=1` forces it), used by parity-examples.sh and components/desktop/smoke.sh. New `reva --max-steps N`: end a run after N VM steps without waiting for input (`*** step limit`, exit 124), the same point on any machine; parity-examples gives each program 100M steps (sudoku.f and task.f need 50-70M; sieve.f, 2-4G, stays `timeout`) with a 30 s wall-clock backstop for `ms` sleepers, so its golden no longer depends on speed (unchanged: 72 run, 12 timeout). doc-check.sh checks its files in C order, so docs-samples matches on macOS too. smoke.sh run on the Mac (11 ok, also through the fallback); not in the gate, since each check opens a window. New golden cli-max-steps. Rust 1.100's clippy lint `chunks_exact_to_as_chunks` fixed in reva-vlib-turtle (`tt_path`: `as_chunks::<4>`). CLAUDE.md, getting-started.md, gotchas.md, parity.md, parity-examples.md.
+
 ## 2026-11-18
 
 - 19:40 `chore` Step local-tui-click-caret complete (saga record).

@@ -270,6 +270,8 @@ and it goes on when the tab is shown again (`?background` in the URL keeps
 it running). The CLI stops a run with `*** time limit` and exit status 124
 after `reva --max-cpu SECONDS`. That limit defaults to 30 seconds with
 `--ui-script` and is off otherwise (Ctrl-C stops a run at a terminal).
+`reva --max-steps N` counts VM steps instead (`*** step limit`), so where
+a run stops does not depend on the machine or its load.
 
 ## `save` writes an image, not an executable
 
