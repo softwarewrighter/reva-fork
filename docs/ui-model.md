@@ -272,7 +272,11 @@ timer with RUN=YES (every TIME ms, at most one waiting), and the model
 calls its ACTION_CB. `binary-clock`, `brownian` and `cd-test` run
 unchanged in the browser (the desktop app shows the same page); the
 goldens `iup-cd-test` and `iup-brownian` check their lists with
-`--ui-script`. `needs ui/cd-demo cd-demo` (`lib/ui/cd-demo`) shows one on
+`--ui-script`, and `test/cd-pixels.mjs` (components/web, in the gate)
+checks the pixels: it runs `cd-test` in the real page in headless Chrome
+(no window), sizes its canvas to 400x200 and reads it back with
+`getImageData`: the background, the dotted line, the mark, the box and
+the bitmap (`CD_PIXELS_PNG=FILE` saves the canvas). `needs ui/cd-demo cd-demo` (`lib/ui/cd-demo`) shows one on
 the page, live demo included. The terminal draws no canvases (their frame
 only). Not
 CD's other contexts (PDF, printer, images to files), clipping, arcs or

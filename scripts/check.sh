@@ -55,7 +55,7 @@ done
 
 step "web: wasm build, node tests"
 "$root/scripts/build-web.sh" >/dev/null || fail "web: build-web.sh"
-for t in smoke lineedit ansi store about; do
+for t in smoke lineedit ansi store about cd-pixels; do
     node "$root/components/web/crates/reva-web/test/$t.mjs" >/dev/null || fail "web: test/$t.mjs (run it for details)"
 done
 

@@ -1,6 +1,6 @@
 number = 75
 slug = "local-cd-pixel-test"
-status = "pending"
+status = "in-progress"
 description = "A pixel test for CD drawing (the user, 2026-11-20). CD's DRAW list becomes pi..."
 role = "production"
 context_files = []
