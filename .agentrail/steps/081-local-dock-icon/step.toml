@@ -1,4 +1,4 @@
-number = 80
+number = 81
 slug = "local-dock-icon"
 status = "pending"
 description = "Bug: started as a plain binary (~/.cargo/bin/reva-desktop, desktop/target/rel..."

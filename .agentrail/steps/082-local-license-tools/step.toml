@@ -1,4 +1,4 @@
-number = 81
+number = 82
 slug = "local-license-tools"
 status = "pending"
 description = "Bug: rust/scripts/license-check.sh passes on the Mac without checking crate l..."

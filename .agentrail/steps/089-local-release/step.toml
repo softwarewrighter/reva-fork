@@ -1,4 +1,4 @@
-number = 88
+number = 89
 slug = "local-release"
 status = "pending"
 description = "Feature: the release process. A `just bump` that sets the version (YYYY.MMDD...."

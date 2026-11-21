@@ -1,4 +1,4 @@
-number = 90
+number = 91
 slug = "local-checklist-warnings"
 status = "pending"
 description = "Last, after the FAILs and the pending features (the user, 2026-10-30): sw-che..."

@@ -1,4 +1,4 @@
-number = 85
+number = 86
 slug = "local-reva-app"
 status = "pending"
 description = "Feature: `just reva-app` builds and installs ~/Applications/Reva.app (icon, n..."

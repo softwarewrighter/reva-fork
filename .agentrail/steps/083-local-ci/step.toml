@@ -1,4 +1,4 @@
-number = 82
+number = 83
 slug = "local-ci"
 status = "pending"
 description = "Feature: GitHub Actions running `just check` on macos-latest and ubuntu-lates..."

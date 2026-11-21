@@ -1,4 +1,4 @@
-number = 87
+number = 88
 slug = "local-perf-baseline"
 status = "pending"
 description = "Feature: the benchmark suite behind the translators (roadmap 5): `just bench`..."

@@ -1,4 +1,4 @@
-number = 83
+number = 84
 slug = "local-repl-polish"
 status = "pending"
 description = "Feature: `reva -V` / `version` show a dirty working tree at build time (Commi..."
