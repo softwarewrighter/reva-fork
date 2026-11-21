@@ -48,7 +48,7 @@ fn a_form_on_the_grid() {
     let mut m = Mirror::default();
     mirror(&mut ui, &mut m);
     assert_eq!(m.focus, Some(t));
-    let g = paint(&m, Size { cols: 24, rows: 10 });
+    let g = paint(&mut m, Size { cols: 24, rows: 10 });
     let want = "    ┌ Form ─────[×]┐\n    │Name          │\n    │[          ]  │\n    │┌────────────┐│\n    ││two         ││\n    ││three       ││\n    │└────────────┘│\n    │[ OK ][ No ]  │\n    └──────────────┘\n\ncursor 6,2\n";
     assert_eq!(
         g.to_text(),
@@ -75,7 +75,7 @@ fn selection_focus_and_clicks() {
     let mut m = Mirror::default();
     mirror(&mut ui, &mut m);
     let screen = Size { cols: 20, rows: 10 };
-    let g = paint(&m, screen);
+    let g = paint(&mut m, screen);
     assert_eq!(g.cursor, Some((2, 4)), "in the multiline now");
     let roles: Vec<Role> = (2..5).map(|c| g.cell(c, 2).unwrap().role).collect();
     assert_eq!(
@@ -95,7 +95,11 @@ fn selection_focus_and_clicks() {
         click(&m, screen, 8, 7),
         [format!("focus {cancel}"), format!("click {cancel}")]
     );
-    assert_eq!(click(&m, screen, 3, 2), [format!("focus {t}")]);
+    assert_eq!(
+        click(&m, screen, 3, 2),
+        [format!("focus {t}"), format!("caret {t} 1 2")],
+        "the caret on the d of Ada"
+    );
     assert!(click(&m, screen, 3, 1).is_empty(), "a label takes no click");
     assert!(click(&m, screen, 19, 9).is_empty(), "nor the screen");
     for col in 12..16 {
@@ -109,6 +113,39 @@ fn selection_focus_and_clicks() {
 }
 
 #[test]
+fn a_click_puts_the_caret_where_the_view_shows() {
+    let (mut ui, [d, _, _, e, ..]) = form();
+    ui.show(d, -1, -1, false);
+    ui.set(e, "VALUE", Some("one\ntwo\nthree"));
+    ui.set(e, "CARET", Some("3,6"));
+    let mut m = Mirror::default();
+    mirror(&mut ui, &mut m);
+    let screen = Size { cols: 24, rows: 10 };
+    paint(&mut m, screen);
+    let lines = click(&m, screen, 7, 4);
+    assert_eq!(
+        lines,
+        [format!("focus {e}"), format!("caret {e} 2 2")],
+        "the w of two, the multiline scrolled a line"
+    );
+    ui.event(Event::Focus(e));
+    ui.event(Event::Caret(e, 2, 2));
+    mirror(&mut ui, &mut m);
+    let text = paint(&mut m, screen).to_text();
+    assert!(
+        text.contains("││two         ││\n    ││three       ││"),
+        "the view stays put: {text}"
+    );
+    assert!(text.ends_with("cursor 7,4\n"), "{text}");
+    assert_eq!(
+        click(&m, screen, 18, 5),
+        [format!("focus {e}"), format!("caret {e} 3 12")],
+        "past the end: the model puts it at the end of the line"
+    );
+    assert_eq!(ui.get(e, "CARET").as_deref(), Some("2,2"));
+}
+
+#[test]
 fn a_modal_dialog_on_top() {
     let (mut ui, [d, _, t, ..]) = form();
     let (p, b) = (ui.create(Kind::Dialog), ui.create(Kind::Button));
@@ -119,7 +156,7 @@ fn a_modal_dialog_on_top() {
     let mut m = Mirror::default();
     mirror(&mut ui, &mut m);
     let screen = Size { cols: 30, rows: 12 };
-    let text = paint(&m, screen).to_text();
+    let text = paint(&mut m, screen).to_text();
     assert!(text.lines().nth(5).unwrap().contains("[ Sure? ]"), "{text}");
     assert!(
         click(&m, screen, 3, 2).is_empty(),
@@ -133,5 +170,5 @@ fn a_modal_dialog_on_top() {
     ui.destroy(d);
     mirror(&mut ui, &mut m);
     assert!(m.shown.is_empty() && m.tree.node(t).is_none());
-    assert_eq!(paint(&m, screen).to_text().trim(), "", "nothing shown");
+    assert_eq!(paint(&mut m, screen).to_text().trim(), "", "nothing shown");
 }

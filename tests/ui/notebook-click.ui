@@ -1,0 +1,12 @@
+# A click in the notebook's text puts the caret there (step
+# local-tui-click-caret): tap the "6 7 * dup . 1+" line, F6 runs it.
+# The text starts in column 2, row 3 of the 80x24 screen; the line is
+# row 5.  A tap past the end of a line puts the caret at its end.
+screen
+tap 6 5
+key K_F6
+screen
+tap 70 4
+key K_F6
+screen
+click 6

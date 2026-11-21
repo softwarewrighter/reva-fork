@@ -17,6 +17,8 @@ impl Mirror {
                 t.destroy(handle);
                 self.shown.retain(|s| s.handle != handle);
                 self.focus = self.focus.filter(|f| *f != handle);
+                let tree = &self.tree;
+                self.scroll.retain(|h, _| tree.node(*h).is_some());
             }
             Change::Attr {
                 handle,

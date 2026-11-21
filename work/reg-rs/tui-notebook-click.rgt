@@ -1,0 +1,4 @@
+command = """scripts/in-tempdir.sh sh -c '"$REVA" --ui-script "$ROOT/tests/ui/notebook-click.ui" "$ROOT/examples/tui/notebook.f" < /dev/null'"""
+timeout = 60
+exit_code = 0
+desc = "a click in the notebook's text puts the caret on the character under it (tap): F6 runs the line clicked"

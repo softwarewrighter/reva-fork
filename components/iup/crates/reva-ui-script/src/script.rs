@@ -6,6 +6,9 @@
 //! type 2 3 +        the characters, one key each
 //! click 5           a button, toggle or menu item (by handle)
 //! focus 3
+//! caret 4 2 5       text element 4's caret on line 2, column 5 (from 1)
+//! tap 12 6          a click at column 12, row 6 of the 80x24 screen
+//!                   (from 0): the events it gives in the page or terminal
 //! close 1           a dialog's close box
 //! file /tmp/a.txt   the answer to a file dialog
 //! cancel            a file dialog cancelled
