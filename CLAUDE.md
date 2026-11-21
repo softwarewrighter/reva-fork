@@ -459,7 +459,8 @@ by time. sw-checklist must report 0 FAILs (its warnings are not gated).
 
 Tools it needs on PATH: `reg-rs`, `sed-rs`, `sw-checklist`, `node`,
 `just`, `wasm-bindgen` (the version components/ui-web pins); the
-`wasm32-unknown-unknown` target.
+`wasm32-unknown-unknown` target; Chrome or Chromium (the CD pixel test
+runs it headless; found on PATH, at the Mac's usual place, or `CHROME`).
 
 ## Workflow
 
