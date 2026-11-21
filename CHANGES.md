@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-21
 
+- 11:40 `chore` Step local-release-2026-1121-0 complete (saga record): `just check` green at 5fa3846, release-check ok for every deliverable.
 - 11:10 `release` 2026.1121.0, at the user's request: today's first merge to main. Since 2026.1114.0: agentrail's session-log store, shadow and remap adopted (#111); `rename` takes its two names (#112); a click in a TUI text moves the caret there, in the page, the desktop app and the terminal (#113); the gate is green on macOS with no known-failure list, `scripts/run-limit.sh` and `reva --max-steps` (#114); a pixel test for CD drawing in headless Chrome, which the gate now needs (#115). `plan`: step local-release-2026-1121-0 inserted before local-examples-triage. Checked before the PR, built through the recipes at the release commit (just release-check): reva --version; the web page's VM (banner, footer); reva-serve --version and the page inside it; the desktop app (reva-desktop --about: its version, page and VM).
 
 ## 2026-11-20
