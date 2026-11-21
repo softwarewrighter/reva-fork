@@ -35,6 +35,8 @@ usage: reva [options] [file ...] [-- arg ...]
                        svg, png, off
       --max-cpu SECONDS end a run that computes this long without waiting for input
                        (*** time limit, exit 124; 0: no limit; default 30 with --ui-script)
+      --max-steps N    the same, after N VM steps (in chunks of 2^20): the same
+                       outcome on any machine (*** step limit, exit 124; 0: no limit)
       --ui-script FILE answer IUP programs' user interface from FILE (headless; prints
                        what is shown; docs/ui-model.md)
       --port-check [--fix DIR] FILE...  report Windows-only paths and commands in
@@ -66,6 +68,9 @@ pub struct Options {
     /// --max-cpu: seconds a run may compute without waiting for input
     /// (0: no limit; default: none, 30 under --ui-script).
     pub max_cpu: Option<f64>,
+    /// --max-steps: VM steps a run may take without waiting for input
+    /// (0 or none: no limit).
+    pub max_steps: Option<u64>,
     pub allow_shell: bool,
     pub no_edit: bool,
     pub color: Option<bool>,
@@ -95,7 +100,9 @@ pub fn parse_args() -> Result<Options, String> {
             "--trace-compile" => o.trace_compile = true,
             "--no-edit" => o.no_edit = true,
             "--ui-script" => o.ui_script = Some(value(&a)?),
-            "--underflow" | "--max-cpu" | "--draw" | "--color" => setting(&mut o, &a, &value(&a)?)?,
+            "--underflow" | "--max-cpu" | "--max-steps" | "--draw" | "--color" => {
+                setting(&mut o, &a, &value(&a)?)?
+            }
             "-h" | "--help" => {
                 print!("{USAGE}");
                 std::process::exit(0);
@@ -125,6 +132,12 @@ fn setting(o: &mut Options, name: &str, v: &str) -> Result<(), String> {
             o.max_cpu = Some(
                 v.parse()
                     .map_err(|_| format!("--max-cpu {v}: seconds, a number"))?,
+            );
+        }
+        ("--max-steps", _) => {
+            o.max_steps = Some(
+                v.parse()
+                    .map_err(|_| format!("--max-steps {v}: steps, a whole number"))?,
             );
         }
         ("--draw", _) => o.draw = parse_mode(v)?,

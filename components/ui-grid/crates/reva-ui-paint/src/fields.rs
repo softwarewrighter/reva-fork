@@ -7,8 +7,10 @@ use reva_ui_grid::grid::{Grid, Role};
 use reva_ui_layout::geom::Rect;
 use reva_ui_mirror::mirror::Mirror;
 
+use crate::hit::scroll;
+
 /// A position `"lin,col"` (or `"col"`) from 1, as (line, column) from 0.
-fn parse_pos(s: &str) -> Option<(usize, usize)> {
+pub(crate) fn parse_pos(s: &str) -> Option<(usize, usize)> {
     let n = |s: &str| s.trim().parse::<usize>().ok().map(|n| n.max(1) - 1);
     match s.split_once(',') {
         Some((l, c)) => Some((n(l)?, n(c)?)),
@@ -23,8 +25,10 @@ fn selection(s: &str) -> Option<((usize, usize), (usize, usize))> {
     Some((a.min(b), a.max(b)))
 }
 
-/// Text element `h`'s VALUE in `area`, scrolled to its caret.
-pub fn field(g: &mut Grid, m: &Mirror, h: Handle, area: Rect) {
+/// Text element `h`'s VALUE in `area`, scrolled to show its caret (the
+/// view kept in `m.scroll`).
+pub fn field(g: &mut Grid, m: &mut Mirror, h: Handle, area: Rect) {
+    let was = m.scroll.get(&h).copied().unwrap_or_default();
     let t = &m.tree;
     let value = t.attr(h, "VALUE").unwrap_or_default();
     let caret = t
@@ -32,11 +36,7 @@ pub fn field(g: &mut Grid, m: &Mirror, h: Handle, area: Rect) {
         .and_then(|c| parse_pos(&c))
         .unwrap_or((0, 0));
     let sel = t.attr(h, "SELECTION").and_then(|s| selection(&s));
-    let (rows, cols) = (area.rows.max(1) as usize, area.cols.max(1) as usize);
-    let (top, left) = (
-        caret.0.saturating_sub(rows - 1),
-        caret.1.saturating_sub(cols - 1),
-    );
+    let (top, left) = scroll(was, caret, area);
     for (i, line) in value
         .split('\n')
         .enumerate()
@@ -65,6 +65,7 @@ pub fn field(g: &mut Grid, m: &Mirror, h: Handle, area: Rect) {
             area.row + (caret.0 - top) as u16,
         ));
     }
+    m.scroll.insert(h, (top, left));
 }
 
 /// List `h`'s items (attributes `1`, `2`, ...) in `area`, the one VALUE

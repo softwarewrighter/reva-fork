@@ -39,6 +39,7 @@ fn event_lines() {
         Event::Click(5),
         Event::Focus(3),
         Event::Close(1),
+        Event::Caret(4, 2, 5),
     ] {
         assert_eq!(decode_event(&encode_event(&e)), Some(e));
     }
@@ -50,6 +51,7 @@ fn event_lines() {
     assert_eq!(decode_event("key K_NOPE"), None);
     assert_eq!(decode_event("wiggle 1"), None);
     assert_eq!(decode_event("click"), None);
+    assert_eq!(decode_event("caret 4 2"), None, "a line and a column");
 }
 
 #[test]

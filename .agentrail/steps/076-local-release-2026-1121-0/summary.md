@@ -1,0 +1,1 @@
+Release 2026.1121.0 prepared: VERSION bumped, CHANGES release line and merge lines for #113-#115 (commit 5fa3846). Every deliverable rebuilt through the just recipes; just check green (70/70 goldens) with release-check: CLI, web VM, reva-serve and its page, desktop app and its page/VM all 2026.1121.0 from 5fa3846. PR to dev; the user merges dev into main and publishes.

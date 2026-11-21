@@ -55,7 +55,7 @@ impl UiTerm {
                 return Ok(line);
             }
             let screen = size();
-            let grid = paint(&self.mirror, screen);
+            let grid = paint(&mut self.mirror, screen);
             draw(&mut stdout(), self.shown.as_ref(), &grid)?;
             self.shown = Some(grid);
             match event::read()? {

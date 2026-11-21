@@ -56,6 +56,9 @@ pub enum Event {
     Click(Handle),
     /// The focus moved to an element (a click into it).
     Focus(Handle),
+    /// A text element's caret put at a line and column, from 1 (a click
+    /// into its text): IUP's CARET `"lin,col"`.
+    Caret(Handle, u32, u32),
     /// A dialog's close box.
     Close(Handle),
     /// The renderer laid a canvas out at a width and height (pixels):

@@ -1,0 +1,1 @@
+Release 2026.1121.0 (the user, 2026-11-21): today's first merge to main. Bump VERSION, add the CHANGES merge lines for #113-#115 and the release line; rebuild every deliverable through the just recipes; just check (with just release-check: CLI, web page VM, reva-serve, desktop app all show 2026.1121.0 and HEAD); PR to dev. The user merges dev into main and publishes.

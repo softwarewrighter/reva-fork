@@ -1,0 +1,4 @@
+command = '${REVA:-target/debug/reva} --max-steps 10000000 -e ": tick 0 repeat 1+ dup 100000 mod 0 = if dup . then again ;" -e tick < /dev/null; echo "exit $?"'
+timeout = 60
+exit_code = 0
+desc = "reva --max-steps ends a run after a number of VM steps, at the same point on any machine: *** step limit, exit 124"

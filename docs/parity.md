@@ -77,7 +77,7 @@ prints the same digest as `shasum`)
 | Cause | Programs | Roadmap |
 |---|---|---|
 | a native C library (GTK, OpenGL, pthreads, expat, ...; iconv, SQLite, IUP and CD are served now) | 31 | 4 (virtual libraries, [portability.md](portability.md)), or the GUI decision below |
-| interactive or endless (time limit) | 12 | none: expected with stdin closed |
+| interactive or endless (step budget) | 12 | none: expected with stdin closed |
 | other faults and missing words (one is `lib/asm`, which ran the external FASM assembler) | 16 | investigate per program |
 
 | Area | Programs | Proposed support | Notes |

@@ -12,6 +12,7 @@ use reva_ui_layout::geom::Rect;
 use reva_ui_mirror::mirror::Mirror;
 
 use crate::fields::{field, list};
+use crate::hit::content_area;
 
 /// The role `normal` becomes for element `h`: disabled (ACTIVE=NO), the
 /// focus role if it has the focus, else itself.
@@ -53,7 +54,7 @@ fn close_box(g: &mut Grid, r: Rect) {
 }
 
 /// Draw element `h` of `m` at `r`.
-pub fn draw(g: &mut Grid, m: &Mirror, h: Handle, r: Rect) {
+pub fn draw(g: &mut Grid, m: &mut Mirror, h: Handle, r: Rect) {
     let Some(kind) = m.tree.node(h).map(|n| n.kind) else {
         return;
     };
@@ -81,17 +82,9 @@ pub fn draw(g: &mut Grid, m: &Mirror, h: Handle, r: Rect) {
             let border = role(m, h, Role::Border);
             g.text(r.col, r.row, "[", border, 1);
             g.text(r.col + r.cols.saturating_sub(1), r.row, "]", border, 1);
-            field(
-                g,
-                m,
-                h,
-                Rect {
-                    col: r.col + 1,
-                    cols: r.cols.saturating_sub(2),
-                    rows: 1,
-                    ..r
-                },
-            );
+            if let Some(area) = content_area(kind, r) {
+                field(g, m, h, area);
+            }
         }
         Kind::MultiLine | Kind::List => pane(g, m, h, kind, r),
         Kind::Canvas => {
@@ -117,21 +110,15 @@ fn face(g: &mut Grid, m: &Mirror, h: Handle, kind: Kind, title: &str, r: Rect) {
 
 /// A multiline or a list: a box, its border active when it has the focus,
 /// and the text or the items inside.
-fn pane(g: &mut Grid, m: &Mirror, h: Handle, kind: Kind, r: Rect) {
+fn pane(g: &mut Grid, m: &mut Mirror, h: Handle, kind: Kind, r: Rect) {
     let border = match role(m, h, Role::Border) {
         Role::Focus => Role::Active,
         other => other,
     };
     g.frame(r, Role::Field, Some((border, "", Role::Title)));
-    let inside = Rect {
-        col: r.col + 1,
-        row: r.row + 1,
-        cols: r.cols.saturating_sub(2),
-        rows: r.rows.saturating_sub(2),
-    };
-    if kind == Kind::List {
-        list(g, m, h, inside)
-    } else {
-        field(g, m, h, inside)
+    match (kind, content_area(kind, r)) {
+        (Kind::List, Some(inside)) => list(g, m, h, inside),
+        (_, Some(inside)) => field(g, m, h, inside),
+        _ => {}
     }
 }

@@ -223,10 +223,15 @@ success and the negative Linux `errno` on failure (`-2` for a missing
 file), and a failed `open/r` returns that same negative number as the
 "handle". Test `ioerr @`, not the handle.
 
+`rename ( a1 n1 a2 n2 -- )` takes the two names and nothing more. Reva on
+Linux took one cell more (its `rename` passed three arguments to the
+two-argument system call); Reva on the Mac and Windows did not, and
+neither does reva-fork, which corrects it at boot (`src/reva.f` is
+unchanged). A program written for Reva on Linux that put a spare cell
+under the names now finds it still there.
+
 Quirks of `reva.f` itself (unchanged, as on Linux x86):
 
-- `rename ( a1 n1 a2 n2 -- )` removes one more cell than it takes (its
-  system call reads three arguments). Keep a spare cell under the names.
 - `seek ( offs h -- )` leaves nothing; use `tell` for the position.
 - `creat` opens for writing only; reopen with `open/r` or `open/rw` to read.
 
@@ -265,6 +270,8 @@ and it goes on when the tab is shown again (`?background` in the URL keeps
 it running). The CLI stops a run with `*** time limit` and exit status 124
 after `reva --max-cpu SECONDS`. That limit defaults to 30 seconds with
 `--ui-script` and is off otherwise (Ctrl-C stops a run at a terminal).
+`reva --max-steps N` counts VM steps instead (`*** step limit`), so where
+a run stops does not depend on the machine or its load.
 
 ## `save` writes an image, not an executable
 

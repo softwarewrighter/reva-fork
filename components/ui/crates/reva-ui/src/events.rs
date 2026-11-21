@@ -33,6 +33,10 @@ impl Ui {
                 self.tree.changes.push(Change::Focus { handle: h });
                 None
             }
+            Event::Caret(h, lin, col) => {
+                self.set(h, "CARET", Some(&format!("{lin},{col}")));
+                None
+            }
             Event::Close(d) => self.call(d, "CLOSE_CB", vec![], event).or_else(|| {
                 self.hide(d);
                 None

@@ -1,0 +1,9 @@
+number = 72
+slug = "local-rename-stack"
+status = "completed"
+description = 'Bug (found 2026-11-07 in local-ls-pp): `" a" " b" rename` renames the file bu...'
+role = "production"
+context_files = []
+created_at = "2026-11-07T09:38:23"
+completed_at = "2026-11-17T11:22:04"
+commits = ["14f83d18291f876bd7fe2ae942086a7039b0e41d"]

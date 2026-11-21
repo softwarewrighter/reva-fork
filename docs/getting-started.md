@@ -64,6 +64,7 @@ Other ways to run code:
 | `reva --save-image app.img -e '...'` | save the state after loading, then exit |
 | `reva --image app.img` | start from a saved image |
 | `reva --max-cpu SECONDS ...` | end a run that computes that long without waiting for input (`*** time limit`, exit 124; default 30 s with `--ui-script`) |
+| `reva --max-steps N ...` | the same after N VM steps, so the run ends at the same point on any machine (`*** step limit`, exit 124) |
 | `reva --underflow fail ...` | stop with an error when a word takes more than the stack holds (default `warn`: say so once and go on, as Reva did); `fail-at-word` stops in the word that did it, with its callers ([diagnostics.md](diagnostics.md#underflow-inside-a-definition)) |
 | `reva --check-execute ...` | stop an `execute` of what is not code, naming the word that executed ([diagnostics.md](diagnostics.md#execute-of-what-is-not-code)) |
 | `reva --trace-compile ...` | say each word compiled into a definition, and who compiled it ([diagnostics.md](diagnostics.md#what-is-compiled-and-by-whom)) |

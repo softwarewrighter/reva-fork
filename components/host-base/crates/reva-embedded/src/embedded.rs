@@ -99,10 +99,19 @@ pub const ERROR_MARKER: &str = ": ERROR ( a' n' a n  -- )";
 /// error in a file says where; every later use (`word?`, `needs`) gets it.
 pub const ERROR_WORD: &str = ": ERROR ( a' n' a n -- ) cr (where) .\" ERROR: \" type_ type cr ;\n";
 
+/// `reva.f`'s Linux `rename`: it passes three arguments to the
+/// two-argument rename system call, so it took one cell more than its
+/// `a1 n1 a2 n2` (Reva's Mac and Windows `rename` do not).
+pub const RENAME_LINUX: &str = ": rename zt -rot zt 3 38 syscall ioerr ! ;";
+
+/// What replaces [`RENAME_LINUX`]: the same call with two arguments.
+pub const RENAME_WORD: &str = ": rename ( a1 n1 a2 n2 -- ) zt -rot zt 2 38 syscall ioerr ! ;";
+
 /// The boot source: `reva.f` up to [`BOOT_MARKER`] with [`AUTOLOAD`] and
 /// [`STRINGS_SAVE`] inserted before [`STRINGS_MARKER`], the fork's `.ver` after the
 /// [`VER_MARKER`] line, [`ERROR_WORD`] after the [`ERROR_MARKER`] line,
-/// then [`BOOT_TAIL`].  `STRINGS_SAVE` and `BOOT_TAIL`
+/// [`RENAME_WORD`] in place of [`RENAME_LINUX`], then [`BOOT_TAIL`].
+/// `STRINGS_SAVE` and `BOOT_TAIL`
 /// together stand in for "save an executable, then run it".
 pub fn boot_source() -> &'static str {
     static SRC: std::sync::OnceLock<String> = std::sync::OnceLock::new();
@@ -114,7 +123,8 @@ pub fn boot_source() -> &'static str {
         let mut src = match head.find(STRINGS_MARKER) {
             Some(j) => format!("{}{AUTOLOAD}{STRINGS_SAVE}{}", &head[..j], &head[j..]),
             None => head.to_string(),
-        };
+        }
+        .replacen(RENAME_LINUX, RENAME_WORD, 1);
         for (marker, text) in [
             (VER_MARKER, reva_version::version::VER_WORD),
             (ERROR_MARKER, ERROR_WORD),

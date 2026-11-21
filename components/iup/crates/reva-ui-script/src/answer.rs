@@ -3,7 +3,7 @@
 use reva_hostcall::hostcall::{HostAnswer, HostCall, HostReply};
 use reva_ui_layout::geom::Size;
 use reva_ui_layout::units::pair;
-use reva_ui_paint::paint::paint;
+use reva_ui_paint::paint::{click, paint};
 
 use crate::script::{UiScript, lines};
 
@@ -63,29 +63,57 @@ impl UiScript {
         (answer, log)
     }
 
-    /// The screens the script asks for next (`screen`, or `screen 100x30`;
-    /// 80 by 24 cells by default), painted.
+    /// `tap COL ROW`: a click there on the 80 by 24 screen as it is now,
+    /// as the events it gives (as in the page and the terminal), put next.
+    fn tap(&mut self, at: &str) -> String {
+        let n: Vec<u16> = at
+            .split_whitespace()
+            .filter_map(|n| n.parse().ok())
+            .collect();
+        let (col, row) = (
+            n.first().copied().unwrap_or(0),
+            n.get(1).copied().unwrap_or(0),
+        );
+        let screen = Size { cols: 80, rows: 24 };
+        paint(&mut self.mirror, screen);
+        for line in click(&self.mirror, screen, col, row).into_iter().rev() {
+            self.lines.push_front(line);
+        }
+        format!("ui| tap {col} {row}\n")
+    }
+
+    /// `screen`, or `screen 100x30` (80 by 24 cells by default): the
+    /// screen painted.
+    fn screen(&mut self, size: &str) -> String {
+        let (cols, rows) = pair(size.trim());
+        let size = Size {
+            cols: cols.unwrap_or(80).min(500) as u16,
+            rows: rows.unwrap_or(24).min(200) as u16,
+        };
+        let mut out = format!("ui| screen {}x{}\n", size.cols, size.rows);
+        out.extend(
+            paint(&mut self.mirror, size)
+                .to_text()
+                .lines()
+                .map(|l| format!("ui| {l}\n")),
+        );
+        out
+    }
+
+    /// The screens and taps the script has next.
     fn screens(&mut self) -> String {
         let mut out = String::new();
-        while let Some(rest) = self
+        while let Some(line) = self
             .lines
             .front()
-            .and_then(|l| l.strip_prefix("screen"))
-            .map(str::to_string)
+            .filter(|l| l.starts_with("screen") || l.starts_with("tap "))
+            .cloned()
         {
             self.lines.pop_front();
-            let (cols, rows) = pair(rest.trim());
-            let size = Size {
-                cols: cols.unwrap_or(80).min(500) as u16,
-                rows: rows.unwrap_or(24).min(200) as u16,
+            out += &match line.strip_prefix("tap ") {
+                Some(at) => self.tap(at),
+                None => self.screen(&line["screen".len()..]),
             };
-            out.push_str(&format!("ui| screen {}x{}\n", size.cols, size.rows));
-            out.extend(
-                paint(&self.mirror, size)
-                    .to_text()
-                    .lines()
-                    .map(|l| format!("ui| {l}\n")),
-            );
         }
         out
     }
