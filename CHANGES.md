@@ -11,8 +11,16 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-21
+
+- 11:40 `chore` Step local-release-2026-1121-0 complete (saga record): `just check` green at 5fa3846, release-check ok for every deliverable.
+- 11:10 `release` 2026.1121.0, at the user's request: today's first merge to main. Since 2026.1114.0: agentrail's session-log store, shadow and remap adopted (#111); `rename` takes its two names (#112); a click in a TUI text moves the caret there, in the page, the desktop app and the terminal (#113); the gate is green on macOS with no known-failure list, `scripts/run-limit.sh` and `reva --max-steps` (#114); a pixel test for CD drawing in headless Chrome, which the gate now needs (#115). `plan`: step local-release-2026-1121-0 inserted before local-examples-triage. Checked before the PR, built through the recipes at the release commit (just release-check): reva --version; the web page's VM (banner, footer); reva-serve --version and the page inside it; the desktop app (reva-desktop --about: its version, page and VM).
+
 ## 2026-11-20
 
+- 17:57 `chore` Merge #115 (local-cd-pixel-test: a pixel test for CD drawing).
+- 17:57 `chore` Merge #114 (local-portable-gates: the gate green on macOS, run-limit.sh, `reva --max-steps`).
+- 17:57 `chore` Merge #113 (local-tui-click-caret: a click in a TUI text moves the caret).
 - 17:20 `chore` Step local-cd-pixel-test complete (saga record).
 - 16:55 `test` A pixel test for CD drawing (step local-cd-pixel-test, the user's choice: the browser's Canvas2D). New `components/web/crates/reva-web/test/cd-pixels.mjs`: `examples/iup/cd-test.f`, put into the page's files and run with `?include=`, in the real page in headless Chrome (no window, scratch profile; DevTools protocol over Node's own WebSocket, no npm packages); the IUP canvas sized to 400x200 and read back with `getImageData`: background, dotted line (dots and gaps), diamond mark, filled box and its edge, the 8x8 bitmap at 32x32 (a 1 cell yellow, a 0 cell blue, past it grey). `CD_PIXELS_PNG=FILE` saves the canvas. In the gate (web step, about 2.5 s); Chrome or Chromium is now a required tool (the user: the gate fails without it; `CHROME=path`). Found on the way: fed as typed `?eval=` lines, cd-test.f's multi-line `inline{ }` bitmap comes out wrong; included as a file it is right. docs/ui-model.md, CLAUDE.md.
 - 13:25 `chore` Step local-portable-gates complete (saga record); `plan` step local-cd-pixel-test inserted after it (the user: a pixel test for CD drawing, in the browser's Canvas2D, through headless Chrome).
