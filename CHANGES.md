@@ -11,8 +11,14 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-22
+
+- 16:45 `plan` Desktop installers and Windows testing (the user, from CoSy's asks 26 and 28), ahead of local-examples-triage: local-ci moved up to step 77 and widened to Windows (GitHub Actions on windows-latest, macos-latest, ubuntu-latest); new steps local-desktop-installers (78: NSIS per-user setup.exe, universal .dmg, .deb/.rpm with no AppImage, the user's data outside the install) and local-installer-tests (79: silent install, checks in the installed app, upgrade and uninstall keep the user's folder). The user's choices: GitHub Actions, no paid signing (users accept SmartScreen/Gatekeeper once; the steps documented), .deb/.rpm.
+
 ## 2026-11-21
 
+- 12:14 `chore` Release 2026.1121.0: dev merged into main (4bdd999) and the live demo published. Checked: every deliverable built through the just recipes at the release commit 5fa3846 (just release-check); dev's tree identical to main after the merge; the live site's reva.wasm is 2026.1121.0, build 4bdd999. The PATH's ~/.cargo/bin reva and reva-desktop are still 2026.1114.0.
+- 12:12 `chore` Merge #116 (local-release-1121: 2026.1121.0).
 - 11:40 `chore` Step local-release-2026-1121-0 complete (saga record): `just check` green at 5fa3846, release-check ok for every deliverable.
 - 11:10 `release` 2026.1121.0, at the user's request: today's first merge to main. Since 2026.1114.0: agentrail's session-log store, shadow and remap adopted (#111); `rename` takes its two names (#112); a click in a TUI text moves the caret there, in the page, the desktop app and the terminal (#113); the gate is green on macOS with no known-failure list, `scripts/run-limit.sh` and `reva --max-steps` (#114); a pixel test for CD drawing in headless Chrome, which the gate now needs (#115). `plan`: step local-release-2026-1121-0 inserted before local-examples-triage. Checked before the PR, built through the recipes at the release commit (just release-check): reva --version; the web page's VM (banner, footer); reva-serve --version and the page inside it; the desktop app (reva-desktop --about: its version, page and VM).
 
