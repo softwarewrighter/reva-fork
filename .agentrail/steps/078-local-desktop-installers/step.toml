@@ -1,0 +1,8 @@
+number = 78
+slug = "local-desktop-installers"
+status = "pending"
+description = "Desktop installers for a package (the user, 2026-11-22, from CoSy's ask 26; t..."
+role = "production"
+context_files = []
+created_at = "2026-11-22T16:42:16"
+commits = []

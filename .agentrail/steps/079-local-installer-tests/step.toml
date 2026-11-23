@@ -1,0 +1,8 @@
+number = 79
+slug = "local-installer-tests"
+status = "pending"
+description = "Test the installers and the installed app on Windows, macOS and Linux (the us..."
+role = "production"
+context_files = []
+created_at = "2026-11-22T16:42:16"
+commits = []
