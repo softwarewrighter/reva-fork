@@ -1,6 +1,6 @@
 number = 77
 slug = "local-ci"
-status = "pending"
+status = "in-progress"
 description = "CI on Windows, macOS and Linux (the user, 2026-11-22, from CoSy's ask 28; the..."
 role = "production"
 context_files = []

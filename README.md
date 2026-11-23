@@ -96,7 +96,13 @@ requirements and the deliberate deviations from the original core are in
 
 ## Quick start
 
-Requires a Rust toolchain (stable, 1.89 or newer). For the browser build, also the
+[![ci](https://github.com/softwarewrighter/reva-fork/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/softwarewrighter/reva-fork/actions/workflows/ci.yml)
+The gate (`just check`) and the desktop smoke test run on Linux, macOS and
+Windows for every push and PR ([.github/workflows/ci.yml](.github/workflows/ci.yml);
+Windows reports but does not block yet: [docs/packaging.md](docs/packaging.md#5-windows-10-and-later)).
+
+Requires a Rust toolchain (stable, 1.89 or newer) and SQLite (macOS has it;
+Linux: `libsqlite3-dev`; Windows: `scripts/sqlite-dll.sh`). For the browser build, also the
 `wasm32-unknown-unknown` target and `wasm-bindgen` (the version
 `components/ui-web` pins).
 

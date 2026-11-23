@@ -1,6 +1,6 @@
 # cargo-deny policy for every component: permissive licenses only.
 #
-#   cargo deny check --config ../../deny.toml licenses   (in components/NAME/; run by scripts/license-check.sh)
+#   cargo deny --config ../../deny.toml check licenses   (in components/NAME/; run by scripts/license-check.sh)
 #
 # Why: everything this workspace builds is redistributed (CLI binary, wasm
 # module, desktop app), and the project ships no GPL, LGPL or AGPL code.
@@ -24,6 +24,17 @@ allow = [
 confidence-threshold = 0.9
 # Not every component uses every license on the list.
 unused-allowed-license = "allow"
+# The desktop app only: five Servo CSS crates Tauri uses, MPL-2.0 (weak,
+# per-file copyleft, not GPL-family; used unmodified; docs/licenses.md).
+# Any other MPL crate fails until someone decides.  Lost when desktop's
+# own deny.toml was merged into this one (d195912); restored 2026-11-22.
+exceptions = [
+    { crate = "cssparser", allow = ["MPL-2.0"] },
+    { crate = "cssparser-macros", allow = ["MPL-2.0"] },
+    { crate = "selectors", allow = ["MPL-2.0"] },
+    { crate = "dtoa-short", allow = ["MPL-2.0"] },
+    { crate = "option-ext", allow = ["MPL-2.0"] },
+]
 
 [licenses.private]
 # Workspace crates (publish = false) are MIT, checked by review, not here.

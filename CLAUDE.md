@@ -460,7 +460,15 @@ by time. sw-checklist must report 0 FAILs (its warnings are not gated).
 Tools it needs on PATH: `reg-rs`, `sed-rs`, `sw-checklist`, `node`,
 `just`, `wasm-bindgen` (the version components/ui-web pins); the
 `wasm32-unknown-unknown` target; Chrome or Chromium (the CD pixel test
-runs it headless; found on PATH, at the Mac's usual place, or `CHROME`).
+runs it headless; found on PATH, at the Mac's or Windows' usual place, or
+`CHROME`); `cargo-deny` (crate licences; without it they are not checked).
+SQLite is linked, never compiled from C (the user, 2026-11-22): the
+system's on macOS and Linux, the official `sqlite3.dll` on Windows
+(`scripts/sqlite-dll.sh`).
+
+CI (`.github/workflows/ci.yml`) runs the gate and the desktop smoke test
+on Linux, macOS and Windows for pushes and PRs; Windows does not block
+yet (step local-windows-goldens). A PR is ready when CI is green.
 
 ## Workflow
 

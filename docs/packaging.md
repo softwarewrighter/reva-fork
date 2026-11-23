@@ -145,17 +145,23 @@ can also be cross-built (section 5).
 
 | Part | State |
 |---|---|
-| `reva.exe` | works under Wine since this change: file paths were broken on Windows (`include t.f` found nothing) and are fixed now (reva-hostpath's `paths.rs`, unit-tested on every host). Not yet run on real Windows |
-| browser page | the same wasm on any browser; should work in Edge and Chrome on Windows; not yet checked there |
-| `reva-desktop.exe` | builds (this change adds the `icon.ico` that a Windows build needs, and the `nsis`/`msi` targets); not run: it needs WebView2, which Wine lacks |
-| scripts (`build.sh`, `smoke.sh`, gates, `make-subset.sh`) | bash or POSIX sh; run them in Git Bash (it includes perl) |
+| CI | since step local-ci (2026-11-23): `.github/workflows/ci.yml` runs the whole gate (`scripts/check.sh`) and the desktop smoke test on `windows-latest` (x64, MSVC, Git Bash) as on macOS and Linux. Windows does not fail the run yet (`continue-on-error`), until step local-windows-goldens |
+| `reva.exe` | builds, passes every component's tests, release-check and 61 of the 70 goldens on real Windows (CI). Differing: builtins-ls-pp, cli-lineedit-pty, image-iup, native-traps, notebook-file, port-check, tui-notebook-click, tui-notebook-demo, turtle (step local-windows-goldens) |
+| browser page | the web tests, the CD pixel test among them, pass in Chrome on Windows (CI) |
+| `reva-desktop.exe` | builds and passes its tests and release-check (`--about`) on Windows; a Windows (GUI) program, so no console window opens (gap 1 below, fixed); smoke test in CI: 7 checks passed, then the turtle window hung (a synchronous command building a window deadlocks on Windows; `open_window` is `async` now) |
+| SQLite | the official `sqlite3.dll` (3.54.1), linked, not compiled: `scripts/sqlite-dll.sh` ([sqlite.md](sqlite.md#how-it-works)); it ships next to the `.exe` |
+| line ends | `.gitattributes` (`* -text`): files are checked out as stored, so Git for Windows does not add CR (it broke `VERSION` and the scripts) |
+| scripts (`build.sh`, `smoke.sh`, gates, `make-subset.sh`) | bash or POSIX sh; they run in Git Bash (it includes perl) |
 
 Known Windows gaps, to fix after a first run on real Windows:
 
-1. **A console window opens with the desktop app.** It is built as a
-   console program so that `--print-output` and `smoke.sh` work. The usual
-   fix is `windows_subsystem = "windows"` plus attaching to the parent's
-   console when `--print-output` is given.
+1. **A console window opened with the desktop app** (fixed, step local-ci).
+   It is a Windows (GUI) program now (`windows_subsystem = "windows"`), so
+   none opens; started from cmd or PowerShell it attaches to that console,
+   so `--about` and `--print-output` still print there
+   (`reva-desktop/src/console.rs`), and redirected output (Git Bash,
+   `smoke.sh`) works as before. Checked in CI through redirection; the
+   console case wants a by-hand look on Windows.
 2. **Absolute paths in Forth are written `/C:/dir/file`.** The VM's paths
    are `/`-rooted, and a host path `C:\dir` is `/C:/dir` to the VM.
    Relative paths and `/` separators work as usual. `C:\dir\file` written
@@ -167,8 +173,8 @@ Known Windows gaps, to fix after a first run on real Windows:
 | Way | Good for | How |
 |---|---|---|
 | **Cross-build on Linux** (checked) | quick checks; the CLI for release | `rustup target add x86_64-pc-windows-gnu`, `sudo apt install mingw-w64`, then `cargo build --release --target x86_64-pc-windows-gnu ` in `components/cli/`. Run it with `wine` (`sudo apt install wine64`): pipe input works, and there is no interactive console. The desktop app also builds with this target (`cargo build --release --target x86_64-pc-windows-gnu` in `components/desktop/`), but a GNU build loads `WebView2Loader.dll`, which must ship next to it. An NSIS installer can be cross-built with `cargo tauri build --runner cargo-xwin --target x86_64-pc-windows-msvc` (needs `cargo-xwin`, `nsis` and `lld`); this was not tried |
-| **Native on Windows** | release installers, and the real test | Install [rustup](https://rustup.rs) with the MSVC toolchain and the Visual Studio Build Tools ("Desktop development with C++"), plus [Git for Windows](https://gitforwindows.org) for Git Bash. Then, in Git Bash: `rustup target add wasm32-unknown-unknown`, `cargo install tauri-cli --version "^2" --locked`, `just test`, and `components/desktop/build.sh --bundle`. The MSVC build links the WebView2 loader statically, so there is no extra DLL |
-| **CI** (proposed, not added) | repeatable release builds | a `windows-latest` GitHub Actions job running the same commands; see 6 |
+| **Native on Windows** | release installers, and the real test | Install [rustup](https://rustup.rs) with the MSVC toolchain and the Visual Studio Build Tools ("Desktop development with C++"), plus [Git for Windows](https://gitforwindows.org) for Git Bash. Then, in Git Bash: `scripts/sqlite-dll.sh` and set `SQLITE3_LIB_DIR` and `PATH` as it says, `rustup target add wasm32-unknown-unknown`, `cargo install tauri-cli --version "^2" --locked`, `just test`, and `components/desktop/build.sh --bundle`. The MSVC build links the WebView2 loader statically, so there is no extra DLL |
+| **CI** (since step local-ci) | every push and PR | `.github/workflows/ci.yml`: the `windows-latest` job runs `scripts/sqlite-dll.sh x64`, then `scripts/check.sh` and `components/desktop/smoke.sh` in Git Bash |
 
 A Mac can run Windows 11 ARM in a VM (UTM or Parallels). There, build
 `aarch64-pc-windows-msvc` natively, or run the x64 builds under

@@ -30,6 +30,9 @@
 //! below are the whole native surface, and every path they take is checked
 //! to stay under the root.
 
+// A Windows (GUI) program: no console window opens with it (console.rs).
+#![cfg_attr(windows, windows_subsystem = "windows")]
+
 use std::process::ExitCode;
 use std::sync::Mutex;
 
@@ -38,10 +41,12 @@ use reva_desktop_state::options::{USAGE, parse_args};
 use reva_desktop_state::state::{State, build_state};
 
 mod commands;
+mod console;
 mod sql;
 mod windows;
 
 fn main() -> ExitCode {
+    console::attach_parent();
     let context = tauri::generate_context!();
     let options = match parse_args() {
         Ok(o) => o,

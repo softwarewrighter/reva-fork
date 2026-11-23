@@ -5,9 +5,12 @@ use reva_desktop_pkg::paths::web_url;
 /// Windows `open_window` may open: each is `<name>.html` from the page.
 const WINDOWS: &[(&str, f64, f64)] = &[("canvas", 820.0, 880.0)];
 
-/// Open window `name` (or show it if it is open).
+/// Open window `name` (or show it if it is open).  `async`, so it runs off
+/// the main thread: on Windows a synchronous command that builds a window
+/// deadlocks (WebView2 needs the main thread the command is blocking;
+/// Tauri's docs say so, and the smoke test's turtle check hung there).
 #[tauri::command]
-pub fn open_window(app: tauri::AppHandle, name: String, title: String) -> Result<(), String> {
+pub async fn open_window(app: tauri::AppHandle, name: String, title: String) -> Result<(), String> {
     use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
     let &(name, w, h) = WINDOWS
         .iter()

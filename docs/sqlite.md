@@ -9,8 +9,8 @@ Reva's SQLite binding run unchanged.
 
 | Host | SQLite | Database files |
 |---|---|---|
-| CLI (`reva`) | built in (the `reva-sqlite` crate) | real files, paths as for the file words |
-| desktop app | built in (the `reva-sqlite` crate, in the app's native side) | the app's folder (`~/Reva`, `--root`, or the package) |
+| CLI (`reva`) | the `reva-sqlite` crate, linked to the system's SQLite (Windows: `sqlite3.dll`, below) | real files, paths as for the file words |
+| desktop app | the `reva-sqlite` crate, in the app's native side, linked the same way | the app's folder (`~/Reva`, `--root`, or the package) |
 | browser | SQLite's own WebAssembly build, loaded from jsDelivr the first time a program uses SQLite (not redistributed) | the browser's private file system (OPFS) |
 
 In the browser each database runs in memory and is written back to OPFS
@@ -63,6 +63,17 @@ the desktop app through its page (the VM runs in a worker there, which
 pauses until the native side answers). In the browser the VM's worker
 answers with SQLite's WebAssembly build (`components/web/crates/reva-web/www/sqlite.js`). See [portability.md](portability.md)
 and docs/design.md 3.11.
+
+No SQLite is compiled from C (the user, 2026-11-22): rusqlite links a
+prebuilt one. macOS has SQLite in the system (`/usr/lib/libsqlite3.dylib`);
+Linux uses the distribution's (`libsqlite3-dev` to build, `libsqlite3-0`
+to run; the `.deb` depends on it). Windows uses the official
+`sqlite3.dll` from sqlite.org: `scripts/sqlite-dll.sh` downloads it (the
+version and SHA3-256 are pinned in the script, 3.54.1 as in the browser),
+makes the import library `sqlite3.lib` from its `.def` with MSVC's
+`lib.exe`, and leaves both in `target/sqlite/`. Build with
+`SQLITE3_LIB_DIR` set to that folder and the folder on `PATH`; the DLL
+ships next to `reva.exe` and `reva-desktop.exe`.
 
 A statement's first step runs it and keeps its rows, so a SELECT's whole
 result is held in memory until the statement is reset or finalized. A
