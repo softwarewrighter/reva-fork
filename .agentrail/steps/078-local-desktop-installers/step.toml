@@ -1,8 +1,9 @@
 number = 78
 slug = "local-desktop-installers"
-status = "in-progress"
+status = "completed"
 description = "Desktop installers for a package (the user, 2026-11-22, from CoSy's ask 26; t..."
 role = "production"
 context_files = []
 created_at = "2026-11-22T16:42:16"
-commits = []
+completed_at = "2026-11-24T14:49:33"
+commits = ["8aba9d6a1beefa7be377ded7f4d7289103070a55"]
