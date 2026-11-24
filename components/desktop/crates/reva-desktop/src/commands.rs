@@ -2,7 +2,7 @@
 //! `--print-output`, and `bye`.
 
 use reva_desktop_pkg::paths::{from_latin1, real_path};
-use reva_desktop_pkg::snapshot::snapshot;
+use reva_desktop_pkg::snapshot::layered;
 use reva_desktop_state::state::{Session, State};
 use serde::Serialize;
 use std::fs;
@@ -21,7 +21,7 @@ pub struct Start {
 pub fn session(state: tauri::State<'_, Mutex<State>>) -> Start {
     let st = state.lock().unwrap();
     let mut session = st.session.clone();
-    let files = snapshot(&st.root, &mut session.notes);
+    let files = layered(st.base.as_deref(), &st.root, &mut session.notes);
     Start { session, files }
 }
 

@@ -10,6 +10,7 @@ authors.workspace = true
 
 [dependencies]
 reva-desktop-pkg = { path = "../reva-desktop-pkg" }
+reva-desktop-user = { path = "../reva-desktop-user" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 reva-sqlite = { path = "../../../sqlite/crates/reva-sqlite" }

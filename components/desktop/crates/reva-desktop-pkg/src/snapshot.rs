@@ -48,3 +48,28 @@ pub fn snapshot(root: &Path, notes: &mut Vec<String>) -> Vec<(String, String)> {
     }
     out
 }
+
+/// The files the VM starts with: `root`'s, over `base`'s when there is a
+/// base (an installed package under the user's folder: the user's copy of
+/// a file wins).
+pub fn layered(base: Option<&Path>, root: &Path, notes: &mut Vec<String>) -> Vec<(String, String)> {
+    let Some(base) = base else {
+        return snapshot(root, notes);
+    };
+    let mut files = snapshot(base, notes);
+    let mut at: std::collections::HashMap<String, usize> = files
+        .iter()
+        .enumerate()
+        .map(|(i, (vm, _))| (vm.clone(), i))
+        .collect();
+    for (vm, data) in snapshot(root, notes) {
+        match at.get(&vm) {
+            Some(&i) => files[i].1 = data,
+            None => {
+                at.insert(vm.clone(), files.len());
+                files.push((vm, data));
+            }
+        }
+    }
+    files
+}

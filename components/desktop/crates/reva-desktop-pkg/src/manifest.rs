@@ -29,6 +29,15 @@ pub struct Manifest {
     /// (www/about.js; the credits and licenses stay).
     #[serde(rename = "sourceLinks")]
     pub source_links: Option<bool>,
+    /// Installed (scripts/make-installer.sh): the user's folder, a plain
+    /// name under Documents (default `name`).  The VM sees the package's
+    /// files with the user's over them; it writes to the user's only.
+    #[serde(rename = "userFolder")]
+    pub user_folder: Option<String>,
+    /// Package files copied into the user's folder when missing there
+    /// (start data); a user's copy is never overwritten.
+    #[serde(default)]
+    pub seed: Vec<String>,
 }
 
 /// The `canvas` values the page knows.

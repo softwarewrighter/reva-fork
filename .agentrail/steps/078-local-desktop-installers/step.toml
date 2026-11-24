@@ -1,6 +1,6 @@
 number = 78
 slug = "local-desktop-installers"
-status = "pending"
+status = "in-progress"
 description = "Desktop installers for a package (the user, 2026-11-22, from CoSy's ask 26; t..."
 role = "production"
 context_files = []

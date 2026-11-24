@@ -10,6 +10,9 @@ usage: reva-desktop [options]
   --package DIR    open DIR (a folder with reva-package.json); its files are
                    the VM's files, and its start files are included
   --root DIR       keep files in DIR instead of ~/Reva (ignored with --package)
+  --user DIR       with a package: the user's folder; the package's files are
+                   read under it, and the VM writes only there (an installed
+                   app uses Documents/<userFolder>; docs/packaging.md)
   --canvas WHERE   where turtle graphics go: window (default), pane, or split
                    (REPL and graphics side by side); overrides the manifest
   --image FILE     start from a saved image (save NAME, reva --save-image)
@@ -27,6 +30,10 @@ usage: reva-desktop [options]
 pub struct Options {
     pub package: Option<PathBuf>,
     pub root: Option<PathBuf>,
+    /// `--user`: the user's folder over the package's.
+    pub user: Option<PathBuf>,
+    /// The package came with the app (an installer's `package/`).
+    pub installed: bool,
     pub image: Option<PathBuf>,
     pub evals: Vec<String>,
     pub print_output: bool,
@@ -43,6 +50,7 @@ pub fn parse_args() -> Result<Options, String> {
         match a.as_str() {
             "--package" => o.package = Some(value(&a)?.into()),
             "--root" => o.root = Some(value(&a)?.into()),
+            "--user" => o.user = Some(value(&a)?.into()),
             "--image" => o.image = Some(value(&a)?.into()),
             "--canvas" => {
                 let v = value(&a)?;

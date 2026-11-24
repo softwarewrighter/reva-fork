@@ -120,3 +120,26 @@ jobs:
       - name: Desktop smoke test (components/desktop/smoke.sh)
         if: ${{ !cancelled() }}
         run: components/desktop/smoke.sh
+
+      # the demo package's installer (scripts/make-installer.sh), installed
+      # and run (scripts/installer-check.sh); Windows' follows
+      # local-windows-goldens
+      - name: Installer (tests/installer-demo)
+        if: ${{ !cancelled() && runner.os != 'Windows' }}
+        run: |
+          cargo install tauri-cli --version '^2' --locked
+          scripts/make-installer.sh --native tests/installer-demo
+          if [[ "$RUNNER_OS" == Linux ]]; then
+            sudo apt-get install -y ./target/installer/*.deb
+            scripts/installer-check.sh /usr/bin/reva-demo
+          else
+            scripts/installer-check.sh "target/release/bundle/macos/Reva Demo.app/Contents/MacOS/reva-demo"
+          fi
+
+      - name: Upload the installers
+        if: ${{ !cancelled() && runner.os != 'Windows' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ runner.os }}
+          path: target/installer/*.*
+          if-no-files-found: ignore
