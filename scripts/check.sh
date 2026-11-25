@@ -31,7 +31,12 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 SW_CHECKLIST_MAX_FAILS=0
 
 fast=0
-[[ "${1:-}" == --fast ]] && fast=1
+for a in "$@"; do
+    case "$a" in
+        --fast) fast=1 ;;
+        *) echo "check: unknown option $a" >&2; exit 2 ;;
+    esac
+done
 
 step() { printf '\n== %s\n' "$*"; }
 fail() { printf '\ncheck: FAILED: %s\n' "$*" >&2; exit 1; }
@@ -56,7 +61,11 @@ done
 step "web: wasm build, node tests"
 "$root/scripts/build-web.sh" >/dev/null || fail "web: build-web.sh"
 for t in smoke lineedit ansi store about cd-pixels; do
-    node "$root/components/web/crates/reva-web/test/$t.mjs" >/dev/null || fail "web: test/$t.mjs (run it for details)"
+    # quiet when it passes; its transcript when it fails (in CI, the only look)
+    if ! out=$(node "$root/components/web/crates/reva-web/test/$t.mjs" 2>&1); then
+        echo "$out" | tail -40
+        fail "web: test/$t.mjs"
+    fi
 done
 
 if [[ $fast -eq 0 ]]; then
@@ -71,7 +80,11 @@ step "goldens (reg-rs, release CLI)"
 out=$(cd "$root" && REVA=target/release/reva scripts/regress.sh 2>&1) || true
 echo "$out" | grep -E 'passed|FAIL' || fail "goldens: no summary from regress.sh"
 failed=$(echo "$out" | sed -n 's/^ *FAIL: *//p' | tr '\n' ' ')
-[[ -z "$failed" ]] || fail "goldens: $failed(details: REVA=target/release/reva scripts/regress.sh -v -p NAME)"
+if [[ -n "$failed" ]]; then
+    # the differences, for a run nobody can look at again (CI)
+    for t in $failed; do (cd "$root" && REVA=target/release/reva scripts/regress.sh -vv -p "$t" 2>&1 | tail -30) || true; done
+    fail "goldens: $failed(details: REVA=target/release/reva scripts/regress.sh -v -p NAME)"
+fi
 
 step "release-check: every deliverable shows VERSION and this commit"
 if [[ $fast -eq 0 ]]; then

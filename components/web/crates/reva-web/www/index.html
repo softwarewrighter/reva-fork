@@ -363,10 +363,11 @@
     el.title = `License: ${b.license}\nBuilt ${b.build_time}`;
   }
   // Batch runs (the desktop's --print-output) report what the graphics
-  // window drew, after giving it a moment to finish.
+  // window drew, after giving it a moment to finish (up to 10 s: a new
+  // window on a slow machine, CI's virtual display, takes seconds).
   async function halted(code) {
     if (canvas.used && host.output) {
-      for (let i = 0; i < 40 && canvas.lines === 0; i++) await new Promise((r) => setTimeout(r, 50));
+      for (let i = 0; i < 200 && canvas.lines === 0; i++) await new Promise((r) => setTimeout(r, 50));
       host.output(`[canvas: ${canvas.lines} lines]\n`);
     }
     host.halted?.(code);

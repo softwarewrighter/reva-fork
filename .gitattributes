@@ -1,0 +1,6 @@
+# Every file is checked out byte for byte as it is stored, on every OS:
+# no CRLF conversion on Windows (Git for Windows' core.autocrlf would turn
+# VERSION into "2026.1121.0\r", break the bash scripts and change what
+# lib/ embeds).  Some original Reva files are stored with CRLF on purpose
+# (lib/util/locals, examples/http.f, ...) and stay so.
+* -text

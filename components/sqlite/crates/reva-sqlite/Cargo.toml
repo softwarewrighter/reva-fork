@@ -9,4 +9,4 @@ authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-rusqlite = { version = "0.41", features = ["bundled"] }
+rusqlite = "0.41"

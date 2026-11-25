@@ -26,7 +26,7 @@
     "category": "DeveloperTool",
     "copyright": "Reva: public domain (Ron Aaron). Portable core and desktop app: MIT, Michael A. Wright",
     "linux": {
-      "deb": { "depends": ["libwebkit2gtk-4.1-0"] }
+      "deb": { "depends": ["libwebkit2gtk-4.1-0", "libsqlite3-0"] }
     }
   }
 }

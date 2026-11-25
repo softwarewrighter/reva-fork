@@ -23,14 +23,18 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const www = path.join(here, "..", "www");
 const example = path.join(here, "../../../../..", "examples/iup/cd-test.f");
 
-/** Chrome: $CHROME, the Mac's, or one on PATH. */
+/** Chrome: $CHROME, the Mac's, Windows' usual places, or one on PATH. */
 function chrome() {
   const mac = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-  const found = [process.env.CHROME, mac].find((p) => p && existsSync(p));
+  const win = ["PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA"]
+    .map((v) => process.env[v] && path.join(process.env[v], "Google/Chrome/Application/chrome.exe"));
+  const found = [process.env.CHROME, mac, ...win].find((p) => p && existsSync(p));
   if (found) return found;
-  for (const name of ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"]) {
+  const which = process.platform === "win32" ? ["where", []] : ["sh", ["-c"]];
+  for (const name of ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "chrome"]) {
     try {
-      return execFileSync("sh", ["-c", `command -v ${name}`], { encoding: "utf8" }).trim();
+      const arg = which[0] === "sh" ? `command -v ${name}` : name;
+      return execFileSync(which[0], [...which[1], arg], { encoding: "utf8" }).split(/\r?\n/)[0].trim();
     } catch { /* next */ }
   }
   return null;
@@ -215,6 +219,12 @@ try {
   proc.kill();
   await gone;
   server.close();
-  rmSync(profile, { recursive: true, force: true });
+  // Chrome's helpers may still be writing to the profile after it exits:
+  // retry, and a leftover scratch folder is not a failure of the test.
+  try {
+    rmSync(profile, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
+  } catch (e) {
+    console.error(`cd-pixels: left ${profile} (${e.code})`);
+  }
 }
 process.exit(failed ? 1 : 0);

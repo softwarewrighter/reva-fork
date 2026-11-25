@@ -119,10 +119,13 @@ public-domain dedication; and a row in this page's reviewed lists.
 **Portable core (`components/`, but the desktop):** `reva-vm`, `reva-web` and `reva-serve` have
 none. `reva-sqlite`, used by the CLI (and the desktop app), has
 `rusqlite` (MIT) for SQLite through a safe API, with `libsqlite3-sys`
-(MIT) compiling SQLite itself (public domain) into the binary; their own
-dependencies are MIT/Apache-2.0 (`bitflags`, `cc`, `fallible-iterator`,
-`fallible-streaming-iterator`, `find-msvc-tools`, `hashbrown`, `hashlink`,
-`pkg-config`, `shlex`, `smallvec`, `vcpkg`) and Zlib (`foldhash`). Any
+(MIT) linking a prebuilt SQLite (public domain), nothing compiled from C
+(the user, 2026-11-22): the system's on macOS and Linux, and on Windows
+the official `sqlite3.dll` from sqlite.org, which ships next to the
+program (`scripts/sqlite-dll.sh`; [sqlite.md](sqlite.md)). Their own
+dependencies are MIT/Apache-2.0 (`bitflags`, `fallible-iterator`,
+`fallible-streaming-iterator`, `hashbrown`, `hashlink`, `pkg-config`,
+`smallvec`, `vcpkg`) and Zlib (`foldhash`). Any
 other crate must pass `cargo deny check licenses` and get a line here
 saying why it is needed.
 

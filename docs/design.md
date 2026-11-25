@@ -311,7 +311,9 @@ Decided with the user on 2026-10-26 (saga steps `local-sqlite-design`,
   (OPFS). `lib/db/sqlite` programs run unchanged on all three.
 - **No C calls in our code.** Native hosts use the `reva-sqlite` crate
   (components/sqlite), which drives SQLite through **rusqlite's safe API**;
-  `libsqlite3-sys` (rusqlite's own dependency) compiles SQLite itself. No
+  `libsqlite3-sys` (rusqlite's own dependency) links a prebuilt SQLite,
+  compiling no C (2026-11-22: the system's on macOS and Linux, the
+  official `sqlite3.dll` on Windows; [sqlite.md](sqlite.md#how-it-works)). No
   `unsafe`, no FFI of ours. `reva-vm` and `reva-web` gain no dependency.
   The workspace's rust-version is 1.89 (rusqlite 0.41).
 - **No pointers in the Forth binding.** The old `lib/db/sqlite` called

@@ -109,7 +109,7 @@ done
 if command -v cargo-deny >/dev/null 2>&1; then
     for ws in components/*/; do
         ws=${ws%/}
-        (cd "$ws" && cargo deny --log-level error check --config ../../deny.toml licenses >/dev/null) \
+        (cd "$ws" && cargo deny --log-level error --config ../../deny.toml check licenses >/dev/null) \
             || fail "$ws: cargo deny check licenses failed (run it in $ws/ for details)"
     done
     crates="crates checked by cargo-deny in every component"
