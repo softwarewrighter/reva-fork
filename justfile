@@ -59,6 +59,10 @@ desktop-build:
 desktop-install:
     components/desktop/build.sh --install
 
+# desktop installers (.dmg; .deb/.rpm; setup.exe) for a package dir, or plain Reva, into target/installer
+installer *ARGS:
+    scripts/make-installer.sh {{ARGS}}
+
 # every deliverable (CLI, web, reva-serve, desktop) built through these recipes shows VERSION and this commit
 release-check *ARGS:
     scripts/release-check.sh "$@"

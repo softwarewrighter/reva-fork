@@ -4,6 +4,7 @@ use crate::options::{Options, home};
 use crate::sqlite::new_sqlite;
 use reva_desktop_pkg::brand::{Branding, branding};
 use reva_desktop_pkg::manifest::{CANVAS, Manifest, package_file};
+use reva_desktop_user::user::open_user;
 use serde::Serialize;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -32,7 +33,12 @@ pub struct Session {
 /// What the commands share.
 pub struct State {
     pub session: Session,
+    /// Where the VM's files are written: the user's folder, else the
+    /// package's, else `--root` or `~/Reva`.
     pub root: PathBuf,
+    /// With a user's folder: the package's, whose files the VM reads
+    /// under the user's (read-only).
+    pub base: Option<PathBuf>,
     pub brand: Branding,
     /// The saved image to start from (`--image`, else the manifest's).
     pub image: Option<PathBuf>,
@@ -41,19 +47,28 @@ pub struct State {
 }
 
 /// The state for options `o`: the folder (a package, `--root`, or
-/// `~/Reva`), its manifest, branding, start lines and canvas.
+/// `~/Reva`) and the user's over a package, its manifest, branding, start
+/// lines and canvas.
 pub fn build_state(o: Options) -> Result<State, String> {
     let mut notes = Vec::new();
-    let (root, mut manifest) = open_root(&o, &mut notes)?;
+    let (dir, mut manifest) = open_root(&o, &mut notes)?;
     let start = manifest
         .start
         .iter()
         .map(|f| format!("include {f}"))
         .collect();
-    let package = o.package.is_some().then_some(root.as_path());
+    let package = o.package.is_some().then_some(dir.as_path());
     let brand = branding(package, &manifest, &mut notes);
     let canvas = choose_canvas(o.canvas, manifest.canvas.take(), &mut notes);
-    let image = choose_image(o.image, package, manifest.image.take(), &mut notes);
+    let image = choose_image(o.image.clone(), package, manifest.image.take(), &mut notes);
+    let user = match package {
+        Some(p) => open_user(o.user.as_deref(), o.installed, p, &manifest, &mut notes)?,
+        None => None,
+    };
+    let (root, base) = match user {
+        Some(u) => (u, Some(dir)),
+        None => (dir, None),
+    };
     Ok(State {
         session: Session {
             title: brand.title.clone(),
@@ -62,12 +77,13 @@ pub fn build_state(o: Options) -> Result<State, String> {
             input: o.evals,
             print_output: o.print_output,
             canvas,
-            package: package.map(|_| package_json(&manifest)),
+            package: o.package.is_some().then(|| package_json(&manifest)),
             image: image.is_some(),
             notes,
         },
         sql: new_sqlite(root.clone()),
         root,
+        base,
         brand,
         image,
     })

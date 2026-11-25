@@ -95,7 +95,8 @@ The same tree as one local binary per OS: [serve.md](serve.md)
 
 ```bash
 cargo install tauri-cli --version "^2" --locked     # once, ~8 min
-components/desktop/build.sh --bundle                           # installers in target/release/bundle/
+components/desktop/build.sh --bundle                           # plain Reva's installers in target/release/bundle/
+just installer [PACKAGE_DIR]                         # a package's (below), in target/installer/
 ```
 
 `tauri.conf.json` lists `deb`, `rpm`, `app`, `dmg`, `nsis` and `msi`, and
@@ -138,6 +139,99 @@ Installers are signed with `bundle.windows.certificateThumbprint` (or a
 `signCommand`), the same Authenticode certificate as in section 2. The MSI
 needs WiX, which the bundler downloads, and it only builds on Windows. NSIS
 can also be cross-built (section 5).
+
+### Installers for a package (`just installer`)
+
+```bash
+just installer tests/installer-demo        # or scripts/make-installer.sh [--native] [PACKAGE_DIR]
+```
+
+This bundles reva-desktop with a package folder into installers in
+`target/installer/`. It makes a universal `.dmg` on macOS (`--native` builds
+only this Mac's architecture, which is quicker) and a `.deb` and `.rpm` on
+Linux. With no folder it bundles plain Reva. Each file name carries the
+package's version and reva-fork's, for example
+`Reva-Demo_1.0.0_reva-2026.1121.0_universal.dmg`. The About dialog and the
+footer show both versions too ("Reva Demo 1.0.0 on reva-fork ...").
+
+**The installed app.** The package ships read-only inside the install, as
+Tauri resources in `package/`:
+
+- macOS: `Reva Demo.app/Contents/Resources/package`;
+- Linux: `/usr/lib/<name>/package`.
+
+Started without `--package`, the app finds the package there. The user's
+files live in **Documents/&lt;userFolder&gt;**:
+
+- macOS: `~/Documents`;
+- Linux: the XDG documents folder, else `~/Documents`;
+- Windows: the user's Documents folder.
+
+The VM sees the package's files with the user's copies over them. Reads
+look in the user's folder first, and every write goes there. The `seed`
+files are copied into the folder only when they are missing, so an
+upgrade never overwrites a user's file. Upgrading or uninstalling leaves
+the folder alone. A file the user deletes that the package also ships
+shows the package's copy again on the next start. `--user DIR` gives the
+same layering to an uninstalled package (`--package DIR --user DIR2`), for
+testing.
+
+**Manifest fields the installer uses** (`reva-package.json`; the app's other
+fields: `Manifest` in `reva-desktop-pkg`):
+
+| field | use |
+| --- | --- |
+| `name` | required: the app's name (`productName`), the `.app`, the Linux binary (`reva-demo`: lower case, `-` for other characters), the default user folder |
+| `about.version` | the installer's version (made semver: `2026.0105.0` becomes `2026.105.0`), else reva-fork's |
+| `identifier` | the bundle id; default `com.softwarewrighter.reva.<binary>` |
+| `icon` | a square PNG in the package: the bundles' icon set (`cargo tauri icon`); default Reva's |
+| `files` | if present, ships only the manifest and its `start`, `files`, `seed`, `icon` and `image` files; if absent, the whole folder except dot files |
+| `userFolder` | the folder under Documents (one plain name; default `name`) |
+| `seed` | package files copied into the user's folder when missing (start data, such as a `.csy`) |
+
+**Unsigned, first start** (the user, 2026-11-22: no paid signing).
+
+- macOS: the app is ad-hoc signed, so Apple Silicon runs it, but it isn't
+  notarized. Open it once, then go to System Settings › Privacy &
+  Security and choose Open Anyway. Or run `xattr -dr
+  com.apple.quarantine "/Applications/Reva Demo.app"`.
+- Windows: SmartScreen warns. Choose More info, then Run anyway, or
+  Unblock it in the file's Properties.
+- Linux packages aren't signed: `sudo apt install ./NAME.deb` or `sudo
+  dnf install ./NAME.rpm`.
+
+The signing settings above still work if a certificate is given:
+`APPLE_SIGNING_IDENTITY` replaces the ad-hoc identity. For Windows,
+SignPath Foundation's free signing for open source could fill
+`bundle.windows.signCommand` later.
+
+**Checked.** `scripts/installer-check.sh APP` runs an installed demo with
+a throwaway `HOME` and checks that:
+
+- the signature is ad-hoc;
+- the package starts;
+- the seed is copied into the user's folder, and the user's copy is read
+  over the package's;
+- writes land in the user's folder.
+
+CI runs it after `just installer --native tests/installer-demo` on
+macOS (the bundle) and Linux (the `.deb`, installed with apt), and keeps
+the installers as the run's artifacts.
+
+**Windows** (`setup.exe`, NSIS, `installMode` currentUser, so no admin
+rights are needed, with the WebView2 bootstrapper) is set in
+`tauri.conf.json`. The script makes it under Git Bash, but it isn't tested
+yet: step local-windows-goldens, then local-installer-tests.
+
+**CoSy's ask 26** (ba-cosy-zip-fork `docs/reva-fork-asks.md`), answered:
+
+- `just installer` makes the macOS and Linux installers now, and Windows'
+  follows.
+- The installed app follows CoSy's choices: the user folder is
+  Documents/CoSy (`"userFolder": "CoSy"`), reads look there first, writes
+  go there, and only `CoSy.csy` is copied on first start (`"seed":
+  ["CoSy.csy"]`). `CoSy.orig.csy` stays readable in the install.
+- No AppImage: it would bundle WebKitGTK, which is LGPL.
 
 ## 5. Windows 10 and later
 

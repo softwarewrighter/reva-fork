@@ -1,0 +1,17 @@
+[package]
+name = "reva-desktop-user"
+description = "The installed app's user folder: where it is, the files seeded into it"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+reva-desktop-pkg = { path = "../reva-desktop-pkg" }
+# the platform's Documents folder (already in the tree through Tauri)
+dirs = "7"
+
+[dev-dependencies]
+serde_json = "1"

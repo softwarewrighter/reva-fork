@@ -11,6 +11,11 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-24
+
+- 14:52 `chore` Step local-desktop-installers complete (saga record): CI run 45486463258 green on Linux and macOS with the installers built, installed and checked (macOS needed a re-run: no runner assigned); Windows reports its 9 goldens.
+- 11:54 `feat` Desktop installers for a package (step local-desktop-installers, CoSy's ask 26; macOS and Linux first, the user 2026-11-23). New `just installer [--native] [PACKAGE_DIR]` (`scripts/make-installer.sh`, `scripts/installer-config.mjs`): reva-desktop with the package as Tauri resources (`package/`), named, versioned and given an id and icon from its manifest; a universal `.dmg` on macOS (ad-hoc signed, no paid signing: the user), `.deb`/`.rpm` on Linux, NSIS per-user `setup.exe` configured for Windows (untested until local-windows-goldens). Installer file names carry the package's version and reva-fork's. The installed app (new crate reva-desktop-user): started without `--package` it opens the shipped package, keeps the user's files in Documents/<userFolder>, reads them over the package's, writes only there, and copies the manifest's `seed` files once, never overwriting (CoSy's choices: Documents/CoSy, seed CoSy.csy). New manifest fields `userFolder`, `seed` (and `identifier`, `files` for the installer); new option `--user DIR`. Sample package `tests/installer-demo`; `scripts/installer-check.sh` runs an installed one; CI builds, installs (the `.deb` with apt) and checks it on macOS and Linux and keeps the installers as artifacts. Built and inspected here: the universal `.dmg` (x86_64 + arm64, 6 MB; package in Resources, signature verifies). docs/packaging.md: the installers, the manifest fields, first-start steps for unsigned apps, the answer to ask 26.
+
 ## 2026-11-23
 
 - 13:20 `chore` Step local-ci complete (saga record): CI run 45248831329 green on Linux and macOS (the macOS job needed two re-runs: GitHub lost its runner twice, no step had started), Windows reporting its 9 goldens.

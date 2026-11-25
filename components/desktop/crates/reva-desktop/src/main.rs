@@ -39,6 +39,7 @@ use std::sync::Mutex;
 use reva_desktop_state::about::about as about_text;
 use reva_desktop_state::options::{USAGE, parse_args};
 use reva_desktop_state::state::{State, build_state};
+use reva_desktop_user::user::installed_package;
 
 mod commands;
 mod console;
@@ -48,10 +49,17 @@ mod windows;
 fn main() -> ExitCode {
     console::attach_parent();
     let context = tauri::generate_context!();
-    let options = match parse_args() {
+    let mut options = match parse_args() {
         Ok(o) => o,
         Err(e) => return usage_error(&e),
     };
+    // an installer's package (scripts/make-installer.sh), unless --package
+    if options.package.is_none() {
+        let resources =
+            tauri::utils::platform::resource_dir(context.package_info(), &tauri::Env::default());
+        options.package = installed_package(resources.ok());
+        options.installed = options.package.is_some();
+    }
     if options.about {
         return about(&context);
     }

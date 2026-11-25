@@ -20,6 +20,7 @@ serde_json = "1"
 reva-sqlite = { path = "../../../sqlite/crates/reva-sqlite" }
 reva-desktop-pkg = { path = "../reva-desktop-pkg" }
 reva-desktop-state = { path = "../reva-desktop-state" }
+reva-desktop-user = { path = "../reva-desktop-user" }
 
 # Sets the program name before GTK starts, so a package's `id` becomes the
 # Wayland app_id / X11 WM_CLASS (see Branding in main.rs).  Already in the
@@ -27,14 +28,14 @@ reva-desktop-state = { path = "../reva-desktop-state" }
 [target.'cfg(target_os = "linux")'.dependencies]
 glib = "0.18"
 
-# Sets the Dock icon from a package's icon (set_dock_icon in main.rs).  The
-# same objc2 crates Tauri's macOS backend (tao, wry) already builds, with
-# features it already enables, so it adds no crate.
 # Attaches to the parent's console (console.rs).  The windows-sys Tauri's
 # Windows backend already builds, so it adds no crate.
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Console"] }
 
+# Sets the Dock icon from a package's icon (set_dock_icon in main.rs).  The
+# same objc2 crates Tauri's macOS backend (tao, wry) already builds, with
+# features it already enables, so it adds no crate.
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.6"
 objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "NSApplication", "NSImage", "NSResponder"] }

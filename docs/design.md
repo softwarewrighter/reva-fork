@@ -431,7 +431,7 @@ new module, crate or component, never a merge).
 | `cli` | reva-cli (the `reva` binary: options, run, session), reva-drawings (turtle drawings as new SVG/PNG files, inline in iTerm2/WezTerm) | vm, cli-host, canvas |
 | `web` | reva-web-state (the one VM, its buffers, starting), reva-web-run (boot, input, output, build facts), reva-web-io (files, canvas, host calls), reva-web (the module: re-exports every export) | vm |
 | `serve` | reva-serve-http (the site, requests, responses), reva-serve (listening; the embedded site) | (web's www/, embedded at build time) |
-| `desktop` | reva-desktop-pkg (packages: manifest, branding, paths, snapshots), reva-desktop-state (options, the app's state), reva-desktop (the Tauri app: commands, windows, SQLite calls) | sqlite (and web's www/, copied by build.sh) |
+| `desktop` | reva-desktop-pkg (packages: manifest, branding, paths, snapshots), reva-desktop-state (options, the app's state), reva-desktop-user (an installed package's user folder and seed files), reva-desktop (the Tauri app: commands, windows, SQLite calls) | sqlite (and web's www/, copied by build.sh) |
 
 `Machine` is defined in reva-core and keeps only the helpers every
 gateway uses; the rest of its methods are extension traits in the crates

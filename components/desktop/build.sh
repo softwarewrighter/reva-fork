@@ -3,7 +3,8 @@
 #
 #   components/desktop/build.sh            build target/release/reva-desktop
 #   components/desktop/build.sh --install  ... and install it as `reva-desktop` (cargo install)
-#   components/desktop/build.sh --bundle   ... and make installers (.deb/.rpm, .app/.dmg; needs tauri-cli)
+#   components/desktop/build.sh --bundle [ARGS]  ... and make installers (.deb/.rpm, .app/.dmg; needs
+#                                         tauri-cli); ARGS go to cargo tauri build (scripts/make-installer.sh)
 #
 # Steps: build the WebAssembly VM (scripts/build-web.sh), assemble the
 # page into components/desktop/dist (the browser page, with components/desktop/host.js in place of
@@ -25,11 +26,13 @@ awk -v build="$stamp" '
 cp "$here/host.js" "$here/dist/host.js"
 rm -rf "$here/dist/ui" && cp -R "$www/ui" "$here/dist/ui"
 cd "$here"
-case "${1:-}" in
+mode="${1:-}"
+[[ $# -gt 0 ]] && shift
+case "$mode" in
     --install) cargo install --locked --path crates/reva-desktop ;;
     # installers carry the release version (VERSION), not tauri.conf.json's
     --bundle)  (cd crates/reva-desktop && cargo tauri build \
-                   --config "{\"version\": \"$(tr -d ' \n' < "$here/../../VERSION")\"}") ;;
+                   --config "{\"version\": \"$(tr -d ' \n' < "$here/../../VERSION")\"}" "$@") ;;
     *)         cargo build --release ;;
 esac
-[[ "${1:-}" == --install ]] || echo "built: $(cd "$here/../.." && pwd)/target/release/reva-desktop"
+[[ "$mode" == --install || "$mode" == --bundle ]] || echo "built: $(cd "$here/../.." && pwd)/target/release/reva-desktop"

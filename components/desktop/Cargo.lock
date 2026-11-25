@@ -2509,6 +2509,7 @@ dependencies = [
  "objc2-foundation",
  "reva-desktop-pkg",
  "reva-desktop-state",
+ "reva-desktop-user",
  "reva-sqlite",
  "serde",
  "serde_json",
@@ -2531,8 +2532,18 @@ name = "reva-desktop-state"
 version = "0.1.0"
 dependencies = [
  "reva-desktop-pkg",
+ "reva-desktop-user",
  "reva-sqlite",
  "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "reva-desktop-user"
+version = "0.1.0"
+dependencies = [
+ "dirs",
+ "reva-desktop-pkg",
  "serde_json",
 ]
 

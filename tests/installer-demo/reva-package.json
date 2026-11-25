@@ -1,0 +1,15 @@
+{
+  "name": "Reva Demo",
+  "title": "Reva Demo",
+  "id": "reva-demo",
+  "start": ["demo.f"],
+  "files": ["notes.txt"],
+  "userFolder": "Reva Demo",
+  "seed": ["notes.txt"],
+  "about": {
+    "name": "Reva Demo",
+    "version": "1.0.0",
+    "description": "reva-fork's sample package for the desktop installers (scripts/make-installer.sh)",
+    "credits": ["Sample package: reva-fork"]
+  }
+}

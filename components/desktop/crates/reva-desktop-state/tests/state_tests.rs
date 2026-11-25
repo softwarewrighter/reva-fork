@@ -81,3 +81,45 @@ fn the_page_gets_the_footer_settings() {
     assert_eq!(p["sourceLinks"], false);
     fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn a_user_folder_is_written_over_the_package() {
+    use reva_desktop_pkg::snapshot::layered;
+    let dir = package("layer", r#"{"name": "L", "seed": ["data.txt"]}"#);
+    fs::write(dir.join("data.txt"), "start data").unwrap();
+    fs::write(dir.join("code.f"), "package code").unwrap();
+    let user = dir.with_extension("user");
+    let _ = fs::remove_dir_all(&user);
+    let o = Options {
+        package: Some(dir.clone()),
+        user: Some(user.clone()),
+        ..Default::default()
+    };
+    let st = build_state(o).unwrap();
+    assert_eq!(st.root, fs::canonicalize(&user).unwrap());
+    assert_eq!(st.base, Some(fs::canonicalize(&dir).unwrap()));
+    assert_eq!(
+        fs::read_to_string(user.join("data.txt")).unwrap(),
+        "start data"
+    );
+    fs::write(user.join("code.f"), "user code").unwrap();
+    let files = layered(st.base.as_deref(), &st.root, &mut Vec::new());
+    let code: Vec<_> = files.iter().filter(|(vm, _)| vm == "/code.f").collect();
+    assert_eq!(code.len(), 1);
+    assert_eq!(code[0].1, "user code");
+    assert!(files.iter().any(|(vm, _)| vm == "/reva-package.json"));
+    fs::remove_dir_all(dir).unwrap();
+    fs::remove_dir_all(user).unwrap();
+}
+
+#[test]
+fn a_package_without_a_user_folder_is_its_own_root() {
+    let dir = package("own", r#"{"name": "Own"}"#);
+    let o = Options {
+        package: Some(dir.clone()),
+        ..Default::default()
+    };
+    let st = build_state(o).unwrap();
+    assert_eq!((st.root, st.base), (fs::canonicalize(&dir).unwrap(), None));
+    fs::remove_dir_all(dir).unwrap();
+}
