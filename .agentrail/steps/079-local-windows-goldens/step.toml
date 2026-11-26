@@ -1,8 +1,9 @@
 number = 79
 slug = "local-windows-goldens"
-status = "in-progress"
+status = "completed"
 description = "Windows required in CI (the user, 2026-11-23: macOS and Linux installers firs..."
 role = "production"
 context_files = []
 created_at = "2026-11-23T11:24:28"
-commits = []
+completed_at = "2026-11-26T10:27:16"
+commits = ["c882182e85923e8b62e9c8a66645723e78bf9f86"]
