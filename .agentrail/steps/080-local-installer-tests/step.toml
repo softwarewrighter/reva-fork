@@ -1,6 +1,6 @@
 number = 80
 slug = "local-installer-tests"
-status = "pending"
+status = "in-progress"
 description = "Test the installers and the installed app on Windows, macOS and Linux (the us..."
 role = "production"
 context_files = []

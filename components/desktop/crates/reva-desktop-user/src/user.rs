@@ -14,7 +14,9 @@ pub fn installed_package(resources: Option<PathBuf>) -> Option<PathBuf> {
 /// The user's folder for `package`, made if missing and seeded (see
 /// [`user_dir`] and [`seed`]); `None`: the package's own folder.
 /// Documents is `~/Documents` on macOS, the XDG documents folder on Linux
-/// (else `~/Documents`), the user's Documents folder on Windows.
+/// (else `~/Documents`), the user's Documents folder on Windows;
+/// `REVA_DOCUMENTS` replaces it (tests/check-installed.sh: a check never
+/// touches a user's real folder).
 pub fn open_user(
     explicit: Option<&Path>,
     installed: bool,
@@ -22,7 +24,9 @@ pub fn open_user(
     m: &Manifest,
     notes: &mut Vec<String>,
 ) -> Result<Option<PathBuf>, String> {
-    let docs = dirs::document_dir()
+    let docs = std::env::var_os("REVA_DOCUMENTS")
+        .map(PathBuf::from)
+        .or_else(dirs::document_dir)
         .or_else(|| dirs::home_dir().map(|h| h.join("Documents")))
         .unwrap_or_else(|| PathBuf::from("Documents"));
     let Some(dir) = user_dir(explicit, installed, m, &docs, notes) else {
