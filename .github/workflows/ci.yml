@@ -138,7 +138,9 @@ jobs:
             Windows)
               # NSIS, per user: /S is silent, no admin rights asked
               ./target/installer/*-setup.exe //S
-              scripts/installer-check.sh "$LOCALAPPDATA/Reva Demo/reva-demo.exe" ;;
+              # without the build's sqlite3.dll on PATH: the installed copy must do
+              PATH=$(tr ':' '\n' <<<"$PATH" | grep -vi 'target/sqlite' | paste -sd: -) \
+                scripts/installer-check.sh "$LOCALAPPDATA/Reva Demo/reva-demo.exe" ;;
           esac
 
       - name: Upload the installers
