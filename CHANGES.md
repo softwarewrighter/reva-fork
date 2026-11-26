@@ -11,6 +11,12 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-25
+
+- 20:00 `fix` Windows required in CI (step local-windows-goldens): all 70 goldens pass on windows-latest, and the Windows job no longer has `continue-on-error`. Fixed on reva-fork's side: on Windows a drive path (`D:/a/x.f`, `C:\a\x.f`) is absolute and `\` separates like `/` (new `user_path` in reva-hostpath; it broke include of an absolute path from Git Bash: builtins-ls-pp, image-iup, notebook-file, tui-notebook-click, tui-notebook-demo); `shell`'s status is a Unix wait status on every OS (exit code × 256; native-traps read 0 for `exit 3`); `--port-check` names the source as given (port-check printed `.\windows-only.f`; golden rebased: `windows-only.f`). Tests made portable: the turtle test saves in a temporary folder, not `/tmp`; `scripts/pty-lineedit.py` drives reva at a ConPTY on Windows (pywinpty, installed by CI) and prints LF line ends. CI also builds the demo package's NSIS `setup.exe` on Windows, installs it silently (per user) and runs `scripts/installer-check.sh` on it. docs/packaging.md: the Windows status table and gap 2. Includes the work-in-progress commit b51cb78, pushed without the gate and this line to get a Windows run.
+- 15:26 `chore` Merge #119 (step local-desktop-installers) into dev.
+- 15:26 `chore` Merge #118 (step local-ci) into dev.
+
 ## 2026-11-24
 
 - 14:52 `chore` Step local-desktop-installers complete (saga record): CI run 45486463258 green on Linux and macOS with the installers built, installed and checked (macOS needed a re-run: no runner assigned); Windows reports its 9 goldens.

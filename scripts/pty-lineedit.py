@@ -12,6 +12,9 @@ text with those removed and, there, spaces ignored.
 """
 import os, re, sys, time
 WINDOWS = os.name == "nt"
+# the same report on every OS (Windows' Python would end lines with CRLF)
+sys.stdout.reconfigure(newline="\n")
+sys.stderr.reconfigure(newline="\n")
 if WINDOWS:
     import threading
     from winpty import PtyProcess
