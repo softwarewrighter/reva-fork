@@ -4,9 +4,12 @@
 # folder, reads the user's copy over the package's, and writes only there.
 #
 #   scripts/installer-check.sh APP      APP: the installed program
-#       (macOS: ".../Reva Demo.app/Contents/MacOS/reva-demo"; Linux: /usr/bin/reva-demo)
+#       (macOS: ".../Reva Demo.app/Contents/MacOS/reva-demo"; Linux: /usr/bin/reva-demo;
+#       Windows: "$LOCALAPPDATA/Reva Demo/reva-demo.exe")
 #
-# Runs with a throwaway HOME, so Documents/Reva Demo is made there.  Opens
+# Runs with a throwaway HOME, so Documents/Reva Demo is made there.  Windows
+# finds Documents through the shell, not HOME: there the real
+# Documents/Reva Demo is used, removed first (CI's throwaway account).  Opens
 # a window (Linux: under xvfb-run when there is no display): CI, not the
 # shared Mac.
 set -euo pipefail
@@ -22,6 +25,11 @@ run() {
     fi
 }
 user="$home/Documents/Reva Demo"
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*)
+        user="$(cygpath -u "$USERPROFILE")/Documents/Reva Demo"
+        rm -rf "$user" ;;
+esac
 fail=0
 check() { # name, expected text, actual
     if grep -qF -- "$2" <<<"$3"; then echo "ok   $1"; else echo "FAIL $1: expected '$2' in:"; sed 's/^/    /' <<<"$3"; fail=1; fi

@@ -60,7 +60,8 @@ impl StdHost {
     }
 }
 
-/// A child's wait status, as C's `system` returns it.
+/// A child's wait status, as C's `system` returns it on Unix (the exit
+/// code times 256), so `shell_code @ 256 /` is the code on every OS.
 #[cfg(unix)]
 pub fn wait_status(s: std::process::ExitStatus) -> i32 {
     use std::os::unix::process::ExitStatusExt;
@@ -69,5 +70,5 @@ pub fn wait_status(s: std::process::ExitStatus) -> i32 {
 
 #[cfg(not(unix))]
 pub fn wait_status(s: std::process::ExitStatus) -> i32 {
-    s.code().unwrap_or(-1)
+    s.code().map_or(-1, |c| c << 8)
 }

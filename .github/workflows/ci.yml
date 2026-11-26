@@ -26,10 +26,6 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
-    # Windows runs and reports, but does not fail the run yet: 9 goldens
-    # differ there (the user, 2026-11-23: installers for macOS and Linux
-    # first; step local-windows-goldens makes Windows required).
-    continue-on-error: ${{ matrix.os == 'windows-latest' }}
     defaults:
       run:
         shell: bash
@@ -80,6 +76,11 @@ jobs:
           echo "SQLITE3_LIB_DIR=$dir" >> "$GITHUB_ENV"
           echo "$dir" >> "$GITHUB_PATH"
 
+      # the line-editing golden drives reva at a ConPTY (scripts/pty-lineedit.py)
+      - name: pywinpty (Windows)
+        if: runner.os == 'Windows'
+        run: python3 -m pip install pywinpty
+
       - name: The softwarewrighter tools' commits (the cache key)
         id: swheads
         run: |
@@ -122,22 +123,28 @@ jobs:
         run: components/desktop/smoke.sh
 
       # the demo package's installer (scripts/make-installer.sh), installed
-      # and run (scripts/installer-check.sh); Windows' follows
-      # local-windows-goldens
+      # and run (scripts/installer-check.sh)
       - name: Installer (tests/installer-demo)
-        if: ${{ !cancelled() && runner.os != 'Windows' }}
+        if: ${{ !cancelled() }}
         run: |
           cargo install tauri-cli --version '^2' --locked
           scripts/make-installer.sh --native tests/installer-demo
-          if [[ "$RUNNER_OS" == Linux ]]; then
-            sudo apt-get install -y ./target/installer/*.deb
-            scripts/installer-check.sh /usr/bin/reva-demo
-          else
-            scripts/installer-check.sh "target/release/bundle/macos/Reva Demo.app/Contents/MacOS/reva-demo"
-          fi
+          case "$RUNNER_OS" in
+            Linux)
+              sudo apt-get install -y ./target/installer/*.deb
+              scripts/installer-check.sh /usr/bin/reva-demo ;;
+            macOS)
+              scripts/installer-check.sh "target/release/bundle/macos/Reva Demo.app/Contents/MacOS/reva-demo" ;;
+            Windows)
+              # NSIS, per user: /S is silent, no admin rights asked
+              ./target/installer/*-setup.exe //S
+              # without the build's sqlite3.dll on PATH: the installed copy must do
+              PATH=$(tr ':' '\n' <<<"$PATH" | grep -vi 'target/sqlite' | paste -sd: -) \
+                scripts/installer-check.sh "$LOCALAPPDATA/Reva Demo/reva-demo.exe" ;;
+          esac
 
       - name: Upload the installers
-        if: ${{ !cancelled() && runner.os != 'Windows' }}
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: installers-${{ runner.os }}

@@ -126,7 +126,7 @@ fn write_copy(dir: &Path, path: &Path, fixed: &[u8]) -> Result<(), String> {
     if same {
         return Err(format!(
             "{}: --fix would write over the source; choose another folder",
-            out.display()
+            path.display()
         ));
     }
     fs::write(&out, fixed).map_err(|e| format!("{}: {e}", out.display()))

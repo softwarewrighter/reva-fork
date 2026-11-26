@@ -58,7 +58,14 @@ if [[ -n "$pkg" ]]; then
     fi
 fi
 
-IFS=$'\t' read -r name pkgversion icon < <(node "$root/scripts/installer-config.mjs" "$version" "$out" "$stage")
+# Windows: the official sqlite3.dll (scripts/sqlite-dll.sh) ships next to the .exe
+dll=""
+case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*)
+        "$root/scripts/sqlite-dll.sh" x64 >/dev/null
+        dll="$(cygpath -m "$root/target/sqlite/sqlite3.dll")" ;;
+esac
+IFS=$'\t' read -r name pkgversion icon < <(node "$root/scripts/installer-config.mjs" "$version" "$out" "$stage" "$dll")
 config=("$out/tauri.json")
 if [[ -n "$icon" ]]; then
     # the bundles' icon set (.icns, .ico, PNGs) from the package's PNG
@@ -92,9 +99,12 @@ base="${name// /-}_${pkgversion:+${pkgversion}_reva-}${version}_${arch}"
 [[ -n "$pkgversion" ]] || base="${name// /-}_${version}_${arch}"
 n=0
 while IFS= read -r f; do
-    ext="${f##*.}"
-    cp "$f" "$out/$base.$ext"
-    echo "installer: $out/$base.$ext"
+    case "$f" in
+        *-setup.exe) name1="$base-setup.exe" ;;
+        *) name1="$base.${f##*.}" ;;
+    esac
+    cp "$f" "$out/$name1"
+    echo "installer: $out/$name1"
     n=$((n + 1))
 done < <(find "$tdir/bundle" \( -name '*.dmg' -o -name '*.deb' -o -name '*.rpm' -o -name '*-setup.exe' \) -type f)
 [[ $n -gt 0 ]] || { echo "make-installer: no installer was made" >&2; exit 1; }

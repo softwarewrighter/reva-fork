@@ -239,10 +239,10 @@ yet: step local-windows-goldens, then local-installer-tests.
 
 | Part | State |
 |---|---|
-| CI | since step local-ci (2026-11-23): `.github/workflows/ci.yml` runs the whole gate (`scripts/check.sh`) and the desktop smoke test on `windows-latest` (x64, MSVC, Git Bash) as on macOS and Linux. Windows does not fail the run yet (`continue-on-error`), until step local-windows-goldens |
-| `reva.exe` | builds, passes every component's tests, release-check and 61 of the 70 goldens on real Windows (CI). Differing: builtins-ls-pp, cli-lineedit-pty, image-iup, native-traps, notebook-file, port-check, tui-notebook-click, tui-notebook-demo, turtle (step local-windows-goldens) |
+| CI | since step local-ci (2026-11-23): `.github/workflows/ci.yml` runs the whole gate (`scripts/check.sh`) and the desktop smoke test on `windows-latest` (x64, MSVC, Git Bash) as on macOS and Linux, then builds the demo package's `setup.exe`, installs it silently and checks the installed app. Required since step local-windows-goldens (2026-11-25): a PR is ready when Windows is green too |
+| `reva.exe` | builds, passes every component's tests, release-check and all 70 goldens on real Windows (CI), the same as on macOS and Linux. Step local-windows-goldens fixed the 9 that differed: drive paths (`D:/a/x.f`, `C:\a\x.f`) were taken as relative (gap 2), a shell command's status was not a wait status (`shell_code @ 256 /` gave 0 for `exit 3`), `--port-check` printed `.\x.f`, and two tests were Unix-only (the turtle test saved to `/tmp`; line editing ran at a Unix pty, now at a ConPTY through pywinpty) |
 | browser page | the web tests, the CD pixel test among them, pass in Chrome on Windows (CI) |
-| `reva-desktop.exe` | builds and passes its tests and release-check (`--about`) on Windows; a Windows (GUI) program, so no console window opens (gap 1 below, fixed); smoke test in CI: 7 checks passed, then the turtle window hung (a synchronous command building a window deadlocks on Windows; `open_window` is `async` now) |
+| `reva-desktop.exe` | builds and passes its tests and release-check (`--about`) on Windows; a Windows (GUI) program, so no console window opens (gap 1 below, fixed); smoke test in CI: all 11 checks pass (the turtle window once hung: a synchronous command building a window deadlocks on Windows; `open_window` is `async` now) |
 | SQLite | the official `sqlite3.dll` (3.54.1), linked, not compiled: `scripts/sqlite-dll.sh` ([sqlite.md](sqlite.md#how-it-works)); it ships next to the `.exe` |
 | line ends | `.gitattributes` (`* -text`): files are checked out as stored, so Git for Windows does not add CR (it broke `VERSION` and the scripts) |
 | scripts (`build.sh`, `smoke.sh`, gates, `make-subset.sh`) | bash or POSIX sh; they run in Git Bash (it includes perl) |
@@ -256,10 +256,11 @@ Known Windows gaps, to fix after a first run on real Windows:
    (`reva-desktop/src/console.rs`), and redirected output (Git Bash,
    `smoke.sh`) works as before. Checked in CI through redirection; the
    console case wants a by-hand look on Windows.
-2. **Absolute paths in Forth are written `/C:/dir/file`.** The VM's paths
-   are `/`-rooted, and a host path `C:\dir` is `/C:/dir` to the VM.
-   Relative paths and `/` separators work as usual. `C:\dir\file` written
-   in Forth is treated as a relative name (checked under Wine).
+2. **Absolute paths in Forth** (fixed, step local-windows-goldens). The
+   VM's paths are `/`-rooted, and a host path `C:\dir` is `/C:/dir` to
+   the VM. A program may also write `C:\dir\file` or `C:/dir/file`: on
+   Windows a drive path is absolute and `\` separates like `/`
+   (`reva-hostpath`'s `user_path`).
 3. **End of input at the console is Ctrl-Z then Enter**, not Ctrl-D.
 
 ### How to build for Windows

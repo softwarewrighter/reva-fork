@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 use std::fs::File;
 use std::path::PathBuf;
 
-use reva_hostpath::paths::{host_path, install_root};
+use reva_hostpath::paths::{host_path, install_root, user_path};
 use reva_vm::embedded;
 use reva_vm::vfs::{self, Access, Errno, FIRST_FD, FsDirs, errno::*};
 
@@ -31,7 +31,7 @@ pub struct StdFs {
 impl StdFs {
     /// (virtual absolute path, host path)
     pub fn resolve(&mut self, path: &str) -> (String, PathBuf) {
-        let v = vfs::normalize(&self.cwd(), path);
+        let v = vfs::normalize(&self.cwd(), &user_path(path, cfg!(windows)));
         let host = match embedded::install_relative(&v) {
             Some(rel) => install_root().join(rel),
             None => host_path(&v, cfg!(windows)),
