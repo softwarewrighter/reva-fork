@@ -62,6 +62,22 @@ pub fn vm_path(host: &str, windows: bool) -> String {
     }
 }
 
+/// A path a program names, as the VM's file system takes it.  On Windows
+/// `\\` separates like `/`, and a drive path (`D:/a`, `C:\a`) is absolute:
+/// `/D:/a` (see [`vm_path`]); elsewhere the path is unchanged.
+pub fn user_path(path: &str, windows: bool) -> String {
+    if !windows {
+        return path.to_string();
+    }
+    let p = path.replace('\\', "/");
+    let b = p.as_bytes();
+    if b.len() >= 3 && b[0].is_ascii_alphabetic() && b[1] == b':' && b[2] == b'/' {
+        format!("/{p}")
+    } else {
+        p
+    }
+}
+
 /// The host path for a VM path: the inverse of [`vm_path`].  On Windows
 /// `/C:/a/b` is `C:/a/b`, which Windows accepts; a VM path without a drive
 /// (`/a/b`) stays on the current drive.

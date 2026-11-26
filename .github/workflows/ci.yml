@@ -80,6 +80,11 @@ jobs:
           echo "SQLITE3_LIB_DIR=$dir" >> "$GITHUB_ENV"
           echo "$dir" >> "$GITHUB_PATH"
 
+      # the line-editing golden drives reva at a ConPTY (scripts/pty-lineedit.py)
+      - name: pywinpty (Windows)
+        if: runner.os == 'Windows'
+        run: python3 -m pip install pywinpty
+
       - name: The softwarewrighter tools' commits (the cache key)
         id: swheads
         run: |

@@ -1,6 +1,6 @@
 number = 79
 slug = "local-windows-goldens"
-status = "pending"
+status = "in-progress"
 description = "Windows required in CI (the user, 2026-11-23: macOS and Linux installers firs..."
 role = "production"
 context_files = []

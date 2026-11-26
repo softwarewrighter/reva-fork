@@ -13,6 +13,6 @@ clear 25 step! hs 4 path xy@ . . segments . cr
 3 hilbert-demo segments . cr  4 tree-demo segments . cr  3 plant-demo segments . cr
 | depth caps
 99 hilbert-demo segments . cr
-2 hilbert-demo " /tmp/reva-turtle-test.svg" svg-save . cr
-" /tmp/reva-turtle-test.svg" slurp type
+2 hilbert-demo " turtle-test.svg" svg-save . cr
+" turtle-test.svg" slurp type
 bye
