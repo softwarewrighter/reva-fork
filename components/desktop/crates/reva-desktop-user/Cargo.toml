@@ -12,6 +12,5 @@ authors.workspace = true
 reva-desktop-pkg = { path = "../reva-desktop-pkg" }
 # the platform's Documents folder (already in the tree through Tauri)
 dirs = "7"
-
-[dev-dependencies]
 serde_json = "1"
+

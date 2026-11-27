@@ -205,28 +205,75 @@ The signing settings above still work if a certificate is given:
 SignPath Foundation's free signing for open source could fill
 `bundle.windows.signCommand` later.
 
-**Checked.** `scripts/installer-check.sh APP` runs an installed demo with
-a throwaway `HOME` and checks that:
+**Checked** (step local-installer-tests). `tests/check-installed.sh APP
+[PACKAGE_VERSION]` checks any installed package app, by hand or from
+another project's release script (CoSy's `check-release.sh --installed`).
+`tests/check-installed.ps1 -App ...` does the core of it in PowerShell, on
+Windows without Git Bash. The user's folder goes under a throwaway
+`REVA_DOCUMENTS`, which the app reads in place of Documents, so a check
+never touches a user's real folder. It checks:
 
-- the signature is ad-hoc;
-- the package starts;
-- the seed is copied into the user's folder, and the user's copy is read
-  over the package's;
-- writes land in the user's folder.
+- the package is installed (and on Windows `sqlite3.dll` next to the app);
+- macOS: the signature (ad-hoc) verifies;
+- `--about` shows reva-fork's version and, for a package, its name and
+  version, where it is installed and the user's folder (`package:`,
+  `package dir:`, `user folder:`);
+- the app starts and evaluates, and `version` shows reva-fork's commit;
+- the user's folder is made under Documents, and on a fresh folder the
+  seed files are copied from the package;
+- the user's copy of a file is read over the package's;
+- writes land in the user's folder, never in the install;
+- `save` writes an image there, and the app restarts from it;
+- turtle graphics draw in their own window (`[canvas: 768 lines]`).
 
-CI runs it after `just installer --native tests/installer-demo` on
-macOS (the bundle) and Linux (the `.deb`, installed with apt), and keeps
-the installers as the run's artifacts.
+`scripts/installer-lifecycle.sh` takes the demo package
+(`tests/installer-demo`) through a user's life on the OS it runs on. CI
+runs it on all three:
+
+1. build the installer at 1.0.0 and at 1.0.1;
+2. install 1.0.0 as a user does: macOS, the `.dmg` mounted and the app
+   copied out; Linux, the `.deb` with apt; Windows, `setup.exe /S` (per
+   user, no admin rights), with the build's `sqlite3.dll` off PATH;
+3. run the checks, and take a screenshot with an IUP dialog and turtle
+   drawing open;
+4. add the user's own files, install 1.0.1 over it, run the checks again
+   (on Windows the `.ps1` too): the new version runs, the user's files
+   are kept;
+5. uninstall: the app is gone, the user's folder is still there.
+
+**Results** (CI run 46052033087, 2026-11-27, reva-fork 2026.1121.0):
+
+| OS | install | checks (1.0.0, then 1.0.1 over it) | upgrade keeps the user's files | uninstall keeps the user's folder | screenshot |
+|---|---|---|---|---|---|
+| Linux (ubuntu-latest) | `.deb` with apt | all pass | yes | yes | black: Xvfb's capture misses what WebKitGTK draws (to look into) |
+| macOS (macos-latest, arm64) | `.dmg` mounted, app copied | all pass, ad-hoc signature verifies | yes | yes | the app, the IUP dialog, the turtle drawing; footer "Reva Demo 1.0.0 on reva-fork 2026.1121.0" |
+| Windows (windows-latest) | `setup.exe /S`, per user | all pass, the `.ps1` too, without the build's `sqlite3.dll` on PATH | yes | yes | the app, the IUP dialog, the turtle drawing |
+
+Found and fixed on the way: an app started through a symlinked path on
+macOS lost its package (Tauri refuses such a path; it now finds its
+bundle by the real path), and `--about` did not name the package.
+
+The installers and screenshots are the CI run's artifacts
+(`installers-<OS>`). Not checked automatically in the installed app:
+IUP and CD pixels (the browser page's pixel test, `cd-pixels.mjs`,
+covers the same page code; the screenshots show the installed app), and
+the first start of an unsigned download (Gatekeeper and SmartScreen
+only act on files downloaded by a browser: a by-hand check, below).
 
 **Windows** (`setup.exe`, NSIS, `installMode` currentUser, so no admin
 rights are needed, with the WebView2 bootstrapper) is set in
-`tauri.conf.json`. The script makes it under Git Bash, but it isn't tested
-yet: step local-windows-goldens, then local-installer-tests.
+`tauri.conf.json`; `just installer` makes it in Git Bash with Visual
+Studio's build tools, and ships `sqlite3.dll` next to the app.
+
+**By hand, before a release** (a download from a browser, on each OS):
+open the installer as a user would, accept the warning once (above), start
+the app from the Start menu, Launchpad or the desktop menu, and run
+`tests/check-installed.sh` (or the `.ps1`) on it.
 
 **CoSy's ask 26** (ba-cosy-zip-fork `docs/reva-fork-asks.md`), answered:
 
-- `just installer` makes the macOS and Linux installers now, and Windows'
-  follows.
+- `just installer` makes the macOS, Linux and Windows installers, and CI
+  installs, upgrades, uninstalls and checks each.
 - The installed app follows CoSy's choices: the user folder is
   Documents/CoSy (`"userFolder": "CoSy"`), reads look there first, writes
   go there, and only `CoSy.csy` is copied on first start (`"seed":

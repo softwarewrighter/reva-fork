@@ -4,17 +4,11 @@ use reva_desktop_pkg::manifest::{Manifest, package_file};
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 
-/// The package an installer shipped: `package/` in the app's resources,
-/// when it holds a `reva-package.json`.
-pub fn installed_package(resources: Option<PathBuf>) -> Option<PathBuf> {
-    let dir = resources?.join("package");
-    dir.join("reva-package.json").is_file().then_some(dir)
-}
-
 /// The user's folder for `package`, made if missing and seeded (see
 /// [`user_dir`] and [`seed`]); `None`: the package's own folder.
 /// Documents is `~/Documents` on macOS, the XDG documents folder on Linux
-/// (else `~/Documents`), the user's Documents folder on Windows.
+/// (else `~/Documents`), the user's Documents folder on Windows
+/// (`REVA_DOCUMENTS` replaces it).
 pub fn open_user(
     explicit: Option<&Path>,
     installed: bool,
@@ -22,16 +16,23 @@ pub fn open_user(
     m: &Manifest,
     notes: &mut Vec<String>,
 ) -> Result<Option<PathBuf>, String> {
-    let docs = dirs::document_dir()
-        .or_else(|| dirs::home_dir().map(|h| h.join("Documents")))
-        .unwrap_or_else(|| PathBuf::from("Documents"));
-    let Some(dir) = user_dir(explicit, installed, m, &docs, notes) else {
+    let Some(dir) = user_dir(explicit, installed, m, &documents(), notes) else {
         return Ok(None);
     };
     fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     let dir = fs::canonicalize(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     seed(package, &dir, &m.seed, notes);
     Ok(Some(dir))
+}
+
+/// Documents: `REVA_DOCUMENTS` (tests/check-installed.sh: a check never
+/// touches a user's real folder), else the platform's.
+pub fn documents() -> PathBuf {
+    std::env::var_os("REVA_DOCUMENTS")
+        .map(PathBuf::from)
+        .or_else(dirs::document_dir)
+        .or_else(|| dirs::home_dir().map(|h| h.join("Documents")))
+        .unwrap_or_else(|| PathBuf::from("Documents"))
 }
 
 /// The user's folder: `explicit` (`--user`), else, when installed, the
