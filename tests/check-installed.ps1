@@ -26,7 +26,10 @@ $script:fail = 0
 
 function Run([string[]]$Lines) {
     $argv = @("--print-output")
-    foreach ($l in $Lines) { $argv += @("-e", $l) }
+    # Windows PowerShell 5.1 drops a native argument's inner double quotes
+    # (Forth strings: " /x.txt"); escaped, they reach the program
+    $q = if ($PSVersionTable.PSVersion.Major -lt 7) { '\"' } else { '"' }
+    foreach ($l in $Lines) { $argv += @("-e", ($l -replace '"', $q)) }
     $argv += @("-e", "bye")
     (& $App @argv 2>$null | Out-String)
 }
