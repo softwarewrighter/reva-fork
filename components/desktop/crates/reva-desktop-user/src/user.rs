@@ -4,13 +4,6 @@ use reva_desktop_pkg::manifest::{Manifest, package_file};
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 
-/// The package an installer shipped: `package/` in the app's resources,
-/// when it holds a `reva-package.json`.
-pub fn installed_package(resources: Option<PathBuf>) -> Option<PathBuf> {
-    let dir = resources?.join("package");
-    dir.join("reva-package.json").is_file().then_some(dir)
-}
-
 /// The user's folder for `package`, made if missing and seeded (see
 /// [`user_dir`] and [`seed`]); `None`: the package's own folder.
 /// Documents is `~/Documents` on macOS, the XDG documents folder on Linux
@@ -32,28 +25,9 @@ pub fn open_user(
     Ok(Some(dir))
 }
 
-/// `--about`'s lines for a package: its name and version (`about.version`),
-/// where it is, and the user's folder (made at start, not here).
-pub fn about_package(package: &Path, installed: bool, explicit: Option<&Path>) -> String {
-    let m: Manifest = fs::read(package.join("reva-package.json"))
-        .ok()
-        .and_then(|b| serde_json::from_slice(&b).ok())
-        .unwrap_or_default();
-    let version = m.about.as_ref().and_then(|a| a["version"].as_str());
-    let user = user_dir(explicit, installed, &m, &documents(), &mut Vec::new());
-    format!(
-        "package: {} {}\npackage dir: {}{}\nuser folder: {}\n",
-        m.name.as_deref().unwrap_or("(no name)"),
-        version.unwrap_or("(no version)"),
-        package.display(),
-        if installed { " (installed)" } else { "" },
-        user.map_or("(the package's own)".into(), |u| u.display().to_string()),
-    )
-}
-
 /// Documents: `REVA_DOCUMENTS` (tests/check-installed.sh: a check never
 /// touches a user's real folder), else the platform's.
-fn documents() -> PathBuf {
+pub fn documents() -> PathBuf {
     std::env::var_os("REVA_DOCUMENTS")
         .map(PathBuf::from)
         .or_else(dirs::document_dir)

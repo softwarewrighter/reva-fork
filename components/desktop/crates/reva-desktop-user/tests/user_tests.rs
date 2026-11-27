@@ -1,5 +1,6 @@
 use reva_desktop_pkg::manifest::Manifest;
-use reva_desktop_user::user::{installed_package, seed, user_dir};
+use reva_desktop_user::install::installed_package;
+use reva_desktop_user::user::{seed, user_dir};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -89,7 +90,7 @@ fn an_installed_package_needs_its_manifest() {
 
 #[test]
 fn about_names_the_package_and_the_user_folder() {
-    use reva_desktop_user::user::about_package;
+    use reva_desktop_user::install::about_package;
     let pkg = temp("about");
     fs::write(
         pkg.join("reva-package.json"),
@@ -103,4 +104,27 @@ fn about_names_the_package_and_the_user_folder() {
     let given = about_package(&pkg, true, Some(&mine));
     assert!(given.contains("(installed)") && given.contains(&mine.display().to_string()));
     fs::remove_dir_all(pkg).unwrap();
+}
+
+#[test]
+fn a_bundle_finds_its_resources_through_a_symlink() {
+    use reva_desktop_user::install::bundle_resources;
+    let apps = temp("bundle");
+    let macos = apps.join("Demo.app/Contents/MacOS");
+    fs::create_dir_all(&macos).unwrap();
+    fs::create_dir_all(apps.join("Demo.app/Contents/Resources")).unwrap();
+    fs::write(macos.join("demo"), "").unwrap();
+    let real = fs::canonicalize(apps.join("Demo.app/Contents/Resources")).unwrap();
+    assert_eq!(bundle_resources(&macos.join("demo")), Some(real.clone()));
+    #[cfg(unix)]
+    {
+        let link = apps.with_extension("link");
+        let _ = fs::remove_file(&link);
+        std::os::unix::fs::symlink(&apps, &link).unwrap();
+        let exe = link.join("Demo.app/Contents/MacOS/demo");
+        assert_eq!(bundle_resources(&exe), Some(real));
+        fs::remove_file(link).unwrap();
+    }
+    assert_eq!(bundle_resources(Path::new("/no/such/demo")), None);
+    fs::remove_dir_all(apps).unwrap();
 }

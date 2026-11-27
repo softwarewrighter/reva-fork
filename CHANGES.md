@@ -11,6 +11,10 @@ Categories: `feat` new capability, `fix` a bug or wrong behavior,
 decision recorded, `plan` saga planning and reordering, `release` a
 version, `chore` bookkeeping (saga records, branch syncs).
 
+## 2026-11-27
+
+- 08:34 `fix` From the second CI run: on macOS an installed app started through a path with a symlink in it (the runner's temp folder is under /var) did not find its package, because Tauri refuses such a path; it now finds the bundle's Resources by its real path (`bundle_resources`, in reva-desktop-user's new `install` module, moved out of `user` at sw-checklist's 7 functions; a user launching through a symlinked folder would have hit it too), and the lifecycle works in the real path. `check-installed.ps1` no longer stops on WebView2's log lines on stderr (PowerShell 5.1).
+
 ## 2026-11-26
 
 - 20:18 `fix` From the first CI run of the installer lifecycle: `--about` names the package (`package: NAME VERSION`, `package dir:` with "(installed)", `user folder:`), which it did not (the app line is reva-fork's version), and the checks take the user's folder from it; the lifecycle passes apt an absolute path (Linux installed nothing); the screenshot draws in the main window (`--canvas split`) with the IUP dialog over it (its line used `label` for `label[ ]w`), and on Windows minimizes the runner's console first.

@@ -39,7 +39,7 @@ use std::sync::Mutex;
 use reva_desktop_state::about::about as about_text;
 use reva_desktop_state::options::{USAGE, parse_args};
 use reva_desktop_state::state::{State, build_state};
-use reva_desktop_user::user::{about_package, installed_package};
+use reva_desktop_user::install::{about_package, bundle_resources, installed_package};
 
 mod commands;
 mod console;
@@ -57,7 +57,14 @@ fn main() -> ExitCode {
     if options.package.is_none() {
         let resources =
             tauri::utils::platform::resource_dir(context.package_info(), &tauri::Env::default());
-        options.package = installed_package(resources.ok());
+        // Tauri refuses a macOS path through a symlink (/var/... is one):
+        // then the bundle's Resources by the program's real path
+        let real = || {
+            std::env::current_exe()
+                .ok()
+                .and_then(|e| bundle_resources(&e))
+        };
+        options.package = installed_package(resources.ok()).or_else(|| installed_package(real()));
         options.installed = options.package.is_some();
     }
     if options.about {

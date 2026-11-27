@@ -20,7 +20,8 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 out="${1:-$root/target/installer-life}"
 rm -rf "$out" && mkdir -p "$out"
 out="$(cd "$out" && pwd)"
-work=$(mktemp -d)
+# the real path: macOS's temp folder is under /var, a symlink
+work=$(cd "$(mktemp -d)" && pwd -P)
 export REVA_DOCUMENTS="$work/Documents"
 mkdir -p "$REVA_DOCUMENTS"
 os=$(uname -s)

@@ -12,7 +12,9 @@ param(
     [string]$PackageVersion = "",
     [string]$RevaVersion = ""
 )
-$ErrorActionPreference = "Stop"
+# not "Stop": Windows PowerShell 5.1 makes a native program's stderr (WebView2
+# writes log lines there) a terminating error; the checks report failures
+$ErrorActionPreference = "Continue"
 if (-not $RevaVersion) {
     $v = Join-Path $PSScriptRoot "..\VERSION"
     if (Test-Path $v) { $RevaVersion = (Get-Content $v -Raw).Trim() }
