@@ -86,3 +86,21 @@ fn an_installed_package_needs_its_manifest() {
     assert_eq!(installed_package(None), None);
     fs::remove_dir_all(res).unwrap();
 }
+
+#[test]
+fn about_names_the_package_and_the_user_folder() {
+    use reva_desktop_user::user::about_package;
+    let pkg = temp("about");
+    fs::write(
+        pkg.join("reva-package.json"),
+        r#"{"name": "Demo", "about": {"version": "1.0.1"}}"#,
+    )
+    .unwrap();
+    let own = about_package(&pkg, false, None);
+    assert!(own.starts_with("package: Demo 1.0.1\n"), "{own}");
+    assert!(own.contains("user folder: (the package's own)"), "{own}");
+    let mine = pkg.join("mine");
+    let given = about_package(&pkg, true, Some(&mine));
+    assert!(given.contains("(installed)") && given.contains(&mine.display().to_string()));
+    fs::remove_dir_all(pkg).unwrap();
+}

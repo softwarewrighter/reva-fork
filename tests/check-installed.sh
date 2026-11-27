@@ -66,17 +66,19 @@ if [[ "$(uname)" == Darwin ]]; then
 fi
 
 about=$("$app" --about 2>/dev/null || true)
+sed 's/^/     /' <<<"$about"
 check "--about: reva-fork $revaversion" "vm: reva-fork $revaversion" "$about"
-[[ -z "$pkgversion" ]] || check "--about: the package's version $pkgversion" " $pkgversion" "$(head -1 <<<"$about")"
-
+[[ -z "$pkgversion" ]] || check "--about: the package's version $pkgversion" "$pkgversion" "$(grep '^package: ' <<<"$about" || true)"
+check "--about: the package is the installed one" "(installed)" "$about"
+# the user's folder, as the app names it (under $REVA_DOCUMENTS)
+user=$(sed -n 's/^user folder: //p' <<<"$about" | tr -d '\r')
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) [[ -z "$user" ]] || user=$(cygpath -u "$user") ;; esac
 fresh=1
-[[ -n "$(find "$docs" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)" ]] && fresh=0
+[[ -d "$user" ]] && fresh=0
 out=$(run -e '1 2 + .' -e version -e bye)
 check "starts and evaluates" "3 " "$out"
 check "version: reva-fork and its commit" "Commit:" "$out"
-
-user=$(find "$docs" -mindepth 1 -maxdepth 1 -type d | head -1)
-yes_no "made the user's folder under Documents (${user##*/})" test -n "$user"
+yes_no "made the user's folder ($user)" test -n "$user" -a -d "$user"
 # on a fresh folder, what the first start made there are the seed files
 if [[ $fresh == 1 ]]; then
     seeds=0

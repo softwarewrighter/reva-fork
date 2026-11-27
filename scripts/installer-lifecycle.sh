@@ -19,6 +19,7 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 out="${1:-$root/target/installer-life}"
 rm -rf "$out" && mkdir -p "$out"
+out="$(cd "$out" && pwd)"
 work=$(mktemp -d)
 export REVA_DOCUMENTS="$work/Documents"
 mkdir -p "$REVA_DOCUMENTS"
@@ -71,17 +72,19 @@ uninstall() {
 
 screenshot() { # app, file: the app with an IUP dialog and turtle drawing open
     local app="$1" shot="$2"
-    local forth='needs ui/gui with~ ~ui dialog[ " Installed: an IUP dialog" label ]d " Reva Demo check" title show
-needs turtle/fractals 4 koch-demo'
+    # the drawing in the main window (--canvas split), the dialog over it
+    local forth='needs turtle/fractals 4 koch-demo  needs ui/gui with~ ~ui  dialog[ " Installed: an IUP dialog" label[ ]w ]d " Reva Demo check" title show'
     case "$os" in
         Linux)
             xvfb-run -a -s "-screen 0 1440x900x24" bash -c '
-                "$1" -e "$2" & pid=$!; sleep 10; import -window root "$3"; kill $pid' _ "$app" "$forth" "$shot" ;;
+                "$1" --canvas split -e "$2" & pid=$!; sleep 10; import -window root "$3"; kill $pid' _ "$app" "$forth" "$shot" ;;
         Darwin)
-            "$app" -e "$forth" & local pid=$!
+            "$app" --canvas split -e "$forth" & local pid=$!
             sleep 10; screencapture -x "$shot" || true; kill $pid ;;
         Windows)
-            "$app" -e "$forth" & local pid=$!
+            # the runner's own console would cover the app
+            powershell -NoProfile -Command "(New-Object -ComObject Shell.Application).MinimizeAll()" || true
+            "$app" --canvas split -e "$forth" & local pid=$!
             sleep 10
             powershell -NoProfile -Command "Add-Type -AssemblyName System.Windows.Forms,System.Drawing;
                 \$b = [System.Windows.Forms.SystemInformation]::VirtualScreen;
@@ -103,6 +106,7 @@ app=$(install "$v1")
 "$root/tests/check-installed.sh" "$app" 1.0.0 || fail=1
 screenshot "$app" "$out/screenshot-$os-1.0.0.png" || true
 user="$REVA_DOCUMENTS/Reva Demo"
+mkdir -p "$user"    # a missing folder is already a FAIL above; go on to the rest
 echo "the user's own" > "$user/mine.txt"
 echo "my notes" > "$user/notes.txt"
 

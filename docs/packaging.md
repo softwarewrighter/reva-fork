@@ -215,7 +215,9 @@ never touches a user's real folder. It checks:
 
 - the package is installed (and on Windows `sqlite3.dll` next to the app);
 - macOS: the signature (ad-hoc) verifies;
-- `--about` shows reva-fork's version and the package's;
+- `--about` shows reva-fork's version and, for a package, its name and
+  version, where it is installed and the user's folder (`package:`,
+  `package dir:`, `user folder:`);
 - the app starts and evaluates, and `version` shows reva-fork's commit;
 - the user's folder is made under Documents, and on a fresh folder the
   seed files are copied from the package;
