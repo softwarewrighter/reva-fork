@@ -13,6 +13,7 @@ version, `chore` bookkeeping (saga records, branch syncs).
 
 ## 2026-11-27
 
+- 12:54 `docs` docs/packaging.md: each OS's installer results from CI run 46052033087 (all checks pass on Linux, macOS and Windows; Linux's screenshot is black, Xvfb's capture missing WebKitGTK's drawing).
 - 10:24 `fix` `tests/check-installed.ps1` escapes the double quotes in the Forth lines it passes (Windows PowerShell 5.1 drops them, so `" /check-written.txt" creat` arrived broken; the third CI run's only failures).
 - 08:34 `fix` From the second CI run: on macOS an installed app started through a path with a symlink in it (the runner's temp folder is under /var) did not find its package, because Tauri refuses such a path; it now finds the bundle's Resources by its real path (`bundle_resources`, in reva-desktop-user's new `install` module, moved out of `user` at sw-checklist's 7 functions; a user launching through a symlinked folder would have hit it too), and the lifecycle works in the real path. `check-installed.ps1` no longer stops on WebView2's log lines on stderr (PowerShell 5.1).
 

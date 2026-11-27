@@ -241,6 +241,18 @@ runs it on all three:
    are kept;
 5. uninstall: the app is gone, the user's folder is still there.
 
+**Results** (CI run 46052033087, 2026-11-27, reva-fork 2026.1121.0):
+
+| OS | install | checks (1.0.0, then 1.0.1 over it) | upgrade keeps the user's files | uninstall keeps the user's folder | screenshot |
+|---|---|---|---|---|---|
+| Linux (ubuntu-latest) | `.deb` with apt | all pass | yes | yes | black: Xvfb's capture misses what WebKitGTK draws (to look into) |
+| macOS (macos-latest, arm64) | `.dmg` mounted, app copied | all pass, ad-hoc signature verifies | yes | yes | the app, the IUP dialog, the turtle drawing; footer "Reva Demo 1.0.0 on reva-fork 2026.1121.0" |
+| Windows (windows-latest) | `setup.exe /S`, per user | all pass, the `.ps1` too, without the build's `sqlite3.dll` on PATH | yes | yes | the app, the IUP dialog, the turtle drawing |
+
+Found and fixed on the way: an app started through a symlinked path on
+macOS lost its package (Tauri refuses such a path; it now finds its
+bundle by the real path), and `--about` did not name the package.
+
 The installers and screenshots are the CI run's artifacts
 (`installers-<OS>`). Not checked automatically in the installed app:
 IUP and CD pixels (the browser page's pixel test, `cd-pixels.mjs`,
